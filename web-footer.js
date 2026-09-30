@@ -1,3 +1,4 @@
+/* hg-version 2026-09-30-2003 */
 (() => {
   "use strict";
 
@@ -293,6 +294,121 @@
       subtree: true,
       characterData: true
     });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})();
+
+/* HOME CATEGORY ROW: scroll buttons (website only, desktop widths >= 960px).
+   The row (.hg-cat-icon-grid, set up in global-footer-1.js) is a swipe/trackpad scroller; mouse-only users had no way
+   to move it. Adds one button at the left end and one at the right end. Buttons are placed and scroll PHYSICALLY
+   (left button always moves the row left, right button right), so they stay correct in Arabic/RTL too.
+   Buttons are hidden on mobile widths and when the row doesn't overflow; a button dims when that end is reached.
+   The Vue-owned row itself is never moved or rewrapped - buttons are added next to it and re-added if Vue re-renders. */
+(() => {
+  "use strict";
+  if (window.__hgCatNav) return;
+  window.__hgCatNav = true;
+
+  const STYLE_ID = "hg-catnav-style";
+  const CHEV_L = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CHEV_R = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function addStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    const st = document.createElement("style");
+    st.id = STYLE_ID;
+    /* matches the "More stores near you" arrows: 36px circle, 1px Opus border, Satin Deep Black chevron.
+       left/right are physical on purpose (see note above). */
+    st.textContent =
+      ".hg-catnav-host{position:relative !important;}" +
+      ".hg-catnav-btn{display:none;position:absolute;z-index:5;width:36px;height:36px;margin-top:-18px;padding:0;align-items:center;justify-content:center;border-radius:50%;border:1px solid #CCCBE3;background:#F7F7FB;color:#1B2023;box-shadow:0 2px 8px rgba(27,32,35,.12);cursor:pointer;transition:opacity .15s ease,border-color .15s ease;}" +
+      ".hg-catnav-btn:hover{border-color:#1B2023;}" +
+      ".hg-catnav-btn[data-dir='left']{left:-6px;}" +
+      ".hg-catnav-btn[data-dir='right']{right:-6px;}" +
+      ".hg-catnav-btn.is-end{opacity:.35;cursor:default;}" +
+      ".hg-catnav-btn.is-end:hover{border-color:#CCCBE3;}" +
+      "@media (min-width:960px){.hg-catnav-host.hg-catnav-on>.hg-catnav-btn{display:flex;}}";
+    document.head.appendChild(st);
+  }
+
+  function edges(grid) {
+    const max = grid.scrollWidth - grid.clientWidth;
+    const sl = grid.scrollLeft;
+    const rtl = getComputedStyle(grid).direction === "rtl";
+    /* Chrome/Safari/Firefox: RTL scrollLeft runs 0 .. -max */
+    const fromLeft = rtl ? sl + max : sl;
+    return { max: max, atLeft: fromLeft <= 1, atRight: fromLeft >= max - 1 };
+  }
+
+  function update(grid) {
+    const host = grid.parentElement;
+    if (!host) return;
+    const btns = host.querySelectorAll(":scope > .hg-catnav-btn");
+    if (btns.length !== 2) return;
+    const e = edges(grid);
+    host.classList.toggle("hg-catnav-on", e.max > 2);
+    const mid = grid.offsetTop + grid.offsetHeight / 2;
+    btns.forEach((b) => {
+      b.style.top = mid + "px";
+      const end = b.dataset.dir === "left" ? e.atLeft : e.atRight;
+      b.classList.toggle("is-end", end);
+      b.setAttribute("aria-disabled", end ? "true" : "false");
+    });
+  }
+
+  function makeBtn(dir, grid) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "hg-catnav-btn";
+    b.dataset.dir = dir;
+    b.setAttribute("aria-label", dir === "left" ? "Scroll categories left" : "Scroll categories right");
+    b.innerHTML = dir === "left" ? CHEV_L : CHEV_R;
+    b.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const step = Math.max(120, grid.clientWidth * 0.8);
+      grid.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
+    });
+    return b;
+  }
+
+  function attach() {
+    const grid = document.querySelector("#ProductCategories .hg-cat-icon-grid") || document.querySelector(".hg-cat-icon-grid");
+    if (!grid || !grid.parentElement) return;
+    addStyle();
+    const host = grid.parentElement;
+    host.classList.add("hg-catnav-host");
+    if (host.querySelectorAll(":scope > .hg-catnav-btn").length !== 2) {
+      host.querySelectorAll(":scope > .hg-catnav-btn").forEach((b) => b.remove());
+      host.appendChild(makeBtn("left", grid));
+      host.appendChild(makeBtn("right", grid));
+    }
+    if (!grid.__hgCatNavBound) {
+      grid.__hgCatNavBound = true;
+      grid.addEventListener("scroll", () => update(grid), { passive: true });
+    }
+    update(grid);
+  }
+
+  let queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      try { attach(); } catch (e) { /* never break the page */ }
+    });
+  }
+
+  function start() {
+    schedule();
+    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("resize", schedule, { passive: true });
   }
 
   if (document.readyState === "loading") {
