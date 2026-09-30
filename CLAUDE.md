@@ -11,7 +11,7 @@ Files and where they load:
 - app-footer.js: App Custom HTML Footer
 - Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
 - reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
-- backups/: read-only.
+- backups/: read-only history. Never edit or delete a file in it; only add new ones (see BACKUPS).
 
 Rules:
 - Edit the existing file in place. Never append a second copy of code, and never create a new file unless I ask, because duplicate code creates competing observers and selectors.
@@ -26,6 +26,14 @@ Rules:
 3. Tell me: what changed (old value -> new value), which file, and "Wait 5-10 minutes, then Ctrl+F5."
 4. If I say "revert", undo the last commit and push.
 Never rewrite a whole file for a small change. Edit only what I asked for.
+
+# BACKUPS (every change, no exceptions)
+Before editing any live file, save an untouched copy of it in backups/ first, then make the change.
+- Name: backups/<file-name-without-extension>__YYYY-MM-DD_HHMM__before_<short-change-name>.<ext>
+  Example: backups/global-footer-1__2026-09-30_1545__before_hero-polish.js
+- One copy per file you are about to change. Commit the backup in the same commit as the change.
+- When I ask how something looked before, or to go back to it, use these backups (and git history) first. Never guess.
+- To roll back a file: copy its backup over the live file, commit, push.
 
 # REPLY STYLE
 Short. No intro, no recap, no explanations unless I ask or something critical comes up. Format: what changed, file, what I should see. Then stop.
