@@ -2619,21 +2619,20 @@
       "#hg-cat-rows{margin:4px 0 38px;background:#FFFFFF;font-family:inherit;color:#1B2023;}" +
       "#hg-cat-rows *{box-sizing:border-box;}" +
       "#hg-cat-rows a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;}" +
-      "#hg-cat-rows .hg-hero{position:relative;overflow:hidden;margin:4px 16px 30px;padding:20px 18px 17px;min-height:148px;border-radius:20px;background:linear-gradient(120deg,#4D22C7 0%,#6C35E8 58%,#8640FC 100%);color:#fff;box-shadow:0 2px 6px rgba(73,35,178,.05);}" +
-      "#hg-cat-rows .hg-hero:before{content:'';position:absolute;width:150px;height:150px;border-radius:50%;right:-52px;top:-58px;background:#FF7A2F;opacity:.95;}" +
-      "#hg-cat-rows .hg-hero:after{content:'';position:absolute;width:118px;height:118px;border-radius:50%;right:36px;bottom:-76px;background:#ACE4AA;opacity:.95;}" +
-      "#hg-cat-rows .hg-hero-copy{position:relative;z-index:2;max-width:72%;}" +
-      "#hg-cat-rows .hg-hero-k{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;opacity:.78;margin-bottom:6px;}" +
-      "#hg-cat-rows .hg-hero-h{font-size:24px;font-weight:800;line-height:1.05;letter-spacing:-.035em;max-width:260px;}" +
-      "#hg-cat-rows .hg-hero-p{font-size:12.5px;line-height:1.35;margin-top:7px;opacity:.88;max-width:250px;}" +
-      "#hg-cat-rows .hg-hero-links{position:relative;z-index:3;display:flex;gap:7px;overflow-x:auto;margin-top:16px;padding-bottom:1px;scrollbar-width:none;}" +
+      /* HOME HERO: solid Blue Magenta, Opus text, outline chips, straight logo tiles (grid: copy + chips, tiles beside on desktop / below on mobile) */
+      "#hg-cat-rows .hg-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:'copy' 'links' 'logos';margin:4px 16px 30px;padding:24px;border-radius:24px;background:#5A29DE;color:#CCCBE3;box-shadow:none;}" +
+      "#hg-cat-rows .hg-hero-copy{grid-area:copy;max-width:560px;}" +
+      "#hg-cat-rows .hg-hero-k{font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#CCCBE3;margin-bottom:10px;}" +
+      "#hg-cat-rows .hg-hero-h{font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:#CCCBE3;}" +
+      "#hg-cat-rows .hg-hero-p{font-size:16px;font-weight:400;line-height:1.4;margin-top:12px;color:#CCCBE3;}" +
+      "html[dir='rtl'] #hg-cat-rows :is(.hg-hero-k,.hg-hero-h){letter-spacing:0;}" +
+      "#hg-cat-rows .hg-hero-links{grid-area:links;display:flex;gap:12px;overflow-x:auto;margin-top:20px;padding-bottom:1px;scrollbar-width:none;}" +
       "#hg-cat-rows .hg-hero-links::-webkit-scrollbar{display:none;}" +
-      "#hg-cat-rows .hg-hero-link{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);font-size:11px;font-weight:700;color:#fff;backdrop-filter:blur(8px);}" +
-      "#hg-cat-rows .hg-hero-logos{position:absolute;z-index:2;right:14px;top:38px;width:98px;height:78px;}" +
-      "#hg-cat-rows .hg-hero-logo{position:absolute;width:46px;height:46px;border-radius:13px;background:#fff center/contain no-repeat;border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 4px rgba(20,12,49,.06);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){right:39px;top:0;transform:rotate(-7deg);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(2){right:0;top:18px;transform:rotate(7deg);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){right:42px;top:38px;transform:rotate(4deg);}" +
+      "#hg-cat-rows .hg-hero-link{flex:0 0 auto;display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:999px;background:transparent;border:1px solid #CCCBE3;font-size:14px;font-weight:500;line-height:1;color:#CCCBE3;transition:background-color .15s,color .15s;}" +
+      "@media (hover:hover){#hg-cat-rows .hg-hero-link:hover{background:#CCCBE3;color:#1B2023;}}" +
+      "#hg-cat-rows .hg-hero-logos{grid-area:logos;display:flex;gap:12px;margin-top:20px;}" +
+      "#hg-cat-rows .hg-hero-logo{display:block;flex:0 0 auto;width:60px;height:60px;padding:8px;border-radius:16px;background:#CCCBE3;}" +
+      "#hg-cat-rows .hg-hero-logo i{display:block;width:100%;height:100%;border-radius:10px;background:center/contain no-repeat;}" +
       "#hg-cat-rows .hg-sec{margin:0 0 32px;}" +
       "#hg-cat-rows .hg-sec.soft{padding:2px 0 4px;background:#FFFFFF;}" +
       "#hg-cat-rows .hg-sec-h{display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-bottom:12px;gap:12px;}" +
@@ -2688,17 +2687,13 @@
       "@media (min-width:960px){" +
       ".hg-cat-icon-grid{grid-template-rows:none !important;grid-auto-columns:98px !important;gap:12px !important;}" +
       "#hg-cat-rows{max-width:1240px;margin:16px auto 50px;padding:0 20px;}" +
-      "#hg-cat-rows .hg-hero{margin:10px 0 36px;min-height:180px;padding:28px 30px 24px;border-radius:22px;}" +
-      "#hg-cat-rows .hg-hero-copy{max-width:58%;}" +
-      "#hg-cat-rows .hg-hero-h{font-size:32px;max-width:430px;}" +
-      "#hg-cat-rows .hg-hero-p{font-size:14px;max-width:430px;}" +
-      "#hg-cat-rows .hg-hero-links{margin-top:20px;}" +
-      "#hg-cat-rows .hg-hero-link{font-size:12px;padding:8px 13px;}" +
-      "#hg-cat-rows .hg-hero-logos{right:60px;top:42px;width:190px;height:110px;}" +
-      "#hg-cat-rows .hg-hero-logo{width:70px;height:70px;border-radius:19px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){right:82px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(2){right:10px;top:24px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){right:92px;top:62px;}" +
+      "#hg-cat-rows .hg-hero{margin:10px 0 36px;padding:48px;grid-template-columns:minmax(0,560px) auto;grid-template-rows:1fr auto auto 1fr;grid-template-areas:'. logos' 'copy logos' 'links logos' '. logos';justify-content:space-between;column-gap:48px;}" +
+      "#hg-cat-rows .hg-hero-h{font-size:44px;}" +
+      "#hg-cat-rows .hg-hero-p{font-size:18px;}" +
+      "#hg-cat-rows .hg-hero-links{margin-top:24px;}" +
+      "#hg-cat-rows .hg-hero-logos{display:grid;grid-template-columns:repeat(2,104px);gap:16px;margin-top:0;align-self:center;}" +
+      "#hg-cat-rows .hg-hero-logo{width:104px;height:104px;padding:14px;border-radius:20px;}" +
+      "#hg-cat-rows .hg-hero-logo i{border-radius:12px;}" +
       "#hg-cat-rows .hg-sec,#hg-cat-rows .hg-cat-block{margin-bottom:40px;}" +
       "#hg-cat-rows .hg-sec.soft{border-radius:0;padding:6px 0 8px;}" +
       "#hg-cat-rows .hg-sec-h{padding:0 4px;margin-bottom:16px;}" +
@@ -2818,8 +2813,8 @@
       const sig=key+"|"+merchants.length+"|"+cats.map(c=>c.id).join(",")+"|v92";let box=document.getElementById("hg-cat-rows");
       if(box&&box.dataset.sig===sig&&box.nextElementSibling===nearby){nearby.classList.add("hg-cat-hidden");hgHideRec();return;}hgCatStyle();
       const catMap={};allCats.forEach(c=>{catMap[c.id]=c.name;});const inCat=c=>merchants.filter(m=>(m.merchant_category_ids||[]).includes(c.id));const allLink=c=>'<a class="hg-all" href="'+hgCategoryHref(c,loc)+'">'+(ar?"&#1593;&#1585;&#1590; &#1575;&#1604;&#1603;&#1604;":"See all")+"</a>";
-      const heroLogos=merchants.filter(m=>hgImg(m,"logo")).slice(0,3);let html='<section class="hg-hero"><div class="hg-hero-copy"><div class="hg-hero-k">'+(ar?"&#1607;&#1575;&#1610;&#1576;&#1585;&#1602;&#1608; &#1575;&#1604;&#1576;&#1581;&#1585;&#1610;&#1606;":"HYPERGO BAHRAIN")+'</div><div class="hg-hero-h">'+(ar?"&#1603;&#1604; &#1605;&#1575; &#1578;&#1581;&#1578;&#1575;&#1580;&#1607;&#1548; &#1601;&#1610; &#1605;&#1603;&#1575;&#1606; &#1608;&#1575;&#1581;&#1583;":"Bahrain, all in one place.")+'</div><div class="hg-hero-p">'+(ar?"&#1571;&#1603;&#1604;&#1548; &#1608;&#1585;&#1583;&#1548; &#1573;&#1604;&#1603;&#1578;&#1585;&#1608;&#1606;&#1610;&#1575;&#1578;&#1548; &#1589;&#1610;&#1583;&#1604;&#1610;&#1575;&#1578; &#1608;&#1571;&#1603;&#1579;&#1585;.":"Food, flowers, tech, pharmacy and more.")+'</div></div>';
-      if(heroLogos.length)html+='<div class="hg-hero-logos">'+heroLogos.map(m=>'<span class="hg-hero-logo" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></span>').join("")+"</div>";
+      const heroLogos=merchants.filter(m=>hgImg(m,"logo")).slice(0,4);let html='<section class="hg-hero"><div class="hg-hero-copy"><div class="hg-hero-k">'+(ar?"&#1607;&#1575;&#1610;&#1576;&#1585;&#1602;&#1608; &#1575;&#1604;&#1576;&#1581;&#1585;&#1610;&#1606;":"HYPERGO BAHRAIN")+'</div><div class="hg-hero-h">'+(ar?"&#1603;&#1604; &#1605;&#1575; &#1578;&#1581;&#1578;&#1575;&#1580;&#1607;&#1548; &#1601;&#1610; &#1605;&#1603;&#1575;&#1606; &#1608;&#1575;&#1581;&#1583;":"Bahrain, all in one place.")+'</div><div class="hg-hero-p">'+(ar?"&#1571;&#1603;&#1604;&#1548; &#1608;&#1585;&#1583;&#1548; &#1573;&#1604;&#1603;&#1578;&#1585;&#1608;&#1606;&#1610;&#1575;&#1578;&#1548; &#1589;&#1610;&#1583;&#1604;&#1610;&#1575;&#1578; &#1608;&#1571;&#1603;&#1579;&#1585;.":"Food, flowers, tech, pharmacy and more.")+'</div></div>';
+      if(heroLogos.length)html+='<div class="hg-hero-logos">'+heroLogos.map(m=>'<span class="hg-hero-logo"><i style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></i></span>').join("")+"</div>";
       if(cats.length)html+='<div class="hg-hero-links">'+cats.slice(0,4).map(c=>'<a class="hg-hero-link" href="'+hgCategoryHref(c,loc)+'">'+hgEsc(c.name)+"</a>").join("")+"</div>";html+="</section>";
       let featured=merchants.filter(m=>(m.is_featured||m.is_sponsored)&&hgImg(m,"cover"));if(featured.length<4){const used=new Set(featured.map(m=>m._id||m.id));merchants.filter(m=>hgImg(m,"cover")&&!used.has(m._id||m.id)).slice(0,6-featured.length).forEach(m=>featured.push(m));}featured=featured.slice(0,6);
       if(featured.length){html+='<section class="hg-sec"><div class="hg-sec-h"><div><div class="hg-sec-title">'+(ar?"&#1575;&#1603;&#1578;&#1588;&#1601; &#1575;&#1604;&#1602;&#1585;&#1610;&#1576; &#1605;&#1606;&#1603;":"Discover near you")+'</div><div class="hg-sec-sub">'+(ar?"&#1605;&#1578;&#1575;&#1580;&#1585; &#1605;&#1582;&#1578;&#1575;&#1585;&#1577; &#1576;&#1575;&#1604;&#1602;&#1585;&#1576; &#1605;&#1606;&#1603;":"A quick look at stores around you")+'</div></div></div><div class="hg-feature-rail">';featured.forEach(m=>{const meta=hgMetaHtml(m,ar);html+='<a class="hg-feature" href="'+hgMerchantHref(m,loc)+'"><div class="hg-feature-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"cover"))+'&quot;)"></div><div class="hg-feature-body"><div class="hg-feature-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+"</div></a>";});html+="</div></section>";}
