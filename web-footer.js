@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2012 */
+/* hg-version 2026-09-30-2021 */
 (() => {
   "use strict";
 
@@ -461,4 +461,90 @@
   } else {
     start();
   }
+})();
+
+/* PAGE-LOAD VEIL: release (website only). The veil itself lives in web-head.css so it is on screen from the first paint.
+   This lifts it once the page is really showing our design:
+   - Hyperzod has rendered the page,
+   - global-footer.css has loaded and global-footer-1.js has run (its #hg-extra-style exists),
+   - on the home page with a delivery location set: the new home sections (#hg-cat-rows) are built
+     (they replace the default "Nearby merchants" list and need the store list from the API first).
+   Then it waits for the restyle pass to settle, fades the veil out and removes it.
+   Hard cap: the veil is always lifted after 8s, so a slow or failed request never leaves visitors stuck. */
+(() => {
+  "use strict";
+  if (window.__hgWebVeil) return;
+  window.__hgWebVeil = true;
+
+  const root = document.documentElement;
+  const CAP_MS = 8000;
+  const started = Date.now();
+  let done = false;
+  let mo = null;
+
+  function globalCssReady() {
+    const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).filter((l) => /global-footer\.css/.test(l.href || ""));
+    if (!links.length) return !!document.getElementById("hg-extra-style");
+    return links.every((l) => { try { return !!l.sheet; } catch (e) { return true; } });
+  }
+
+  function pageRendered() {
+    return !!document.querySelector('#app [id^="MultiVendor"], #app [class*="scheme-"], #MainFooter');
+  }
+
+  function homeReady() {
+    if (!document.getElementById("MultiVendorHome") || !document.getElementById("NearbyMerchants")) return true;
+    if (document.getElementById("hg-cat-rows")) return true;
+    /* no delivery location yet -> the new sections are never built, so don't wait for them */
+    try {
+      const app = document.querySelector("#app");
+      const store = app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$store;
+      const u = store && store.state && store.state.Utils;
+      const loc = u && u.selectedLocation && u.selectedLocation.location;
+      return !(loc && typeof loc.latitude === "number");
+    } catch (e) { return true; }
+  }
+
+  function ready() {
+    return pageRendered() && globalCssReady() && !!document.getElementById("hg-extra-style") && homeReady();
+  }
+
+  function release() {
+    if (done) return;
+    done = true;
+    if (mo) mo.disconnect();
+    /* let the global restyle pass (60ms debounce) finish before fading */
+    setTimeout(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        root.classList.add("hg-web-ready");
+        setTimeout(() => root.classList.add("hg-web-done"), 300);
+      }));
+    }, 120);
+  }
+
+  let queued = false;
+  function check() {
+    if (done) return;
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      try {
+        if (ready() || Date.now() - started > CAP_MS) release();
+      } catch (e) { release(); }
+    });
+  }
+
+  function start() {
+    check();
+    mo = new MutationObserver(check);
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+    window.addEventListener("load", check);
+    setTimeout(release, CAP_MS);
+    /* stylesheets finishing don't always mutate the DOM - re-check a few times */
+    let n = 0;
+    const iv = setInterval(() => { if (done || ++n > 80) return clearInterval(iv); check(); }, 100);
+  }
+
+  start();
 })();

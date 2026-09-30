@@ -1,3 +1,4 @@
+/* hg-version 2026-09-30-2021 */
 /* ============================================================
    HYPERGO ARABIC TYPOGRAPHY
    English remains completely untouched
@@ -155,4 +156,48 @@ html:lang(ar) a {
     "IBM Plex Sans Arabic",
     Arial,
     sans-serif !important;
+}
+
+/* ============================================================
+   PAGE-LOAD VEIL (website only)
+   Hyperzod paints its own default design first; our design is applied a moment later by the footer
+   files (global-footer.css / global-footer-1.js load at the end of the page, and the home sections wait
+   for the store list from the API). This file loads in the <head>, so this veil is on screen from the
+   very first paint and hides the default design until web-footer.js marks the page ready
+   (html.hg-web-ready -> fade out, html.hg-web-done -> removed).
+   Failsafe: if the scripts never arrive, the veil fades out by itself after 10s so the site is never stuck.
+   Same look as the existing language-switch veil (white page, purple spinner).
+   ============================================================ */
+@keyframes hgBootOut { to { opacity: 0; visibility: hidden; } }
+@keyframes hgBootSpin { to { transform: rotate(360deg); } }
+
+html:not(.hg-web-done) body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147482000;
+  background: #FFFFFF;
+  animation: hgBootOut .25s ease 10s forwards;
+}
+
+html:not(.hg-web-done) body::after {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 4px solid #EDE7FF;
+  border-top-color: #5A29DE;
+  z-index: 2147482001;
+  animation: hgBootSpin .8s linear infinite, hgBootOut .25s ease 10s forwards;
+}
+
+/* ready: fade the veil out smoothly */
+html.hg-web-ready:not(.hg-web-done) body::before,
+html.hg-web-ready:not(.hg-web-done) body::after {
+  animation: hgBootOut .25s ease forwards;
 }
