@@ -11,7 +11,7 @@ Files and where they load:
 - app-footer.js: App Custom HTML Footer
 - Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
 - reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
-- backups/: read-only history. Never edit or delete a file in it; only add new ones (see BACKUPS).
+- backups/: backup copies. Add new ones, never edit or delete existing ones.
 
 Rules:
 - Edit the existing file in place. Never append a second copy of code, and never create a new file unless I ask, because duplicate code creates competing observers and selectors.
@@ -20,20 +20,31 @@ Rules:
 - If a change needs a new file or a new line in a Hyperzod box, tell me the exact line to paste and which box it goes in.
 - After every change: tell me the file changed, and that I must open GitHub Desktop, commit and click Push origin (unless you pushed it yourself). Then wait 5-10 minutes and hard refresh.
 
+# BACKUPS (every change)
+Before editing any file:
+1. Copy the file you're about to edit into backups/ with a timestamp, e.g. backups/2026-09-30_1530_global-footer-1.js. Commit that backup alone with the message "backup before: <what I asked for>".
+2. Then make the change in a separate commit.
+3. In your final reply, tell me the backup file name.
+If I say "restore" or "go back", restore the file from the newest matching backup, or from git history if needed, and show me what changed. The repo is the complete source of truth, so old versions are never lost.
+
+# NEVER DO THESE
+- Never browse or open my live website or app, and never use browser tools. Work only from files in this repo.
+- Never ask me to paste the contents of a Hyperzod box. Each box only holds the loader lines listed in HOW THIS REPO WORKS.
+- If a change doesn't show up for me, don't rewrite the code again. First check: was it pushed, and could the app or browser be serving a cached copy of the file? Tell me which is likely, and give me one test to confirm.
+
+# STATUS WORDS
+Use exactly these:
+- "Committed": saved on my PC only
+- "Pushed": on GitHub, only after I confirm it
+- "Live": I confirmed it on the site or app
+Never say "fixed" or "live" unless I confirmed it.
+
 # WORKFLOW
 1. I describe a change. You edit the right file(s) directly.
 2. Check the syntax, then commit with a clear message and push to main. I don't need to approve each push.
 3. Tell me: what changed (old value -> new value), which file, and "Wait 5-10 minutes, then Ctrl+F5."
 4. If I say "revert", undo the last commit and push.
 Never rewrite a whole file for a small change. Edit only what I asked for.
-
-# BACKUPS (every change, no exceptions)
-Before editing any live file, save an untouched copy of it in backups/ first, then make the change.
-- Name: backups/<file-name-without-extension>__YYYY-MM-DD_HHMM__before_<short-change-name>.<ext>
-  Example: backups/global-footer-1__2026-09-30_1545__before_hero-polish.js
-- One copy per file you are about to change. Commit the backup in the same commit as the change.
-- When I ask how something looked before, or to go back to it, use these backups (and git history) first. Never guess.
-- To roll back a file: copy its backup over the live file, commit, push.
 
 # REPLY STYLE
 Short. No intro, no recap, no explanations unless I ask or something critical comes up. Format: what changed, file, what I should see. Then stop.
