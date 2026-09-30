@@ -2608,11 +2608,11 @@
   let hgCatSig = "";
   function hgCatStyle() {
     const current = document.getElementById("hg-cat-style");
-    if (current && current.dataset.v === "92") return;
+    if (current && current.dataset.v === "93") return;
     if (current) current.remove();
     const st = document.createElement("style");
     st.id = "hg-cat-style";
-    st.dataset.v = "92";
+    st.dataset.v = "93";
     st.textContent =
       "#NearbyMerchants.hg-cat-hidden{display:none !important;}" +
       ".hg-rec-hidden{display:none !important;}" +
@@ -2624,9 +2624,9 @@
       "@keyframes hgHeroIn{from{opacity:0}to{opacity:1}}" +
       "#hg-cat-rows .hg-hero{position:relative;overflow:hidden;isolation:isolate;margin:4px 16px 30px;padding:24px 20px 20px;min-height:168px;border-radius:20px;background:radial-gradient(120% 90% at 20% -10%,rgba(204,203,227,.10),rgba(204,203,227,0) 55%),linear-gradient(115deg,rgba(204,203,227,0) 34%,rgba(204,203,227,.07) 46%,rgba(204,203,227,.13) 50%,rgba(204,203,227,.07) 54%,rgba(204,203,227,0) 66%),linear-gradient(90deg,rgba(34,14,110,.42) 0%,rgba(34,14,110,0) 38%),linear-gradient(120deg,#4D22C7 0%,#5A29DE 45%,#6C35E8 72%,#8640FC 100%);color:#EEEDF7;box-shadow:inset 0 0 0 1px rgba(204,203,227,.20),inset 0 1px 0 rgba(238,237,247,.28),0 12px 28px -14px rgba(52,22,150,.55);animation:hgHeroIn .7s ease-out both;}" +
       "html[dir='rtl'] #hg-cat-rows .hg-hero{background:radial-gradient(120% 90% at 80% -10%,rgba(204,203,227,.10),rgba(204,203,227,0) 55%),linear-gradient(245deg,rgba(204,203,227,0) 34%,rgba(204,203,227,.07) 46%,rgba(204,203,227,.13) 50%,rgba(204,203,227,.07) 54%,rgba(204,203,227,0) 66%),linear-gradient(270deg,rgba(34,14,110,.42) 0%,rgba(34,14,110,0) 38%),linear-gradient(240deg,#4D22C7 0%,#5A29DE 45%,#6C35E8 72%,#8640FC 100%);}" +
-      "#hg-cat-rows .hg-hero:before{content:'';position:absolute;z-index:0;width:124px;height:124px;border-radius:50%;inset-inline-end:-46px;top:-52px;background:radial-gradient(circle at 32% 30%,#FF9A5E 0%,#FF6A2A 45%,#FF4000 78%,#E23A04 100%);box-shadow:inset 0 -8px 18px rgba(120,20,0,.22),0 0 40px rgba(255,64,0,.22);opacity:.92;}" +
-      "#hg-cat-rows .hg-hero:after{content:'';position:absolute;z-index:0;width:100px;height:100px;border-radius:50%;inset-inline-end:44px;bottom:-62px;background:radial-gradient(circle at 36% 28%,#D6F4D4 0%,#ACE4AA 50%,#8DD08B 100%);box-shadow:inset 0 6px 14px rgba(238,237,247,.18),0 0 36px rgba(172,228,170,.22);opacity:.9;}" +
-      "#hg-cat-rows .hg-hero-copy{position:relative;z-index:2;max-width:64%;}" +
+      "#hg-cat-rows .hg-hero:before{content:'';position:absolute;z-index:0;width:100px;height:100px;border-radius:50%;inset-inline-end:-42px;top:-50px;background:radial-gradient(circle at 32% 30%,#FF9A5E 0%,#FF6A2A 45%,#FF4000 78%,#E23A04 100%);box-shadow:inset 0 -8px 18px rgba(120,20,0,.22),0 0 40px rgba(255,64,0,.22);opacity:.92;}" +
+      "#hg-cat-rows .hg-hero:after{content:'';position:absolute;z-index:0;width:100px;height:100px;border-radius:50%;inset-inline-end:24px;bottom:-62px;background:radial-gradient(circle at 36% 28%,#D6F4D4 0%,#ACE4AA 50%,#8DD08B 100%);box-shadow:inset 0 6px 14px rgba(238,237,247,.18),0 0 36px rgba(172,228,170,.22);opacity:.9;}" +
+      "#hg-cat-rows .hg-hero-copy{position:relative;z-index:2;max-width:86%;}" +
       "#hg-cat-rows .hg-hero-k{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CCCBE3;margin-bottom:8px;}" +
       "#hg-cat-rows .hg-hero-h{font-size:28px;font-weight:700;line-height:1.08;letter-spacing:-.025em;color:#EEEDF7;max-width:280px;text-shadow:0 1px 1px rgba(27,14,80,.28),0 8px 24px rgba(27,14,80,.30);}" +
       "#hg-cat-rows .hg-hero-p{font-size:14px;line-height:1.4;margin-top:10px;color:#CCCBE3;max-width:260px;}" +
@@ -2635,12 +2635,12 @@
       "#hg-cat-rows .hg-hero-links::-webkit-scrollbar{display:none;}" +
       "#hg-cat-rows .hg-hero-link{flex:0 0 auto;display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:rgba(204,203,227,.16);border:1px solid rgba(204,203,227,.42);box-shadow:inset 0 1px 0 rgba(238,237,247,.20);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);font-size:12.5px;font-weight:600;line-height:1;color:#EEEDF7;transition:background-color .2s ease,border-color .2s ease,transform .2s ease;}" +
       "@media (hover:hover){#hg-cat-rows .hg-hero-link:hover{background:rgba(204,203,227,.30);border-color:rgba(238,237,247,.65);transform:translateY(-1px);}}" +
-      "#hg-cat-rows .hg-hero-logos{position:absolute;z-index:2;inset-inline-end:18px;top:26px;width:94px;height:94px;}" +
-      "#hg-cat-rows .hg-hero-logos:before{content:'';position:absolute;z-index:-1;inset:-55%;border-radius:50%;background:radial-gradient(closest-side,rgba(214,212,240,.38),rgba(204,203,227,.12) 55%,rgba(204,203,227,0));pointer-events:none;}" +
-      "#hg-cat-rows .hg-hero-logo{position:absolute;width:50px;height:50px;padding:6px;border-radius:14px;background-color:#EFEEF7;background-origin:content-box;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid rgba(250,250,254,.75);box-shadow:inset 0 1px 0 rgba(250,250,254,.95),0 1px 2px rgba(27,14,80,.18),0 6px 14px -4px rgba(27,14,80,.30),0 16px 30px -12px rgba(27,14,80,.40);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){inset-inline-end:44px;top:0;transform:rotate(-3deg);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(2){inset-inline-end:0;top:22px;transform:rotate(3deg);z-index:1;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){inset-inline-end:44px;top:44px;transform:rotate(2deg);}" +
+      "#hg-cat-rows .hg-hero-logos{position:relative;z-index:2;display:flex;align-items:center;width:max-content;height:64px;margin-top:18px;padding-inline-start:2px;}" +
+      "#hg-cat-rows .hg-hero-logos:before{content:'';position:absolute;z-index:-1;inset:-70% -35%;border-radius:50%;background:radial-gradient(closest-side,rgba(214,212,240,.38),rgba(204,203,227,.12) 55%,rgba(204,203,227,0));pointer-events:none;}" +
+      "#hg-cat-rows .hg-hero-logo{position:relative;flex:0 0 auto;width:54px;height:54px;padding:6px;border-radius:14px;background-color:#EFEEF7;background-origin:content-box;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid rgba(250,250,254,.75);box-shadow:inset 0 1px 0 rgba(250,250,254,.95),0 1px 2px rgba(27,14,80,.18),0 6px 14px -4px rgba(27,14,80,.30),0 16px 30px -12px rgba(27,14,80,.40);}" +
+      "#hg-cat-rows .hg-hero-logo:nth-child(1){transform:rotate(-3deg);}" +
+      "#hg-cat-rows .hg-hero-logo:nth-child(2){margin-inline-start:-6px;transform:rotate(3deg);z-index:1;}" +
+      "#hg-cat-rows .hg-hero-logo:nth-child(3){margin-inline-start:-6px;transform:rotate(-2deg);}" +
       "#hg-cat-rows .hg-sec{margin:0 0 32px;}" +
       "#hg-cat-rows .hg-sec.soft{padding:2px 0 4px;background:#FFFFFF;}" +
       "#hg-cat-rows .hg-sec-h{display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-bottom:12px;gap:12px;}" +
@@ -2704,11 +2704,12 @@
       "#hg-cat-rows .hg-hero-p{font-size:17px;margin-top:12px;max-width:480px;}" +
       "#hg-cat-rows .hg-hero-links{gap:10px;margin-top:26px;}" +
       "#hg-cat-rows .hg-hero-link{height:42px;padding:0 18px;font-size:14px;}" +
-      "#hg-cat-rows .hg-hero-logos{inset-inline-end:90px;top:50%;margin-top:-76px;width:152px;height:152px;}" +
-      "#hg-cat-rows .hg-hero-logo{width:80px;height:80px;padding:10px;border-radius:20px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){inset-inline-end:72px;top:0;}" +
+      "#hg-cat-rows .hg-hero-logos{position:absolute;display:block;padding:0;inset-inline-end:90px;top:50%;margin-top:-76px;width:152px;height:152px;}" +
+      "#hg-cat-rows .hg-hero-logos:before{inset:-55%;}" +
+      "#hg-cat-rows .hg-hero-logo{position:absolute;margin:0;width:80px;height:80px;padding:10px;border-radius:20px;}" +
+      "#hg-cat-rows .hg-hero-logo:nth-child(1){inset-inline-end:72px;top:0;transform:rotate(-3deg);}" +
       "#hg-cat-rows .hg-hero-logo:nth-child(2){inset-inline-end:0;top:36px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){inset-inline-end:72px;top:72px;}" +
+      "#hg-cat-rows .hg-hero-logo:nth-child(3){inset-inline-end:72px;top:72px;transform:rotate(2deg);}" +
       "#hg-cat-rows .hg-sec,#hg-cat-rows .hg-cat-block{margin-bottom:40px;}" +
       "#hg-cat-rows .hg-sec.soft{border-radius:0;padding:6px 0 8px;}" +
       "#hg-cat-rows .hg-sec-h{padding:0 4px;margin-bottom:16px;}" +
@@ -2829,8 +2830,8 @@
       if(box&&box.dataset.sig===sig&&box.nextElementSibling===nearby){nearby.classList.add("hg-cat-hidden");hgHideRec();return;}hgCatStyle();
       const catMap={};allCats.forEach(c=>{catMap[c.id]=c.name;});const inCat=c=>merchants.filter(m=>(m.merchant_category_ids||[]).includes(c.id));const allLink=c=>'<a class="hg-all" href="'+hgCategoryHref(c,loc)+'">'+(ar?"&#1593;&#1585;&#1590; &#1575;&#1604;&#1603;&#1604;":"See all")+"</a>";
       const heroLogos=merchants.filter(m=>hgImg(m,"logo")).slice(0,3);let html='<section class="hg-hero"><div class="hg-hero-copy"><div class="hg-hero-k">'+(ar?"&#1607;&#1575;&#1610;&#1576;&#1585;&#1602;&#1608; &#1575;&#1604;&#1576;&#1581;&#1585;&#1610;&#1606;":"HYPERGO BAHRAIN")+'</div><div class="hg-hero-h">'+(ar?"&#1603;&#1604; &#1605;&#1575; &#1578;&#1581;&#1578;&#1575;&#1580;&#1607;&#1548; &#1601;&#1610; &#1605;&#1603;&#1575;&#1606; &#1608;&#1575;&#1581;&#1583;":"Bahrain, all in one place.")+'</div><div class="hg-hero-p">'+(ar?"&#1571;&#1603;&#1604;&#1548; &#1608;&#1585;&#1583;&#1548; &#1573;&#1604;&#1603;&#1578;&#1585;&#1608;&#1606;&#1610;&#1575;&#1578;&#1548; &#1589;&#1610;&#1583;&#1604;&#1610;&#1575;&#1578; &#1608;&#1571;&#1603;&#1579;&#1585;.":"Food, flowers, tech, pharmacy and more.")+'</div></div>';
-      if(heroLogos.length)html+='<div class="hg-hero-logos">'+heroLogos.map(m=>'<span class="hg-hero-logo" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></span>').join("")+"</div>";
-      if(cats.length)html+='<div class="hg-hero-links">'+cats.slice(0,4).map(c=>'<a class="hg-hero-link" href="'+hgCategoryHref(c,loc)+'">'+hgEsc(c.name)+"</a>").join("")+"</div>";html+="</section>";
+      if(cats.length)html+='<div class="hg-hero-links">'+cats.slice(0,4).map(c=>'<a class="hg-hero-link" href="'+hgCategoryHref(c,loc)+'">'+hgEsc(c.name)+"</a>").join("")+"</div>";
+      if(heroLogos.length)html+='<div class="hg-hero-logos">'+heroLogos.map(m=>'<span class="hg-hero-logo" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></span>').join("")+"</div>";html+="</section>";
       let featured=merchants.filter(m=>(m.is_featured||m.is_sponsored)&&hgImg(m,"cover"));if(featured.length<4){const used=new Set(featured.map(m=>m._id||m.id));merchants.filter(m=>hgImg(m,"cover")&&!used.has(m._id||m.id)).slice(0,6-featured.length).forEach(m=>featured.push(m));}featured=featured.slice(0,6);
       if(featured.length){html+='<section class="hg-sec"><div class="hg-sec-h"><div><div class="hg-sec-title">'+(ar?"&#1575;&#1603;&#1578;&#1588;&#1601; &#1575;&#1604;&#1602;&#1585;&#1610;&#1576; &#1605;&#1606;&#1603;":"Discover near you")+'</div><div class="hg-sec-sub">'+(ar?"&#1605;&#1578;&#1575;&#1580;&#1585; &#1605;&#1582;&#1578;&#1575;&#1585;&#1577; &#1576;&#1575;&#1604;&#1602;&#1585;&#1576; &#1605;&#1606;&#1603;":"A quick look at stores around you")+'</div></div></div><div class="hg-feature-rail">';featured.forEach(m=>{const meta=hgMetaHtml(m,ar);html+='<a class="hg-feature" href="'+hgMerchantHref(m,loc)+'"><div class="hg-feature-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"cover"))+'&quot;)"></div><div class="hg-feature-body"><div class="hg-feature-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+"</div></a>";});html+="</div></section>";}
       const brands=merchants.filter(m=>hgImg(m,"logo")).slice(0,14);if(brands.length){html+='<section class="hg-sec soft"><div class="hg-sec-h"><div><div class="hg-sec-title">'+(ar?"&#1605;&#1578;&#1575;&#1580;&#1585; &#1602;&#1585;&#1610;&#1576;&#1577; &#1605;&#1606;&#1603;":"Brands near you")+'</div><div class="hg-sec-sub">'+(ar?"&#1578;&#1589;&#1601;&#1581; &#1576;&#1587;&#1585;&#1593;&#1577; &#1581;&#1587;&#1576; &#1575;&#1604;&#1605;&#1578;&#1580;&#1585;":"Jump straight into a store")+'</div></div></div><div class="hg-brand-grid">';brands.forEach(m=>{html+='<a class="hg-brand" href="'+hgMerchantHref(m,loc)+'"><div class="hg-brand-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></div><div class="hg-brand-name">'+hgEsc(m.name)+"</div></a>";});html+="</div></section>";}
