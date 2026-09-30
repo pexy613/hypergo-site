@@ -39,6 +39,19 @@ Use exactly these:
 - "Live": I confirmed it on the site or app
 Never say "fixed" or "live" unless I confirmed it.
 
+# SCOPE (every change)
+- Do only what the request says. If it says keep the current look, adjust it, don't redesign it. Never add design decisions I didn't ask for (colors, sizes, effects, layouts).
+- If a request mentions a screenshot and none is attached, stop and ask me for it. Don't guess what it looks like.
+- If the request is unclear or could be read two ways, ask me one question before editing.
+- Before finishing, list exactly what you changed and what you deliberately left untouched.
+
+# VERSION CHECK (every change)
+- Put a marker comment on line 1 of every file you change, like /* hg-version 2026-09-30-1930 */, and update it each time.
+- In your final reply, give me the public link of each changed file (https://pexy613.github.io/hypergo-site/<file name>) and the exact marker to look for.
+- The test: after I push, I open the link and press Ctrl+F for the marker. If it isn't there, the change isn't pushed or deployed yet, and the code isn't the problem.
+- Don't call anything done until I confirm the marker shows.
+- For the app: once the marker shows, fully close and reopen the app. If it still looks wrong, tell me it's a cache issue and don't edit the code again.
+
 # WORKFLOW
 1. I describe a change. You edit the right file(s) directly.
 2. Check the syntax, then commit with a clear message and push to main. I don't need to approve each push.
