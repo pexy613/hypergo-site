@@ -1,6 +1,6 @@
-/* hg-version 2026-09-30-2104 */
+/* hg-version 2026-09-30-2123 */
 (function(){
-  const V="98";
+  const V="99";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const img=m=>{const x=m&&m.images,l=x&&x.logo&&(x.logo.image_url||x.logo.image_thumb_url),c=x&&x.cover&&(x.cover.image_url||x.cover.image_thumb_url);return l||c||"";};
@@ -39,8 +39,15 @@
   function ensureDiscovery(root){
     const input=searchInput(root),q=input?input.value.trim():"";
     let box=document.getElementById("hg-search-discovery");
-    /* Keep the same scroll containers and tiles while typing/clearing a query. */
-    if(q){if(box)box.hidden=true;return;}
+    /* Keep the same scroll containers and tiles while typing/clearing a query.
+       v99 (app): the discovery sections stay on screen while typing, until the loading state or results replace them,
+       so the page no longer flashes blank. */
+    if(q){
+      const app=document.documentElement.classList.contains("hg-native-app");
+      const replaced=root.classList.contains("hg-loading")||root.classList.contains("hg-has-results");
+      if(box)box.hidden=!app||replaced;
+      return;
+    }
     const native=root.querySelector(".recent-searches");if(!native)return;
     if(!box){box=document.createElement("div");box.id="hg-search-discovery";native.insertAdjacentElement("afterend",box);}
     box.hidden=false;
@@ -99,11 +106,22 @@
     if(header){const h=header.getBoundingClientRect().height;if(h>40)html.style.setProperty("--hg-search-header-height",h+"px");}
     const sh=strip?strip.getBoundingClientRect().height:0;
     html.style.setProperty("--hg-search-status-height",sh+"px");
+    /* v99: while pinned, "left:0" is measured from whatever box contains the header. In the app that box is the search
+       canvas, which sits 16px off-screen (gutter fix), so the header landed 16px left with a white gap on the right.
+       Measure where it actually is and shift it back so its left edge is the screen edge. Converges in one pass. */
+    if(header&&html.classList.contains("hg-search-input-active")&&getComputedStyle(header).position==="fixed"){
+      const r=header.getBoundingClientRect(),cur=parseFloat(html.style.getPropertyValue("--hg-search-fixed-shift"))||0,curV=parseFloat(html.style.getPropertyValue("--hg-search-fixed-vshift"))||0;
+      if(Math.abs(r.left)>0.5)html.style.setProperty("--hg-search-fixed-shift",(cur-r.left)+"px");
+      /* same for the vertical position: the header must sit right under the status strip */
+      if(Math.abs(r.top-sh)>0.5)html.style.setProperty("--hg-search-fixed-vshift",(curV+(sh-r.top))+"px");
+    }
   }
   function setSearchFocus(root,on){
     if(!window.matchMedia("(max-width:959px)").matches)return;
     if(root&&on)measureSearchHeader(root);
     document.documentElement.classList.toggle("hg-search-input-active",!!on);
+    /* the pinned position only exists after the class is on: measure again right away so any offset is corrected before paint */
+    if(root&&on&&window.requestAnimationFrame)requestAnimationFrame(()=>{measureSearchHeader(root);requestAnimationFrame(()=>measureSearchHeader(root));});
   }
   /* Results text that has no class of its own: the "5+ Results" count, "Not Rated", and a "0" delivery time. */
   function tagResultsText(root){
@@ -156,6 +174,11 @@
     resetSearchPosition(root);
     const input=searchInput(root),q=input?input.value.trim():"";
     if(root.classList.contains("hg-has-query")!==!!q)root.classList.toggle("hg-has-query",!!q);
+    /* v99: what the results area currently holds - real results, or Hyperzod's loading skeleton */
+    const hasResults=!!root.querySelector(".scheme-global-search-product-group,.tab-item-merchant,.hg-search-count");
+    const loading=!hasResults&&!!q&&!!root.querySelector(".v-skeleton-loader,[class*='hz-skeleton']");
+    if(root.classList.contains("hg-has-results")!==hasResults)root.classList.toggle("hg-has-results",hasResults);
+    if(root.classList.contains("hg-loading")!==loading)root.classList.toggle("hg-loading",loading);
     ensureCart(root);ensureDiscovery(root);tagResults(root);
     try{tagResultsText(root);}catch(e){}
     if(document.documentElement.classList.contains("hg-search-input-active"))measureSearchHeader(root);

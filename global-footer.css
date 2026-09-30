@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2104 */
+/* hg-version 2026-09-30-2123 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -1684,5 +1684,72 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
     font-size:18px!important;
     width:18px!important;
     height:18px!important;
+  }
+}
+
+/* v95 — APP SEARCH (html.hg-native-app is set by app-footer.js, so nothing here reaches the website):
+   pinned header keeps the screen's left edge, no field loading bar, discovery stays while typing,
+   loading placeholders shaped like the result groups. */
+@keyframes hgSkPulse{from{opacity:.55}to{opacity:1}}
+@media (max-width:959.98px){
+  /* pinned header: shift measured by global-footer-2.js (0 when the containing box is the viewport) */
+  html.hg-native-app.hg-search-input-active body #app #MultiVendorSearch .scheme-global-search-mobile-header{
+    left:var(--hg-search-fixed-shift,0px)!important;
+    top:calc(var(--hg-search-status-height,var(--native-status-bar-height,0px)) + var(--hg-search-fixed-vshift,0px))!important;
+    right:auto!important;
+    width:100vw!important;
+  }
+  /* Hyperzod's loading line inside the text field */
+  html.hg-native-app body #app #MultiVendorSearch .mobile-search-input .v-field__loader,
+  html.hg-native-app body #app #MultiVendorSearch .mobile-search-input .v-progress-linear{
+    display:none!important;
+  }
+  /* while typing, the native category grid stays until loading or results replace it */
+  html.hg-native-app body #app #MultiVendorSearch.hg-has-query:not(.hg-loading):not(.hg-has-results) .recent-searches{
+    display:block!important;
+  }
+  /* loading: hide the generic skeleton, show a placeholder shaped like a result group (title, meta, row of 136px tiles) */
+  html.hg-native-app body #app #MultiVendorSearch.hg-loading .v-skeleton-loader,
+  html.hg-native-app body #app #MultiVendorSearch.hg-loading [class*="hz-skeleton"]{
+    visibility:hidden!important;
+    height:0!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  html.hg-native-app body #app #MultiVendorSearch.hg-loading::after{
+    content:"";
+    display:block;
+    height:560px;
+    margin:14px 16px 0;
+    background:
+      linear-gradient(#EEECEF,#EEECEF) 0 0 / 90px 14px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 36px / 170px 18px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 62px / 120px 12px no-repeat,
+      repeating-linear-gradient(90deg,#EEECEF 0 136px,transparent 136px 148px) 0 90px / 100% 136px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 236px / 110px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 258px / 60px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 316px / 170px 18px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 342px / 120px 12px no-repeat,
+      repeating-linear-gradient(90deg,#EEECEF 0 136px,transparent 136px 148px) 0 370px / 100% 136px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 516px / 110px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 0 538px / 60px 13px no-repeat;
+    animation:hgSkPulse 1.2s ease-in-out infinite alternate;
+    opacity:.85;
+  }
+  html[dir="rtl"].hg-native-app body #app #MultiVendorSearch.hg-loading::after{
+    background:
+      linear-gradient(#EEECEF,#EEECEF) 100% 0 / 90px 14px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 36px / 170px 18px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 62px / 120px 12px no-repeat,
+      repeating-linear-gradient(270deg,#EEECEF 0 136px,transparent 136px 148px) 0 90px / 100% 136px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 236px / 110px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 258px / 60px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 316px / 170px 18px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 342px / 120px 12px no-repeat,
+      repeating-linear-gradient(270deg,#EEECEF 0 136px,transparent 136px 148px) 0 370px / 100% 136px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 516px / 110px 13px no-repeat,
+      linear-gradient(#EEECEF,#EEECEF) 100% 538px / 60px 13px no-repeat;
   }
 }

@@ -1,3 +1,9 @@
+/* hg-version 2026-09-30-2123 */
+/* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
+(function () {
+  try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
 (function () {
 
   function applyAppBackground() {
