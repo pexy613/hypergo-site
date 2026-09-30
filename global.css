@@ -1,0 +1,1 @@
+body::before { content: "TEST"; position: fixed; top: 0; left: 0; right: 0; height: 40px; background: #FF4000; z-index: 2147483647; text-align: center; line-height: 40px; }
