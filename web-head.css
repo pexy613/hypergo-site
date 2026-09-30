@@ -1,0 +1,158 @@
+/* ============================================================
+   HYPERGO ARABIC TYPOGRAPHY
+   English remains completely untouched
+   ============================================================ */
+
+html:lang(ar) body,
+html:lang(ar) button,
+html:lang(ar) input,
+html:lang(ar) textarea,
+html:lang(ar) select {
+  font-family:
+    "IBM Plex Sans Arabic",
+    Arial,
+    sans-serif !important;
+
+  font-weight: 500;
+}
+
+
+/* Arabic website text */
+
+html:lang(ar) body * {
+  font-family:
+    "IBM Plex Sans Arabic",
+    Arial,
+    sans-serif !important;
+}
+
+
+/* Main headings */
+
+html:lang(ar) h1,
+html:lang(ar) h2 {
+  font-weight: 700 !important;
+
+  letter-spacing: 0 !important;
+}
+
+
+/* Smaller headings */
+
+html:lang(ar) h3,
+html:lang(ar) h4,
+html:lang(ar) h5,
+html:lang(ar) h6 {
+  font-weight: 600 !important;
+
+  letter-spacing: 0 !important;
+}
+
+
+/* Buttons / navigation */
+
+html:lang(ar) button,
+html:lang(ar) a {
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   CUSTOM HYPERGO LANDING
+   ============================================================ */
+
+.hg-landing:lang(ar),
+.hg-landing:lang(ar) * {
+  font-family:
+    "IBM Plex Sans Arabic",
+    Arial,
+    sans-serif !important;
+}
+
+
+/* Hero */
+
+.hg-landing:lang(ar) .hg-hero-title,
+.hg-landing:lang(ar) .hg-hero-title .hg-ar {
+  font-weight: 700 !important;
+
+  letter-spacing: -0.015em !important;
+
+  line-height: 1.12 !important;
+}
+
+
+.hg-landing:lang(ar) .hg-hero-title strong {
+  font-weight: 700 !important;
+}
+
+
+/* Section headings */
+
+.hg-landing:lang(ar) .hg-section-title,
+.hg-landing:lang(ar) .hg-section-title .hg-ar {
+  font-weight: 700 !important;
+
+  letter-spacing: -0.01em !important;
+
+  line-height: 1.2 !important;
+}
+
+
+/* Seller heading */
+
+.hg-landing:lang(ar) .hg-seller-copy h2,
+.hg-landing:lang(ar) .hg-seller-copy h2 .hg-ar {
+  font-weight: 700 !important;
+
+  letter-spacing: -0.01em !important;
+
+  line-height: 1.18 !important;
+}
+
+
+/* Body copy */
+
+.hg-landing:lang(ar) p,
+.hg-landing:lang(ar) .hg-hero-description {
+  font-weight: 500 !important;
+
+  letter-spacing: 0 !important;
+}
+
+
+/* Buttons */
+
+.hg-landing:lang(ar) .hg-button,
+.hg-landing:lang(ar) .hg-button-text {
+  font-weight: 600 !important;
+
+  letter-spacing: 0 !important;
+}
+
+
+/* Category strip */
+
+.hg-landing:lang(ar) .hg-strip-item {
+  font-weight: 600 !important;
+
+  letter-spacing: 0 !important;
+}
+
+
+/* Store names */
+
+.hg-landing:lang(ar) .hg-store-info strong {
+  font-weight: 600 !important;
+}
+
+
+/* Footer Arabic */
+
+#MainFooter:lang(ar),
+#MainFooter:lang(ar) * {
+  font-family:
+    "IBM Plex Sans Arabic",
+    Arial,
+    sans-serif !important;
+}
