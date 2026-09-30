@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2021 */
+/* hg-version 2026-09-30-2035 */
 /* ============================================================
    HYPERGO ARABIC TYPOGRAPHY
    English remains completely untouched
@@ -200,4 +200,131 @@ html:not(.hg-web-done) body::after {
 html.hg-web-ready:not(.hg-web-done) body::before,
 html.hg-web-ready:not(.hg-web-done) body::after {
   animation: hgBootOut .25s ease forwards;
+}
+
+/* ============================================================
+   HOME: REPLACED SECTIONS ARE NEVER SHOWN IN THEIR DEFAULT FORM (website only)
+   Pure CSS, loaded in the <head>, so it applies from the very first paint - no waiting for JavaScript.
+
+   1) Category row (#ProductCategories grid). Default Hyperzod shows it as a wrapping grid of huge images;
+      our code turns it into the small 2-row swipe row (desktop: one row). The final grid layout and tile
+      style are applied here immediately (same values as global-footer-1.js), and the tiles stay invisible
+      until our code has placed them (it adds .hg-cat-icon-grid), so the row keeps its final size and
+      nothing jumps.
+   2) "Nearby Merchants" (#NearbyMerchants). Our code replaces it with the new home sections
+      (#hg-cat-rows: banner, Discover near you, ...) once the store list arrives, then hides it
+      (.hg-cat-hidden). Until then its default heading and empty boxes stay invisible and a neutral
+      placeholder (banner + card row shapes) holds the space where the new sections will appear.
+      web-footer.js adds html.hg-native-nearby when the new sections can't be built (no delivery location),
+      which shows the default list again. Failsafe: if our scripts never load, the default list comes
+      back by itself after 12s.
+   ============================================================ */
+@keyframes hgNativeBack { to { visibility: visible; } }
+
+/* 1) category row: final layout from the first paint */
+#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"] {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-template-columns: none !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-columns: calc((100% - 30px) / 4) !important;
+  gap: 9px 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  scroll-padding-inline: 16px !important;
+  scrollbar-width: none;
+}
+#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"]::-webkit-scrollbar { display: none; }
+#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"] > * {
+  scroll-snap-align: start;
+  border-radius: 14px !important;
+  padding: 5px 5px 6px !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+  border: 1px solid #ECE9EF !important;
+  box-shadow: 0 1px 2px rgba(27, 32, 35, .018) !important;
+}
+#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"] img { border-radius: 12px !important; }
+/* tiles invisible (space kept) until our code has put them in their final places */
+#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"]:not(.hg-cat-icon-grid) > * {
+  visibility: hidden;
+  animation: hgNativeBack 0s linear 12s forwards;
+}
+@media (min-width: 960px) {
+  #ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"] {
+    grid-template-rows: none !important;
+    grid-auto-columns: 98px !important;
+    gap: 12px !important;
+  }
+}
+
+/* 2) "Nearby Merchants": invisible, with a neutral placeholder holding the space of the new sections */
+html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden) {
+  position: relative;
+  display: flow-root; /* keeps the hidden heading's margin inside, so the placeholder starts exactly where the new sections will */
+  min-height: 600px;
+  margin: 4px 0 38px !important;
+}
+html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden) > * {
+  visibility: hidden;
+  animation: hgNativeBack 0s linear 12s forwards;
+}
+/* banner shape */
+html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  inset-inline: 16px;
+  height: 316px;
+  border-radius: 20px;
+  background: #EFEEF5;
+  animation: hgBootOut .25s ease 12s forwards;
+}
+/* section title + a row of cards */
+html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::after {
+  content: "";
+  position: absolute;
+  top: 354px;
+  inset-inline: 16px;
+  height: 214px;
+  background:
+    linear-gradient(#EFEEF5, #EFEEF5) 0 0 / 170px 20px no-repeat,
+    linear-gradient(#F4F3F8, #F4F3F8) 0 30px / 220px 12px no-repeat,
+    repeating-linear-gradient(90deg, #EFEEF5 0 158px, transparent 158px 169px) 0 60px / 100% 154px no-repeat;
+  animation: hgBootOut .25s ease 12s forwards;
+}
+html[dir="rtl"]:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::after {
+  background:
+    linear-gradient(#EFEEF5, #EFEEF5) 100% 0 / 170px 20px no-repeat,
+    linear-gradient(#F4F3F8, #F4F3F8) 100% 30px / 220px 12px no-repeat,
+    repeating-linear-gradient(270deg, #EFEEF5 0 158px, transparent 158px 169px) 0 60px / 100% 154px no-repeat;
+}
+@media (min-width: 960px) {
+  html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden) {
+    max-width: 1240px;
+    margin: 16px auto 50px !important;
+    min-height: 620px;
+  }
+  html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::before {
+    top: 10px;
+    inset-inline: 20px;
+    height: 302px;
+    border-radius: 24px;
+  }
+  html:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::after {
+    top: 348px;
+    inset-inline: 24px;
+    height: 250px;
+    background:
+      linear-gradient(#EFEEF5, #EFEEF5) 0 0 / 230px 26px no-repeat,
+      linear-gradient(#F4F3F8, #F4F3F8) 0 38px / 260px 14px no-repeat,
+      repeating-linear-gradient(90deg, #EFEEF5 0 208px, transparent 208px 219px) 0 72px / 100% 186px no-repeat;
+  }
+  html[dir="rtl"]:not(.hg-native-nearby) #MultiVendorHome #NearbyMerchants:not(.hg-cat-hidden)::after {
+    background:
+      linear-gradient(#EFEEF5, #EFEEF5) 100% 0 / 230px 26px no-repeat,
+      linear-gradient(#F4F3F8, #F4F3F8) 100% 38px / 260px 14px no-repeat,
+      repeating-linear-gradient(270deg, #EFEEF5 0 208px, transparent 208px 219px) 0 72px / 100% 186px no-repeat;
+  }
 }

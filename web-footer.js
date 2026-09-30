@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2021 */
+/* hg-version 2026-09-30-2035 */
 (() => {
   "use strict";
 
@@ -465,12 +465,14 @@
 
 /* PAGE-LOAD VEIL: release (website only). The veil itself lives in web-head.css so it is on screen from the first paint.
    This lifts it once the page is really showing our design:
-   - Hyperzod has rendered the page,
+   - Hyperzod has rendered the page and its content has stopped arriving for a moment (the page settles),
    - global-footer.css has loaded and global-footer-1.js has run (its #hg-extra-style exists),
-   - on the home page with a delivery location set: the new home sections (#hg-cat-rows) are built
-     (they replace the default "Nearby merchants" list and need the store list from the API first).
-   Then it waits for the restyle pass to settle, fades the veil out and removes it.
-   Hard cap: the veil is always lifted after 8s, so a slow or failed request never leaves visitors stuck. */
+   - on the home page: the category row has been placed by our code (.hg-cat-icon-grid) and, when a delivery
+     location is set, the new home sections (#hg-cat-rows) are built. With no location they are never built, so
+     html.hg-native-nearby is set to let the default list show (see web-head.css).
+   Hard cap: the veil is always lifted after 8s, so a slow or failed request never leaves visitors stuck.
+   (v2: v1 only checked whether "Nearby Merchants" existed yet, so the veil lifted before the home sections had even
+   been drawn; the default content then showed until our code replaced it.) */
 (() => {
   "use strict";
   if (window.__hgWebVeil) return;
@@ -478,9 +480,16 @@
 
   const root = document.documentElement;
   const CAP_MS = 8000;
+  const NATIVE_CAP_MS = 12000;
+  const QUIET_MS = 250;
   const started = Date.now();
+  let lastChange = Date.now();
   let done = false;
   let mo = null;
+
+  function isHomeRoute() {
+    return /^\/(en|ar)?\/?$/.test(location.pathname) || !!document.getElementById("MultiVendorHome");
+  }
 
   function globalCssReady() {
     const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).filter((l) => /global-footer\.css/.test(l.href || ""));
@@ -492,27 +501,37 @@
     return !!document.querySelector('#app [id^="MultiVendor"], #app [class*="scheme-"], #MainFooter');
   }
 
-  function homeReady() {
-    if (!document.getElementById("MultiVendorHome") || !document.getElementById("NearbyMerchants")) return true;
-    if (document.getElementById("hg-cat-rows")) return true;
-    /* no delivery location yet -> the new sections are never built, so don't wait for them */
+  /* true / false once the store knows; null while it doesn't yet */
+  function hasLocation() {
     try {
       const app = document.querySelector("#app");
       const store = app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$store;
       const u = store && store.state && store.state.Utils;
-      const loc = u && u.selectedLocation && u.selectedLocation.location;
-      return !(loc && typeof loc.latitude === "number");
-    } catch (e) { return true; }
+      if (!u) return null;
+      const loc = u.selectedLocation && u.selectedLocation.location;
+      return !!(loc && typeof loc.latitude === "number");
+    } catch (e) { return null; }
+  }
+
+  function homeReady() {
+    if (!isHomeRoute()) return true;
+    if (!document.getElementById("MultiVendorHome")) return false;
+    const grid = document.querySelector('#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"]');
+    if (grid && !grid.classList.contains("hg-cat-icon-grid")) return false;
+    if (document.getElementById("hg-cat-rows")) return true;
+    const has = hasLocation();
+    if (has === false) { root.classList.add("hg-native-nearby"); return !!document.getElementById("NearbyMerchants"); }
+    return false;
   }
 
   function ready() {
-    return pageRendered() && globalCssReady() && !!document.getElementById("hg-extra-style") && homeReady();
+    return pageRendered() && globalCssReady() && !!document.getElementById("hg-extra-style") &&
+      homeReady() && Date.now() - lastChange >= QUIET_MS;
   }
 
   function release() {
     if (done) return;
     done = true;
-    if (mo) mo.disconnect();
     /* let the global restyle pass (60ms debounce) finish before fading */
     setTimeout(() => {
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -524,8 +543,7 @@
 
   let queued = false;
   function check() {
-    if (done) return;
-    if (queued) return;
+    if (done || queued) return;
     queued = true;
     requestAnimationFrame(() => {
       queued = false;
@@ -536,14 +554,29 @@
   }
 
   function start() {
-    check();
-    mo = new MutationObserver(check);
+    mo = new MutationObserver((recs) => {
+      for (const r of recs) { if (r.type === "childList" && r.target.closest && r.target.closest("#app")) { lastChange = Date.now(); break; } }
+      check();
+    });
     mo.observe(document.documentElement, { childList: true, subtree: true });
     window.addEventListener("load", check);
     setTimeout(release, CAP_MS);
-    /* stylesheets finishing don't always mutate the DOM - re-check a few times */
-    let n = 0;
-    const iv = setInterval(() => { if (done || ++n > 80) return clearInterval(iv); check(); }, 100);
+    /* stylesheets finishing and quiet periods don't mutate the DOM - keep re-checking */
+    const iv = setInterval(() => {
+      if (done) {
+        /* after the veil: if the new home sections still aren't there, stop holding the default list back */
+        if (Date.now() - started > NATIVE_CAP_MS || document.getElementById("hg-cat-rows")) {
+          if (!document.getElementById("hg-cat-rows") && isHomeRoute()) root.classList.add("hg-native-nearby");
+          clearInterval(iv);
+          if (mo) mo.disconnect();
+        } else if (hasLocation() === false) {
+          root.classList.add("hg-native-nearby");
+        }
+        return;
+      }
+      check();
+    }, 100);
+    check();
   }
 
   start();
