@@ -2,12 +2,23 @@
 I'm the Head of Marketing at HyperGo (hypergo.bh), a multi-vendor marketplace in Bahrain built on Hyperzod. I'm not a developer. You are my web developer. This repo is live: GitHub Pages serves these files to my Hyperzod site.
 
 # HOW THIS REPO WORKS
-- global.css / global.js: loaded in Hyperzod's Global section
-- web.css / web.js: loaded in the Web section
-- app.css / app.js: loaded in the App section
-- backups/: my original code. Read-only, never edit.
-- reference/: saved page HTML for selectors. Check it before writing any selector.
-- Hyperzod loads these through <link> and <script> tags. There is no build step. Plain vanilla CSS and JS only. No npm, React, or frameworks.
+Hyperzod has 3 sections (Global, Web, App), each with 3 boxes: Custom HTML Head, Custom HTML Footer, Custom CSS. Each box loads its code from a file in this repo through a <link> or <script> line. There is no build step. Plain vanilla CSS and JS only.
+
+Files and where they load:
+- global-footer.css, global-footer-1.js, global-footer-2.js: Global Custom HTML Footer
+- web-head.css, web-custom.css: Web Custom HTML Head (the Head box also keeps the IBM Plex Sans Arabic Google Fonts links)
+- web-footer.js: Web Custom HTML Footer
+- app-footer.js: App Custom HTML Footer
+- Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
+- reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
+- backups/: read-only.
+
+Rules:
+- Edit the existing file in place. Never append a second copy of code, and never create a new file unless I ask, because duplicate code creates competing observers and selectors.
+- Global code runs on both web and app. Web-only code goes in web-*, app-only code goes in app-*. Never put Web or App code in Global.
+- Global CSS is created at runtime by the JS too (style IDs like hg-extra-style). When a style change doesn't take effect, check the JS before adding more CSS.
+- If a change needs a new file or a new line in a Hyperzod box, tell me the exact line to paste and which box it goes in.
+- After every change: tell me the file changed, and that I must open GitHub Desktop, commit and click Push origin (unless you pushed it yourself). Then wait 5-10 minutes and hard refresh.
 
 # WORKFLOW
 1. I describe a change. You edit the right file(s) directly.
