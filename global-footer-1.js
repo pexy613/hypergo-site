@@ -1,3 +1,4 @@
+/* hg-version 2026-09-30-2104 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -2356,10 +2357,18 @@
 
   /* search page (English): friendlier section title */
   /* purple status strip + purple bar on the search page (mobile/app) */
+  /* v94: Hyperzod rebuilds #MultiVendorSearch when a query is submitted. For a few frames the element is gone, which used
+     to drop html.hg-search-page -> the app's status strip lost its purple and got it back (visible flicker). The flag now
+     survives a short gap (600ms) unless another page root has taken over. */
+  let hgSearchSeenAt = 0;
   function syncSearchClass() {
     const el = document.getElementById("MultiVendorSearch");
-    const on = !!el && isVisible(el) && window.matchMedia("(max-width: 959.98px)").matches;
+    const mobile = window.matchMedia("(max-width: 959.98px)").matches;
+    let on = !!el && isVisible(el) && mobile;
     const cl = document.documentElement.classList;
+    if (on) hgSearchSeenAt = Date.now();
+    else if (mobile && cl.contains("hg-search-page") && Date.now() - hgSearchSeenAt < 600 &&
+      !document.querySelector("#MultiVendorHome, .scheme-merchant-page, .scheme-profile-page, .scheme-merchant-search-page")) on = true;
     if (cl.contains("hg-search-page") !== on) cl.toggle("hg-search-page", on);
   }
 

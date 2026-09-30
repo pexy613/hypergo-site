@@ -1,5 +1,6 @@
+/* hg-version 2026-09-30-2104 */
 (function(){
-  const V="97";
+  const V="98";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const img=m=>{const x=m&&m.images,l=x&&x.logo&&(x.logo.image_url||x.logo.image_thumb_url),c=x&&x.cover&&(x.cover.image_url||x.cover.image_thumb_url);return l||c||"";};
@@ -90,13 +91,31 @@
   }
   const bound=new WeakSet(),composing=new WeakSet();
   let autoSearchTimer=null,openedRoot=null;
+  /* v98: the two measured sizes used to live on #MultiVendorSearch. Hyperzod rebuilds that element when a query is
+     submitted, so they vanished mid-typing and the pinned header snapped under the status bar (76px fallback, top:0).
+     They now live on <html> and are re-measured on every run() while the field is active. */
+  function measureSearchHeader(root){
+    const html=document.documentElement,header=root&&root.querySelector(".scheme-global-search-mobile-header"),strip=document.querySelector(".native-status-bar-bg");
+    if(header){const h=header.getBoundingClientRect().height;if(h>40)html.style.setProperty("--hg-search-header-height",h+"px");}
+    const sh=strip?strip.getBoundingClientRect().height:0;
+    html.style.setProperty("--hg-search-status-height",sh+"px");
+  }
   function setSearchFocus(root,on){
     if(!window.matchMedia("(max-width:959px)").matches)return;
+    if(root&&on)measureSearchHeader(root);
     document.documentElement.classList.toggle("hg-search-input-active",!!on);
-    if(!root)return;
-    const header=root.querySelector(".scheme-global-search-mobile-header"),strip=document.querySelector(".native-status-bar-bg");
-    if(header)root.style.setProperty("--hg-search-header-height",header.getBoundingClientRect().height+"px");
-    root.style.setProperty("--hg-search-status-height",(strip?strip.getBoundingClientRect().height:0)+"px");
+  }
+  /* Results text that has no class of its own: the "5+ Results" count, "Not Rated", and a "0" delivery time. */
+  function tagResultsText(root){
+    const ar=(document.documentElement.lang||"").startsWith("ar");
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
+    while((node=walker.nextNode())){
+      const v=node.nodeValue.trim();if(!v)continue;
+      const el=node.parentElement;if(!el||el.closest("#hg-search-discovery,.scheme-global-search-mobile-header,.v-tab,input,textarea"))continue;
+      if(/^\d+\+?\s*(results?)$/i.test(v)||/^\d+\+?\s*(نتيجة|نتائج)$/.test(v)){if(!el.classList.contains("hg-search-count"))el.classList.add("hg-search-count");continue;}
+      if(/^not rated$/i.test(v)||/^غير مقيم/.test(v)){const r=el.closest("#SearchedMerchantRating")||el;if(!r.classList.contains("hg-search-norating"))r.classList.add("hg-search-norating");continue;}
+      if(/^0\s*(mins?|min|دقيقة|دقائق)?$/i.test(v)&&el.closest("#SearchedMerchantAverageTimeAndDistance")){node.nodeValue="";const dot=el.querySelector("div");if(dot&&!dot.classList.contains("hg-search-nodot"))dot.classList.add("hg-search-nodot");}
+    }
   }
   function keepSearchVisible(root){
     if(!window.matchMedia("(max-width:959px)").matches)return;
@@ -138,6 +157,8 @@
     const input=searchInput(root),q=input?input.value.trim():"";
     if(root.classList.contains("hg-has-query")!==!!q)root.classList.toggle("hg-has-query",!!q);
     ensureCart(root);ensureDiscovery(root);tagResults(root);
+    try{tagResultsText(root);}catch(e){}
+    if(document.documentElement.classList.contains("hg-search-input-active"))measureSearchHeader(root);
     if(input&&!bound.has(input)){
       bound.add(input);
       input.addEventListener("focus",()=>{const current=document.getElementById('MultiVendorSearch');if(current){setSearchFocus(current,true);keepSearchVisible(current);}});
