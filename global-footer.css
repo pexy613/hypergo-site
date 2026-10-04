@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2123 */
+/* hg-version 2026-10-04-1957 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -1751,5 +1751,17 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
       repeating-linear-gradient(270deg,#EEECEF 0 136px,transparent 136px 148px) 0 370px / 100% 136px no-repeat,
       linear-gradient(#EEECEF,#EEECEF) 100% 516px / 110px 13px no-repeat,
       linear-gradient(#EEECEF,#EEECEF) 100% 538px / 60px 13px no-repeat;
+  }
+}
+
+/* v104 — APP SEARCH: the header's own container never collapses.
+   The sticky header can only travel inside its parent box. When the first letter is typed, the search home inside that
+   box is removed and the box shrank to about 208px (112px of it bottom padding), leaving the header room to sit at 20px
+   instead of under the status bar at 59px. Giving that box the same minimum height #MultiVendorSearch already has
+   (one screen) keeps room for the header at all times, so it never moves. Nothing reads or corrects the header. */
+@media (max-width:959.98px){
+  html.hg-native-app body #app #MultiVendorSearch :has(> .scheme-global-search-mobile-header){
+    min-height:100vh;
+    box-sizing:border-box;
   }
 }
