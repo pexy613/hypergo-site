@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-1942 */
+/* hg-version 2026-10-04-2014 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -166,11 +166,93 @@
     return out;
   }
 
-  function tick() {
+  /* v3: width, direction and ancestor lines for the Arabic search shift. Read-only: only getBoundingClientRect,
+     getComputedStyle, attributes, scrollWidth/clientWidth and scroll positions are read. The panel itself is skipped. */
+  var scanText = "", lastScan = 0;
+  function n1(v) { return (typeof v === "number" && isFinite(v)) ? v.toFixed(1) : "n/a"; }
+  function px(v) { return n1(v) + "px"; }
+  function box(el) {
+    if (!el || !el.getBoundingClientRect) return "n/a";
+    var r = el.getBoundingClientRect();
+    return "L " + px(r.left) + " R " + px(r.right) + " W " + px(r.width);
+  }
+  function mine(el) { return !!(panel && el && (el === panel || panel.contains(el))); }
+  function extraLines(nowMs) {
+    var out = [], de = document.documentElement, body = document.body, hdr = null;
+    try { hdr = document.querySelector(HDR); } catch (e) {}
+    /* 1. language and direction */
+    try {
+      var ha = function (el, a) { var v = el.getAttribute(a); return (v === null || v === "") ? "none" : v; };
+      out.push("lang/dir: html lang=" + ha(de, "lang") + " dir=" + ha(de, "dir") + " comp=" + getComputedStyle(de).direction +
+        " | body dir=" + (body ? ha(body, "dir") : "n/a") + " comp=" + (body ? getComputedStyle(body).direction : "n/a"));
+    } catch (e) { out.push("lang/dir: n/a"); }
+    /* 2. screen widths */
+    try {
+      out.push("widths: inner " + px(window.innerWidth) + " client " + px(de.clientWidth) +
+        " vv " + (window.visualViewport ? px(window.visualViewport.width) : "n/a") + " screen " + px(window.screen ? screen.width : NaN));
+    } catch (e) { out.push("widths: n/a"); }
+    /* 3. header box, 4. header parent box */
+    try { out.push("hdr box: " + (hdr ? box(hdr) : "n/a")); } catch (e) { out.push("hdr box: n/a"); }
+    try { out.push("hdr parent box: " + (hdr && hdr.parentElement ? box(hdr.parentElement) : "n/a")); } catch (e) { out.push("hdr parent box: n/a"); }
+    /* 5. page container (#MultiVendorSearch, the search route root that holds the header and everything below it) and body */
+    try { var pc = document.getElementById("MultiVendorSearch"); out.push("page container: " + (pc ? describe(pc) + " " + box(pc) : "n/a")); } catch (e) { out.push("page container: n/a"); }
+    try { out.push("body: " + (body ? box(body) : "n/a")); } catch (e) { out.push("body: n/a"); }
+    /* 6. overflow check */
+    try {
+      var dsw = de.scrollWidth, bsw = body ? body.scrollWidth : NaN, cw = de.clientWidth, over = Math.max(dsw, isFinite(bsw) ? bsw : 0) - cw;
+      out.push("overflow: html SW " + px(dsw) + " body SW " + px(bsw) + " client " + px(cw) + " scrollX " + px(window.scrollX) +
+        " " + (over > 0 ? "OVERFLOW by " + px(over) : "ok"));
+    } catch (e) { out.push("overflow: n/a"); }
+    /* 7. ancestors of the header, parent up to html, with only the non-default values */
+    try {
+      if (!hdr) out.push("ancestors: n/a");
+      else {
+        var k = 0;
+        for (var a = hdr.parentElement; a; a = a.parentElement) {
+          k++;
+          var cs = getComputedStyle(a), extra = "";
+          if (cs.transform && cs.transform !== "none") extra += " transform=" + cs.transform;
+          if (parseFloat(cs.marginLeft)) extra += " ml=" + px(parseFloat(cs.marginLeft));
+          if (parseFloat(cs.marginRight)) extra += " mr=" + px(parseFloat(cs.marginRight));
+          if (parseFloat(cs.paddingLeft)) extra += " pl=" + px(parseFloat(cs.paddingLeft));
+          if (parseFloat(cs.paddingRight)) extra += " pr=" + px(parseFloat(cs.paddingRight));
+          if (cs.position && cs.position !== "static") extra += " pos=" + cs.position;
+          if (cs.overflowX && cs.overflowX !== "visible") extra += " ox=" + cs.overflowX;
+          out.push("anc" + k + ": " + describe(a) + " " + box(a) + extra);
+          if (a === document.documentElement) break;
+        }
+      }
+    } catch (e) { out.push("ancestors: n/a"); }
+    /* 8. widest elements: rescanned about 4 times per second, shown from the last scan in between */
+    if (!scanText || nowMs - lastScan >= 250) {
+      lastScan = nowMs;
+      try {
+        var all = document.body ? document.body.getElementsByTagName("*") : [], vw = de.clientWidth;
+        var wide = null, wideW = -1, pastR = null, pastRv = 0, pastL = null, pastLv = 0;
+        for (var i = 0; i < all.length; i++) {
+          var el = all[i];
+          if (mine(el)) continue;
+          var r = el.getBoundingClientRect();
+          if (!(r.width > 0 && r.height > 0)) continue;
+          if (r.width > wideW) { wideW = r.width; wide = el; }
+          if (r.right - vw > pastRv) { pastRv = r.right - vw; pastR = el; }
+          if (-r.left > pastLv) { pastLv = -r.left; pastL = el; }
+        }
+        scanText = "widest: " + (wide ? describe(wide) + " " + box(wide) : "none") +
+          "\npast right: " + (pastR ? describe(pastR) + " " + box(pastR) : "none") +
+          "\npast left: " + (pastL ? describe(pastL) + " " + box(pastL) : "none");
+      } catch (e) { scanText = "widest: n/a\npast right: n/a\npast left: n/a"; }
+    }
+    out.push(scanText);
+    return out;
+  }
+
+  function tick(nowMs) {
     if (!shown || !panel) return;
     try {
       var v = read(), s = "";
       for (var i = 0; i < LINES.length; i++) s += LINES[i] + ": " + v[i] + (i < LINES.length - 1 ? "\n" : "");
+      try { s += "\n" + extraLines(typeof nowMs === "number" ? nowMs : Date.now()).join("\n"); } catch (e2) {}
       if (panel.textContent !== s) panel.textContent = s;
     } catch (e) {}
     rafId = requestAnimationFrame(tick);
@@ -182,14 +264,18 @@
       panel.id = "hg-temp-diag";
       panel.setAttribute("dir", "ltr");
       panel.setAttribute("aria-hidden", "true");
-      /* below the header, above the keyboard, over everything, never touchable, never part of the layout */
-      panel.style.cssText = "position:fixed;top:170px;left:8px;z-index:2147483647;margin:0;padding:8px 10px;border-radius:8px;" +
-        "background:rgba(0,0,0,.72);color:#fff;font:12px/1.5 Menlo,Consolas,monospace;text-align:left;direction:ltr;" +
-        "white-space:pre;pointer-events:none;user-select:none;-webkit-user-select:none;";
+      /* below the header, above the keyboard, over everything, never touchable, never part of the layout.
+         v3: smaller text, pinned 8px from both screen edges (left and right, no width of its own) so it can never be wider
+         than the screen or add scroll width in Arabic or English; long class names wrap instead of being cut off. */
+      panel.style.cssText = "position:fixed;top:140px;left:8px;right:8px;z-index:2147483647;margin:0;padding:6px 8px;border-radius:8px;" +
+        "background:rgba(0,0,0,.72);color:#fff;font:9px/1.3 Menlo,Consolas,monospace;text-align:left;direction:ltr;unicode-bidi:isolate;" +
+        "white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-all;box-sizing:border-box;overflow:hidden;" +
+        "pointer-events:none;user-select:none;-webkit-user-select:none;";
       document.documentElement.appendChild(panel);
     }
     shown = true;
     lastHdr = null; replaced = 0; /* v2: the replaced counter starts fresh each time the panel is shown */
+    scanText = ""; lastScan = 0; /* v3: fresh scan each time the panel is shown */
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(tick);
   }
