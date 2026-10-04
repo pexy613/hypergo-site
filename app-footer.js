@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-1936 */
+/* hg-version 2026-10-04-1942 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -227,3 +227,69 @@
   }, true);
 })();
 /* TEMP-DIAGNOSTIC-END */
+
+/* TEMP-ERUDA-START
+   Temporary, hidden on-page DevTools (Eruda 3.4.3, loaded from https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.js).
+   Nothing here downloads, runs or shows unless the secret word is submitted in the search field (see the matching
+   hook below). Remove this whole block and the hook block to delete the feature completely. This file loads only in
+   the app, and the toggle also checks the existing html.hg-native-app flag, so the website can never run it. */
+(function () {
+  "use strict";
+  var SRC = "https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.js";
+  var script = null, loading = false, visible = false;
+
+  function isApp() { return document.documentElement.classList.contains("hg-native-app"); }
+
+  function open() {
+    try { window.eruda.init(); visible = true; } catch (e) { visible = false; }
+  }
+  function close() {
+    try { if (window.eruda && window.eruda.destroy) window.eruda.destroy(); } catch (e) {}
+    visible = false;
+  }
+  function load() {
+    if (loading) return;
+    loading = true;
+    script = document.createElement("script");
+    script.src = SRC;
+    script.async = true;
+    script.onload = function () { loading = false; if (window.eruda) open(); };
+    /* no connection or blocked: show nothing, keep the app as it was, allow a retry on the next submit */
+    script.onerror = function () { loading = false; if (script && script.parentNode) script.parentNode.removeChild(script); script = null; };
+    document.documentElement.appendChild(script);
+  }
+
+  window.__hgTempErudaToggle = function () {
+    try {
+      if (!isApp()) return;
+      if (visible) { close(); return; }
+      if (window.eruda && window.eruda.init) { open(); return; }
+      load();
+    } catch (e) {}
+  };
+})();
+/* TEMP-ERUDA-END */
+
+/* TEMP-ERUDA-START (hook at the search submit)
+   Same pattern as the hgdiag hook: catches the return key in the search field before Hyperzod and our search code
+   see it. If the field holds the secret word (any capitals, spaces around it ignored), Eruda is shown or hidden,
+   the field is cleared and the key press goes no further: no search, no results, nothing saved to recent searches,
+   nothing sent anywhere. Any other text is untouched. */
+(function () {
+  "use strict";
+  var SECRET = "hgeruda";
+  document.addEventListener("keydown", function (e) {
+    try {
+      if (!e || e.key !== "Enter") return;
+      var t = e.target;
+      if (!t || t.tagName !== "INPUT" || !t.closest || !t.closest("#MultiVendorSearch .mobile-search-input")) return;
+      if (String(t.value || "").trim().toLowerCase() !== SECRET) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      var set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+      set.call(t, "");
+      if (window.__hgTempErudaToggle) window.__hgTempErudaToggle();
+    } catch (err) {}
+  }, true);
+})();
+/* TEMP-ERUDA-END */
