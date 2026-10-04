@@ -10,15 +10,25 @@ Files and where they load:
 - web-footer.js: Web Custom HTML Footer
 - app-footer.js: App Custom HTML Footer
 - Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
+- If a file exists in the repo that this list doesn't mention, tell me before editing it.
 - reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
 - reference/home.html, reference/store.html, reference/search.html, reference/product.html: saved copies of the real website pages (home, a merchant store, search results for "Burgers", a product page), copied from the browser while logged out. Use them to find real selectors and page structure before writing any CSS or JS for the website. They cover the website only, not the app screens, and are snapshots that can go out of date. If a selector you need isn't in them, ask me for a new copy of that page.
 - backups/: backup copies. Add new ones, never edit or delete existing ones.
+- Temporary diagnostics (the hgdiag panel and the Eruda tool behind the secret word hgeruda) are marked with TEMP-DIAGNOSTIC-START and TEMP-DIAGNOSTIC-END comments. Never edit or remove them unless I ask.
 
 Rules:
 - Edit the existing file in place. Never append a second copy of code, and never create a new file unless I ask, because duplicate code creates competing observers and selectors.
 - Global code runs on both web and app. Web-only code goes in web-*, app-only code goes in app-*. Never put Web or App code in Global.
 - Some Global CSS is created at runtime by the JS (style IDs like hg-extra-style). When a style change doesn't take effect, check the JS before adding more CSS.
 - If a change needs a new file or a new line in a Hyperzod box, tell me the exact full text to paste and which box it goes in.
+
+# BUGS: ROOT CAUSE FIRST
+- Never write a fix for a bug until the cause is proven with evidence: numbers from a diagnostic, a frame-by-frame reading of my screen recording, or code you can point to. A guess is not a cause.
+- Before changing anything for a bug, tell me the cause in one or two plain sentences, with the evidence.
+- If a fix for the same bug already failed once, don't write another fix. Build a temporary diagnostic instead: hidden behind a secret word, inside TEMP-DIAGNOSTIC-START and TEMP-DIAGNOSTIC-END comments, read-only, changing nothing on the page. It must show live numbers for the element AND its parent containers (position, size, computed position), plus viewport offset and scroll. Compare English vs Arabic, app vs website, and with vs without the keyboard when relevant.
+- Fix the cause, never the symptom. Never measure an element and move it back afterward. Prevent the problem instead.
+- If the cause can't be proven from the repo files and my recording, say so and ask me for what's missing. Don't guess.
+- One bug per request. Never bundle bugs together.
 
 # BACKUPS (every change)
 Before editing any file:
@@ -42,7 +52,7 @@ I push with GitHub Desktop. After every commit, tell me to open GitHub Desktop a
 
 # SCOPE (every change)
 - Do only what the request says. If it says keep the current look, adjust it, don't redesign it. Never add design decisions I didn't ask for (colors, sizes, effects, layouts).
-- If a request mentions a screenshot and none is attached, stop and ask me for it. Don't guess what it looks like.
+- If a request mentions a screenshot or recording and none is attached, stop and ask me for it. Don't guess what it looks like.
 - If the request is unclear or could be read two ways, ask me one question before editing.
 - Changes apply globally to every merchant, never to one shop. Use structural selectors. Never target a merchant name, ID or product.
 - Before finishing, list exactly what you changed and what you deliberately left untouched.
@@ -70,7 +80,6 @@ Never mention a file, folder, setting, button, tool or feature unless you've con
 - Mobile first, then desktop. Arabic/RTL: use logical properties (margin-inline-start etc.), never hardcode left/right.
 - Generous spacing and breathing room, like Talabat. No cramped layouts.
 - Never use zoom or transform scaling to resize the page.
-- Fix the root cause, not symptoms.
 - When I say "drastic", "bigger" or "way more", the change must be obvious at a glance. Go bold first.
 - If I say it looks the same, you were wrong. Don't defend it. Find why it had no effect (selector mismatch, overridden style, cache) and increase the change.
 - Never say "fixed" or "working" unless you actually checked. If you couldn't verify, say so in one line.
@@ -87,4 +96,4 @@ Colors: Opus #CCCBE3, Blue Magenta #5A29DE, Appetite #ACE4AA, Ultimate Orange #F
 - Language: English first. Arabic only when I ask or when the task is bilingual.
 
 # BEFORE EVERY PUSH, CHECK
-Followed every instruction? Global, no single-shop code? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
+Followed every instruction? Cause proven before the fix? Global, no single-shop code? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
