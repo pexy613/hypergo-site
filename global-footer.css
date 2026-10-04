@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-1957 */
+/* hg-version 2026-10-04-2003 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -1763,5 +1763,17 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
   html.hg-native-app body #app #MultiVendorSearch :has(> .scheme-global-search-mobile-header){
     min-height:100vh;
     box-sizing:border-box;
+  }
+}
+
+/* v105 — APP SEARCH, ARABIC: the search canvas sits where it does in English.
+   The canvas is one screen + 32px wide and pulled 16px past the left edge with margin-left:-16px, so it overhangs both
+   edges by 16px (the 16px side padding inside it then lines the header up with the screen). In right-to-left pages a
+   block whose width and both margins are set ignores margin-left, so the canvas was anchored to the right edge instead:
+   16px short on the right (white strip) and 48px past the left (bag button and rows cut off). Pulling it 16px past the
+   right edge with margin-right does the same job in right-to-left, so both edges overhang by 16px again. */
+@media (max-width:959.98px){
+  html.hg-native-app:is([dir="rtl"],[lang^="ar"]) body #app #MultiVendorSearch{
+    margin-right:-16px!important; /* !important: beats the margin-right:0!important rule of the search canvas above */
   }
 }
