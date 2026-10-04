@@ -11,6 +11,7 @@ Files and where they load:
 - app-footer.js: App Custom HTML Footer
 - Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
 - reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
+- reference/home.html, reference/store.html, reference/search.html, reference/product.html: saved copies of the real website pages (home, a merchant store, search results for "Burgers", a product page), copied from the browser while logged out. Use them to find real selectors and page structure before writing any CSS or JS for the website. They cover the website only, not the app screens, and are snapshots that can go out of date. If a selector you need isn't in them, ask me for a new copy of that page.
 - backups/: backup copies. Add new ones, never edit or delete existing ones.
 
 Rules:
