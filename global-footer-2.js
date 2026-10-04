@@ -1,6 +1,6 @@
-/* hg-version 2026-09-30-2123 */
+/* hg-version 2026-10-04-1822 */
 (function(){
-  const V="99";
+  const V="100";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const img=m=>{const x=m&&m.images,l=x&&x.logo&&(x.logo.image_url||x.logo.image_thumb_url),c=x&&x.cover&&(x.cover.image_url||x.cover.image_thumb_url);return l||c||"";};
@@ -109,16 +109,26 @@
     /* v99: while pinned, "left:0" is measured from whatever box contains the header. In the app that box is the search
        canvas, which sits 16px off-screen (gutter fix), so the header landed 16px left with a white gap on the right.
        Measure where it actually is and shift it back so its left edge is the screen edge. Converges in one pass. */
-    if(header&&html.classList.contains("hg-search-input-active")&&getComputedStyle(header).position==="fixed"){
+    /* v100: only while the field is really focused. Measuring during the submit/keyboard-close transition read
+       positions mid-move and pushed the header down (white strip) and then up (cropped) before it settled. */
+    const focusedInput=root&&root.contains(document.activeElement)&&document.activeElement.tagName==="INPUT";
+    if(header&&focusedInput&&html.classList.contains("hg-search-input-active")&&getComputedStyle(header).position==="fixed"){
       const r=header.getBoundingClientRect(),cur=parseFloat(html.style.getPropertyValue("--hg-search-fixed-shift"))||0,curV=parseFloat(html.style.getPropertyValue("--hg-search-fixed-vshift"))||0;
       if(Math.abs(r.left)>0.5)html.style.setProperty("--hg-search-fixed-shift",(cur-r.left)+"px");
       /* same for the vertical position: the header must sit right under the status strip */
       if(Math.abs(r.top-sh)>0.5)html.style.setProperty("--hg-search-fixed-vshift",(curV+(sh-r.top))+"px");
     }
   }
+  function unpinSearchHeader(){
+    const html=document.documentElement;
+    if(html.classList.contains("hg-search-input-active"))html.classList.remove("hg-search-input-active");
+    html.style.removeProperty("--hg-search-fixed-shift");
+    html.style.removeProperty("--hg-search-fixed-vshift");
+  }
   function setSearchFocus(root,on){
     if(!window.matchMedia("(max-width:959px)").matches)return;
-    if(root&&on)measureSearchHeader(root);
+    if(!on){unpinSearchHeader();return;}
+    if(root)measureSearchHeader(root);
     document.documentElement.classList.toggle("hg-search-input-active",!!on);
     /* the pinned position only exists after the class is on: measure again right away so any offset is corrected before paint */
     if(root&&on&&window.requestAnimationFrame)requestAnimationFrame(()=>{measureSearchHeader(root);requestAnimationFrame(()=>measureSearchHeader(root));});
@@ -185,11 +195,11 @@
     if(input&&!bound.has(input)){
       bound.add(input);
       input.addEventListener("focus",()=>{const current=document.getElementById('MultiVendorSearch');if(current){setSearchFocus(current,true);keepSearchVisible(current);}});
-      input.addEventListener("input",()=>{const current=document.getElementById('MultiVendorSearch');if(!current){clearTimeout(autoSearchTimer);return;}setSearchFocus(current,true);keepSearchVisible(current);setTimeout(run,0);liveSearch(input);});
+      input.addEventListener("input",()=>{const current=document.getElementById('MultiVendorSearch');if(!current){clearTimeout(autoSearchTimer);return;}if(document.activeElement===input){setSearchFocus(current,true);keepSearchVisible(current);}setTimeout(run,0);liveSearch(input);});
       input.addEventListener("compositionstart",()=>{composing.add(input);clearTimeout(autoSearchTimer);});
       input.addEventListener("compositionend",()=>{composing.delete(input);if(document.getElementById('MultiVendorSearch'))liveSearch(input);});
       input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.hgAutoSearch&&!e.isComposing){clearTimeout(autoSearchTimer);if(document.getElementById('MultiVendorSearch'))remember(input.value);}});
-      input.addEventListener("blur",()=>{if(document.getElementById('MultiVendorSearch'))remember(input.value);setTimeout(()=>{if(document.activeElement!==input)setSearchFocus(document.getElementById('MultiVendorSearch'),false);},120);});
+      input.addEventListener("blur",()=>{if(document.getElementById('MultiVendorSearch'))remember(input.value);if(!input.isConnected){unpinSearchHeader();return;}setTimeout(()=>{if(document.activeElement!==input)setSearchFocus(document.getElementById('MultiVendorSearch'),false);},120);});
     }
     /* Only replace the label text; preserve Vuetify's content, slider and ripple nodes. */
     root.querySelectorAll(".v-tab").forEach(t=>{
@@ -199,6 +209,14 @@
   }
   run();
   let searchRunTimer;
-  new MutationObserver(()=>{clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);}).observe(document.body,{childList:true,subtree:true});
+  new MutationObserver(()=>{
+    /* v100: runs before the browser paints. If the search screen was rebuilt, or no field inside it has focus any more,
+       the pinned-header mode is dropped right here, so the rebuilt header never shows up pinned with stale offsets. */
+    if(document.documentElement.classList.contains("hg-search-input-active")){
+      const cur=document.getElementById("MultiVendorSearch"),ae=document.activeElement;
+      if(!cur||cur!==openedRoot||!(ae&&ae.tagName==="INPUT"&&cur.contains(ae)))unpinSearchHeader();
+    }
+    clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);
+  }).observe(document.body,{childList:true,subtree:true});
   setInterval(run,1000);
 })();
