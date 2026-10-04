@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-1829 */
+/* hg-version 2026-10-04-1936 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -107,7 +107,28 @@
 (function () {
   "use strict";
   var panel = null, rafId = 0, shown = false;
-  var LINES = ["hdr top", "vv offset", "vv height", "scrollY", "pinned"];
+  var LINES = ["hdr top", "vv offset", "vv height", "scrollY", "pinned", "below sb", "hdr parent h", "hdr position", "hdr replaced"];
+  /* v2: reference to the header element seen last frame, and how many times a different element took its place */
+  var lastHdr = null, replaced = 0;
+  var HDR = "#MultiVendorSearch .scheme-global-search-mobile-header";
+
+  /* The point sampled for "below sb": horizontal centre of the screen, 4px under the native status bar. The status bar
+     height comes from the --native-status-bar-height variable the code already uses, else from the .native-status-bar-bg
+     strip, else 0. The panel has pointer-events:none, so elementFromPoint can never return the panel itself. */
+  function statusBarHeight() {
+    var n = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--native-status-bar-height"));
+    if (isFinite(n) && n > 0) return n;
+    var bg = document.querySelector(".native-status-bar-bg");
+    if (bg) { var bh = bg.getBoundingClientRect().height; if (isFinite(bh) && bh > 0) return bh; }
+    return 0;
+  }
+  function describe(el) {
+    if (!el) return "none";
+    var t = String(el.tagName || "").toLowerCase();
+    var id = el.id ? "#" + el.id : "";
+    var cls = (typeof el.className === "string" && el.className.trim()) ? "." + el.className.trim().split(/\s+/).join(".") : "";
+    return t + id + cls;
+  }
 
   function fmt(v) { return (typeof v === "number" && isFinite(v)) ? v.toFixed(1) + "px" : "n/a"; }
 
@@ -122,6 +143,25 @@
       var pos = hh ? getComputedStyle(hh).position : "n/a";
       var flag = document.documentElement.classList.contains("hg-search-input-active") ? "on" : "off";
       out.push((pos === "fixed" ? "YES" : "NO") + " " + pos + " flag=" + flag);
+    } catch (e) { out.push("n/a"); }
+    /* v2 line 1: element at the point just below the status bar */
+    try {
+      var y = statusBarHeight() + 4, x = Math.round(window.innerWidth / 2);
+      out.push("@" + x + "," + y.toFixed(0) + " " + describe(document.elementFromPoint(x, y)));
+    } catch (e) { out.push("n/a"); }
+    /* v2 line 2: height of the header's parent */
+    try { var hp = document.querySelector(HDR); out.push(hp && hp.parentElement ? fmt(hp.parentElement.getBoundingClientRect().height) : "n/a"); } catch (e) { out.push("n/a"); }
+    /* v2 line 3: computed position of the header, read live */
+    try { var hc = document.querySelector(HDR); out.push(hc ? String(getComputedStyle(hc).position || "n/a") : "n/a"); } catch (e) { out.push("n/a"); }
+    /* v2 line 4: is the header still the same element as before */
+    try {
+      var hr = document.querySelector(HDR);
+      if (!hr) out.push("missing" + (replaced ? " (REPLACED x" + replaced + ")" : ""));
+      else {
+        if (lastHdr && hr !== lastHdr) replaced++;
+        lastHdr = hr;
+        out.push(replaced ? "REPLACED x" + replaced : "same");
+      }
     } catch (e) { out.push("n/a"); }
     return out;
   }
@@ -149,6 +189,7 @@
       document.documentElement.appendChild(panel);
     }
     shown = true;
+    lastHdr = null; replaced = 0; /* v2: the replaced counter starts fresh each time the panel is shown */
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(tick);
   }
