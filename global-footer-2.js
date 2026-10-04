@@ -1,6 +1,6 @@
-/* hg-version 2026-10-04-1822 */
+/* hg-version 2026-10-04-1912 */
 (function(){
-  const V="100";
+  const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const img=m=>{const x=m&&m.images,l=x&&x.logo&&(x.logo.image_url||x.logo.image_thumb_url),c=x&&x.cover&&(x.cover.image_url||x.cover.image_thumb_url);return l||c||"";};
@@ -125,8 +125,15 @@
     html.style.removeProperty("--hg-search-fixed-shift");
     html.style.removeProperty("--hg-search-fixed-vshift");
   }
+  /* v101 (app): the native app resizes its web view when the keyboard opens (panel readings: viewport height 852 -> 472,
+     offset 0, scroll 0), so the sticky header already stays on screen by itself. Pinning it and resetting the page scroll
+     were what moved it: when the pin was released the header sat 17px lower for a few frames (white strip), and on the
+     first search the pinned position was wrong (header cut off under the status bar). In the app, never pin and never
+     reset the scroll. The website keeps its behaviour. */
+  function isNativeApp(){return document.documentElement.classList.contains("hg-native-app");}
   function setSearchFocus(root,on){
     if(!window.matchMedia("(max-width:959px)").matches)return;
+    if(isNativeApp()){unpinSearchHeader();return;}
     if(!on){unpinSearchHeader();return;}
     if(root)measureSearchHeader(root);
     document.documentElement.classList.toggle("hg-search-input-active",!!on);
@@ -147,6 +154,7 @@
   }
   function keepSearchVisible(root){
     if(!window.matchMedia("(max-width:959px)").matches)return;
+    if(isNativeApp())return;
     const reset=()=>{
       if(window.scrollTo)window.scrollTo(0,0);
       for(let el=root.parentElement;el&&el!==document.body;el=el.parentElement)if(el.scrollTop)el.scrollTop=0;
@@ -158,6 +166,7 @@
   function resetSearchPosition(root){
     if(openedRoot===root)return;
     openedRoot=root;
+    if(isNativeApp())return;
     const reset=()=>{
       if(window.scrollTo)window.scrollTo(0,0);
       for(let el=root.parentElement;el&&el!==document.body;el=el.parentElement)if(el.scrollTop)el.scrollTop=0;
