@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1932 */
+/* hg-version 2026-10-05-2012 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -2052,7 +2052,13 @@
          status bar (address editor header, account hero) uses the same fix: pull the element up by the status
          bar's own height with a negative top margin, and grow its height by the same amount so everything below
          it stays exactly where it was. Applying that here instead of just a flat height. */
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2>div:first-child{aspect-ratio:auto !important;height:calc(200px + var(--native-status-bar-height,0px)) !important;border-radius:0 0 24px 24px;margin:0 !important;margin-top:calc(-1 * var(--native-status-bar-height,0px)) !important;}" +
+      /* 2026-10-05: the app now starts the page at the very top of the screen, under the status bar (proven on the
+         Karachi Star screenshot: banner bottom at ~200px = -59px pull-up + 259px height). The pull-up above therefore
+         pushed the banner's top 59px off the screen, cutting off the top of the artwork. The banner now starts at the
+         top of the screen, 200px tall, so its bottom edge and everything below stay exactly where they were, and the
+         whole photo is on screen (its top part behind the see-through status bar). On the website the status-bar
+         height is 0, so nothing changes there. */
+      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2>div:first-child{aspect-ratio:auto !important;height:200px !important;border-radius:0 0 24px 24px;margin:0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2>.storefront-gutter{position:relative;margin:0 !important;padding:16px 16px 18px !important;min-height:0 !important;background:#fff;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4{margin:12px 0 0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div{justify-content:flex-start !important;margin:0 !important;}" +
