@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-1912 */
+/* hg-version 2026-10-05-1634 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -179,6 +179,20 @@
     if(query.length===1||composing.has(input))return;
     autoSearchTimer=setTimeout(()=>{
       if(!document.getElementById('MultiVendorSearch')||(input.isConnected===false||(document.contains&&!document.contains(input)))||String(input.value||"").trim()!==query)return;
+      /* v102 (app): the fake Enter below made Hyperzod's own Enter handling call blur() on the field, which closed the
+         keyboard after every pause (hgdiag: blur at the same moment as the fake Enter). Hyperzod keeps the search word in
+         the page address (?q=..., hgdiag: /en/search?q=Gh -> /en/search?q=Burg at that Enter), so in the app the search
+         is started by putting the word in the address instead. No key press reaches the field, so nothing blurs it and
+         the keyboard stays open. The website keeps the Enter. If the router is not reachable, the Enter is used as before. */
+      if(isNativeApp()&&query){
+        try{
+          const app=document.querySelector("#app"),r=app&&app.__vue_app__&&app.__vue_app__.config.globalProperties.$router,cur=r&&r.currentRoute&&r.currentRoute.value;
+          if(r&&cur){
+            if(String((cur.query||{}).q||"")!==query)r.replace({path:cur.path,query:Object.assign({},cur.query,{q:query}),hash:cur.hash});
+            return;
+          }
+        }catch(e){}
+      }
       ["keydown","keyup"].forEach(type=>{
         let event;
         try{event=new KeyboardEvent(type,{key:"Enter",code:"Enter",keyCode:13,which:13,bubbles:true,cancelable:true});}
