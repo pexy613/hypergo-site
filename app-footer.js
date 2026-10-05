@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1642 */
+/* hg-version 2026-10-05-1941 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -59,11 +59,34 @@
     return PURPLE.map((p, i) => Math.round(WHITE[i] + (p - WHITE[i]) * t));
   }
 
+  /* the store page is what sits under the strip right now (old screens can stay loaded hidden behind it) */
+  function storeOnScreen(strip) {
+    try {
+      const y = Math.round((strip.getBoundingClientRect().height || 47) + 4);
+      const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
+      return !!(el && el.closest && el.closest(".scheme-merchant-page"));
+    } catch (e) { return false; }
+  }
+
   function updateStrip() {
     ticking = false;
     const strip = document.querySelector(".native-status-bar-bg");
     if (!strip) return;
     const html = document.documentElement;
+    /* STORE PAGE: the strip is see-through so the store banner shows behind the clock (design intent of the
+       global-footer-1.js rule "cover sits under the phone status bar"). That rule is plain CSS, so any purple strip
+       rule from a screen that is still loaded (category page #merchants_by_category, Search, Home header) beat it.
+       Set here directly, so the store page always wins. Hyperzod's own scrolled "scrim" state is left alone. */
+    if (storeOnScreen(strip)) {
+      if (/scrim/.test(strip.className)) {
+        strip.style.removeProperty("background-color");
+        strip.style.removeProperty("transition");
+      } else {
+        strip.style.setProperty("transition", "none", "important");
+        strip.style.setProperty("background-color", "transparent", "important");
+      }
+      return;
+    }
     const root = document.getElementById("MultiVendorHeaderRoot");
     const modal = document.querySelector(".v-overlay--active > .v-overlay__scrim");
     /* Search is its own purple-header page. Do not let the Home scroll-fade logic turn its status strip white. */
