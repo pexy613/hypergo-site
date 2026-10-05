@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1549 */
+/* hg-version 2026-10-05-1626 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -288,6 +288,9 @@
 
   function tick(nowMs) {
     if (!shown || !panel) return;
+    /* v7: the panel lives on <html>, outside the app, so page rebuilds do not touch it; if anything removes it anyway,
+       it is put back on the next frame with all its readings and counters as they were */
+    try { if (!panel.isConnected) document.documentElement.appendChild(panel); } catch (e0) {}
     try {
       var v = read(), s = "";
       for (var i = 0; i < LINES.length; i++) s += LINES[i] + ": " + v[i] + (i < LINES.length - 1 ? "\n" : "");
@@ -370,8 +373,8 @@
   function kbInstall() {
     if (kbOn) return;
     kbOn = true; t0 = Date.now(); kb = {}; lastField = null; fieldReplaced = 0; lastRoot = null; rootReplaced = 0;
-    document.addEventListener("keydown", onKey, true);
-    document.addEventListener("focusout", onFocusOut, true);
+    document.addEventListener("keydown", onKey, { capture: true, passive: true });
+    document.addEventListener("focusout", onFocusOut, { capture: true, passive: true });
     try {
       origBlur = HTMLElement.prototype.blur; origFocus = HTMLElement.prototype.focus;
       HTMLElement.prototype.blur = function () {
@@ -387,8 +390,8 @@
   function kbRemove() {
     if (!kbOn) return;
     kbOn = false;
-    document.removeEventListener("keydown", onKey, true);
-    document.removeEventListener("focusout", onFocusOut, true);
+    document.removeEventListener("keydown", onKey, { capture: true });
+    document.removeEventListener("focusout", onFocusOut, { capture: true });
     try { if (origBlur) HTMLElement.prototype.blur = origBlur; if (origFocus) HTMLElement.prototype.focus = origFocus; } catch (e) {}
   }
 
@@ -430,21 +433,37 @@
 /* TEMP-DIAGNOSTIC-START (hook at the search submit)
    Catches the return key in the search field before Hyperzod and our own search code see it. If the field holds the
    secret word, the panel is toggled, the field is cleared and the key press goes no further: no search, no results,
-   nothing saved to recent searches, nothing sent anywhere. Any other text is untouched. */
+   nothing saved to recent searches, nothing sent anywhere. Any other text is untouched.
+   v7: only the real Return key toggles the panel. The live search's own automatic Enter (450ms after typing stops)
+   used to toggle it too, so the panel opened by itself and the real Return then closed it again. That automatic
+   Enter is now just stopped (no search for the secret word, no toggle). The key-up that follows a stopped Enter is
+   stopped as well, so Hyperzod does not run a search for the secret word afterwards. */
 (function () {
   "use strict";
-  var SECRET = "hgdiag";
+  var SECRET = "hgdiag", stopUpUntil = 0;
+  function inField(t) { return !!(t && t.tagName === "INPUT" && t.closest && t.closest("#MultiVendorSearch .mobile-search-input")); }
   document.addEventListener("keydown", function (e) {
     try {
       if (!e || e.key !== "Enter") return;
       var t = e.target;
-      if (!t || t.tagName !== "INPUT" || !t.closest || !t.closest("#MultiVendorSearch .mobile-search-input")) return;
+      if (!inField(t)) return;
       if (String(t.value || "").trim().toLowerCase() !== SECRET) return;
       e.preventDefault();
       e.stopImmediatePropagation();
+      stopUpUntil = Date.now() + 1000;
+      if (e.hgAutoSearch) return; /* automatic Enter from the live search: stopped, no toggle */
       var set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
       set.call(t, "");
       if (window.__hgTempDiagToggle) window.__hgTempDiagToggle();
+    } catch (err) {}
+  }, true);
+  document.addEventListener("keyup", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target)) return;
+      if (Date.now() > stopUpUntil) return;
+      stopUpUntil = 0;
+      e.preventDefault();
+      e.stopImmediatePropagation();
     } catch (err) {}
   }, true);
 })();
