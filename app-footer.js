@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1941 */
+/* hg-version 2026-10-05-1955 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -59,8 +59,12 @@
     return PURPLE.map((p, i) => Math.round(WHITE[i] + (p - WHITE[i]) * t));
   }
 
-  /* the store page is what sits under the strip right now (old screens can stay loaded hidden behind it) */
+  /* the store page is what sits under the strip right now (old screens can stay loaded hidden behind it).
+     The address is checked first: when a store is opened from a category, the category page stays loaded until the
+     store's items arrive, so the store page isn't on screen yet in the page itself, but the address already is the
+     store's (/en/m/<store>/<id>, same pattern hgMerchantHref builds in global-footer-1.js). */
   function storeOnScreen(strip) {
+    if (/^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(location.pathname)) return true;
     try {
       const y = Math.round((strip.getBoundingClientRect().height || 47) + 4);
       const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
