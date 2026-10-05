@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1505 */
+/* hg-version 2026-10-05-1549 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -265,9 +265,9 @@
       var fld = null;
       try { fld = document.querySelector("#MultiVendorSearch .mobile-search-input input"); } catch (e1) {}
       var root3 = document.getElementById("MultiVendorSearch");
-      if (fld && lastField && fld !== lastField) fieldReplaced++;
+      if (fld && lastField && fld !== lastField) { fieldReplaced++; kb.fieldRepAt = ts(); }
       if (fld) lastField = fld;
-      if (root3 && lastRoot && root3 !== lastRoot) rootReplaced++;
+      if (root3 && lastRoot && root3 !== lastRoot) { rootReplaced++; kb.rootRepAt = ts(); }
       if (root3) lastRoot = root3;
       out.push("kb focus now: " + describe(document.activeElement) + (fld && document.activeElement === fld ? " (= search field)" : ""));
       out.push("kb field: " + (fld ? (fieldReplaced ? "REPLACED x" + fieldReplaced : "same") : "missing" + (fieldReplaced ? " (REPLACED x" + fieldReplaced + ")" : "")) +
@@ -276,6 +276,12 @@
       out.push("kb last blur: " + (kb.blur || "none yet"));
       out.push("kb blur() call: " + (kb.blurCall || "none yet"));
       out.push("kb focus() call: " + (kb.focusCall || "none yet"));
+      /* v6: what the Enter press does inside Hyperzod - page address change, when the field/page get replaced,
+         and which Vue component owns the search field (its own function names), so the search can be started without Enter */
+      out.push("kb url now: " + location.pathname + location.search + location.hash);
+      out.push("kb url at Enter: " + (kb.urlBefore ? kb.urlBefore + " -> " + (kb.urlAfter || "(same so far)") : "none yet"));
+      out.push("kb replaced at: field " + (kb.fieldRepAt || "-") + " | root " + (kb.rootRepAt || "-"));
+      out.push("kb vue: " + vueInfo(fld));
     } catch (e) { out.push("kb: n/a"); }
     return out;
   }
@@ -305,7 +311,55 @@
       return out.join(" < ") || "no stack";
     } catch (e) { return "no stack"; }
   }
-  function onKey(e) { try { if (e && e.key === "Enter" && e.hgAutoSearch && e.type === "keydown") kb.auto = ts(); } catch (x) {} }
+  function onKey(e) {
+    try {
+      if (e && e.key === "Enter" && e.hgAutoSearch && e.type === "keydown") {
+        kb.auto = ts();
+        var before = location.pathname + location.search + location.hash;
+        kb.urlBefore = before; kb.urlAfter = "";
+        setTimeout(function () { var a = location.pathname + location.search + location.hash; kb.urlAfter = a === before ? "(same after 0.6s)" : a; }, 600);
+      }
+    } catch (x) {}
+  }
+  /* v6: read-only look at the Vue component that owns the search field: its name, its own functions and data keys.
+     Looked up at most once a second; nothing is called or changed. */
+  var vueCache = "", vueAt = 0;
+  function vueInfo(fld) {
+    try {
+      if (!fld) return "no field";
+      if (Date.now() - vueAt < 1000 && vueCache) return vueCache;
+      vueAt = Date.now();
+      var app = document.getElementById("app"), va = app && app.__vue_app__, best = null, bestDepth = -1;
+      var direct = fld.__vueParentComponent || null;
+      if (!direct && va && va._instance) {
+        var walk = function (vn, depth, n) {
+          if (!vn || n.c++ > 6000) return;
+          if (vn.component) {
+            var c = vn.component, el = c.subTree && c.subTree.el;
+            if (el && el.nodeType === 1 && el.contains(fld) && depth > bestDepth) { best = c; bestDepth = depth; }
+            walk(c.subTree, depth + 1, n);
+            return;
+          }
+          var ch = vn.children;
+          if (Array.isArray(ch)) for (var i = 0; i < ch.length; i++) if (ch[i] && typeof ch[i] === "object") walk(ch[i], depth, n);
+          if (vn.dynamicChildren && !Array.isArray(ch)) for (var j = 0; j < vn.dynamicChildren.length; j++) walk(vn.dynamicChildren[j], depth, n);
+        };
+        walk(va._instance.subTree, 0, { c: 0 });
+      }
+      var chain = [], c2 = direct || best, out = [];
+      for (var k = 0; c2 && k < 6; k++, c2 = c2.parent) {
+        var t = c2.type || {}, nm = t.name || t.__name || "anon";
+        var fns = [];
+        var ss = c2.setupState || {}, ks = [];
+        try { ks = Object.keys(ss); } catch (e1) {}
+        for (var q = 0; q < ks.length && fns.length < 14; q++) { try { if (typeof ss[ks[q]] === "function") fns.push(ks[q]); } catch (e2) {} }
+        var ms = t.methods ? Object.keys(t.methods).slice(0, 14) : [];
+        chain.push(nm + (fns.length ? " fn[" + fns.join(",") + "]" : "") + (ms.length ? " methods[" + ms.join(",") + "]" : ""));
+      }
+      vueCache = (direct ? "direct " : (best ? "found " : "not found ")) + (chain.join(" < ") || "-");
+      return vueCache;
+    } catch (e) { return "n/a"; }
+  }
   function onFocusOut(e) {
     try {
       var t = e.target;
@@ -321,7 +375,7 @@
     try {
       origBlur = HTMLElement.prototype.blur; origFocus = HTMLElement.prototype.focus;
       HTMLElement.prototype.blur = function () {
-        try { if (this.closest && this.closest("#MultiVendorSearch")) kb.blurCall = ts() + " on " + describe(this) + " from " + frames(); } catch (x) {}
+        try { if (this.closest && this.closest("#MultiVendorSearch")) kb.blurCall = ts() + " on " + describe(this) + " during " + (window.event ? window.event.type : "no event") + " from " + frames(); } catch (x) {}
         return origBlur.apply(this, arguments);
       };
       HTMLElement.prototype.focus = function () {
