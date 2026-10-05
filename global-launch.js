@@ -1,7 +1,8 @@
-/* hg-version 2026-10-05-1415 */
+/* hg-version 2026-10-05-1428 */
 /* HYPERGO LAUNCH COUNTDOWN - homepage section directly under the header, on the website and in the app.
    Loaded by the Global Custom HTML Head box. The image is launch-countdown.jpg in this repo.
    v2: card look from the reference (lavender card, glass tiles, big date, progress bar, flip on change).
+   v3: the countdown sits over the middle of the image; after launch "Live now! / Start shopping".
    To remove the section later: empty that box, then delete this file and launch-countdown.jpg. */
 (function () {
   "use strict";
@@ -21,10 +22,10 @@
   var AR_UNITS = ["\u0623\u064a\u0627\u0645", "\u0633\u0627\u0639\u0627\u062a", "\u062f\u0642\u0627\u0626\u0642", "\u062b\u0648\u0627\u0646\u064a"];
   var TEXT = {
     en: { tag: "Launching", date: "October 25", units: ["Days", "Hours", "Minutes", "Seconds"], sub: AR_UNITS,
-          foot: "Delivered anywhere in Bahrain", live: "We're live", dl: "Download HyperGo", aria: "HyperGo launch countdown" },
+          foot: "Delivered anywhere in Bahrain", live: "Live now! \ud83c\udf89", shop: "Start shopping", dl: "Download HyperGo", aria: "HyperGo launch countdown" },
     ar: { tag: "\u0627\u0644\u0625\u0637\u0644\u0627\u0642", date: "25 \u0623\u0643\u062a\u0648\u0628\u0631", units: AR_UNITS, sub: null,
           foot: "\u062a\u0648\u0635\u064a\u0644 \u0644\u0643\u0644 \u0645\u0643\u0627\u0646 \u0641\u064a \u0627\u0644\u0628\u062d\u0631\u064a\u0646",
-          live: "\u0646\u062d\u0646 \u0645\u062a\u0627\u062d\u0648\u0646 \u0627\u0644\u0622\u0646", dl: "\u062d\u0645\u0651\u0644 HyperGo",
+          live: "\u0645\u062a\u0627\u062d\u0648\u0646 \u0627\u0644\u0622\u0646! \ud83c\udf89", shop: "\u0627\u0628\u062f\u0623 \u0627\u0644\u062a\u0633\u0648\u0642", dl: "\u062d\u0645\u0651\u0644 HyperGo",
           aria: "\u0627\u0644\u0639\u062f \u0627\u0644\u062a\u0646\u0627\u0632\u0644\u064a \u0644\u0625\u0637\u0644\u0627\u0642 HyperGo" }
   };
 
@@ -50,11 +51,18 @@
       /* the card */
       "#hg-launch .hg-launch-card{position:relative;max-width:1100px;margin:0 auto;border-radius:26px;overflow:hidden;isolation:isolate;text-align:center;" +
         "font-family:inherit;color:#2e1a87;background:linear-gradient(180deg,#efeaff 0%,#d9d0fd 100%);border:1px solid #ddd5fb;" +
-        "box-shadow:0 18px 40px -18px rgba(91,63,208,.55);container-type:inline-size;}" +
-      "#hg-launch .hg-launch-body{position:relative;z-index:2;padding:24px 14px 0;padding:clamp(24px,4cqw,48px) clamp(14px,3cqw,40px) 0;}" +
+        "box-shadow:0 18px 40px -18px rgba(91,63,208,.55);container-type:inline-size;display:grid;}" +
+      /* countdown and image share one spot: the countdown is centred over the image (a little above its middle, clear of the
+         bag and the scooter); on phones, where the countdown is taller than the image, the image sits at the bottom behind it */
+      "#hg-launch .hg-launch-body{grid-area:1/1;align-self:center;position:relative;z-index:2;padding:24px 14px 18px;padding:clamp(24px,3cqw,40px) clamp(14px,3cqw,40px) clamp(18px,9cqw,110px);}" +
       /* the image: whole picture, never stretched; its empty top fades into the card under the countdown */
-      "#hg-launch .hg-launch-img{position:relative;z-index:1;display:block;width:100%;height:auto;aspect-ratio:1672/941;margin-top:-24%;" +
-        "-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 34%);mask-image:linear-gradient(180deg,transparent 0%,#000 34%);}" +
+      /* phones and narrow cards: the countdown is taller than the image, so it ends just above the bag and the scooter */
+      "@media (max-width:860px){#hg-launch .hg-launch-body{padding-bottom:28vw;}}" +
+      "@container (max-width:820px){#hg-launch .hg-launch-body{padding-bottom:28cqw;}}" +
+      /* wide cards: tiles and bar stay between the bag and the scooter */
+      "@container (min-width:821px){#hg-launch .hg-launch-grid{max-width:min(640px,58cqw);}#hg-launch .hg-launch-bar{max-width:min(592px,54cqw);}}" +
+      "#hg-launch .hg-launch-img{grid-area:1/1;align-self:end;position:relative;z-index:1;display:block;width:100%;height:auto;aspect-ratio:1672/941;" +
+        "-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 26%);mask-image:linear-gradient(180deg,transparent 0%,#000 26%);}" +
       "#hg-launch .hg-launch-pill{display:inline-block;font-size:11px;font-size:clamp(11px,1.5cqw,15px);font-weight:600;letter-spacing:6px;text-indent:6px;text-transform:uppercase;color:#5b3fd0;}" +
       "html[dir='rtl'] #hg-launch .hg-launch-pill,html[lang^='ar'] #hg-launch .hg-launch-pill{letter-spacing:0;text-indent:0;font-size:13px;font-size:clamp(13px,1.7cqw,17px);}" +
       "#hg-launch .hg-launch-date{display:block;margin:6px 0 16px;font-size:34px;font-size:clamp(34px,5cqw,58px);font-weight:800;line-height:1.05;letter-spacing:-.6px;color:#3b1fa8;}" +
@@ -76,6 +84,7 @@
       "#hg-launch .hg-launch-bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#7c3aed,#c084fc);transition:width 1.2s ease;}" +
       "html[dir='rtl'] #hg-launch .hg-launch-bar i{background:linear-gradient(270deg,#7c3aed,#c084fc);}" +
       "#hg-launch .hg-launch-foot{display:block;font-size:11.5px;font-size:clamp(11.5px,1.5cqw,16px);font-weight:600;color:#4c2fb8;}" +
+      "#hg-launch .hg-launch-live .hg-launch-foot{margin-top:6px;}" +
       "#hg-launch .hg-launch-live b{display:block;font-size:30px;font-size:clamp(30px,5cqw,58px);font-weight:900;line-height:1.15;color:#3b1fa8;}" +
       /* same look as the old section's Become a Vendor button */
       "#hg-launch .hg-launch-dl{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;padding:12px 24px;border-radius:8px;border:2px solid #000;" +
@@ -102,7 +111,7 @@
             '<div class="hg-launch-bar"><i></i></div>' +
             '<span class="hg-launch-foot"></span>' +
           '</div>' +
-          '<div class="hg-launch-live" hidden><b></b><a class="hg-launch-dl" target="_blank" rel="noopener"></a></div>' +
+          '<div class="hg-launch-live" hidden><b></b><span class="hg-launch-foot hg-launch-shop"></span><a class="hg-launch-dl" target="_blank" rel="noopener"></a></div>' +
         '</div>' +
         '<img class="hg-launch-img" alt="" width="1672" height="941" decoding="async">' +
       '</div>';
@@ -114,6 +123,7 @@
     els.foot = sec.querySelector(".hg-launch-foot");
     els.live = sec.querySelector(".hg-launch-live");
     els.liveText = els.live.querySelector("b");
+    els.shop = sec.querySelector(".hg-launch-shop");
     els.dl = sec.querySelector(".hg-launch-dl");
     var t = sec.querySelectorAll(".hg-launch-t");
     for (var i = 0; i < t.length; i++) tiles.push({ n: t[i].querySelector(".hg-launch-n"), l: t[i].querySelector(".hg-launch-l"), s: t[i].querySelector(".hg-launch-sub") });
@@ -149,6 +159,7 @@
       }
       setText(els.foot, t.foot);
       setText(els.liveText, t.live);
+      setText(els.shop, t.shop);
       setText(els.dl, t.dl);
       els.wait.hidden = live;
       els.live.hidden = !live;
