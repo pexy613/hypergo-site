@@ -1,4 +1,4 @@
-<!-- hg-version 2026-10-05-1800 -->
+<!-- hg-version 2026-10-05-1932 -->
 # HyperGo Design System (as built)
 
 Generated from the repo code (pexy613/hypergo-site) on 2026-10-05. It describes what exists in the code today, not a target, except section 9 (decided target looks), section 10a (approved standards) and section 10b (open decisions).
@@ -480,8 +480,8 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
     - Queried (`.hg-has-query`): 136px tiles, name min-height 34px, price 13px / 18px, later weight 700; image `#fff` with border `#EEECEF` (GF.css L1235-1281, L1637-1654).
     - Native searched rail: 160px desktop / 136px mobile, name 14px / 500 / 20px, price 14px / 600 (GF.css L1421-1432, L1491-1494).
 12. **"+" add button** · RESOLVED (10a #12)
-    - 30px circle, `#fff`, svg 13px, shadow `0 1px 4px rgba(0,0,0,.10)`, border 0 (GF1 (extra) L1959, L1980, L2115, L2297).
-    - 34px circle, `#FFFFFF`, svg 15px, shadow `0 1px 4px rgba(27,32,35,.12)`, border 0 (GF.css L298-319, L418-430; v81 L15).
+    - 29px circle (30px before 2026-10-05), `#fff`, svg 13px, shadow `0 1px 4px rgba(0,0,0,.10)`, border 0 (GF1 (extra) L1959, L1980, L2115, L2297).
+    - 33px circle (34px before 2026-10-05), `#FFFFFF`, svg 15px, shadow `0 1px 4px rgba(27,32,35,.12)`, border 0 (GF.css L298-319, L418-430; v81 L15).
     - Store/filtered pages: border `1px solid #EEE9F6`, shadow `0 2px 6px rgba(34,18,78,.08)` (GF.css L1412-1415).
     - Offset from image corner: 8px (GF.css L333-335; GF1 L1942, L1951), 10px (GF1 L2112, L2286, L2293), 4px (GF.css L733-735; GF1 L2018-2020, L2168).
 13. **Logo background size** · RESOLVED (10a #13)
@@ -524,7 +524,7 @@ These apply to a component only when a future change touches that component. Do 
 9. Home sections container (desktop): _Approved standard. The code may not match yet._ max-width 1200px, margin 8px auto 40px, padding 0 24px 40px. Evidence: has !important, so it is what shows today.
 10. Search discovery width (desktop): _Approved standard. The code may not match yet._ max-width none (full width), margin-inline 0. Evidence: last rule in GF.css with !important.
 11. Search result product cards: _Approved standard. The code may not match yet._ 146px tiles, name 13px / 600, price 13px / 650, image radius 14px, backing per #19. Evidence: discovery set has the most rules (GF.css L79-135).
-12. "+" add button: _Approved standard. The code may not match yet._ 30px white circle, svg 13px, shadow `0 1px 4px rgba(0,0,0,.10)`, no border, 8px from the image corner. Evidence: 30px in 4 rules vs 3; 8px offset in 3 rules.
+12. "+" add button: _Approved standard. The code may not match yet._ 29px white circle (was 30px; on 2026-10-05 every "+" was made 1px smaller, so the other size is now 33px), svg 13px, shadow `0 1px 4px rgba(0,0,0,.10)`, no border, 8px from the image corner. Evidence: 30px in 4 rules vs 3; 8px offset in 3 rules.
 13. Logo sizing: _Approved standard. The code may not match yet._ Decided target: logos fit fully inside the box (`contain`) everywhere, website and app, never cropped (also in section 9). Evidence: desktop and website already use `contain`; mobile `calc(100% + 6px/8px)` crops.
 14. "View all" / "See all": _Approved standard. The code may not match yet._ home pill, 12px / 750, padding 5px 9px, `#F6F2FF`, border `#E9E0FF`. Evidence: 2 of 4 variants use this pill, including home.
 15. Cart / count badges: _Approved standard. The code may not match yet._ `#FF4000`; white stays on the purple checkout bar. Evidence: brand list sets Ultimate Orange for badges; `#FF3B4E` used once.

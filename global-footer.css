@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-2003 */
+/* hg-version 2026-10-05-1932 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -12,7 +12,7 @@
 .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img{width:146px !important;height:146px !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-name{font-size:14px !important;font-weight:500 !important;line-height:1.32 !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *{font-size:14px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn:not(.v-btn--block){width:34px !important;height:34px !important;min-width:34px !important;max-width:34px !important;min-height:34px !important;max-height:34px !important;}
+.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn:not(.v-btn--block){width:33px !important;height:33px !important;min-width:33px !important;max-width:33px !important;min-height:33px !important;max-height:33px !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn:not(.v-btn--block) svg{width:15px !important;height:15px !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card>.v-card{gap:14px !important;padding:16px 4px !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image-frame{flex:0 0 96px !important;width:96px !important;height:96px !important;min-width:96px !important;max-width:96px !important;min-height:96px !important;max-height:96px !important;border-radius:15px !important;}
@@ -26,7 +26,7 @@
 .scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-name{font-size:14px !important;font-weight:500 !important;line-height:1.32 !important;}
 .scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-description{font-size:12.5px !important;margin-top:4px !important;}
 .scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .price *{font-size:14px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .add-btn:not(.v-btn--block){width:34px !important;height:34px !important;min-width:34px !important;max-width:34px !important;min-height:34px !important;max-height:34px !important;}
+.scheme-merchant-page.merchant-mobile-view .cat-section .add-btn:not(.v-btn--block){width:33px !important;height:33px !important;min-width:33px !important;max-width:33px !important;min-height:33px !important;max-height:33px !important;}
 .scheme-merchant-page.merchant-mobile-view .cat-section .add-btn:not(.v-btn--block) svg{width:15px !important;height:15px !important;}
 }
 
@@ -137,7 +137,7 @@ html body #app #MultiVendorSearch .hg-search-product-card .pro-card-h-img{positi
 html body #app #MultiVendorSearch .hg-search-product-card .pro-card-h-img>.tw-cursor-pointer{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;}
 html body #app #MultiVendorSearch .hg-search-product-card .pro-card-h-img .v-responsive,html body #app #MultiVendorSearch .hg-search-product-card .pro-card-h-img img{width:100%!important;height:100%!important;object-fit:cover!important;}
 html body #app #MultiVendorSearch .hg-search-product-card .pro-card-h-img>.tw-absolute{inset-inline-end:8px!important;inset-inline-start:auto!important;bottom:8px!important;transform:none!important;}
-html body #app #MultiVendorSearch .hg-search-product-card .add-btn:not(.v-btn--block){width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;min-height:34px!important;max-height:34px!important;flex-basis:34px!important;}
+html body #app #MultiVendorSearch .hg-search-product-card .add-btn:not(.v-btn--block){width:33px!important;height:33px!important;min-width:33px!important;max-width:33px!important;min-height:33px!important;max-height:33px!important;flex-basis:33px!important;}
 html body #app #MultiVendorSearch .hg-search-product-card .add-btn:not(.v-btn--block) svg{width:15px!important;height:15px!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid,html body #app #MultiVendorSearch .product-horizontal-cards,html body #app #MultiVendorSearch .hg-search-product-rail{touch-action:auto!important;overscroll-behavior:auto!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid *,html body #app #MultiVendorSearch .hg-search-product-card{touch-action:auto!important;}
@@ -299,13 +299,13 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
-    flex:0 0 34px!important;
-    width:34px!important;
-    min-width:34px!important;
-    max-width:34px!important;
-    height:34px!important;
-    min-height:34px!important;
-    max-height:34px!important;
+    flex:0 0 33px!important;
+    width:33px!important;
+    min-width:33px!important;
+    max-width:33px!important;
+    height:33px!important;
+    min-height:33px!important;
+    max-height:33px!important;
     margin:0!important;
     padding:0!important;
     border:0!important;
@@ -416,12 +416,12 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     margin-top:10px!important;
   }
   :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block){
-    width:34px!important;
-    min-width:34px!important;
-    max-width:34px!important;
-    height:34px!important;
-    min-height:34px!important;
-    max-height:34px!important;
+    width:33px!important;
+    min-width:33px!important;
+    max-width:33px!important;
+    height:33px!important;
+    min-height:33px!important;
+    max-height:33px!important;
     border-radius:50%!important;
   }
   :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block) svg{

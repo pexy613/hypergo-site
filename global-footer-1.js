@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1428 */
+/* hg-version 2026-10-05-1932 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -1956,7 +1956,7 @@
          session on .pro-card-h (v58/v60): a flex or inline-flex box (this button, or Vuetify's own .v-btn
          internals) can expand past its declared height if nothing stops it. Pinning height fully now, same as
          width, so it can't stretch either way. */
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn{width:30px !important;height:30px !important;min-width:30px !important;max-width:30px !important;min-height:30px !important;max-height:30px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 30px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
+      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn{width:29px !important;height:29px !important;min-width:29px !important;max-width:29px !important;min-height:29px !important;max-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 29px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn svg,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn svg *,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn svg *{stroke:#5A29DE !important;}" +
       /* v78: the stretched-oval "+" was still happening in sections whose exact ancestor markup we hadn't seen -
@@ -1977,7 +1977,7 @@
          "+" on product tiles, and this full-width text+price button on the product page). The only reliable,
          page-agnostic way to tell them apart is Vuetify's own "v-btn--block" class, which only the full-width one
          carries - so excluding that instead of re-adding page scoping (which is what caused the original bug). */
-      ".add-btn:not(.v-btn--block){width:30px !important;height:30px !important;min-width:30px !important;max-width:30px !important;min-height:30px !important;max-height:30px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 30px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;box-sizing:border-box !important;}" +
+      ".add-btn:not(.v-btn--block){width:29px !important;height:29px !important;min-width:29px !important;max-width:29px !important;min-height:29px !important;max-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 29px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;box-sizing:border-box !important;}" +
       ".add-btn:not(.v-btn--block) svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
       ".add-btn:not(.v-btn--block) svg *{stroke:#5A29DE !important;}" +
       /* v79: the REAL reason tapping a product image never opened the product - confirmed live, nothing to do
@@ -2112,7 +2112,7 @@
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{left:auto !important;right:10px !important;bottom:10px !important;transform:none !important;z-index:2;}" +
       "html[lang^='ar'] :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{right:auto !important;left:10px !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-product-btn{padding:0 !important;margin:0 !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn{width:30px !important;height:30px !important;min-width:30px !important;min-height:30px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;}" +
+      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn{width:29px !important;height:29px !important;min-width:29px !important;min-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn svg *{stroke:#5A29DE !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .product-name{font-size:16px !important;font-weight:400 !important;color:#1B2023 !important;line-height:1.3 !important;margin:0 !important;}" +
@@ -2294,7 +2294,7 @@
       "html[lang^='ar'] .scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .grid-add-control{right:auto !important;left:10px !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .add-product-btn{padding:0 !important;margin:0 !important;}" +
       /* v77: same fix as the mobile version above - full width+height pin so the circle can't stretch. */
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .add-btn{width:30px !important;height:30px !important;min-width:30px !important;max-width:30px !important;min-height:30px !important;max-height:30px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 30px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
+      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .add-btn{width:29px !important;height:29px !important;min-width:29px !important;max-width:29px !important;min-height:29px !important;max-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 29px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .add-btn svg *{stroke:#5A29DE !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .v-card-text{padding:16px 4px 0 !important;justify-content:flex-start !important;flex-grow:0 !important;}" +
