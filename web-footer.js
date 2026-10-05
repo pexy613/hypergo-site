@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1813 */
+/* hg-version 2026-10-05-1906 */
 (() => {
   "use strict";
 
@@ -596,7 +596,11 @@
    Text (2026-10-05): our name/price rules are also tied to class names (Recommended, .cat-section, the card classes),
    so sections Hyperzod renders another way kept Hyperzod's own text (lighter grey, or bolder). Every product found on
    the store page - in every section, Recommended included - is now marked .hg-sp-txt and gets the one text style we
-   use: name 16px / 400 / #1B2023 / 1.3, price 16px / 500 / #1B2023 (design-system 10a #7, #8). */
+   use: name 16px / 400 / #1B2023 / 1.3, price 16px / 500 / #1B2023 (design-system 10a #7, #8).
+   Fix (2026-10-05): a section with only one product made the "walk up until two products" step climb past its own
+   section to the box holding ALL sections, which was then laid out as the 5-column grid (sections side by side, tiny
+   products). A row may now never hold a section title: a heading that is not inside a product. If the walk reaches
+   a title before it finds two products, that product is left alone. */
 (() => {
   "use strict";
   function styledRow(row) {
@@ -669,27 +673,40 @@
     if (best) best.classList.add("hg-sp-img");
   }
 
+  /* a section title: a heading that is not inside a product (product names and prices are headings too) */
+  function hasTitle(el) {
+    return Array.prototype.some.call(el.querySelectorAll("h1,h2,h3,h4"), (h) => !h.closest(".hg-sp-txt"));
+  }
+
   function apply() {
     const page = document.querySelector(".scheme-merchant-page");
     if (!page) return;
     addStyle();
+    /* pass 1: mark every product, so headings inside products can be told apart from section titles */
+    const found = [];
     page.querySelectorAll(".product-name").forEach((name) => {
       if (name.closest(".product-popup,.scheme-cart-panel,#cartItems,#cartItems2")) return;
       const prod = productOf(name, page);
       if (!prod) return;
       if (!prod.classList.contains("hg-sp-txt")) prod.classList.add("hg-sp-txt");
+      found.push([name, prod]);
+    });
+    /* pass 2: lay out the rows */
+    found.forEach(([name, prod]) => {
       if (name.closest(".hg-sp-cell") || name.closest(".scheme-product-recommendation-section")) return;
-      /* walk up from the product until an element holds two or more products: that is the row; the step below it is the cell */
+      /* walk up from the product until an element holds two or more products: that is the row; the step below it is the cell.
+         Stop if the walk reaches a section title: the product's own section ends there, so it is never a row. */
       let cell = prod, row = prod.parentElement;
-      while (row && row !== page && countProducts(row) < 2) { cell = row; row = row.parentElement; }
-      if (!row || row === page) return;
+      while (row && row !== page && countProducts(row) < 2) {
+        if (hasTitle(row)) return;
+        cell = row; row = row.parentElement;
+      }
+      if (!row || row === page || hasTitle(row)) return;
       if (styledRow(row)) return;
       if (!row.classList.contains("hg-sp-row")) row.classList.add("hg-sp-row");
       if (!cell.classList.contains("hg-sp-cell")) cell.classList.add("hg-sp-cell");
       markImage(cell);
-      /* section = the closest ancestor of the row that also holds a heading outside the row
-         (product names are h3/h4 themselves, so headings inside the row don't count) */
-      const hasTitle = (el) => Array.prototype.some.call(el.querySelectorAll("h1,h2,h3,h4"), (h) => !row.contains(h));
+      /* section = the closest ancestor of the row that also holds a section title */
       let section = row.parentElement;
       while (section && section !== page && !hasTitle(section)) section = section.parentElement;
       if (!section || section === page) return;
