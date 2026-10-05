@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1626 */
+/* hg-version 2026-10-05-1642 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -265,9 +265,13 @@
       var fld = null;
       try { fld = document.querySelector("#MultiVendorSearch .mobile-search-input input"); } catch (e1) {}
       var root3 = document.getElementById("MultiVendorSearch");
-      if (fld && lastField && fld !== lastField) { fieldReplaced++; kb.fieldRepAt = ts(); }
+      /* v8: page-address history (last 5 changes) and a log of each field/page replacement with the address at that moment */
+      var urlNow = location.pathname + location.search + location.hash;
+      try { urlNow = decodeURIComponent(urlNow); } catch (e3) {}
+      if (urlNow !== kbLastUrl) { kbUrlLog.push(ts() + " " + urlNow); if (kbUrlLog.length > 5) kbUrlLog.shift(); kbPrevUrl = kbLastUrl; kbLastUrl = urlNow; }
+      if (fld && lastField && fld !== lastField) { fieldReplaced++; kb.fieldRepAt = ts(); kbRepLog.push("field " + ts() + " at " + urlNow + (lastField.isConnected ? " (old still on page)" : " (old removed)")); if (kbRepLog.length > 4) kbRepLog.shift(); }
       if (fld) lastField = fld;
-      if (root3 && lastRoot && root3 !== lastRoot) { rootReplaced++; kb.rootRepAt = ts(); }
+      if (root3 && lastRoot && root3 !== lastRoot) { rootReplaced++; kb.rootRepAt = ts(); kbRepLog.push("root " + ts() + " at " + urlNow + " (address before: " + (kbPrevUrl || "-") + ")"); if (kbRepLog.length > 4) kbRepLog.shift(); }
       if (root3) lastRoot = root3;
       out.push("kb focus now: " + describe(document.activeElement) + (fld && document.activeElement === fld ? " (= search field)" : ""));
       out.push("kb field: " + (fld ? (fieldReplaced ? "REPLACED x" + fieldReplaced : "same") : "missing" + (fieldReplaced ? " (REPLACED x" + fieldReplaced + ")" : "")) +
@@ -282,6 +286,9 @@
       out.push("kb url at Enter: " + (kb.urlBefore ? kb.urlBefore + " -> " + (kb.urlAfter || "(same so far)") : "none yet"));
       out.push("kb replaced at: field " + (kb.fieldRepAt || "-") + " | root " + (kb.rootRepAt || "-"));
       out.push("kb vue: " + vueInfo(fld));
+      out.push("kb last typing: " + (kb.lastInput || "none yet"));
+      out.push("kb address log: " + (kbUrlLog.length ? kbUrlLog.join(" | ") : "none"));
+      out.push("kb replace log: " + (kbRepLog.length ? kbRepLog.join(" | ") : "none"));
     } catch (e) { out.push("kb: n/a"); }
     return out;
   }
@@ -303,6 +310,8 @@
   /* v5 recorders: listen only, and the two wrappers call the original blur()/focus() unchanged, so nothing behaves differently.
      Installed when the panel opens, removed when it closes. */
   var lastField = null, fieldReplaced = 0, lastRoot = null, rootReplaced = 0, kb = {}, t0 = 0, kbOn = false, origBlur = null, origFocus = null;
+  var kbUrlLog = [], kbRepLog = [], kbLastUrl = "", kbPrevUrl = ""; /* v8 */
+  function onInput(e) { try { var t = e.target; if (t && t.closest && t.closest("#MultiVendorSearch .mobile-search-input")) kb.lastInput = ts() + ' "' + String(t.value || "").slice(0, 20) + '"'; } catch (x) {} }
   function ts() { return ((Date.now() - t0) / 1000).toFixed(2) + "s"; }
   function frames() {
     try {
@@ -373,6 +382,8 @@
   function kbInstall() {
     if (kbOn) return;
     kbOn = true; t0 = Date.now(); kb = {}; lastField = null; fieldReplaced = 0; lastRoot = null; rootReplaced = 0;
+    kbUrlLog = []; kbRepLog = []; kbLastUrl = ""; kbPrevUrl = "";
+    document.addEventListener("input", onInput, { capture: true, passive: true });
     document.addEventListener("keydown", onKey, { capture: true, passive: true });
     document.addEventListener("focusout", onFocusOut, { capture: true, passive: true });
     try {
@@ -392,6 +403,7 @@
     kbOn = false;
     document.removeEventListener("keydown", onKey, { capture: true });
     document.removeEventListener("focusout", onFocusOut, { capture: true });
+    document.removeEventListener("input", onInput, { capture: true });
     try { if (origBlur) HTMLElement.prototype.blur = origBlur; if (origFocus) HTMLElement.prototype.focus = origFocus; } catch (e) {}
   }
 
