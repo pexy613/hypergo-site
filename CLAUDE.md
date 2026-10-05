@@ -11,6 +11,7 @@ Files and where they load:
 - app-footer.js: App Custom HTML Footer
 - Empty boxes: Global Head, Global CSS, Web CSS, App Head, App CSS
 - If a file exists in the repo that this list doesn't mention, tell me before editing it.
+- reference/design-system.md: how HyperGo currently looks (colors, typography, spacing, shapes, components, motion, RTL rules, decided target looks, conflicts and unknowns), built from the code. Read it before any visual change (see DESIGN SYSTEM).
 - reference/HyperGo_Hyperzod_Reference.txt: selectors, Hyperzod behavior and known failures. Read it before writing any selector or Hyperzod code. The current repo files are the source of truth, not old comments in it.
 - reference/home.html, reference/store.html, reference/search.html, reference/product.html: saved copies of the real website pages (home, a merchant store, search results for "Burgers", a product page), copied from the browser while logged out. Use them to find real selectors and page structure before writing any CSS or JS for the website. They cover the website only, not the app screens, and are snapshots that can go out of date. If a selector you need isn't in them, ask me for a new copy of that page.
 - backups/: backup copies. Add new ones, never edit or delete existing ones.
@@ -21,6 +22,15 @@ Rules:
 - Global code runs on both web and app. Web-only code goes in web-*, app-only code goes in app-*. Never put Web or App code in Global.
 - Some Global CSS is created at runtime by the JS (style IDs like hg-extra-style). When a style change doesn't take effect, check the JS before adding more CSS.
 - If a change needs a new file or a new line in a Hyperzod box, tell me the exact full text to paste and which box it goes in.
+
+# DESIGN SYSTEM (every visual change)
+- Before any change that adds or changes how something looks (spacing, size, color, border, shape, layout, animation, or a new element), read reference/design-system.md and match it. I will not repeat our style in every request. Applying it is your job.
+- Use only values that exist in that file or in the current code. Never invent new colors, sizes, radii, shadows or animations. When adding a new element, copy the closest existing component.
+- Decided target looks in that file override what the current code does today.
+- If the thing you're changing has an entry under CONFLICTS in that file, don't pick one silently. Ask me which style to use, in one question, before editing.
+- If something you need is listed under UNKNOWN or isn't in the file, match the closest existing component and say so in your report.
+- In your report, list which design-system values you used.
+- If I approve a new look, or a change I asked for introduces or changes a style value, update reference/design-system.md in the same task (backup first, as BACKUPS says) and tell me which lines changed. Never update it for changes I didn't ask for.
 
 # WHEN I SAY IT STILL DOESN'T WORK
 - I check the version marker and I restart the app myself, every time, before I report anything. The marker is always there. Assume the new file is loaded.
@@ -100,4 +110,4 @@ Colors: Opus #CCCBE3, Blue Magenta #5A29DE, Appetite #ACE4AA, Ultimate Orange #F
 - Language: English first. Arabic only when I ask or when the task is bilingual.
 
 # BEFORE EVERY PUSH, CHECK
-Followed every instruction? Cause proven before the fix? Global, no single-shop code? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
+Followed every instruction? Cause proven before the fix? Matched reference/design-system.md? Global, no single-shop code? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
