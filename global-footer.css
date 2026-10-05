@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1932 */
+/* hg-version 2026-10-05-2013 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -1776,4 +1776,17 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
   html.hg-native-app:is([dir="rtl"],[lang^="ar"]) body #app #MultiVendorSearch{
     margin-right:-16px!important; /* !important: beats the margin-right:0!important rule of the search canvas above */
   }
+}
+
+/* PRODUCT IMAGE CORNERS (2026-10-05) - every product card built as a "horizontal card" (Recommended Products on store
+   pages, product rows, home rails and search cards, website and app). Our rules round the image box .pro-card-h-img
+   (14px on store pages), but the picture inside it (.v-img, Hyperzod's "rounded-lg") keeps Vuetify's own 8px corners and
+   clips too. When the picture is not exactly on top of the box, one side shows the 8px corners and the other the box's
+   own corners (app screenshot: about 6-7px on the left, 11-14px on the right). The picture and its wrapper now take the
+   box's corner size, so all four corners are the same in every place, whatever size that place uses.
+   !important only to beat Vuetify's .rounded-lg{border-radius:...!important}. */
+.pro-card-h-img>.tw-cursor-pointer,
+.pro-card-h-img .v-img,
+.pro-card-h-img .v-img__img{
+  border-radius:inherit!important;
 }
