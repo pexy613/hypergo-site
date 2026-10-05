@@ -1,4 +1,4 @@
-/* hg-version 2026-10-04-2014 */
+/* hg-version 2026-10-05-1437 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -244,6 +244,22 @@
       } catch (e) { scanText = "widest: n/a\npast right: n/a\npast left: n/a"; }
     }
     out.push(scanText);
+    /* v4: header watermark (the faded logo on the home banner) - is the new crop loaded and applied? */
+    try {
+      var wst = document.getElementById("hg-wm-style");
+      out.push("wm style: " + (wst ? (wst.textContent.indexOf("clip-path") >= 0 ? "has crop" : "OLD (no crop)") : "none"));
+      var hr2 = document.getElementById("MultiVendorHeaderRoot");
+      if (!hr2) out.push("wm: no header root");
+      else {
+        var pcs = getComputedStyle(hr2, "::before"), rcs = getComputedStyle(hr2);
+        out.push("wm before: clip=" + (pcs.clipPath || pcs.webkitClipPath || "n/a") + " wclip=" + (pcs.webkitClipPath || "n/a") +
+          " bottom=" + pcs.bottom + " h=" + pcs.height + " op=" + pcs.opacity + " content=" + pcs.content);
+        out.push("hdr root: " + box(hr2) + " T " + px(hr2.getBoundingClientRect().top) + " B " + px(hr2.getBoundingClientRect().bottom) +
+          " radius=" + rcs.borderRadius + " ox=" + rcs.overflowX + " pos=" + rcs.position + " z=" + rcs.zIndex);
+      }
+      var lc = document.getElementById("hg-launch");
+      out.push("launch top: " + (lc ? px(lc.getBoundingClientRect().top) : "none"));
+    } catch (e) { out.push("wm: n/a"); }
     return out;
   }
 
