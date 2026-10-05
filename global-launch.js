@@ -1,6 +1,7 @@
-/* hg-version 2026-10-05-1410 */
+/* hg-version 2026-10-05-1415 */
 /* HYPERGO LAUNCH COUNTDOWN - homepage section directly under the header, on the website and in the app.
    Loaded by the Global Custom HTML Head box. The image is launch-countdown.jpg in this repo.
+   v2: card look from the reference (lavender card, glass tiles, big date, progress bar, flip on change).
    To remove the section later: empty that box, then delete this file and launch-countdown.jpg. */
 (function () {
   "use strict";
@@ -9,19 +10,26 @@
 
   /* ===== LAUNCH DATE AND TIME - Bahrain time (+03:00). Change only this line. ===== */
   var LAUNCH_AT = "2026-10-25T00:00:00+03:00";
+  /* the progress bar starts filling from here (Bahrain time) */
+  var BAR_START = "2026-09-25T00:00:00+03:00";
 
   var IMAGE = "https://pexy613.github.io/hypergo-site/launch-countdown.jpg";
   /* the download links the site already uses (footer badges) */
   var APP_STORE = "https://apps.apple.com/app/hypergo/id6756649680";
   var GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.customer.hypergo&hl=en";
 
+  var AR_UNITS = ["\u0623\u064a\u0627\u0645", "\u0633\u0627\u0639\u0627\u062a", "\u062f\u0642\u0627\u0626\u0642", "\u062b\u0648\u0627\u0646\u064a"];
   var TEXT = {
-    en: { tag: "Launching", date: "October 25", units: ["Days", "Hours", "Minutes", "Seconds"], live: "We're live", dl: "Download HyperGo", aria: "HyperGo launch countdown" },
-    ar: { tag: "\u0627\u0644\u0625\u0637\u0644\u0627\u0642", date: "25 \u0623\u0643\u062a\u0648\u0628\u0631", units: ["\u0623\u064a\u0627\u0645", "\u0633\u0627\u0639\u0627\u062a", "\u062f\u0642\u0627\u0626\u0642", "\u062b\u0648\u0627\u0646\u064a"], live: "\u0646\u062d\u0646 \u0645\u062a\u0627\u062d\u0648\u0646 \u0627\u0644\u0622\u0646", dl: "\u062d\u0645\u0651\u0644 HyperGo", aria: "\u0627\u0644\u0639\u062f \u0627\u0644\u062a\u0646\u0627\u0632\u0644\u064a \u0644\u0625\u0637\u0644\u0627\u0642 HyperGo" }
+    en: { tag: "Launching", date: "October 25", units: ["Days", "Hours", "Minutes", "Seconds"], sub: AR_UNITS,
+          foot: "Delivered anywhere in Bahrain", live: "We're live", dl: "Download HyperGo", aria: "HyperGo launch countdown" },
+    ar: { tag: "\u0627\u0644\u0625\u0637\u0644\u0627\u0642", date: "25 \u0623\u0643\u062a\u0648\u0628\u0631", units: AR_UNITS, sub: null,
+          foot: "\u062a\u0648\u0635\u064a\u0644 \u0644\u0643\u0644 \u0645\u0643\u0627\u0646 \u0641\u064a \u0627\u0644\u0628\u062d\u0631\u064a\u0646",
+          live: "\u0646\u062d\u0646 \u0645\u062a\u0627\u062d\u0648\u0646 \u0627\u0644\u0622\u0646", dl: "\u062d\u0645\u0651\u0644 HyperGo",
+          aria: "\u0627\u0644\u0639\u062f \u0627\u0644\u062a\u0646\u0627\u0632\u0644\u064a \u0644\u0625\u0637\u0644\u0627\u0642 HyperGo" }
   };
 
-  var LAUNCH_MS = Date.parse(LAUNCH_AT);
-  var sec = null, cells = [], els = {}, timer = 0, lastKey = "";
+  var LAUNCH_MS = Date.parse(LAUNCH_AT), START_MS = Date.parse(BAR_START);
+  var sec = null, tiles = [], els = {}, timer = 0, lastKey = "";
 
   function isAr() {
     var de = document.documentElement;
@@ -36,96 +44,124 @@
     var st = document.createElement("style");
     st.id = "hg-launch-style";
     st.textContent =
-      "#hg-launch{box-sizing:border-box;width:100%;padding:16px 16px 8px;background:#fff;}" +
-      "@media (min-width:960px){#hg-launch{padding:48px 48px 24px;}}" +
+      "#hg-launch{box-sizing:border-box;width:100%;padding:14px 16px 8px;background:#fff;}" +
+      "@media (min-width:960px){#hg-launch{padding:40px 48px 24px;}}" +
       "#hg-launch *{box-sizing:border-box;}" +
-      /* the image card: whole image, never stretched or cropped, old section's 8px corners and border */
-      "#hg-launch .hg-launch-card{position:relative;max-width:1100px;margin:0 auto;aspect-ratio:1672/941;border-radius:8px;border:1px solid #EDEDED;overflow:hidden;background:#F6F6F8;container-type:inline-size;}" +
-      "#hg-launch .hg-launch-img{display:block;width:100%;height:100%;object-fit:cover;}" +
-      /* countdown centred in the open upper half of the image, above the bag and the scooter */
-      "#hg-launch .hg-launch-over{position:absolute;top:0;left:10%;right:10%;height:52%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:inherit;color:#1B2023;}" +
-      "#hg-launch .hg-launch-tag{display:flex;align-items:center;gap:.5em;font-weight:700;color:#5A29DE;text-transform:uppercase;letter-spacing:.12em;line-height:1.2;" +
-        "font-size:clamp(10px,2.6vw,18px);font-size:clamp(10px,2.3cqw,18px);}" +
-      "html[dir='rtl'] #hg-launch .hg-launch-tag,html[lang^='ar'] #hg-launch .hg-launch-tag{letter-spacing:0;text-transform:none;}" +
-      "#hg-launch .hg-launch-tag .hg-launch-sep{opacity:.6;}" +
-      "#hg-launch .hg-launch-cd{display:flex;justify-content:center;margin-top:8px;margin-top:clamp(8px,1.6cqw,18px);gap:6px;gap:clamp(6px,1.4cqw,16px);}" +
-      "#hg-launch .hg-launch-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.8);border-radius:12px;border-radius:clamp(8px,1.4cqw,16px);" +
-        "box-shadow:0 1px 6px rgba(60,30,140,.12);padding:6px 4px;padding:clamp(6px,1.3cqw,14px) 4px;" +
-        "min-width:46px;min-width:clamp(46px,12cqw,120px);}" +
-      /* fixed-width digits: the numbers never shift the layout when they change */
-      "#hg-launch .hg-launch-n{display:block;font-weight:700;color:#5A29DE;line-height:1.05;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;" +
-        "font-size:clamp(20px,5.8vw,64px);font-size:clamp(20px,6.2cqw,64px);}" +
-      "#hg-launch .hg-launch-u{display:block;margin-top:3px;font-weight:500;color:#1B2023;line-height:1.2;white-space:nowrap;" +
-        "font-size:clamp(9px,2vw,15px);font-size:clamp(9px,1.6cqw,15px);}" +
-      "#hg-launch .hg-launch-live{margin-top:8px;margin-top:clamp(8px,1.6cqw,18px);font-weight:700;color:#5A29DE;line-height:1.15;" +
-        "font-size:clamp(24px,6.4vw,64px);font-size:clamp(24px,6.4cqw,64px);}" +
+      /* the card */
+      "#hg-launch .hg-launch-card{position:relative;max-width:1100px;margin:0 auto;border-radius:26px;overflow:hidden;isolation:isolate;text-align:center;" +
+        "font-family:inherit;color:#2e1a87;background:linear-gradient(180deg,#efeaff 0%,#d9d0fd 100%);border:1px solid #ddd5fb;" +
+        "box-shadow:0 18px 40px -18px rgba(91,63,208,.55);container-type:inline-size;}" +
+      "#hg-launch .hg-launch-body{position:relative;z-index:2;padding:24px 14px 0;padding:clamp(24px,4cqw,48px) clamp(14px,3cqw,40px) 0;}" +
+      /* the image: whole picture, never stretched; its empty top fades into the card under the countdown */
+      "#hg-launch .hg-launch-img{position:relative;z-index:1;display:block;width:100%;height:auto;aspect-ratio:1672/941;margin-top:-24%;" +
+        "-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 34%);mask-image:linear-gradient(180deg,transparent 0%,#000 34%);}" +
+      "#hg-launch .hg-launch-pill{display:inline-block;font-size:11px;font-size:clamp(11px,1.5cqw,15px);font-weight:600;letter-spacing:6px;text-indent:6px;text-transform:uppercase;color:#5b3fd0;}" +
+      "html[dir='rtl'] #hg-launch .hg-launch-pill,html[lang^='ar'] #hg-launch .hg-launch-pill{letter-spacing:0;text-indent:0;font-size:13px;font-size:clamp(13px,1.7cqw,17px);}" +
+      "#hg-launch .hg-launch-date{display:block;margin:6px 0 16px;font-size:34px;font-size:clamp(34px,5cqw,58px);font-weight:800;line-height:1.05;letter-spacing:-.6px;color:#3b1fa8;}" +
+      "html[dir='rtl'] #hg-launch .hg-launch-date,html[lang^='ar'] #hg-launch .hg-launch-date{letter-spacing:0;line-height:1.25;}" +
+      /* glass tiles; fixed-width digits so nothing shifts when they change */
+      "#hg-launch .hg-launch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;gap:clamp(8px,1.4cqw,16px);max-width:640px;margin:0 auto;}" +
+      "#hg-launch .hg-launch-t{padding:13px 0 9px;padding:clamp(13px,1.8cqw,20px) 0 clamp(9px,1.4cqw,16px);border-radius:18px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.9);" +
+        "-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 10px 22px -12px rgba(91,63,208,.55);min-width:0;}" +
+      "#hg-launch .hg-launch-n{display:block;font-size:30px;font-size:clamp(30px,5cqw,56px);font-weight:800;line-height:1;letter-spacing:-.5px;color:#3b1fa8;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;}" +
+      "#hg-launch .hg-launch-n.hg-launch-flip{animation:hgLaunchFlip .45s cubic-bezier(.2,.9,.3,1.2);}" +
+      "@keyframes hgLaunchFlip{from{transform:translateY(-45%) scale(.9);opacity:0}to{transform:none;opacity:1}}" +
+      "#hg-launch .hg-launch-l{display:block;margin-top:7px;font-size:9px;font-size:clamp(9px,1.2cqw,12px);font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#6d4fd6;white-space:nowrap;}" +
+      "html[dir='rtl'] #hg-launch .hg-launch-l,html[lang^='ar'] #hg-launch .hg-launch-l{letter-spacing:0;font-size:11px;font-size:clamp(11px,1.4cqw,14px);}" +
+      "#hg-launch .hg-launch-sub{display:block;margin-top:1px;font-size:10px;font-size:clamp(10px,1.2cqw,13px);color:#8a76e0;font-family:'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif;}" +
+      "#hg-launch .hg-launch-t:last-child{animation:hgLaunchGlow 2s ease-in-out infinite;}" +
+      "@keyframes hgLaunchGlow{50%{box-shadow:0 10px 26px -8px rgba(124,58,237,.8)}}" +
+      "#hg-launch .hg-launch-bar{height:5px;border-radius:9px;background:rgba(91,63,208,.16);margin:16px 24px 8px;overflow:hidden;max-width:592px;}" +
+      "@media (min-width:700px){#hg-launch .hg-launch-bar{margin-left:auto;margin-right:auto;}}" +
+      "#hg-launch .hg-launch-bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#7c3aed,#c084fc);transition:width 1.2s ease;}" +
+      "html[dir='rtl'] #hg-launch .hg-launch-bar i{background:linear-gradient(270deg,#7c3aed,#c084fc);}" +
+      "#hg-launch .hg-launch-foot{display:block;font-size:11.5px;font-size:clamp(11.5px,1.5cqw,16px);font-weight:600;color:#4c2fb8;}" +
+      "#hg-launch .hg-launch-live b{display:block;font-size:30px;font-size:clamp(30px,5cqw,58px);font-weight:900;line-height:1.15;color:#3b1fa8;}" +
       /* same look as the old section's Become a Vendor button */
-      "#hg-launch .hg-launch-dl{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;margin-top:clamp(10px,2cqw,24px);" +
-        "padding:10px 20px;padding:clamp(10px,1.3cqw,14px) clamp(20px,3cqw,32px);border-radius:8px;border:2px solid #000;background:#000;color:#fff;" +
-        "font-size:14px;font-weight:600;line-height:1.2;text-decoration:none;white-space:nowrap;}" +
+      "#hg-launch .hg-launch-dl{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;padding:12px 24px;border-radius:8px;border:2px solid #000;" +
+        "background:#000;color:#fff;font-size:14px;font-weight:600;line-height:1.2;text-decoration:none;white-space:nowrap;}" +
       "#hg-launch [hidden]{display:none!important;}" +
       /* the Download HyperGo button is website only */
-      "html.hg-native-app #hg-launch .hg-launch-dl{display:none!important;}";
+      "html.hg-native-app #hg-launch .hg-launch-dl{display:none!important;}" +
+      "@media (prefers-reduced-motion:reduce){#hg-launch *{animation:none!important;transition:none!important;}}";
     (document.head || document.documentElement).appendChild(st);
   }
 
   function build() {
+    var tile = '<div class="hg-launch-t"><span class="hg-launch-n">00</span><span class="hg-launch-l"></span><span class="hg-launch-sub"></span></div>';
     sec = document.createElement("section");
     sec.id = "hg-launch";
     sec.className = "hg-launch";
     sec.innerHTML =
       '<div class="hg-launch-card">' +
-        '<img class="hg-launch-img" alt="" width="1672" height="941" decoding="async">' +
-        '<div class="hg-launch-over">' +
-          '<div class="hg-launch-tag"><span class="hg-launch-k"></span><span class="hg-launch-sep">\u00b7</span><span class="hg-launch-d"></span></div>' +
-          '<div class="hg-launch-cd" role="timer">' +
-            '<div class="hg-launch-cell"><span class="hg-launch-n">00</span><span class="hg-launch-u"></span></div>' +
-            '<div class="hg-launch-cell"><span class="hg-launch-n">00</span><span class="hg-launch-u"></span></div>' +
-            '<div class="hg-launch-cell"><span class="hg-launch-n">00</span><span class="hg-launch-u"></span></div>' +
-            '<div class="hg-launch-cell"><span class="hg-launch-n">00</span><span class="hg-launch-u"></span></div>' +
+        '<div class="hg-launch-body">' +
+          '<div class="hg-launch-wait">' +
+            '<span class="hg-launch-pill hg-launch-k"></span>' +
+            '<span class="hg-launch-date"></span>' +
+            '<div class="hg-launch-grid" role="timer">' + tile + tile + tile + tile + '</div>' +
+            '<div class="hg-launch-bar"><i></i></div>' +
+            '<span class="hg-launch-foot"></span>' +
           '</div>' +
-          '<div class="hg-launch-live" hidden></div>' +
-          '<a class="hg-launch-dl" hidden target="_blank" rel="noopener"></a>' +
+          '<div class="hg-launch-live" hidden><b></b><a class="hg-launch-dl" target="_blank" rel="noopener"></a></div>' +
         '</div>' +
+        '<img class="hg-launch-img" alt="" width="1672" height="941" decoding="async">' +
       '</div>';
     sec.querySelector(".hg-launch-img").src = IMAGE;
-    els.tag = sec.querySelector(".hg-launch-tag");
+    els.wait = sec.querySelector(".hg-launch-wait");
     els.k = sec.querySelector(".hg-launch-k");
-    els.d = sec.querySelector(".hg-launch-d");
-    els.cd = sec.querySelector(".hg-launch-cd");
+    els.date = sec.querySelector(".hg-launch-date");
+    els.bar = sec.querySelector(".hg-launch-bar i");
+    els.foot = sec.querySelector(".hg-launch-foot");
     els.live = sec.querySelector(".hg-launch-live");
+    els.liveText = els.live.querySelector("b");
     els.dl = sec.querySelector(".hg-launch-dl");
-    var c = sec.querySelectorAll(".hg-launch-cell");
-    for (var i = 0; i < c.length; i++) cells.push({ n: c[i].querySelector(".hg-launch-n"), u: c[i].querySelector(".hg-launch-u") });
+    var t = sec.querySelectorAll(".hg-launch-t");
+    for (var i = 0; i < t.length; i++) tiles.push({ n: t[i].querySelector(".hg-launch-n"), l: t[i].querySelector(".hg-launch-l"), s: t[i].querySelector(".hg-launch-sub") });
     var apple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent || "");
     els.dl.href = apple ? APP_STORE : GOOGLE_PLAY;
+  }
+
+  /* a short flip each time a number changes (restarted by re-adding the class) */
+  function setNum(el, v) {
+    if (el.textContent === v) return;
+    el.textContent = v;
+    el.classList.remove("hg-launch-flip");
+    void el.offsetWidth;
+    el.classList.add("hg-launch-flip");
   }
 
   /* everything is computed from the real time left, so a background tab or a locked phone shows the right time on return,
      and the device's time zone does not matter (LAUNCH_AT carries Bahrain's +03:00) */
   function render() {
     if (!sec) return;
-    var t = TEXT[isAr() ? "ar" : "en"];
-    var left = LAUNCH_MS - Date.now();
-    var live = !(left > 0);
-    var key = (t === TEXT.ar ? "ar" : "en") + (live ? "1" : "0");
+    var ar = isAr(), t = TEXT[ar ? "ar" : "en"];
+    var now = Date.now(), left = LAUNCH_MS - now, live = !(left > 0);
+    var key = (ar ? "ar" : "en") + (live ? "1" : "0") + (isApp() ? "a" : "w");
     if (key !== lastKey) {
       lastKey = key;
       sec.setAttribute("aria-label", t.aria);
       setText(els.k, t.tag);
-      setText(els.d, t.date);
-      for (var i = 0; i < 4; i++) setText(cells[i].u, t.units[i]);
-      setText(els.live, t.live);
+      setText(els.date, t.date);
+      for (var i = 0; i < 4; i++) {
+        setText(tiles[i].l, t.units[i]);
+        setText(tiles[i].s, t.sub ? t.sub[i] : "");
+        tiles[i].s.hidden = !t.sub;
+      }
+      setText(els.foot, t.foot);
+      setText(els.liveText, t.live);
       setText(els.dl, t.dl);
-      els.tag.hidden = live;
-      els.cd.hidden = live;
+      els.wait.hidden = live;
       els.live.hidden = !live;
-      els.dl.hidden = !live || isApp();
+      els.dl.hidden = isApp();
     }
     if (live) return;
     var s = Math.ceil(left / 1000);
     var v = [Math.floor(s / 86400), Math.floor(s % 86400 / 3600), Math.floor(s % 3600 / 60), s % 60];
-    for (var j = 0; j < 4; j++) setText(cells[j].n, pad(v[j]));
+    for (var j = 0; j < 4; j++) setNum(tiles[j].n, pad(v[j]));
+    if (isFinite(START_MS) && LAUNCH_MS > START_MS) {
+      var w = Math.min(100, Math.max(3, (now - START_MS) / (LAUNCH_MS - START_MS) * 100)).toFixed(2) + "%";
+      if (els.bar.style.width !== w) els.bar.style.width = w;
+    }
   }
 
   function schedule() {
@@ -162,7 +198,7 @@
         }
       }).observe(document.body, { childList: true, subtree: true });
       /* language switch: labels, date and button text change right away; the countdown keeps running */
-      new MutationObserver(function () { lastKey = ""; render(); })
+      new MutationObserver(function () { render(); })
         .observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir", "class"] });
     } catch (e) {}
     document.addEventListener("visibilitychange", function () { if (!document.hidden) schedule(); });
