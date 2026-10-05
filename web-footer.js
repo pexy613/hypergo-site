@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1706 */
+/* hg-version 2026-10-05-1813 */
 (() => {
   "use strict";
 
@@ -592,7 +592,11 @@
    rows our rules already lay out as the grid (.product-horizontal-cards, the category grid .special-listing-inner>.tw-grid
    and Recommended Products) are left alone. Every other row is marked and laid out like the
    styled grid (5 per row on desktop, same gaps, no borders, no arrows, no sideways scrolling). Nothing is removed,
-   moved or re-created, so the "+" button and opening a product work as before. */
+   moved or re-created, so the "+" button and opening a product work as before.
+   Text (2026-10-05): our name/price rules are also tied to class names (Recommended, .cat-section, the card classes),
+   so sections Hyperzod renders another way kept Hyperzod's own text (lighter grey, or bolder). Every product found on
+   the store page - in every section, Recommended included - is now marked .hg-sp-txt and gets the one text style we
+   use: name 16px / 400 / #1B2023 / 1.3, price 16px / 500 / #1B2023 (design-system 10a #7, #8). */
 (() => {
   "use strict";
   function styledRow(row) {
@@ -625,6 +629,9 @@
     ".scheme-merchant-page .hg-sp-cell .price{margin-top:10px !important;}" +
     ".scheme-merchant-page .hg-sp-cell .price,.scheme-merchant-page .hg-sp-cell .price *{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
     ".scheme-merchant-page .hg-sp-cell .product-description{display:none !important;}" +
+    /* text for every product in every section; id + doubled classes only to beat the existing #app rules in global-footer.css (!important there too) */
+    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .product-name.product-name{color:#1B2023 !important;font-size:16px !important;font-weight:400 !important;line-height:1.3 !important;}" +
+    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price,html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price *{color:#1B2023 !important;font-size:16px !important;font-weight:500 !important;}" +
     /* slider leftovers: copies a slider adds for endless scrolling, and the arrow buttons */
     ".scheme-merchant-page .hg-sp-row>.swiper-slide-duplicate,.scheme-merchant-page .hg-sp-arrow{display:none !important;}";
 
@@ -667,9 +674,11 @@
     if (!page) return;
     addStyle();
     page.querySelectorAll(".product-name").forEach((name) => {
-      if (name.closest(".hg-sp-cell") || name.closest(".scheme-product-recommendation-section")) return;
+      if (name.closest(".product-popup,.scheme-cart-panel,#cartItems,#cartItems2")) return;
       const prod = productOf(name, page);
       if (!prod) return;
+      if (!prod.classList.contains("hg-sp-txt")) prod.classList.add("hg-sp-txt");
+      if (name.closest(".hg-sp-cell") || name.closest(".scheme-product-recommendation-section")) return;
       /* walk up from the product until an element holds two or more products: that is the row; the step below it is the cell */
       let cell = prod, row = prod.parentElement;
       while (row && row !== page && countProducts(row) < 2) { cell = row; row = row.parentElement; }
@@ -678,9 +687,11 @@
       if (!row.classList.contains("hg-sp-row")) row.classList.add("hg-sp-row");
       if (!cell.classList.contains("hg-sp-cell")) cell.classList.add("hg-sp-cell");
       markImage(cell);
-      /* section = the closest ancestor of the row that also holds a heading */
+      /* section = the closest ancestor of the row that also holds a heading outside the row
+         (product names are h3/h4 themselves, so headings inside the row don't count) */
+      const hasTitle = (el) => Array.prototype.some.call(el.querySelectorAll("h1,h2,h3,h4"), (h) => !row.contains(h));
       let section = row.parentElement;
-      while (section && section !== page && !section.querySelector("h1,h2,h3,h4")) section = section.parentElement;
+      while (section && section !== page && !hasTitle(section)) section = section.parentElement;
       if (!section || section === page) return;
       /* undo the sideways clipping between the section and the row */
       for (let el = row.parentElement; el && el !== section; el = el.parentElement) {
