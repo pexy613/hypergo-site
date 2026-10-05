@@ -22,6 +22,13 @@ Rules:
 - Some Global CSS is created at runtime by the JS (style IDs like hg-extra-style). When a style change doesn't take effect, check the JS before adding more CSS.
 - If a change needs a new file or a new line in a Hyperzod box, tell me the exact full text to paste and which box it goes in.
 
+# WHEN I SAY IT STILL DOESN'T WORK
+- I check the version marker and I restart the app myself, every time, before I report anything. The marker is always there. Assume the new file is loaded.
+- So when I say a fix didn't work, the fix was wrong or something is blocking it. It is never a cache or deploy problem unless I tell you the marker is missing.
+- Never tell me to check the marker, wait for GitHub, close the app, or refresh. Never suggest cache, a stale copy, or a deploy delay. Never ask me to check anything I've already done.
+- Instead, investigate the code: Did the fix target the element I'm actually looking at? Is another rule, script or runtime-generated style overriding it later? Does a different file or section also render this thing? Is something hiding or recreating the element? Is it running in the wrong place (Global vs Web vs App)?
+- Tell me what you found in one or two plain sentences, with the evidence from the code. If the code can't prove it, build the temporary diagnostic (see BUGS: ROOT CAUSE FIRST). Never write a second guess.
+
 # BUGS: ROOT CAUSE FIRST
 - Never write a fix for a bug until the cause is proven with evidence: numbers from a diagnostic, a frame-by-frame reading of my screen recording, or code you can point to. A guess is not a cause.
 - Before changing anything for a bug, tell me the cause in one or two plain sentences, with the evidence.
@@ -40,7 +47,7 @@ If I say "restore" or "go back", restore the file from the newest matching backu
 # NEVER DO THESE
 - Never browse or open my live website or app, and never use browser tools. Work only from files in this repo.
 - Never ask me to paste the contents of a Hyperzod box. Each box only holds the loader lines listed in HOW THIS REPO WORKS.
-- If a change doesn't show up for me, don't rewrite the code again. First check: was it pushed, and could the app or browser be serving a cached copy of the file? Tell me which is likely, and give me one test to confirm.
+- Never blame cache, a stale copy or a deploy delay for a fix that didn't work (see WHEN I SAY IT STILL DOESN'T WORK).
 - Never tell me to edit, replace or add a part of a file, prompt or instruction. Always give the complete final version, ready to paste in full.
 
 # STATUS WORDS
@@ -57,12 +64,9 @@ I push with GitHub Desktop. After every commit, tell me to open GitHub Desktop a
 - Changes apply globally to every merchant, never to one shop. Use structural selectors. Never target a merchant name, ID or product.
 - Before finishing, list exactly what you changed and what you deliberately left untouched.
 
-# VERSION CHECK (every change)
+# VERSION MARKER (every change)
 - Put a marker comment on line 1 of every file you change, like /* hg-version 2026-09-30-1930 */, and update it each time.
-- In your final reply, give me the public link of each changed file (https://pexy613.github.io/hypergo-site/<file name>) and the exact marker to look for.
-- The test: after I push, I open the link and press Ctrl+F for the marker. If it isn't there, the change isn't pushed or deployed yet, and the code isn't the problem.
-- Don't call anything done until I confirm the marker shows.
-- For the app: once the marker shows, fully close and reopen the app. If it still looks wrong, tell me it's a cache issue and don't edit the code again.
+- In your final reply, give me the public link of each changed file (https://pexy613.github.io/hypergo-site/<file name>) and the marker. I check it myself. Don't ask me to confirm it and don't repeat the check steps.
 
 # REPLY STYLE
 Short. No intro, no recap. Format: what changed, file, backup name, marker and link, what I should see. Then stop. Explain only when I ask or when something is critical.
@@ -81,7 +85,7 @@ Never mention a file, folder, setting, button, tool or feature unless you've con
 - Generous spacing and breathing room, like Talabat. No cramped layouts.
 - Never use zoom or transform scaling to resize the page.
 - When I say "drastic", "bigger" or "way more", the change must be obvious at a glance. Go bold first.
-- If I say it looks the same, you were wrong. Don't defend it. Find why it had no effect (selector mismatch, overridden style, cache) and increase the change.
+- If I say it looks the same, you were wrong. Don't defend it. Find why it had no effect (wrong target, overridden style, something recreating the element) and increase the change.
 - Never say "fixed" or "working" unless you actually checked. If you couldn't verify, say so in one line.
 
 # BRAND (reference)
