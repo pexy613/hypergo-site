@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1437 */
+/* hg-version 2026-10-05-1505 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -260,6 +260,23 @@
       var lc = document.getElementById("hg-launch");
       out.push("launch top: " + (lc ? px(lc.getBoundingClientRect().top) : "none"));
     } catch (e) { out.push("wm: n/a"); }
+    /* v5: search keyboard closing while typing - who takes focus away, and when (times are seconds since the panel opened) */
+    try {
+      var fld = null;
+      try { fld = document.querySelector("#MultiVendorSearch .mobile-search-input input"); } catch (e1) {}
+      var root3 = document.getElementById("MultiVendorSearch");
+      if (fld && lastField && fld !== lastField) fieldReplaced++;
+      if (fld) lastField = fld;
+      if (root3 && lastRoot && root3 !== lastRoot) rootReplaced++;
+      if (root3) lastRoot = root3;
+      out.push("kb focus now: " + describe(document.activeElement) + (fld && document.activeElement === fld ? " (= search field)" : ""));
+      out.push("kb field: " + (fld ? (fieldReplaced ? "REPLACED x" + fieldReplaced : "same") : "missing" + (fieldReplaced ? " (REPLACED x" + fieldReplaced + ")" : "")) +
+        " | root: " + (root3 ? (rootReplaced ? "REPLACED x" + rootReplaced : "same") : "missing" + (rootReplaced ? " (REPLACED x" + rootReplaced + ")" : "")));
+      out.push("kb auto-search Enter: " + (kb.auto ? "t=" + kb.auto : "none yet"));
+      out.push("kb last blur: " + (kb.blur || "none yet"));
+      out.push("kb blur() call: " + (kb.blurCall || "none yet"));
+      out.push("kb focus() call: " + (kb.focusCall || "none yet"));
+    } catch (e) { out.push("kb: n/a"); }
     return out;
   }
 
@@ -272,6 +289,53 @@
       if (panel.textContent !== s) panel.textContent = s;
     } catch (e) {}
     rafId = requestAnimationFrame(tick);
+  }
+
+  /* v5 recorders: listen only, and the two wrappers call the original blur()/focus() unchanged, so nothing behaves differently.
+     Installed when the panel opens, removed when it closes. */
+  var lastField = null, fieldReplaced = 0, lastRoot = null, rootReplaced = 0, kb = {}, t0 = 0, kbOn = false, origBlur = null, origFocus = null;
+  function ts() { return ((Date.now() - t0) / 1000).toFixed(2) + "s"; }
+  function frames() {
+    try {
+      var st = String(new Error().stack || "").split("\n").slice(3, 6), out = [];
+      for (var i = 0; i < st.length; i++) {
+        var f = st[i].trim().replace(/^at\s+/, "").replace(/https?:\/\/[^\s)]*\/([^\/\s)]+)/g, "$1");
+        if (f) out.push(f.slice(0, 70));
+      }
+      return out.join(" < ") || "no stack";
+    } catch (e) { return "no stack"; }
+  }
+  function onKey(e) { try { if (e && e.key === "Enter" && e.hgAutoSearch && e.type === "keydown") kb.auto = ts(); } catch (x) {} }
+  function onFocusOut(e) {
+    try {
+      var t = e.target;
+      if (!t || !t.closest || !t.closest("#MultiVendorSearch .mobile-search-input")) return;
+      kb.blur = ts() + " " + e.type + " to " + (e.relatedTarget ? describe(e.relatedTarget) : "nothing") + (t.isConnected ? "" : " (field removed)");
+    } catch (x) {}
+  }
+  function kbInstall() {
+    if (kbOn) return;
+    kbOn = true; t0 = Date.now(); kb = {}; lastField = null; fieldReplaced = 0; lastRoot = null; rootReplaced = 0;
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("focusout", onFocusOut, true);
+    try {
+      origBlur = HTMLElement.prototype.blur; origFocus = HTMLElement.prototype.focus;
+      HTMLElement.prototype.blur = function () {
+        try { if (this.closest && this.closest("#MultiVendorSearch")) kb.blurCall = ts() + " on " + describe(this) + " from " + frames(); } catch (x) {}
+        return origBlur.apply(this, arguments);
+      };
+      HTMLElement.prototype.focus = function () {
+        try { if (!(panel && panel.contains(this))) kb.focusCall = ts() + " on " + describe(this) + " from " + frames(); } catch (x) {}
+        return origFocus.apply(this, arguments);
+      };
+    } catch (e) {}
+  }
+  function kbRemove() {
+    if (!kbOn) return;
+    kbOn = false;
+    document.removeEventListener("keydown", onKey, true);
+    document.removeEventListener("focusout", onFocusOut, true);
+    try { if (origBlur) HTMLElement.prototype.blur = origBlur; if (origFocus) HTMLElement.prototype.focus = origFocus; } catch (e) {}
   }
 
   function show() {
@@ -292,12 +356,14 @@
     shown = true;
     lastHdr = null; replaced = 0; /* v2: the replaced counter starts fresh each time the panel is shown */
     scanText = ""; lastScan = 0; /* v3: fresh scan each time the panel is shown */
+    kbInstall(); /* v5 */
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(tick);
   }
 
   function hide() {
     shown = false;
+    kbRemove(); /* v5 */
     cancelAnimationFrame(rafId);
     if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
     panel = null;
