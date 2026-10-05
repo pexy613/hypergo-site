@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2104 */
+/* hg-version 2026-10-05-1428 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -491,7 +491,10 @@
       st.textContent =
         '#MultiVendorHeaderRoot::before{content:"";position:absolute;right:6px;bottom:-24px;width:190px;height:190px;' +
         'background:url("' + LOGO_OUTLINE + '") no-repeat center/contain;' +
-        'opacity:var(--hg-wm-op,0);pointer-events:none;z-index:-1;}';
+        'opacity:var(--hg-wm-op,0);pointer-events:none;z-index:-1;' +
+        /* crop to the purple banner: the logo hangs 24px below the banner, so its bottom 24px and the part outside the
+           banner's rounded corner (26px radius, logo sits 6px in from the edge) are cut off */
+        'clip-path:inset(0 0 24px 0 round 0 0 20px 0);}';
       document.head.appendChild(st);
     }
     updateWatermark(root);
@@ -1100,7 +1103,7 @@
         "cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}" +
         "#hg-cart-btn:active{background:rgba(255,255,255,.3) !important;}" +
         "html[lang^='ar'] #hg-cart-btn{right:auto;left:16px;}" +
-        "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;}" +
+        "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;clip-path:inset(0 0 24px 0 round 0 0 0 20px);}" +
         "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;right:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;background:#FF3B4E;" +
         "border:2px solid #8640FC;display:none;}" +
         "#hg-cart-btn .hg-cart-badge.on{display:block;}" +
