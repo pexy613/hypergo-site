@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1546 */
+/* hg-version 2026-10-07-1721 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -176,6 +176,9 @@
   function liveSearch(input){
     if(typeof clearTimeout==="function")clearTimeout(autoSearchTimer);
     const query=String(input.value||"").trim();
+    /* TEMP-DIAGNOSTIC-START (hgperf hook: no live search for the secret words hgperf / hgnoswipe or their first letters) */
+    {const ql=query.toLowerCase();if(ql.length>=3&&("hgperf".indexOf(ql)===0||"hgnoswipe".indexOf(ql)===0))return;}
+    /* TEMP-DIAGNOSTIC-END */
     if(query.length===1||composing.has(input))return;
     autoSearchTimer=setTimeout(()=>{
       if(!document.getElementById('MultiVendorSearch')||(input.isConnected===false||(document.contains&&!document.contains(input)))||String(input.value||"").trim()!==query)return;

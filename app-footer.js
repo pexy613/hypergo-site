@@ -1,8 +1,315 @@
-/* hg-version 2026-10-07-1707 */
+/* hg-version 2026-10-07-1721 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
 })();
+
+/* TEMP-DIAGNOSTIC-START (hgperf: tap / swipe delay panel + hgnoswipe switch)
+   Temporary, hidden, read-only. Secret words, typed in the search field and submitted with Return:
+   - hgperf    shows / hides the panel (live numbers about tap and swipe delay).
+   - hgnoswipe switches our edge swipe-back and our tab swipe OFF / back ON (their listeners are removed / re-added).
+   The panel and all numbers live in memory only (no storage, no network, no console). Nothing shows without a word.
+   Listener counting: addEventListener / removeEventListener are wrapped from the moment this file runs. The wrapper calls
+   the original first with the exact same arguments and returns its result; it only counts touch, pointer and click
+   types (and records the registering file:line for them) and can never throw. Listeners registered before this file
+   ran are not seen (the panel's conditions line says whether the page was still loading when it was installed).
+   Hooks elsewhere (each marked with the same two start / end comments): the tag lines around the tab swipe and the swipe-back
+   blocks in this file, and the secret-word line in liveSearch() in global-footer-2.js. */
+(function () {
+  "use strict";
+  var W = window, D = document;
+  if (W.__hgPerf) return;
+  var P = W.__hgPerf = { tag: "" };
+  var ET = EventTarget.prototype, oAdd = ET.addEventListener, oRem = ET.removeEventListener;
+  var WATCH = { touchstart: 1, touchmove: 1, touchend: 1, touchcancel: 1, pointerdown: 1, pointermove: 1, pointerup: 1, pointercancel: 1, click: 1 };
+  var TYPES = ["touchstart", "touchmove", "touchend", "touchcancel", "pointerdown", "pointermove", "pointerup", "pointercancel", "click"];
+  var installedState = D.readyState;
+  var visible = false, swipeOn = true, dirty = true;
+
+  /* ---------- listener registry (aggregated counts only; no strong references to page elements) ---------- */
+  var byTarget = new WeakMap(), swipeRecs = [];
+  var cnt = {}, src = { ours: 0, vendor: 0, temp: 0, "?": 0 }, total = 0, adds = 0, rems = 0, locs = new Map();
+  TYPES.forEach(function (t) { cnt[t] = { p: 0, np: 0, u: 0 }; });
+  var snap = null;
+  function where() {
+    var s = "";
+    try { s = String(new Error().stack || ""); } catch (e) { return null; }
+    var L = s.split("\n"), i = 0;
+    for (; i < L.length; i++) if (L[i].indexOf("hgPerfAEL") !== -1) { i++; break; }
+    if (i >= L.length) i = 1;
+    for (; i < L.length; i++) {
+      var m = L[i].match(/(https?:\/\/[^\s()]+?):(\d+):(\d+)/);
+      if (!m) continue;
+      var url = m[1], file = url.split("/").pop().split("?")[0] || url;
+      return { s: /hypergo-site\//.test(url) ? "ours" : (/eruda/i.test(url) ? "temp" : "vendor"), loc: file + ":" + m[2] };
+    }
+    return null;
+  }
+  function pass(o) { return (o && typeof o === "object" && "passive" in o) ? (o.passive ? "p" : "np") : "u"; }
+  function capt(o) { return o && typeof o === "object" ? !!o.capture : !!o; }
+  function bump(rec, d) {
+    var c = cnt[rec.type]; if (c) c[rec.pass] += d;
+    src[rec.src] = (src[rec.src] || 0) + d; total += d;
+    if (d > 0) adds++; else rems++;
+    var k = rec.type + "|" + rec.src + "|" + rec.pass + "|" + rec.loc;
+    if (locs.has(k) || locs.size < 400) locs.set(k, (locs.get(k) || 0) + d);
+    dirty = true;
+  }
+  function record(target, type, listener, options, forcedSrc, forcedLoc) {
+    var list = byTarget.get(target);
+    var c = capt(options);
+    if (list) { for (var i = 0; i < list.length; i++) if (list[i].type === type && list[i].l === listener && list[i].c === c) return; }
+    else { list = []; byTarget.set(target, list); }
+    var w = forcedSrc ? null : ((visible || type !== "click") ? where() : null);
+    var rec = { type: type, l: listener, c: c, pass: pass(options), src: forcedSrc || (w ? w.s : "?"), loc: forcedLoc || (w ? w.loc : "?") };
+    if (P.tag) { rec.src = "ours"; rec.loc = P.tag + (w ? " " + w.loc : ""); swipeRecs.push({ t: target, type: type, l: listener, o: options, rec: rec }); }
+    list.push(rec);
+    bump(rec, 1);
+  }
+  function unrecord(target, type, listener, options) {
+    var list = byTarget.get(target); if (!list) return;
+    var c = capt(options);
+    for (var i = 0; i < list.length; i++) if (list[i].type === type && list[i].l === listener && list[i].c === c) { bump(list[i], -1); list.splice(i, 1); return; }
+  }
+  try {
+    ET.addEventListener = function hgPerfAEL(type, listener, options) {
+      var r = oAdd.apply(this, arguments);
+      try { if (listener && WATCH[type]) record(this, type, listener, options); } catch (e) {}
+      return r;
+    };
+    ET.removeEventListener = function hgPerfREL(type, listener, options) {
+      var r = oRem.apply(this, arguments);
+      try { if (listener && WATCH[type]) unrecord(this, type, listener, options); } catch (e) {}
+      return r;
+    };
+  } catch (e) {}
+  function own(target, type, fn, opts) { oAdd.call(target, type, fn, opts); try { record(target, type, fn, opts, "temp", "hgperf"); } catch (e) {} }
+
+  /* ---------- hgnoswipe: take the swipe-back and tab swipe listeners off / put them back ---------- */
+  function setSwipe(on) {
+    if (on === swipeOn) return;
+    swipeOn = on;
+    swipeRecs.forEach(function (s) {
+      try {
+        if (on) { oAdd.call(s.t, s.type, s.l, s.o); var l = byTarget.get(s.t) || []; l.push(s.rec); byTarget.set(s.t, l); bump(s.rec, 1); }
+        else { oRem.call(s.t, s.type, s.l, s.o); unrecord(s.t, s.type, s.l, s.o); }
+      } catch (e) {}
+    });
+    dirty = true;
+  }
+
+  /* ---------- measuring (only while the panel is shown) ---------- */
+  var types = []; try { types = (W.PerformanceObserver && PerformanceObserver.supportedEntryTypes) || []; } catch (e) {}
+  var hasET = types.indexOf("event") !== -1, hasLT = types.indexOf("longtask") !== -1, hasLoAF = types.indexOf("long-animation-frame") !== -1;
+  function set() { return { tap: [], te: [], lt: [], ltN: 0, ltMax: 0, noChg: 0, noClick: 0, tapLast: "", teLast: null }; }
+  var S = { on: set(), off: set() };
+  function cur() { return swipeOn ? S.on : S.off; }
+  function push(a, v, n) { a.push(v); if (a.length > n) a.shift(); }
+  function now() { return performance.now(); }
+  function ts(ev) { var t = ev && ev.timeStamp; if (!(t > 0)) return now(); if (t > 1e12) t -= (performance.timeOrigin || 0); return t; }
+  function desc(el) {
+    try {
+      if (!el || el.nodeType !== 1) return "?";
+      var c = (el.getAttribute("class") || "").trim().split(/\s+/)[0];
+      return el.tagName.toLowerCase() + (c ? "." + c : "");
+    } catch (e) { return "?"; }
+  }
+  var tap = null, lastType = "", fingerDown = false, tailUntil = 0, mo = null, moTimer = 0, clickTimer = 0;
+  function skipMut(n) {
+    try {
+      var el = n && n.nodeType === 1 ? n : n && n.parentElement;
+      return !el || !!(el.closest && el.closest("#hg-temp-perf,#hg-temp-diag,#hg-launch,.hg-ph-slot,.hg-ph-logo"));
+    } catch (e) { return true; }
+  }
+  function disarm() { if (mo) { mo.disconnect(); } clearTimeout(moTimer); }
+  function arm(t) {
+    if (hasET || !W.MutationObserver) return;
+    disarm();
+    if (!mo) mo = new MutationObserver(function (recs) {
+      var tt = tap; if (!tt || tt.done) { disarm(); return; }
+      for (var i = 0; i < recs.length; i++) {
+        if (recs[i].type === "attributes" && recs[i].attributeName === "placeholder") continue;
+        if (skipMut(recs[i].target)) continue;
+        tt.done = true; disarm();
+        requestAnimationFrame(function () { var s = tt.set; push(s.tap, now() - tt.t0, 30); s.tapLast = tt.desc; dirty = true; });
+        return;
+      }
+    });
+    mo.observe(D.documentElement, { childList: true, subtree: true, attributes: true, characterData: true });
+    moTimer = setTimeout(function () { if (tap && !tap.done && !tap.moved) { tap.done = true; tap.set.noChg++; dirty = true; } disarm(); }, 1500);
+  }
+  if (hasET) {
+    try {
+      new PerformanceObserver(function (list) {
+        if (!visible) return;
+        list.getEntries().forEach(function (e) {
+          if (!/^(pointerdown|pointerup|click|touchstart|touchend|mousedown)$/.test(e.name)) return;
+          var s = cur(); push(s.tap, e.duration, 30); s.tapLast = e.name + " " + desc(e.target); dirty = true;
+        });
+      }).observe({ type: "event", durationThreshold: 16, buffered: false });
+    } catch (e) { hasET = false; }
+  }
+  function ltRec(dur, what, est) {
+    var s = cur(); s.ltN++; if (dur > s.ltMax) s.ltMax = dur;
+    var d = new Date();
+    push(s.lt, { at: ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2), dur: Math.round(dur), type: lastType || "-", what: what || "", est: est }, 5);
+    dirty = true;
+  }
+  if (hasLoAF) {
+    try {
+      new PerformanceObserver(function (list) {
+        if (!visible) return;
+        list.getEntries().forEach(function (e) {
+          var sc = (e.scripts || [])[0], w = sc ? ((sc.sourceURL || "").split("/").pop() + " " + (sc.sourceFunctionName || sc.invoker || "")) : "";
+          ltRec(e.duration, w, false);
+        });
+      }).observe({ type: "long-animation-frame", buffered: false });
+    } catch (e) { hasLoAF = false; }
+  } else if (hasLT) {
+    try {
+      new PerformanceObserver(function (list) {
+        if (!visible) return;
+        list.getEntries().forEach(function (e) {
+          var a = (e.attribution || [])[0];
+          ltRec(e.duration, a ? (a.containerSrc || a.containerName || a.name || "") : "", false);
+        });
+      }).observe({ type: "longtask", buffered: false });
+    } catch (e) { hasLT = false; }
+  }
+  var frameRunning = false, lastFrame = 0;
+  function frameLoop(t) {
+    if (!visible || !(fingerDown || now() < tailUntil)) { frameRunning = false; return; }
+    if (lastFrame && t - lastFrame > 50) ltRec(t - lastFrame, "", true);
+    lastFrame = t;
+    requestAnimationFrame(frameLoop);
+  }
+  function startFrames() {
+    if (hasLT || hasLoAF || frameRunning) return;
+    frameRunning = true; lastFrame = 0; requestAnimationFrame(frameLoop);
+  }
+  var OPT = { capture: true, passive: true };
+  own(W, "touchstart", function (ev) {
+    lastType = "touchstart";
+    if (!visible) return;
+    try {
+      fingerDown = true; startFrames();
+      var t = ev.touches && ev.touches[0];
+      tap = { t0: ts(ev), x: t ? t.clientX : 0, y: t ? t.clientY : 0, moved: false, done: false, desc: desc(ev.target), set: cur() };
+      arm();
+    } catch (e) {}
+  }, OPT);
+  own(W, "touchmove", function (ev) {
+    lastType = "touchmove";
+    if (!visible || !tap || tap.moved) return;
+    try {
+      var t = ev.touches && ev.touches[0];
+      if (t && (Math.abs(t.clientX - tap.x) > 10 || Math.abs(t.clientY - tap.y) > 10)) { tap.moved = true; tap.done = true; disarm(); }
+    } catch (e) {}
+  }, OPT);
+  own(W, "touchend", function (ev) {
+    lastType = "touchend";
+    if (!visible) return;
+    fingerDown = false; tailUntil = now() + 500;
+    if (!tap || tap.moved) return;
+    var tp = tap; tp.te = ts(ev);
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(function () { if (tp.te && !tp.clicked) { tp.set.noClick++; dirty = true; } }, 800);
+  }, OPT);
+  own(W, "touchcancel", function () { lastType = "touchcancel"; fingerDown = false; if (tap) { tap.moved = true; tap.done = true; } disarm(); }, OPT);
+  own(W, "click", function (ev) {
+    if (!visible || !tap || !tap.te || tap.clicked) return;
+    tap.clicked = true; clearTimeout(clickTimer);
+    var d = ts(ev) - tap.te;
+    if (d >= 0 && d < 1000) { push(tap.set.te, d, 30); tap.set.teLast = d; dirty = true; }
+  }, OPT);
+
+  /* ---------- panel ---------- */
+  var panel = null, timer = 0, diagSeen = null;
+  function med(a) { if (!a.length) return null; var b = a.slice().sort(function (x, y) { return x - y; }); return b[b.length >> 1]; }
+  function mx(a) { return a.length ? Math.max.apply(null, a) : null; }
+  function f(v) { return v == null ? "n/a" : String(Math.round(v)); }
+  function stat(a, last) { return a.length ? "last " + f(last != null ? last : a[a.length - 1]) + " med " + f(med(a)) + " max " + f(mx(a)) + " n=" + a.length : "n/a"; }
+  function topLocs(type, n) {
+    var out = [];
+    locs.forEach(function (v, k) { if (v > 0 && k.indexOf(type + "|") === 0) out.push([v, k.split("|")]); });
+    out.sort(function (a, b) { return b[0] - a[0]; });
+    return out.slice(0, n).map(function (x) { return x[1][1] + ":" + x[1][3] + (x[1][2] !== "u" ? "(" + x[1][2] + ")" : "") + "x" + x[0]; }).join(", ") || "none seen";
+  }
+  function render() {
+    if (!visible || !panel) return;
+    var diag = D.getElementById("hg-temp-diag");
+    if (!!diag !== diagSeen) { diagSeen = !!diag; place(diag); }
+    if (!dirty) return;
+    dirty = false;
+    var L = [];
+    L.push("HGPERF  swipes: " + (swipeOn ? "ON" : "OFF") + "  (hgnoswipe toggles)");
+    L.push("cond: hgdiag " + (diag ? "on" : "off") + " | eruda " + (W.eruda ? "loaded" : "no") + " | eventTiming " + (hasET ? "yes" : "n/a") + " | longtask " + (hasLoAF ? "LoAF" : hasLT ? "yes" : "n/a (frame gaps, est.)") + " | counting since " + installedState);
+    ["on", "off"].forEach(function (k) {
+      var s = S[k], tag = k.toUpperCase();
+      L.push("TAP->" + (hasET ? "paint(ET)" : "change+frame") + " " + tag + ": " + stat(s.tap) + " nochange " + s.noChg + (s.tapLast ? " [" + s.tapLast + "]" : ""));
+      L.push("TOUCHEND->CLICK " + tag + ": " + stat(s.te, s.teLast) + " noclick " + s.noClick);
+      L.push("LONG>50 " + tag + (hasLT || hasLoAF ? "" : " (est)") + ": n=" + s.ltN + " max " + (s.ltN ? s.ltMax.toFixed(0) : "n/a"));
+      s.lt.slice().reverse().forEach(function (x) { L.push("  " + x.at + " " + x.dur + "ms " + x.type + (x.what ? " " + x.what : "") + " | " + (x.type !== "-" ? topLocs(x.type, 3) : "")); });
+    });
+    var g = snap ? total - snap.total : 0;
+    L.push("LISTENERS live " + total + " | ours " + src.ours + " vendor " + src.vendor + " temp " + src.temp + " ? " + src["?"] + " | since shown " + (g >= 0 ? "+" : "") + g + " (add " + (snap ? adds - snap.adds : 0) + " rm " + (snap ? rems - snap.rems : 0) + ")");
+    TYPES.forEach(function (t) { var c = cnt[t]; if (c.p + c.np + c.u) L.push("  " + t + " p" + c.p + " np" + c.np + " u" + c.u); });
+    var warn = [];
+    locs.forEach(function (v, k) { var p = k.split("|"); if (v > 0 && p[2] === "np" && (p[0] === "touchstart" || p[0] === "touchmove")) warn.push(p[0] + " " + p[1] + ":" + p[3]); });
+    if (warn.length) L.push("WARN non-passive: " + warn.slice(0, 4).join(", "));
+    L.push("touchstart: " + topLocs("touchstart", 4));
+    L.push("touchmove: " + topLocs("touchmove", 4));
+    panel.textContent = L.join("\n");
+  }
+  function place(diag) {
+    if (!panel) return;
+    var top = 0;
+    try { if (diag) top = diag.getBoundingClientRect().bottom + 6; } catch (e) {}
+    panel.style.maxHeight = top ? Math.max(80, W.innerHeight - top - 70) + "px" : "46vh";
+  }
+  function show(on) {
+    visible = on;
+    if (on) {
+      if (!panel) {
+        panel = D.createElement("div");
+        panel.id = "hg-temp-perf";
+        panel.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);max-height:46vh;overflow:hidden;" +
+          "background:rgba(0,0,0,.72);color:#fff;font:9px/1.3 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;" +
+          "z-index:2147483647;pointer-events:none;direction:ltr;text-align:left;padding:5px 6px;border-radius:6px;";
+      }
+      if (!panel.isConnected) D.body.appendChild(panel);
+      snap = { total: total, adds: adds, rems: rems };
+      diagSeen = null; dirty = true; render();
+      timer = setInterval(render, 250);
+    } else {
+      clearInterval(timer); timer = 0; disarm(); tap = null;
+      if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
+    }
+  }
+
+  /* ---------- secret words at the search submit (same pattern as the hgdiag hook) ---------- */
+  var stopUpUntil = 0;
+  function inField(t) { return !!(t && t.tagName === "INPUT" && t.closest && t.closest("#MultiVendorSearch .mobile-search-input")); }
+  oAdd.call(D, "keydown", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target)) return;
+      var v = String(e.target.value || "").trim().toLowerCase();
+      if (v !== "hgperf" && v !== "hgnoswipe") return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      stopUpUntil = Date.now() + 1000;
+      if (e.hgAutoSearch) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(e.target, "");
+      if (v === "hgperf") show(!visible); else setSwipe(!swipeOn);
+    } catch (err) {}
+  }, true);
+  oAdd.call(D, "keyup", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target) || Date.now() > stopUpUntil) return;
+      stopUpUntil = 0; e.preventDefault(); e.stopImmediatePropagation();
+    } catch (err) {}
+  }, true);
+})();
+/* TEMP-DIAGNOSTIC-END */
 
 (function () {
 
@@ -128,6 +435,7 @@
 })();
 
 
+/* TEMP-DIAGNOSTIC-START (hgperf hook: tags the tabswipe listeners so hgnoswipe can take them off) */ if (window.__hgPerf) window.__hgPerf.tag = "tabswipe"; /* TEMP-DIAGNOSTIC-END */
 /* TAB SWIPE (app): swipe left/right on Home, Reorder or Account to go to the next/previous bottom tab.
    A tab tap in Hyperzod is a click on the tab's own button in #MultiVendorBottomNav (global-footer-1.js tags each tab
    with data-hg-nav = home / reorder / account / cart). The swipe clicks that same button, so the tab highlight, the page
@@ -209,8 +517,10 @@
   document.addEventListener("touchend", end, { passive: true, capture: true });
   document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf) window.__hgPerf.tag = ""; /* TEMP-DIAGNOSTIC-END */
 
 
+/* TEMP-DIAGNOSTIC-START (hgperf hook: tags the swipeback listeners so hgnoswipe can take them off) */ if (window.__hgPerf) window.__hgPerf.tag = "swipeback"; /* TEMP-DIAGNOSTIC-END */
 /* EDGE SWIPE-BACK (app): a swipe that starts at the screen edge (left in English, right in Arabic) and is long or fast
    enough presses the page's own back arrow the moment it is released - the same element a tap would hit,
    so the destination, history and state are exactly the arrow's. No back arrow on screen (Home, Reorder, Account) = nothing.
@@ -303,6 +613,7 @@
   }, { passive: true, capture: true });
   document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf) window.__hgPerf.tag = ""; /* TEMP-DIAGNOSTIC-END */
 
 /* TEMP-DIAGNOSTIC-START
    Temporary, hidden, read-only diagnostic panel for the Search header jump. Nothing here runs or shows unless the
