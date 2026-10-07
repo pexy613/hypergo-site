@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-2012 */
+/* hg-version 2026-10-07-1824 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -3211,6 +3211,73 @@
 
   let renderTimer = null;
 
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: shared in-memory timing object for our six whole-page observers)
+     Created here because this file runs before app-footer.js. Holds only: an on/off flag and a recorder function
+     (both set by hgperf in app-footer.js, app only), the observer being run, and two fixed-size slots per observer.
+     begin(name) / end() swap window.MutationObserver for a wrapper only for the few lines that create one of our
+     observers. While hgperf is off (always on the website) the wrapped callback only checks T.on and calls through.
+     While on, run() times the callback and, only for the duration of that synchronous call, swaps window.setTimeout /
+     window.requestAnimationFrame so the function the callback schedules is timed when (and if) it actually runs. */
+  (function () {
+    try {
+      if (window.__hgObsT) return;
+      var W = window, MO = W.MutationObserver;
+      var T = { on: false, rec: null, cur: null, st: null, raf: null, copies: {}, lastFn: {}, lastW: {} };
+      function now() { return performance.now(); }
+      function dwrap(k, fn) {
+        if (T.lastFn[k] === fn) return T.lastW[k];
+        var w = function () {
+          var t0 = now();
+          try { return fn.apply(this, arguments); }
+          finally { try { if (T.rec) T.rec(k, 1, now() - t0); } catch (e) {} }
+        };
+        T.lastFn[k] = fn; T.lastW[k] = w;
+        return w;
+      }
+      function stSwap(fn, d) {
+        var st = T.st;
+        try { if (T.cur && typeof fn === "function") fn = dwrap(T.cur, fn); } catch (e) {}
+        if (arguments.length <= 2) return st.call(W, fn, d);
+        var a = Array.prototype.slice.call(arguments); a[0] = fn;
+        return st.apply(W, a);
+      }
+      function rafSwap(fn) {
+        var raf = T.raf;
+        try { if (T.cur && typeof fn === "function") fn = dwrap(T.cur, fn); } catch (e) {}
+        return raf.call(W, fn);
+      }
+      T.run = function (k, cb, self, args) {
+        if (T.cur) return cb.apply(self, args);
+        var st = W.setTimeout, raf = W.requestAnimationFrame, t0;
+        T.cur = k; T.st = st; T.raf = raf;
+        try { W.setTimeout = stSwap; if (raf) W.requestAnimationFrame = rafSwap; } catch (e) {}
+        t0 = now();
+        try { return cb.apply(self, args); }
+        finally {
+          var d = now() - t0;
+          try { W.setTimeout = st; if (raf) W.requestAnimationFrame = raf; } catch (e) {}
+          T.cur = null;
+          try { if (T.rec) T.rec(k, 0, d); } catch (e) {}
+        }
+      };
+      T.begin = function (k) {
+        try {
+          if (!MO || typeof Reflect === "undefined") return;
+          var Wr = function MutationObserver(cb) {
+            try { T.copies[k] = (T.copies[k] || 0) + 1; } catch (e) {}
+            var c = typeof cb === "function" ? function () { return T.on ? T.run(k, cb, this, arguments) : cb.apply(this, arguments); } : cb;
+            return Reflect.construct(MO, [c], new.target || MO);
+          };
+          Wr.prototype = MO.prototype;
+          W.MutationObserver = Wr;
+        } catch (e) { try { W.MutationObserver = MO; } catch (e2) {} }
+      };
+      T.end = function () { try { if (MO) W.MutationObserver = MO; } catch (e) {} };
+      W.__hgObsT = T;
+    } catch (e) {}
+  })();
+  /* TEMP-DIAGNOSTIC-END */
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the renderObserver/applyAll observer) */ if (window.__hgObsT) window.__hgObsT.begin("renderObserver/applyAll"); /* TEMP-DIAGNOSTIC-END */
   renderObserver = new MutationObserver(() => {
 
     clearTimeout(renderTimer);
@@ -3230,6 +3297,7 @@
     }
   );
   renderObserver.observe(document.documentElement, {attributes:true,attributeFilter:["lang","dir"]});
+  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
   /* v75: the popstate listener that used to live here called applyStatusBarColor(), which no longer exists (see
      the big note above applyAll() - the whole JS status-bar mechanism was removed, back to the plain CSS rules
@@ -3287,6 +3355,7 @@
      when the account page is (re)opened, e.g. after pressing Back from a sub-page. */
   const acctMQ = window.matchMedia("(max-width: 959.98px)");
   let acctRuns = 0, acctWin = 0;
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the acctMO observer) */ if (window.__hgObsT) window.__hgObsT.begin("acctMO"); /* TEMP-DIAGNOSTIC-END */
   const acctMO = new MutationObserver((records, observer) => {
     try {
     if (!acctMQ.matches) return;
@@ -3337,11 +3406,14 @@
     attributes: true,
     attributeFilter: ["class"]
   });
+  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the currency observer) */ if (window.__hgObsT) window.__hgObsT.begin("currency"); /* TEMP-DIAGNOSTIC-END */
   new MutationObserver(scheduleCurrency).observe(document.body, {
     childList: true,
     characterData: true,
     subtree: true
   });
+  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
 })();

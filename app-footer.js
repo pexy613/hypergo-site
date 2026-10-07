@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1820 */
+/* hg-version 2026-10-07-1824 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -146,59 +146,53 @@
   function own(target, type, fn, opts) { oAdd.call(target, type, fn, opts); try { record(target, type, fn, opts, null, "temp", "hgperf"); } catch (e) {} }
 
   /* ---------- timing for our six whole-page MutationObservers ----------
-     Only the two created in this file (app background, status strip) can be timed: the hook lines around them call
-     P.obsBegin(name) / P.obsEnd(), which swap window.MutationObserver for a one-shot wrapper only for those few
-     synchronous lines and put the original straight back. Nobody else's MutationObserver is ever touched.
-     The four in global-footer-1.js / global-footer-2.js are created when those files run, before this file loads,
-     so they are shown as "not timed". Per run (panel shown): performance.now() before/after, fixed 1s buckets x 10. */
-  var OMO = W.MutationObserver;
-  function orow(k, timed) { return { k: k, timed: timed, copies: 0, n: 0, tot: 0, max: 0, bs: [0,0,0,0,0,0,0,0,0,0], bn: [0,0,0,0,0,0,0,0,0,0], bt: [0,0,0,0,0,0,0,0,0,0], bm: [0,0,0,0,0,0,0,0,0,0] }; }
-  var OROWS = [orow("acctMO", false), orow("renderObserver/applyAll", false), orow("currency", false), orow("gf2 observer", false), orow("app background", true), orow("status strip/updateStrip", true)];
+     The hooks (marked) next to each observer in global-footer-1.js, global-footer-2.js and this file use the shared
+     object window.__hgObsT (created in global-footer-1.js). hgperf switches it on while the panel is shown and gives it
+     obsRec(): part 0 = the observer callback, part 1 = the delayed function that callback scheduled (setTimeout or
+     requestAnimationFrame), counted when it actually runs. Fixed 1s buckets x 10 for the last 10 seconds. */
+  function orow(k) {
+    var z = function () { return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; };
+    return { k: k, n: [0, 0], tot: [0, 0], max: [0, 0], bs: z(), bn: [z(), z()], bt: [z(), z()], bm: [z(), z()] };
+  }
+  var OROWS = [orow("acctMO"), orow("renderObserver/applyAll"), orow("currency"), orow("gf2 observer"), orow("app background"), orow("status strip/updateStrip")];
   function orowOf(k) { for (var i = 0; i < OROWS.length; i++) if (OROWS[i].k === k) return OROWS[i]; return null; }
-  function obsRec(r, d) {
+  function obsRec(k, part, d) {
     try {
-      r.n++; r.tot += d; if (d > r.max) r.max = d;
+      if (!visible) return;
+      var r = orowOf(k); if (!r) return;
+      r.n[part]++; r.tot[part] += d; if (d > r.max[part]) r.max[part] = d;
       var sec = Math.floor(Date.now() / 1000), i = sec % 10;
-      if (r.bs[i] !== sec) { r.bs[i] = sec; r.bn[i] = 0; r.bt[i] = 0; r.bm[i] = 0; }
-      r.bn[i]++; r.bt[i] += d; if (d > r.bm[i]) r.bm[i] = d;
+      if (r.bs[i] !== sec) { r.bs[i] = sec; r.bn[0][i] = r.bn[1][i] = 0; r.bt[0][i] = r.bt[1][i] = 0; r.bm[0][i] = r.bm[1][i] = 0; }
+      r.bn[part][i]++; r.bt[part][i] += d; if (d > r.bm[part][i]) r.bm[part][i] = d;
       dirty = true;
     } catch (e) {}
   }
-  function obsWrap(cb, r) {
-    return function () {
-      if (!visible) return cb.apply(this, arguments);
-      var t0 = performance.now();
-      try { return cb.apply(this, arguments); }
-      finally { obsRec(r, performance.now() - t0); }
-    };
+  function obsOn(on) { try { var T = W.__hgObsT; if (T) { T.rec = obsRec; T.on = !!on; } } catch (e) {} }
+  function obsReset() {
+    OROWS.forEach(function (r) {
+      r.n = [0, 0]; r.tot = [0, 0]; r.max = [0, 0];
+      for (var i = 0; i < 10; i++) { r.bs[i] = 0; r.bn[0][i] = r.bn[1][i] = 0; r.bt[0][i] = r.bt[1][i] = 0; r.bm[0][i] = r.bm[1][i] = 0; }
+    });
   }
-  P.obsBegin = function (k) {
-    try {
-      var r = orowOf(k);
-      if (!OMO || !r || typeof Reflect === "undefined") return;
-      var Wrap = function MutationObserver(cb) {
-        try { r.copies++; } catch (e) {}
-        return Reflect.construct(OMO, [typeof cb === "function" ? obsWrap(cb, r) : cb], new.target || OMO);
-      };
-      Wrap.prototype = OMO.prototype;
-      W.MutationObserver = Wrap;
-    } catch (e) { try { W.MutationObserver = OMO; } catch (e2) {} }
-  };
-  P.obsEnd = function () { try { if (OMO) W.MutationObserver = OMO; } catch (e) {} };
-  function obsReset() { OROWS.forEach(function (r) { r.n = 0; r.tot = 0; r.max = 0; for (var i = 0; i < 10; i++) { r.bs[i] = 0; r.bn[i] = 0; r.bt[i] = 0; r.bm[i] = 0; } }); }
   function f1(v) { return (Math.round(v * 10) / 10).toFixed(1); }
   var obsLastSec = 0;
   function obsLines(L) {
-    var sec = Math.floor(Date.now() / 1000);
-    var rows = OROWS.slice().sort(function (a, b) { return (b.timed ? b.tot : -1) - (a.timed ? a.tot : -1); });
-    L.push("OUR WHOLE-PAGE OBSERVERS (sync part of callback, ms) | since shown || last 10s");
-    rows.forEach(function (r) {
-      if (!r.timed) { L.push("  " + r.k + ": not timed (created before hgperf loads)"); return; }
-      if (!r.copies) { L.push("  " + r.k + ": not created"); return; }
-      var n = 0, t = 0, m = 0;
-      for (var i = 0; i < 10; i++) if (r.bs[i] > sec - 10) { n += r.bn[i]; t += r.bt[i]; if (r.bm[i] > m) m = r.bm[i]; }
-      L.push("  " + r.k + " x" + r.copies + "  n " + r.n + " tot " + f1(r.tot) + " avg " + (r.n ? f1(r.tot / r.n) : "n/a") + " max " + f1(r.max));
-      L.push("     10s: n " + n + " tot " + f1(t) + " avg " + (n ? f1(t / n) : "n/a") + " max " + f1(m));
+    var T = W.__hgObsT, sec = Math.floor(Date.now() / 1000);
+    if (!T) { L.push("OUR WHOLE-PAGE OBSERVERS: not timed (shared timing object missing)"); return; }
+    var rows = OROWS.map(function (r) {
+      var w = [[0, 0, 0], [0, 0, 0]];
+      for (var p = 0; p < 2; p++) for (var i = 0; i < 10; i++) if (r.bs[i] > sec - 10) { w[p][0] += r.bn[p][i]; w[p][1] += r.bt[p][i]; if (r.bm[p][i] > w[p][2]) w[p][2] = r.bm[p][i]; }
+      return { r: r, w: w, all: r.tot[0] + r.tot[1], c: T.copies[r.k] || 0 };
+    });
+    rows.sort(function (a, b) { return (b.c ? b.all : -1) - (a.c ? a.all : -1); });
+    L.push("OUR WHOLE-PAGE OBSERVERS ms: since shown || last 10s  (cb = callback, dly = delayed work it scheduled)");
+    rows.forEach(function (x) {
+      var r = x.r, w = x.w;
+      if (!x.c) { L.push("  " + r.k + ": not created"); return; }
+      var w10 = w[0][1] + w[1][1];
+      L.push("  " + r.k + " x" + x.c + "  ALL tot " + f1(x.all) + " avg/cb " + (r.n[0] ? f1(x.all / r.n[0]) : "n/a") + " || tot " + f1(w10) + " avg/cb " + (w[0][0] ? f1(w10 / w[0][0]) : "n/a"));
+      L.push("     cb  n " + r.n[0] + " tot " + f1(r.tot[0]) + " max " + f1(r.max[0]) + " || n " + w[0][0] + " tot " + f1(w[0][1]) + " max " + f1(w[0][2]));
+      L.push("     dly n " + r.n[1] + " tot " + f1(r.tot[1]) + " max " + f1(r.max[1]) + " || n " + w[1][0] + " tot " + f1(w[1][1]) + " max " + f1(w[1][2]));
     });
   }
 
@@ -411,11 +405,11 @@
       }
       if (!panel.isConnected) D.body.appendChild(panel);
       snap = { total: total, adds: adds, rems: rems };
-      wins = []; since = { v: [0, 0], s: [0, 0], st: [0, 0] }; withSignal = 0; obsReset();
+      wins = []; since = { v: [0, 0], s: [0, 0], st: [0, 0] }; withSignal = 0; obsReset(); obsOn(true);
       diagSeen = null; dirty = true; render();
       timer = setInterval(render, 250);
     } else {
-      clearInterval(timer); timer = 0; disarm(); tap = null;
+      clearInterval(timer); timer = 0; disarm(); tap = null; obsOn(false);
       if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
     }
   }
@@ -446,7 +440,7 @@
 })();
 /* TEMP-DIAGNOSTIC-END */
 
-/* TEMP-DIAGNOSTIC-START (hgperf hook: times the app background observer) */ if (window.__hgPerf && window.__hgPerf.obsBegin) window.__hgPerf.obsBegin("app background"); /* TEMP-DIAGNOSTIC-END */
+/* TEMP-DIAGNOSTIC-START (hgperf hook: times the app background observer) */ if (window.__hgObsT) window.__hgObsT.begin("app background"); /* TEMP-DIAGNOSTIC-END */
 (function () {
 
   function applyAppBackground() {
@@ -484,9 +478,9 @@
   );
 
 })();
-/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf && window.__hgPerf.obsEnd) window.__hgPerf.obsEnd(); /* TEMP-DIAGNOSTIC-END */
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
-/* TEMP-DIAGNOSTIC-START (hgperf hook: times the status strip observer) */ if (window.__hgPerf && window.__hgPerf.obsBegin) window.__hgPerf.obsBegin("status strip/updateStrip"); /* TEMP-DIAGNOSTIC-END */
+/* TEMP-DIAGNOSTIC-START (hgperf hook: times the status strip observer) */ if (window.__hgObsT) window.__hgObsT.begin("status strip/updateStrip"); /* TEMP-DIAGNOSTIC-END */
 /* STATUS BAR STRIP: purple at the top of Home, fades to white as the header scrolls away.
    While the header is still passing underneath, the strip is see-through (so the header shows through as it turns white);
    the moment the header has scrolled past, it snaps to solid white so the clock stays readable over the page content.
@@ -571,7 +565,7 @@
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   schedule();
 })();
-/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf && window.__hgPerf.obsEnd) window.__hgPerf.obsEnd(); /* TEMP-DIAGNOSTIC-END */
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
 
 /* TEMP-DIAGNOSTIC-START (hgperf hook: tags the tabswipe listeners so hgnoswipe can take them off) */ if (window.__hgPerf) window.__hgPerf.tag = "tabswipe"; /* TEMP-DIAGNOSTIC-END */

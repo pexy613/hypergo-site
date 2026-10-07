@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1741 */
+/* hg-version 2026-10-07-1824 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -241,6 +241,7 @@
   }
   run();
   let searchRunTimer;
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the gf2 observer) */ if (window.__hgObsT) window.__hgObsT.begin("gf2 observer"); /* TEMP-DIAGNOSTIC-END */
   new MutationObserver(()=>{
     /* v100: runs before the browser paints. If the search screen was rebuilt, or no field inside it has focus any more,
        the pinned-header mode is dropped right here, so the rebuilt header never shows up pinned with stale offsets. */
@@ -250,5 +251,6 @@
     }
     clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);
   }).observe(document.body,{childList:true,subtree:true});
+  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
   setInterval(run,1000);
 })();
