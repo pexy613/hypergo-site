@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1642 */
+/* hg-version 2026-10-07-1707 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -212,7 +212,7 @@
 
 
 /* EDGE SWIPE-BACK (app): a swipe that starts at the screen edge (left in English, right in Arabic) and is long or fast
-   enough makes the page slide away quickly and then presses the page's own back arrow - the same element a tap would hit,
+   enough presses the page's own back arrow the moment it is released - the same element a tap would hit,
    so the destination, history and state are exactly the arrow's. No back arrow on screen (Home, Reorder, Account) = nothing.
    Back arrows found on screen, in this order:
    - #hg-orders-back: My Orders opened from Account (our button, global-footer-1.js syncOrdersBack: router.back()).
@@ -224,7 +224,7 @@
    Not active while a pop-up or sheet is open (.v-overlay--active). The tab swipe ignores touches within 24px of the
    edges, so the two never overlap. One back per swipe, then 900ms lock. */
 (function () {
-  var EDGE = 24, MIN_DX = 90, FAST_DX = 45, FAST_V = 0.5, SLIDE = 180, LOCK_MS = 900;
+  var EDGE = 24, MIN_DX = 90, FAST_DX = 45, FAST_V = 0.5, LOCK_MS = 900;
   var st = null, lockUntil = 0;
 
   function isAr() {
@@ -271,38 +271,12 @@
     return !!document.querySelector(".v-overlay--active") || Date.now() < lockUntil;
   }
 
-  function slideThenBack(btn) {
+  /* 2026-10-07: back runs the moment the swipe is released. The old version first slid #app off the screen over a white
+     cover (180ms) and only then pressed the arrow, and kept #app off-screen until the address changed (+60ms) - that was
+     the blank white gap in the recording. Removed: the page no longer moves; only the app's own back transition shows. */
+  function pressBack(btn) {
     lockUntil = Date.now() + LOCK_MS;
-    var app = document.getElementById("app"), ar = isAr();
-    var cover = document.createElement("div");
-    cover.setAttribute("data-hg-swipe-back", "");
-    /* white behind the sliding page; placed just before #app so the sliding page (transformed, painted later) stays on top */
-    cover.style.cssText = "position:fixed;inset:0;background:#FFFFFF;pointer-events:none;";
-    if (app && app.parentNode) app.parentNode.insertBefore(cover, app); else document.body.appendChild(cover);
-    var startUrl = location.href, done = false;
-    function reset() {
-      if (done) return; done = true;
-      if (app) { app.style.transition = "none"; app.style.transform = ""; app.style.willChange = ""; }
-      requestAnimationFrame(function () { requestAnimationFrame(function () {
-        if (app) app.style.transition = "";
-        if (cover.parentNode) cover.parentNode.removeChild(cover);
-      }); });
-    }
-    function press() {
-      try { btn.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window })); } catch (e) {}
-      var t0 = Date.now();
-      (function wait() {
-        if (location.href !== startUrl || Date.now() - t0 > 700) { setTimeout(reset, 60); return; }
-        setTimeout(wait, 30);
-      })();
-    }
-    if (!app) { press(); return; }
-    app.style.willChange = "transform";
-    app.style.transition = "transform " + SLIDE + "ms cubic-bezier(.4,0,1,1)";
-    requestAnimationFrame(function () {
-      app.style.transform = "translate3d(" + (ar ? "-100%" : "100%") + ",0,0)";
-      setTimeout(press, SLIDE);
-    });
+    try { btn.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window })); } catch (e) {}
   }
 
   document.addEventListener("touchstart", function (ev) {
@@ -325,7 +299,7 @@
     if (!(dx >= MIN_DX || (dx >= FAST_DX && dx / dt >= FAST_V))) return;
     if (blocked() || mainTab()) return;
     var btn = findBack();
-    if (btn) slideThenBack(btn);
+    if (btn) pressBack(btn);
   }, { passive: true, capture: true });
   document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
