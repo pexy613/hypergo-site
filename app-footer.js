@@ -1,20 +1,26 @@
-/* hg-version 2026-10-07-1721 */
+/* hg-version 2026-10-07-1741 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
 })();
 
-/* TEMP-DIAGNOSTIC-START (hgperf: tap / swipe delay panel + hgnoswipe switch)
+/* TEMP-DIAGNOSTIC-START (hgperf: tap / swipe delay panel + hgnoswipe and hgnosentry switches)
    Temporary, hidden, read-only. Secret words, typed in the search field and submitted with Return:
-   - hgperf    shows / hides the panel (live numbers about tap and swipe delay).
-   - hgnoswipe switches our edge swipe-back and our tab swipe OFF / back ON (their listeners are removed / re-added).
+   - hgperf     shows / hides the panel (live numbers about tap and swipe delay).
+   - hgnoswipe  switches our edge swipe-back and our tab swipe OFF / back ON (their listeners are removed / re-added).
+   - hgnosentry switches the Sentry replay touch listeners STOPPED / back to RUNNING (see "Sentry touch gate" below).
    The panel and all numbers live in memory only (no storage, no network, no console). Nothing shows without a word.
-   Listener counting: addEventListener / removeEventListener are wrapped from the moment this file runs. The wrapper calls
-   the original first with the exact same arguments and returns its result; it only counts touch, pointer and click
-   types (and records the registering file:line for them) and can never throw. Listeners registered before this file
-   ran are not seen (the panel's conditions line says whether the page was still loading when it was installed).
-   Hooks elsewhere (each marked with the same two start / end comments): the tag lines around the tab swipe and the swipe-back
-   blocks in this file, and the secret-word line in liveSearch() in global-footer-2.js. */
+   Listener counting: addEventListener / removeEventListener are wrapped from the moment this file runs. For every
+   listener except the Sentry replay touch ones, the wrapper calls the original first with the exact same arguments and
+   returns its result; it only counts (touch, pointer and click types always; every type while the panel is shown, to
+   classify vendor / Sentry growth) and can never throw. Listeners registered before this file ran are not seen.
+   Sentry touch gate: a touchstart / touchmove / touchend / touchcancel listener registered from Sentry's replay file
+   (bundle.tracing.replay / sentry-cdn) AFTER this file ran is registered through a small pass-through function that runs
+   it unchanged (same this, same event, same return value; same options object) unless the switch is STOPPED, in which
+   case it returns without running it. The pass-through is looked up in a WeakMap keyed by the original listener, so
+   removeEventListener with the original still removes it, and no strong references to listeners are kept.
+   Hooks elsewhere (each marked with the same two start / end comments): the tag lines around the tab swipe and the
+   swipe-back blocks in this file, and the secret-word line in liveSearch() in global-footer-2.js. */
 (function () {
   "use strict";
   var W = window, D = document;
@@ -22,9 +28,11 @@
   var P = W.__hgPerf = { tag: "" };
   var ET = EventTarget.prototype, oAdd = ET.addEventListener, oRem = ET.removeEventListener;
   var WATCH = { touchstart: 1, touchmove: 1, touchend: 1, touchcancel: 1, pointerdown: 1, pointermove: 1, pointerup: 1, pointercancel: 1, click: 1 };
+  var TOUCH = { touchstart: 1, touchmove: 1, touchend: 1, touchcancel: 1 };
   var TYPES = ["touchstart", "touchmove", "touchend", "touchcancel", "pointerdown", "pointermove", "pointerup", "pointercancel", "click"];
   var installedState = D.readyState;
-  var visible = false, swipeOn = true, dirty = true;
+  var visible = false, swipeOn = true, sentryStopped = false, dirty = true;
+  var gRun = 0, gSkip = 0, gWrapped = 0;
 
   /* ---------- listener registry (aggregated counts only; no strong references to page elements) ---------- */
   var byTarget = new WeakMap(), swipeRecs = [];
@@ -35,13 +43,14 @@
     var s = "";
     try { s = String(new Error().stack || ""); } catch (e) { return null; }
     var L = s.split("\n"), i = 0;
-    for (; i < L.length; i++) if (L[i].indexOf("hgPerfAEL") !== -1) { i++; break; }
+    for (; i < L.length; i++) if (L[i].indexOf("hgPerfAEL") !== -1 || L[i].indexOf("hgPerfREL") !== -1) { i++; break; }
     if (i >= L.length) i = 1;
     for (; i < L.length; i++) {
       var m = L[i].match(/(https?:\/\/[^\s()]+?):(\d+):(\d+)/);
       if (!m) continue;
       var url = m[1], file = url.split("/").pop().split("?")[0] || url;
-      return { s: /hypergo-site\//.test(url) ? "ours" : (/eruda/i.test(url) ? "temp" : "vendor"), loc: file + ":" + m[2] };
+      var sentry = /sentry-cdn|bundle\.tracing\.replay/i.test(url);
+      return { s: /hypergo-site\//.test(url) ? "ours" : (/eruda/i.test(url) ? "temp" : "vendor"), loc: file + ":" + m[2], sentry: sentry };
     }
     return null;
   }
@@ -55,12 +64,11 @@
     if (locs.has(k) || locs.size < 400) locs.set(k, (locs.get(k) || 0) + d);
     dirty = true;
   }
-  function record(target, type, listener, options, forcedSrc, forcedLoc) {
+  function record(target, type, listener, options, w, forcedSrc, forcedLoc) {
     var list = byTarget.get(target);
     var c = capt(options);
     if (list) { for (var i = 0; i < list.length; i++) if (list[i].type === type && list[i].l === listener && list[i].c === c) return; }
     else { list = []; byTarget.set(target, list); }
-    var w = forcedSrc ? null : ((visible || type !== "click") ? where() : null);
     var rec = { type: type, l: listener, c: c, pass: pass(options), src: forcedSrc || (w ? w.s : "?"), loc: forcedLoc || (w ? w.loc : "?") };
     if (P.tag) { rec.src = "ours"; rec.loc = P.tag + (w ? " " + w.loc : ""); swipeRecs.push({ t: target, type: type, l: listener, o: options, rec: rec }); }
     list.push(rec);
@@ -71,19 +79,71 @@
     var c = capt(options);
     for (var i = 0; i < list.length; i++) if (list[i].type === type && list[i].l === listener && list[i].c === c) { bump(list[i], -1); list.splice(i, 1); return; }
   }
+
+  /* ---------- vendor growth per 10s window (counted only while the panel is shown) ---------- */
+  function win(t) { return { t: t, v: [0, 0], s: [0, 0], st: [0, 0] }; }
+  var wins = [], since = { v: [0, 0], s: [0, 0], st: [0, 0] }, withSignal = 0;
+  function curWin() {
+    var t = Math.floor(Date.now() / 10000);
+    if (!wins.length || wins[wins.length - 1].t !== t) { wins.push(win(t)); if (wins.length > 6) wins.shift(); }
+    return wins[wins.length - 1];
+  }
+  function grow(w, type, idx, opts) {
+    if (!visible || !w || w.s !== "vendor") return;
+    var b = curWin();
+    b.v[idx]++; since.v[idx]++;
+    if (w.sentry) { b.s[idx]++; since.s[idx]++; if (TOUCH[type]) { b.st[idx]++; since.st[idx]++; } }
+    if (idx === 0 && opts && typeof opts === "object" && opts.signal) withSignal++;
+    dirty = true;
+  }
+
+  /* ---------- Sentry touch gate ---------- */
+  var gates = new WeakMap();
+  function gateFor(listener, type, c) {
+    var m = gates.get(listener); if (!m) { m = {}; gates.set(listener, m); }
+    var k = type + "|" + (c ? 1 : 0);
+    if (m[k]) return m[k];
+    var g = function (ev) {
+      if (sentryStopped) { gSkip++; dirty = true; return; }
+      gRun++;
+      return typeof listener === "function" ? listener.call(this, ev) : listener.handleEvent(ev);
+    };
+    m[k] = g; gWrapped++;
+    return g;
+  }
+  function gateOf(listener, type, c) { var m = listener && gates.get(listener); return m ? m[type + "|" + (c ? 1 : 0)] : null; }
+
   try {
     ET.addEventListener = function hgPerfAEL(type, listener, options) {
-      var r = oAdd.apply(this, arguments);
-      try { if (listener && WATCH[type]) record(this, type, listener, options); } catch (e) {}
+      var w = null, args = arguments, r;
+      try {
+        if (listener && (typeof listener === "function" || typeof listener === "object")) {
+          if (WATCH[type] ? (visible || type !== "click") : visible) w = where();
+          if (w && w.sentry && TOUCH[type]) { args = [type, gateFor(listener, type, capt(options)), options]; }
+        }
+      } catch (e) { args = arguments; }
+      r = oAdd.apply(this, args);
+      try {
+        if (listener) {
+          if (WATCH[type]) record(this, type, listener, options, w);
+          grow(w, type, 0, options);
+        }
+      } catch (e) {}
       return r;
     };
     ET.removeEventListener = function hgPerfREL(type, listener, options) {
       var r = oRem.apply(this, arguments);
-      try { if (listener && WATCH[type]) unrecord(this, type, listener, options); } catch (e) {}
+      try {
+        if (listener) {
+          if (TOUCH[type]) { var g = gateOf(listener, type, capt(options)); if (g) oRem.call(this, type, g, options); }
+          if (WATCH[type]) unrecord(this, type, listener, options);
+          if (visible) grow(where(), type, 1, null);
+        }
+      } catch (e) {}
       return r;
     };
   } catch (e) {}
-  function own(target, type, fn, opts) { oAdd.call(target, type, fn, opts); try { record(target, type, fn, opts, "temp", "hgperf"); } catch (e) {} }
+  function own(target, type, fn, opts) { oAdd.call(target, type, fn, opts); try { record(target, type, fn, opts, null, "temp", "hgperf"); } catch (e) {} }
 
   /* ---------- hgnoswipe: take the swipe-back and tab swipe listeners off / put them back ---------- */
   function setSwipe(on) {
@@ -98,12 +158,13 @@
     dirty = true;
   }
 
-  /* ---------- measuring (only while the panel is shown) ---------- */
+  /* ---------- measuring (only while the panel is shown), one set per switch combination ---------- */
   var types = []; try { types = (W.PerformanceObserver && PerformanceObserver.supportedEntryTypes) || []; } catch (e) {}
   var hasET = types.indexOf("event") !== -1, hasLT = types.indexOf("longtask") !== -1, hasLoAF = types.indexOf("long-animation-frame") !== -1;
   function set() { return { tap: [], te: [], lt: [], ltN: 0, ltMax: 0, noChg: 0, noClick: 0, tapLast: "", teLast: null }; }
-  var S = { on: set(), off: set() };
-  function cur() { return swipeOn ? S.on : S.off; }
+  var S = {};
+  function key() { return (swipeOn ? "swipe ON " : "swipe OFF") + " | sentry " + (sentryStopped ? "STOPPED" : "RUNNING"); }
+  function cur() { var k = key(); return S[k] || (S[k] = set()); }
   function push(a, v, n) { a.push(v); if (a.length > n) a.shift(); }
   function now() { return performance.now(); }
   function ts(ev) { var t = ev && ev.timeStamp; if (!(t > 0)) return now(); if (t > 1e12) t -= (performance.timeOrigin || 0); return t; }
@@ -122,7 +183,7 @@
     } catch (e) { return true; }
   }
   function disarm() { if (mo) { mo.disconnect(); } clearTimeout(moTimer); }
-  function arm(t) {
+  function arm() {
     if (hasET || !W.MutationObserver) return;
     disarm();
     if (!mo) mo = new MutationObserver(function (recs) {
@@ -235,22 +296,28 @@
     out.sort(function (a, b) { return b[0] - a[0]; });
     return out.slice(0, n).map(function (x) { return x[1][1] + ":" + x[1][3] + (x[1][2] !== "u" ? "(" + x[1][2] + ")" : "") + "x" + x[0]; }).join(", ") || "none seen";
   }
+  function arn(a) { return a[0] + "/" + a[1] + "/" + (a[0] - a[1] >= 0 ? "+" : "") + (a[0] - a[1]); }
   function render() {
     if (!visible || !panel) return;
     var diag = D.getElementById("hg-temp-diag");
     if (!!diag !== diagSeen) { diagSeen = !!diag; place(diag); }
+    curWin();
     if (!dirty) return;
     dirty = false;
     var L = [];
-    L.push("HGPERF  swipes: " + (swipeOn ? "ON" : "OFF") + "  (hgnoswipe toggles)");
+    L.push("HGPERF  swipes: " + (swipeOn ? "ON" : "OFF") + " (hgnoswipe) | sentry touch: " + (sentryStopped ? "STOPPED" : "RUNNING") + " (hgnosentry)");
     L.push("cond: hgdiag " + (diag ? "on" : "off") + " | eruda " + (W.eruda ? "loaded" : "no") + " | eventTiming " + (hasET ? "yes" : "n/a") + " | longtask " + (hasLoAF ? "LoAF" : hasLT ? "yes" : "n/a (frame gaps, est.)") + " | counting since " + installedState);
-    ["on", "off"].forEach(function (k) {
-      var s = S[k], tag = k.toUpperCase();
-      L.push("TAP->" + (hasET ? "paint(ET)" : "change+frame") + " " + tag + ": " + stat(s.tap) + " nochange " + s.noChg + (s.tapLast ? " [" + s.tapLast + "]" : ""));
-      L.push("TOUCHEND->CLICK " + tag + ": " + stat(s.te, s.teLast) + " noclick " + s.noClick);
-      L.push("LONG>50 " + tag + (hasLT || hasLoAF ? "" : " (est)") + ": n=" + s.ltN + " max " + (s.ltN ? s.ltMax.toFixed(0) : "n/a"));
-      s.lt.slice().reverse().forEach(function (x) { L.push("  " + x.at + " " + x.dur + "ms " + x.type + (x.what ? " " + x.what : "") + " | " + (x.type !== "-" ? topLocs(x.type, 3) : "")); });
+    L.push("sentry touch calls run " + gRun + " | skipped " + gSkip + " | gated listeners " + gWrapped);
+    var ck = key();
+    Object.keys(S).forEach(function (k) {
+      var s = S[k], isCur = k === ck;
+      L.push((isCur ? "* " : "  ") + "[" + k + "]");
+      L.push("   TAP->" + (hasET ? "paint(ET)" : "change+frame") + ": " + stat(s.tap) + " nochg " + s.noChg + (isCur && s.tapLast ? " [" + s.tapLast + "]" : ""));
+      L.push("   TOUCHEND->CLICK: " + stat(s.te, s.teLast) + " noclick " + s.noClick);
+      L.push("   LONG>50" + (hasLT || hasLoAF ? "" : " (est)") + ": n=" + s.ltN + " max " + (s.ltN ? s.ltMax.toFixed(0) : "n/a"));
+      if (isCur) s.lt.slice().reverse().forEach(function (x) { L.push("     " + x.at + " " + x.dur + "ms " + x.type + (x.what ? " " + x.what : "") + " | " + (x.type !== "-" ? topLocs(x.type, 3) : "")); });
     });
+    if (!Object.keys(S).length) L.push("  (no taps measured yet)");
     var g = snap ? total - snap.total : 0;
     L.push("LISTENERS live " + total + " | ours " + src.ours + " vendor " + src.vendor + " temp " + src.temp + " ? " + src["?"] + " | since shown " + (g >= 0 ? "+" : "") + g + " (add " + (snap ? adds - snap.adds : 0) + " rm " + (snap ? rems - snap.rems : 0) + ")");
     TYPES.forEach(function (t) { var c = cnt[t]; if (c.p + c.np + c.u) L.push("  " + t + " p" + c.p + " np" + c.np + " u" + c.u); });
@@ -259,13 +326,19 @@
     if (warn.length) L.push("WARN non-passive: " + warn.slice(0, 4).join(", "));
     L.push("touchstart: " + topLocs("touchstart", 4));
     L.push("touchmove: " + topLocs("touchmove", 4));
+    L.push("VENDOR GROWTH, all event types, add/rm CALLS/net per 10s (newest first) | since shown");
+    var ws = wins.slice().reverse();
+    [["vendor all ", "v"], ["sentry rep ", "s"], ["sentry tch ", "st"]].forEach(function (r) {
+      L.push("  " + r[0] + ": " + (ws.length ? ws.map(function (w) { return arn(w[r[1]]); }).join(" | ") : "n/a") + " || total " + arn(since[r[1]]));
+    });
+    L.push("  vendor adds with AbortSignal (their removal is not counted): " + withSignal);
     panel.textContent = L.join("\n");
   }
   function place(diag) {
     if (!panel) return;
     var top = 0;
     try { if (diag) top = diag.getBoundingClientRect().bottom + 6; } catch (e) {}
-    panel.style.maxHeight = top ? Math.max(80, W.innerHeight - top - 70) + "px" : "46vh";
+    panel.style.maxHeight = top ? Math.max(80, W.innerHeight - top - 70) + "px" : "52vh";
   }
   function show(on) {
     visible = on;
@@ -273,12 +346,13 @@
       if (!panel) {
         panel = D.createElement("div");
         panel.id = "hg-temp-perf";
-        panel.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);max-height:46vh;overflow:hidden;" +
+        panel.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);max-height:52vh;overflow:hidden;" +
           "background:rgba(0,0,0,.72);color:#fff;font:9px/1.3 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;" +
           "z-index:2147483647;pointer-events:none;direction:ltr;text-align:left;padding:5px 6px;border-radius:6px;";
       }
       if (!panel.isConnected) D.body.appendChild(panel);
       snap = { total: total, adds: adds, rems: rems };
+      wins = []; since = { v: [0, 0], s: [0, 0], st: [0, 0] }; withSignal = 0;
       diagSeen = null; dirty = true; render();
       timer = setInterval(render, 250);
     } else {
@@ -294,12 +368,14 @@
     try {
       if (!e || e.key !== "Enter" || !inField(e.target)) return;
       var v = String(e.target.value || "").trim().toLowerCase();
-      if (v !== "hgperf" && v !== "hgnoswipe") return;
+      if (v !== "hgperf" && v !== "hgnoswipe" && v !== "hgnosentry") return;
       e.preventDefault(); e.stopImmediatePropagation();
       stopUpUntil = Date.now() + 1000;
       if (e.hgAutoSearch) return;
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(e.target, "");
-      if (v === "hgperf") show(!visible); else setSwipe(!swipeOn);
+      if (v === "hgperf") show(!visible);
+      else if (v === "hgnoswipe") setSwipe(!swipeOn);
+      else { sentryStopped = !sentryStopped; dirty = true; }
     } catch (err) {}
   }, true);
   oAdd.call(D, "keyup", function (e) {
