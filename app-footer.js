@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1955 */
+/* hg-version 2026-10-07-1634 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -125,6 +125,89 @@
   document.addEventListener("scroll", schedule, { capture: true, passive: true });
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   schedule();
+})();
+
+
+/* TAB SWIPE (app): swipe left/right on Home, Reorder or Account to go to the next/previous bottom tab.
+   A tab tap in Hyperzod is a click on the tab's own button in #MultiVendorBottomNav (global-footer-1.js tags each tab
+   with data-hg-nav = home / reorder / account / cart). The swipe clicks that same button, so the tab highlight, the page
+   and everything else behave exactly as after a tap. Order: Home, Reorder, Account. English: swipe left = next tab.
+   Arabic (tabs run right to left): swipe right = next tab. Past the first or last tab nothing happens.
+   Ignored: swipes starting within 24px of either screen edge (kept for going back), on any row that scrolls sideways,
+   in a field / with the keyboard open, while a pop-up or sheet is open, and on any screen that is not one of the 3 tabs. */
+(function () {
+  var ORDER = ["home", "reorder", "account"];
+  var EDGE = 24, MIN_DX = 70, FAST_DX = 35, FAST_V = 0.45, LOCK = 10;
+  var st = null;
+
+  function isAr() {
+    var h = document.documentElement;
+    return h.getAttribute("dir") === "rtl" || /^ar/i.test(h.getAttribute("lang") || "");
+  }
+  function currentTab() {
+    var p = location.pathname, h = document.documentElement;
+    if (/^\/(en|ar)\/profile\/orders\/?$/.test(p)) return h.classList.contains("hg-orders-acct") ? "" : "reorder";
+    if (/^\/(en|ar)\/profile\/?$/.test(p)) return "account";
+    if (/^\/(en|ar)?\/?$/.test(p) && document.getElementById("MultiVendorHome")) return "home";
+    return "";
+  }
+  function scrollsSideways(el) {
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      if (el.classList && (el.classList.contains("swiper") || el.classList.contains("v-slide-group__container") || el.classList.contains("v-window") || el.classList.contains("v-carousel"))) return true;
+      if (el.scrollWidth > el.clientWidth + 1) {
+        var ox = getComputedStyle(el).overflowX;
+        if (ox === "auto" || ox === "scroll") return true;
+      }
+    }
+    return false;
+  }
+  function blocked(target) {
+    var a = document.activeElement;
+    if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.isContentEditable)) return true;
+    if (document.querySelector(".v-overlay--active")) return true;
+    if (target && target.closest && target.closest("#MultiVendorBottomNav,input,textarea,[contenteditable='true']")) return true;
+    return false;
+  }
+
+  document.addEventListener("touchstart", function (ev) {
+    st = null;
+    if (ev.touches.length !== 1) return;
+    var t = ev.touches[0], w = window.innerWidth;
+    if (t.clientX < EDGE || t.clientX > w - EDGE) return;
+    if (!currentTab() || blocked(ev.target) || scrollsSideways(ev.target)) return;
+    st = { x: t.clientX, y: t.clientY, t: Date.now(), dir: "" };
+  }, { passive: true, capture: true });
+
+  document.addEventListener("touchmove", function (ev) {
+    if (!st) return;
+    if (ev.touches.length !== 1) { st = null; return; }
+    var t = ev.touches[0], dx = t.clientX - st.x, dy = t.clientY - st.y;
+    if (!st.dir) {
+      if (Math.abs(dx) < LOCK && Math.abs(dy) < LOCK) return;
+      st.dir = Math.abs(dx) > Math.abs(dy) * 1.5 ? "h" : "v";
+      if (st.dir === "v") st = null;   /* vertical scroll: leave it alone */
+    }
+  }, { passive: true, capture: true });
+
+  function end(ev) {
+    var s = st; st = null;
+    if (!s || s.dir !== "h") return;
+    var t = ev.changedTouches && ev.changedTouches[0];
+    if (!t) return;
+    var dx = t.clientX - s.x, dy = t.clientY - s.y, adx = Math.abs(dx), dt = Math.max(1, Date.now() - s.t);
+    if (adx < Math.abs(dy) * 2) return;
+    if (!(adx >= MIN_DX || (adx >= FAST_DX && adx / dt >= FAST_V))) return;
+    var cur = currentTab();
+    if (!cur || blocked(null)) return;
+    var forward = isAr() ? dx > 0 : dx < 0;
+    var i = ORDER.indexOf(cur) + (forward ? 1 : -1);
+    if (i < 0 || i >= ORDER.length) return;
+    var item = document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='" + ORDER[i] + "']");
+    var btn = item && (item.querySelector("button, .classic-footer-btn") || item);
+    if (btn) btn.click();
+  }
+  document.addEventListener("touchend", end, { passive: true, capture: true });
+  document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
 
 /* TEMP-DIAGNOSTIC-START
