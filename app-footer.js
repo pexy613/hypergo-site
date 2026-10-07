@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1634 */
+/* hg-version 2026-10-07-1642 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -207,6 +207,126 @@
     if (btn) btn.click();
   }
   document.addEventListener("touchend", end, { passive: true, capture: true });
+  document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
+})();
+
+
+/* EDGE SWIPE-BACK (app): a swipe that starts at the screen edge (left in English, right in Arabic) and is long or fast
+   enough makes the page slide away quickly and then presses the page's own back arrow - the same element a tap would hit,
+   so the destination, history and state are exactly the arrow's. No back arrow on screen (Home, Reorder, Account) = nothing.
+   Back arrows found on screen, in this order:
+   - #hg-orders-back: My Orders opened from Account (our button, global-footer-1.js syncOrdersBack: router.back()).
+   - .scheme-mobile-page-header .back-btn: Hyperzod's header arrow (category pages, Account sub-pages, and any other
+     page with the standard header).
+   - the arrow inside the search field (#MultiVendorSearch .mobile-search-input .v-field__prepend-inner).
+   - the store page's round back button (.merchant-floating-actions .merchant-floating-btn): the one standing apart from
+     the filter and search buttons, which sit together.
+   Not active while a pop-up or sheet is open (.v-overlay--active). The tab swipe ignores touches within 24px of the
+   edges, so the two never overlap. One back per swipe, then 900ms lock. */
+(function () {
+  var EDGE = 24, MIN_DX = 90, FAST_DX = 45, FAST_V = 0.5, SLIDE = 180, LOCK_MS = 900;
+  var st = null, lockUntil = 0;
+
+  function isAr() {
+    var h = document.documentElement;
+    return h.getAttribute("dir") === "rtl" || /^ar/i.test(h.getAttribute("lang") || "");
+  }
+  function onScreen(el) {
+    if (!el || !el.getClientRects().length) return false;
+    var r = el.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return false;
+    var cs = getComputedStyle(el);
+    return cs.visibility !== "hidden" && cs.display !== "none" && parseFloat(cs.opacity || "1") > 0.05;
+  }
+  function storeBack() {
+    var btns = Array.prototype.filter.call(document.querySelectorAll(".merchant-floating-actions .merchant-floating-btn"), onScreen);
+    if (btns.length < 2) return btns[0] || null;
+    var best = null, bestGap = -1;
+    btns.forEach(function (b) {
+      var r = b.getBoundingClientRect(), gap = Infinity;
+      btns.forEach(function (o) {
+        if (o === b) return;
+        var q = o.getBoundingClientRect();
+        gap = Math.min(gap, Math.max(q.left - r.right, r.left - q.right, 0));
+      });
+      if (gap > bestGap) { bestGap = gap; best = b; }
+    });
+    return best;
+  }
+  function findBack() {
+    var el = document.getElementById("hg-orders-back");
+    if (onScreen(el)) return el;
+    var list = document.querySelectorAll(".scheme-mobile-page-header .back-btn");
+    for (var i = 0; i < list.length; i++) if (onScreen(list[i])) return list[i];
+    var pre = document.querySelector("#MultiVendorSearch .mobile-search-input .v-field__prepend-inner");
+    if (onScreen(pre)) return pre.querySelector("button, .v-icon, i") || pre;
+    return storeBack();
+  }
+  function mainTab() {
+    var p = location.pathname, h = document.documentElement;
+    if (/^\/(en|ar)\/profile\/orders\/?$/.test(p)) return !h.classList.contains("hg-orders-acct");
+    return /^\/(en|ar)\/profile\/?$/.test(p) || /^\/(en|ar)?\/?$/.test(p);
+  }
+  function blocked() {
+    return !!document.querySelector(".v-overlay--active") || Date.now() < lockUntil;
+  }
+
+  function slideThenBack(btn) {
+    lockUntil = Date.now() + LOCK_MS;
+    var app = document.getElementById("app"), ar = isAr();
+    var cover = document.createElement("div");
+    cover.setAttribute("data-hg-swipe-back", "");
+    /* white behind the sliding page; placed just before #app so the sliding page (transformed, painted later) stays on top */
+    cover.style.cssText = "position:fixed;inset:0;background:#FFFFFF;pointer-events:none;";
+    if (app && app.parentNode) app.parentNode.insertBefore(cover, app); else document.body.appendChild(cover);
+    var startUrl = location.href, done = false;
+    function reset() {
+      if (done) return; done = true;
+      if (app) { app.style.transition = "none"; app.style.transform = ""; app.style.willChange = ""; }
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        if (app) app.style.transition = "";
+        if (cover.parentNode) cover.parentNode.removeChild(cover);
+      }); });
+    }
+    function press() {
+      try { btn.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window })); } catch (e) {}
+      var t0 = Date.now();
+      (function wait() {
+        if (location.href !== startUrl || Date.now() - t0 > 700) { setTimeout(reset, 60); return; }
+        setTimeout(wait, 30);
+      })();
+    }
+    if (!app) { press(); return; }
+    app.style.willChange = "transform";
+    app.style.transition = "transform " + SLIDE + "ms cubic-bezier(.4,0,1,1)";
+    requestAnimationFrame(function () {
+      app.style.transform = "translate3d(" + (ar ? "-100%" : "100%") + ",0,0)";
+      setTimeout(press, SLIDE);
+    });
+  }
+
+  document.addEventListener("touchstart", function (ev) {
+    st = null;
+    if (ev.touches.length !== 1 || blocked() || mainTab()) return;
+    var t = ev.touches[0], w = window.innerWidth;
+    var atEdge = isAr() ? t.clientX > w - EDGE : t.clientX < EDGE;
+    if (!atEdge) return;
+    st = { x: t.clientX, y: t.clientY, t: Date.now() };
+  }, { passive: true, capture: true });
+
+  document.addEventListener("touchend", function (ev) {
+    var s = st; st = null;
+    if (!s) return;
+    var t = ev.changedTouches && ev.changedTouches[0];
+    if (!t) return;
+    var dx = (t.clientX - s.x) * (isAr() ? -1 : 1), dy = Math.abs(t.clientY - s.y);
+    var dt = Math.max(1, Date.now() - s.t);
+    if (dx <= 0 || dx < dy * 1.5) return;
+    if (!(dx >= MIN_DX || (dx >= FAST_DX && dx / dt >= FAST_V))) return;
+    if (blocked() || mainTab()) return;
+    var btn = findBack();
+    if (btn) slideThenBack(btn);
+  }, { passive: true, capture: true });
   document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
 
