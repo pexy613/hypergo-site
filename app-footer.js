@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1741 */
+/* hg-version 2026-10-07-1820 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -144,6 +144,63 @@
     };
   } catch (e) {}
   function own(target, type, fn, opts) { oAdd.call(target, type, fn, opts); try { record(target, type, fn, opts, null, "temp", "hgperf"); } catch (e) {} }
+
+  /* ---------- timing for our six whole-page MutationObservers ----------
+     Only the two created in this file (app background, status strip) can be timed: the hook lines around them call
+     P.obsBegin(name) / P.obsEnd(), which swap window.MutationObserver for a one-shot wrapper only for those few
+     synchronous lines and put the original straight back. Nobody else's MutationObserver is ever touched.
+     The four in global-footer-1.js / global-footer-2.js are created when those files run, before this file loads,
+     so they are shown as "not timed". Per run (panel shown): performance.now() before/after, fixed 1s buckets x 10. */
+  var OMO = W.MutationObserver;
+  function orow(k, timed) { return { k: k, timed: timed, copies: 0, n: 0, tot: 0, max: 0, bs: [0,0,0,0,0,0,0,0,0,0], bn: [0,0,0,0,0,0,0,0,0,0], bt: [0,0,0,0,0,0,0,0,0,0], bm: [0,0,0,0,0,0,0,0,0,0] }; }
+  var OROWS = [orow("acctMO", false), orow("renderObserver/applyAll", false), orow("currency", false), orow("gf2 observer", false), orow("app background", true), orow("status strip/updateStrip", true)];
+  function orowOf(k) { for (var i = 0; i < OROWS.length; i++) if (OROWS[i].k === k) return OROWS[i]; return null; }
+  function obsRec(r, d) {
+    try {
+      r.n++; r.tot += d; if (d > r.max) r.max = d;
+      var sec = Math.floor(Date.now() / 1000), i = sec % 10;
+      if (r.bs[i] !== sec) { r.bs[i] = sec; r.bn[i] = 0; r.bt[i] = 0; r.bm[i] = 0; }
+      r.bn[i]++; r.bt[i] += d; if (d > r.bm[i]) r.bm[i] = d;
+      dirty = true;
+    } catch (e) {}
+  }
+  function obsWrap(cb, r) {
+    return function () {
+      if (!visible) return cb.apply(this, arguments);
+      var t0 = performance.now();
+      try { return cb.apply(this, arguments); }
+      finally { obsRec(r, performance.now() - t0); }
+    };
+  }
+  P.obsBegin = function (k) {
+    try {
+      var r = orowOf(k);
+      if (!OMO || !r || typeof Reflect === "undefined") return;
+      var Wrap = function MutationObserver(cb) {
+        try { r.copies++; } catch (e) {}
+        return Reflect.construct(OMO, [typeof cb === "function" ? obsWrap(cb, r) : cb], new.target || OMO);
+      };
+      Wrap.prototype = OMO.prototype;
+      W.MutationObserver = Wrap;
+    } catch (e) { try { W.MutationObserver = OMO; } catch (e2) {} }
+  };
+  P.obsEnd = function () { try { if (OMO) W.MutationObserver = OMO; } catch (e) {} };
+  function obsReset() { OROWS.forEach(function (r) { r.n = 0; r.tot = 0; r.max = 0; for (var i = 0; i < 10; i++) { r.bs[i] = 0; r.bn[i] = 0; r.bt[i] = 0; r.bm[i] = 0; } }); }
+  function f1(v) { return (Math.round(v * 10) / 10).toFixed(1); }
+  var obsLastSec = 0;
+  function obsLines(L) {
+    var sec = Math.floor(Date.now() / 1000);
+    var rows = OROWS.slice().sort(function (a, b) { return (b.timed ? b.tot : -1) - (a.timed ? a.tot : -1); });
+    L.push("OUR WHOLE-PAGE OBSERVERS (sync part of callback, ms) | since shown || last 10s");
+    rows.forEach(function (r) {
+      if (!r.timed) { L.push("  " + r.k + ": not timed (created before hgperf loads)"); return; }
+      if (!r.copies) { L.push("  " + r.k + ": not created"); return; }
+      var n = 0, t = 0, m = 0;
+      for (var i = 0; i < 10; i++) if (r.bs[i] > sec - 10) { n += r.bn[i]; t += r.bt[i]; if (r.bm[i] > m) m = r.bm[i]; }
+      L.push("  " + r.k + " x" + r.copies + "  n " + r.n + " tot " + f1(r.tot) + " avg " + (r.n ? f1(r.tot / r.n) : "n/a") + " max " + f1(r.max));
+      L.push("     10s: n " + n + " tot " + f1(t) + " avg " + (n ? f1(t / n) : "n/a") + " max " + f1(m));
+    });
+  }
 
   /* ---------- hgnoswipe: take the swipe-back and tab swipe listeners off / put them back ---------- */
   function setSwipe(on) {
@@ -302,6 +359,7 @@
     var diag = D.getElementById("hg-temp-diag");
     if (!!diag !== diagSeen) { diagSeen = !!diag; place(diag); }
     curWin();
+    var nowSec = Math.floor(Date.now() / 1000); if (nowSec !== obsLastSec) { obsLastSec = nowSec; dirty = true; }
     if (!dirty) return;
     dirty = false;
     var L = [];
@@ -332,13 +390,14 @@
       L.push("  " + r[0] + ": " + (ws.length ? ws.map(function (w) { return arn(w[r[1]]); }).join(" | ") : "n/a") + " || total " + arn(since[r[1]]));
     });
     L.push("  vendor adds with AbortSignal (their removal is not counted): " + withSignal);
+    try { obsLines(L); } catch (e) { L.push("OUR WHOLE-PAGE OBSERVERS: n/a"); }
     panel.textContent = L.join("\n");
   }
   function place(diag) {
     if (!panel) return;
     var top = 0;
     try { if (diag) top = diag.getBoundingClientRect().bottom + 6; } catch (e) {}
-    panel.style.maxHeight = top ? Math.max(80, W.innerHeight - top - 70) + "px" : "52vh";
+    panel.style.maxHeight = top ? Math.max(80, W.innerHeight - top - 70) + "px" : "74vh";
   }
   function show(on) {
     visible = on;
@@ -346,13 +405,13 @@
       if (!panel) {
         panel = D.createElement("div");
         panel.id = "hg-temp-perf";
-        panel.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);max-height:52vh;overflow:hidden;" +
+        panel.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);max-height:74vh;overflow:hidden;" +
           "background:rgba(0,0,0,.72);color:#fff;font:9px/1.3 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;" +
           "z-index:2147483647;pointer-events:none;direction:ltr;text-align:left;padding:5px 6px;border-radius:6px;";
       }
       if (!panel.isConnected) D.body.appendChild(panel);
       snap = { total: total, adds: adds, rems: rems };
-      wins = []; since = { v: [0, 0], s: [0, 0], st: [0, 0] }; withSignal = 0;
+      wins = []; since = { v: [0, 0], s: [0, 0], st: [0, 0] }; withSignal = 0; obsReset();
       diagSeen = null; dirty = true; render();
       timer = setInterval(render, 250);
     } else {
@@ -387,6 +446,7 @@
 })();
 /* TEMP-DIAGNOSTIC-END */
 
+/* TEMP-DIAGNOSTIC-START (hgperf hook: times the app background observer) */ if (window.__hgPerf && window.__hgPerf.obsBegin) window.__hgPerf.obsBegin("app background"); /* TEMP-DIAGNOSTIC-END */
 (function () {
 
   function applyAppBackground() {
@@ -424,7 +484,9 @@
   );
 
 })();
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf && window.__hgPerf.obsEnd) window.__hgPerf.obsEnd(); /* TEMP-DIAGNOSTIC-END */
 
+/* TEMP-DIAGNOSTIC-START (hgperf hook: times the status strip observer) */ if (window.__hgPerf && window.__hgPerf.obsBegin) window.__hgPerf.obsBegin("status strip/updateStrip"); /* TEMP-DIAGNOSTIC-END */
 /* STATUS BAR STRIP: purple at the top of Home, fades to white as the header scrolls away.
    While the header is still passing underneath, the strip is see-through (so the header shows through as it turns white);
    the moment the header has scrolled past, it snaps to solid white so the clock stays readable over the page content.
@@ -509,6 +571,7 @@
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   schedule();
 })();
+/* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgPerf && window.__hgPerf.obsEnd) window.__hgPerf.obsEnd(); /* TEMP-DIAGNOSTIC-END */
 
 
 /* TEMP-DIAGNOSTIC-START (hgperf hook: tags the tabswipe listeners so hgnoswipe can take them off) */ if (window.__hgPerf) window.__hgPerf.tag = "tabswipe"; /* TEMP-DIAGNOSTIC-END */
