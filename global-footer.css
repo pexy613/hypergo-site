@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1327 */
+/* hg-version 2026-10-08-1930 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -446,17 +446,9 @@ html[lang^='ar'] .scheme-merchant-search-page.scheme-merchant-search-page :is(.p
   }
 }
 
-/* Enlarge Home merchant artwork proportionally. One automatic axis preserves every logo's shape. */
-#hg-cat-rows .hg-logo-img{
-  background-position:center!important;
-  background-size:calc(100% + 8px) auto!important;
-  background-repeat:no-repeat!important;
-}
-#hg-cat-rows .hg-brand-img{
-  background-position:center!important;
-  background-size:calc(100% + 6px) auto!important;
-  background-repeat:no-repeat!important;
-}
+/* 2026-10-08: removed the "enlarge Home merchant artwork" rules (logo drawn 6-8px wider than its tile, so the tile edge and
+   rounded corners cut off the logo's edges). The Home logo tiles (.hg-logo-img, .hg-brand-img in global-footer-1.js) now use
+   background-size:contain: the whole logo always shows, in its own shape, whatever the logo file looks like. */
 
 /* v101 — iOS receives both the legacy horizontal-card rules and the newer two-column grid.
    Fully reset grid-category cards to vertical tiles so those systems cannot combine. */
