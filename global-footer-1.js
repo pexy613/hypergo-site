@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1123 */
+/* hg-version 2026-10-08-1327 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -2025,36 +2025,12 @@
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div>div::before{content:none !important;display:none !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{background:#fff !important;color:#1B2023 !important;box-shadow:0 2px 8px rgba(0,0,0,.14) !important;backdrop-filter:none !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading,.scheme-merchant-page.merchant-mobile-view h3.category-name{font-size:22px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:18px !important;padding-bottom:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-row{margin:0 -16px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-col{padding:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-col>.tw-grid{display:flex !important;gap:20px !important;overflow-x:auto;padding:0 16px 4px !important;margin:0 !important;scroll-snap-type:x mandatory;scroll-padding-inline:16px;scrollbar-width:none;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-col>.tw-grid::-webkit-scrollbar{display:none;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal{flex:0 0 171px !important;width:171px !important;box-shadow:none !important;border:0 !important;background:transparent !important;scroll-snap-align:start;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal>.v-card-text{padding:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal .v-card-text>.tw-grid{display:flex !important;flex-direction:column-reverse !important;justify-content:flex-end !important;gap:8px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal .v-card-text>.tw-grid>div{width:100% !important;padding:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img{position:relative !important;width:171px !important;height:171px !important;margin:0 !important;border:0 !important;border-radius:14px !important;background:#F5F5F5 !important;overflow:hidden !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>div:first-child{border-radius:14px;overflow:hidden;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute{bottom:8px !important;inset-inline-end:8px !important;left:auto;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-name{font-size:16px !important;font-weight:400 !important;color:#1B2023 !important;line-height:1.3 !important;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-description,.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-description{display:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price{margin-top:4px;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *,.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .price h4{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{border-bottom:1px solid #E5E5E5 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .v-card{background:transparent !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image-frame{background:#F5F5F5 !important;border:0 !important;border-radius:14px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image{border-radius:14px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control{position:absolute !important;bottom:8px !important;inset-inline-end:8px !important;left:auto;right:auto;}" +
-      "html:not([dir='rtl']):not([lang^='ar']) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control{right:8px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control .add-product-btn,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-product-btn{padding:0 !important;margin:0 !important;}" +
       /* v77: the circle was stretching into an oval on some stores - width/min-width were pinned to 30px but
          height had no min-height/max-height partner, the same flex-item auto-size gap found twice already this
          session on .pro-card-h (v58/v60): a flex or inline-flex box (this button, or Vuetify's own .v-btn
          internals) can expand past its declared height if nothing stops it. Pinning height fully now, same as
          width, so it can't stretch either way. */
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn{width:29px !important;height:29px !important;min-width:29px !important;max-width:29px !important;min-height:29px !important;max-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 29px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn svg,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .add-btn svg *,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn svg *{stroke:#5A29DE !important;}" +
       /* v78: the stretched-oval "+" was still happening in sections whose exact ancestor markup we hadn't seen -
          confirmed via Adam's own DevTools inspect that the native button carries Tailwind "tw-h-[32px]" for
          height but NO width utility at all, so its width is whatever the padding+icon add up to - never square
@@ -2086,12 +2062,6 @@
          native Hyperzod/Vuetify default, so it silently swallows taps on every product tile everywhere unless
          overridden - not something scoped to any one page or shop. */
       ".v-card__loader{pointer-events:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .v-card-text{padding:12px 4px 0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-name{font-size:16px !important;font-weight:400 !important;color:#1B2023 !important;line-height:1.3 !important;margin-bottom:4px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal .v-card-text,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal .v-card-text>.tw-grid,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal .tw-h-full{height:auto !important;min-height:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .rec-item-title{max-width:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .v-card-text{justify-content:flex-start !important;flex-grow:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .card-footer{margin-top:0 !important;}" +
       /* v69: Adam wants the SAME row layout we built for restaurants (.product-horizontal-cards.merchant-list-view -
          108px square photo on the left, price/description on the right with real spacing) applied to every store in
          every category, including shop/retail categories that Hyperzod renders with a different native component
@@ -2105,27 +2075,7 @@
          redirects every route to the launch placeholder), so it's targeted structurally instead of by name: ":has(>
          .scheme-merchant-product-grid-card)" matches whatever wraps these cards directly, regardless of what it's
          called or whether it's using CSS grid or flexbox natively. */
-      ".scheme-merchant-page.merchant-mobile-view *:has(>.scheme-merchant-product-grid-card){display:flex !important;flex-direction:column !important;grid-template-columns:1fr !important;gap:0 !important;padding:0 !important;width:100% !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card{flex:0 0 100% !important;width:100% !important;max-width:100% !important;padding:0 !important;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card>.v-card{display:flex !important;flex-direction:row !important;align-items:center !important;gap:16px !important;background:transparent !important;box-shadow:none !important;border:0 !important;border-bottom:1px solid #F0F0F0 !important;border-radius:0 !important;padding:18px 4px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image-frame{position:relative !important;flex:0 0 108px !important;width:108px !important;height:108px !important;min-width:108px !important;max-width:108px !important;min-height:108px !important;max-height:108px !important;padding-bottom:0 !important;border-radius:16px !important;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image-frame>.product-image{position:absolute !important;inset:0 !important;height:100% !important;width:100% !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image .v-responsive__sizer{padding-bottom:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control{bottom:4px !important;}" +
-      "html:not([dir='rtl']):not([lang^='ar']) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control{right:4px !important;}" +
-      "html[dir='rtl'] .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control,html[lang^='ar'] .scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .grid-add-control{left:4px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .v-card-text{flex:1 1 auto !important;min-width:0 !important;padding:0 !important;display:flex !important;flex-direction:column !important;justify-content:center !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-name{font-size:15px !important;font-weight:400 !important;line-height:1.3 !important;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-description{display:-webkit-box !important;font-size:13px !important;color:#8A8A8A !important;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .price{margin-top:4px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .price *,.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .price h4{font-size:14.5px !important;font-weight:500 !important;color:#1B2023 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>div:first-child,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>div:first-child .v-img,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>div:first-child .v-responsive{height:100% !important;width:100% !important;}" +
       ".scheme-merchant-page.merchant-mobile-view{display:flex !important;flex-direction:column !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img *:not(img):not(.add-btn):not(.add-btn *):not(.product-discount-badge):not(.counter-btn):not(.counter-btn *){background-color:transparent !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>div:first-child{position:absolute !important;inset:0 !important;height:auto !important;width:auto !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img .v-img,.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img .v-responsive{height:100% !important;width:100% !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img img{width:100% !important;height:100% !important;object-fit:cover !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute{z-index:2;}" +
       ".scheme-merchant-page.merchant-mobile-view>*{flex:none;width:100%;order:9;}" +
       ".scheme-merchant-page.merchant-mobile-view>.scheme-merchant-products-section{display:contents !important;}" +
       ".scheme-merchant-page.merchant-mobile-view>.page-builder-section-surface:has(#merchant-header-v2){order:1;}" +
@@ -2190,12 +2140,7 @@
       ".scheme-merchant-product-grid-card .product-image .v-responsive__sizer{padding-bottom:0 !important;}" +
       ".scheme-merchant-product-grid-card .product-image img{object-fit:cover !important;}" +
       ".scheme-merchant-product-grid-card .grid-add-control{z-index:2;}" +
-      ".scheme-merchant-page .scheme-merchant-product-grid-card,.scheme-merchant-page .scheme-merchant-product-grid-card>.v-card{height:auto !important;align-self:start !important;}" +
-      ".scheme-merchant-page .cat-section .special-listing-inner>.tw-grid,.scheme-merchant-page .scheme-product-recommendation-section .v-col>.tw-grid{align-items:start !important;}" +
-      ".scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal{align-self:start !important;}" +
-      ".scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .tw-justify-between{justify-content:flex-start !important;height:auto !important;}" +
-      ".scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .tw-justify-between>.price{margin-top:6px !important;}" +
-      "@media (min-width:960px){.scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img{height:0 !important;padding-bottom:100% !important;aspect-ratio:auto !important;}}" +
+      "@media (min-width:960px){}" +
       /* PRODUCT TILES in the "list" layout some stores use (Amjad, Le Cadeau...) and in Recommended: same square tile as the grid.
          (the photo box is found by its class, not position: its first child is a hidden loader)
          v78: de-scoped from ".scheme-merchant-page" for the same reason as the grid-card block above - this card
@@ -2221,8 +2166,7 @@
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .product-description{display:none !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price{margin-top:6px !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price *{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
-      ".scheme-merchant-page .product-horizontal-cards{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:32px 20px !important;align-items:start !important;}" +
-      "@media (min-width:960px){.scheme-merchant-page .product-horizontal-cards{grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:40px 28px !important;}}" +
+      "@media (min-width:960px){}" +
       /* IN-STORE PRODUCT LIST (mobile, stores set to Hyperzod's "list" layout - the common case): compact single-column
          rows instead of a 2-up grid of big square tiles - bigger photo left (fixed size), name/description/price on the
          right with a tight photo-to-text gap and clear breathing room between the description and price. Only
@@ -2248,33 +2192,17 @@
             stretching it to match the 108px photo. With no extra height to distribute, justify-content:space-between
             had nothing to do, so the price just sat directly under the description. Switching to align-items:stretch
             lets that column fill the full 108px and its own space-between do what it was already built to do. */
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view{display:grid !important;grid-template-columns:1fr !important;gap:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card{border-bottom:1px solid #F0F0F0 !important;border-radius:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text{position:relative !important;display:flex !important;align-items:center !important;gap:10px !important;padding:18px 4px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.clickable{position:absolute !important;inset:0 !important;z-index:0;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.tw-grid{display:flex !important;flex-direction:row !important;align-items:stretch !important;gap:10px !important;flex:1 1 auto !important;min-width:0 !important;width:auto !important;height:108px !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.tw-grid>div:not(.pro-card-h){order:1;flex:1 1 auto !important;min-width:0 !important;width:auto !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h{order:0;position:relative !important;flex:0 0 108px !important;width:108px !important;height:108px !important;min-width:108px !important;max-width:108px !important;min-height:108px !important;max-height:108px !important;margin:0 !important;}" +
       /* Vuetify's v-img sets an inline padding-bottom % on its own internal sizer div based on the actual photo's
          aspect ratio (e.g. a tall product photo -> a tall sizer), and that in turn drives a dynamic min-height on
          this wrapper - taller than our fixed box whenever a photo isn't square, which is what was overriding a plain
          height (min-height always wins over height when it's the bigger of the two). Pin min/max too, and clip the
          now-oversized inner sizer so nothing pokes out past the box. */
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img{width:108px !important;height:108px !important;min-height:108px !important;max-height:108px !important;padding-bottom:0 !important;border-radius:16px !important;overflow:hidden !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img .v-responsive__sizer{padding-bottom:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img .v-responsive,.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img img{width:100% !important;height:100% !important;}" +
       /* Add button: pin fully inside the photo's bottom-right corner (was centered and bleeding below the photo,
          which is what got clipped into a stray floating shape by the overflow:hidden above and read as clutter/dead
          space between the photo and the text). Also strip its wrapper's built-in padding/negative-margin so it sits
          flush in the corner instead of offset. */
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img .tw-absolute.tw--bottom-4{left:auto !important;right:4px !important;bottom:4px !important;top:auto !important;transform:none !important;z-index:2;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img .add-product-btn{padding:0 !important;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-name{font-size:15px !important;line-height:1.3 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-description{display:-webkit-box !important;font-size:13px !important;color:#8A8A8A !important;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px !important;}" +
       /* No manual margin-top here anymore - the column's own justify-content:space-between (freed up above) now
          does the work of pushing the price to the bottom of the row on its own. */
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .price{margin-top:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .price *{font-size:14.5px !important;}" +
       /* CHECKOUT BAR: native floating pill (small, centered, gap below it, no price) -> full-width bar flush to the
          very bottom, purple gradient, rounded only on the top edge (reads as pinned, not floating). Own content is
          hidden and our .hg-co-bar (built in applyCheckoutBar()) takes over the whole clickable area - the button's
@@ -2373,34 +2301,7 @@
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter>div{padding-left:0 !important;padding-right:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section{margin-top:44px !important;margin-bottom:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-heading,.scheme-merchant-page:not(.merchant-mobile-view) h3.category-name{font-size:26px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:22px !important;padding-bottom:0 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .v-col{padding:0 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .v-col>.tw-grid,.scheme-merchant-page:not(.merchant-mobile-view) #merchant-content .cat-section .special-listing-inner>.tw-grid{display:grid !important;grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:40px 28px !important;margin:0 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-card-horizontal{box-shadow:none !important;border:0 !important;background:transparent !important;margin:0 !important;height:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-card-horizontal>.v-card-text{padding:0 !important;height:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-card-horizontal .v-card-text>.tw-grid{display:flex !important;flex-direction:column-reverse !important;justify-content:flex-end !important;gap:10px !important;height:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-card-horizontal .v-card-text>.tw-grid>div{width:100% !important;padding:0 !important;height:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-card-horizontal .tw-h-full{height:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .rec-item-title{max-width:none !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img{position:relative !important;width:100% !important;height:auto !important;aspect-ratio:1;margin:0 !important;border:0 !important;border-radius:14px !important;background:#F5F5F5 !important;overflow:hidden !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img>div:first-child{position:absolute !important;inset:0 !important;height:auto !important;width:auto !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img .v-img,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img .v-responsive{height:100% !important;width:100% !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img img{width:100% !important;height:100% !important;object-fit:cover !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute{z-index:2;bottom:10px !important;inset-inline-end:10px !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .product-name,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .product-name{font-size:16px !important;font-weight:400 !important;color:#1B2023 !important;line-height:1.3 !important;margin:0 0 4px !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .product-description{display:none !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .price *,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .price h4{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .v-card{background:transparent !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .product-image-frame{background:#F5F5F5 !important;border:0 !important;border-radius:14px !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .product-image{border-radius:14px !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .grid-add-control{position:absolute !important;bottom:10px !important;right:10px !important;left:auto !important;}" +
-      "html[lang^='ar'] .scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .grid-add-control{right:auto !important;left:10px !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .add-product-btn{padding:0 !important;margin:0 !important;}" +
       /* v77: same fix as the mobile version above - full width+height pin so the circle can't stretch. */
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .add-btn,.scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section .add-btn{width:29px !important;height:29px !important;min-width:29px !important;max-width:29px !important;min-height:29px !important;max-height:29px !important;padding:0 !important;border-radius:50% !important;background:#fff !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;flex:0 0 29px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .add-btn svg *{stroke:#5A29DE !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .v-card-text{padding:16px 4px 0 !important;justify-content:flex-start !important;flex-grow:0 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-merchant-product-grid-card .card-footer{margin-top:0 !important;}" +
       "html body .product-discount-badge{background:#D93600 !important;color:#fff !important;font-size:12px !important;font-weight:700 !important;line-height:1.2 !important;border-radius:6px !important;padding:4px 7px !important;letter-spacing:.02em;opacity:1 !important;z-index:3;}" +
       "#merchants_by_category .v-container{max-width:1248px !important;}" +
       "#merchants_by_category .v-container .tw-flex.tw-mb-4:has(>h1){background:#8640FC;border-radius:20px;padding:22px 28px;margin-bottom:8px !important;}" +

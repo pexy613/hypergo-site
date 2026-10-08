@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1906 */
+/* hg-version 2026-10-08-1327 */
 (() => {
   "use strict";
 
@@ -633,9 +633,11 @@
     ".scheme-merchant-page .hg-sp-cell .price{margin-top:10px !important;}" +
     ".scheme-merchant-page .hg-sp-cell .price,.scheme-merchant-page .hg-sp-cell .price *{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
     ".scheme-merchant-page .hg-sp-cell .product-description{display:none !important;}" +
-    /* text for every product in every section; id + doubled classes only to beat the existing #app rules in global-footer.css (!important there too) */
-    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .product-name.product-name{color:#1B2023 !important;font-size:16px !important;font-weight:400 !important;line-height:1.3 !important;}" +
-    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price,html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price *{color:#1B2023 !important;font-size:16px !important;font-weight:500 !important;}" +
+    /* text for every product in every section; id + doubled classes only to beat the existing #app rules in global-footer.css (!important there too).
+       2026-10-08: not for .product-card-horizontal / .scheme-merchant-product-grid-card - the STORE PRODUCT CARDS rules in global-footer.css
+       style those on the website and in the app alike (this file runs on the website only). */
+    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .product-name.product-name:not(:is(.product-card-horizontal,.scheme-merchant-product-grid-card) *){color:#1B2023 !important;font-size:16px !important;font-weight:400 !important;line-height:1.3 !important;}" +
+    "html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price:not(:is(.product-card-horizontal,.scheme-merchant-product-grid-card) *),html body #app .scheme-merchant-page .hg-sp-txt.hg-sp-txt .price.price:not(:is(.product-card-horizontal,.scheme-merchant-product-grid-card) *) *{color:#1B2023 !important;font-size:16px !important;font-weight:500 !important;}" +
     /* slider leftovers: copies a slider adds for endless scrolling, and the arrow buttons */
     ".scheme-merchant-page .hg-sp-row>.swiper-slide-duplicate,.scheme-merchant-page .hg-sp-arrow{display:none !important;}";
 

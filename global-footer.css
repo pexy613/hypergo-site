@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-2013 */
+/* hg-version 2026-10-08-1327 */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
 /* v81 — mobile store-page density pass: smaller content, larger intentional section spacing. */
@@ -7,27 +7,6 @@
 .scheme-merchant-page.merchant-mobile-view h3.category-name{font-size:18px !important;line-height:1.25 !important;margin-bottom:16px !important;letter-spacing:-.01em !important;}
 .scheme-merchant-page.merchant-mobile-view h3.category-name{margin-top:48px !important;}
 .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section{padding-bottom:12px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-col>.tw-grid{gap:12px !important;padding:0 16px 8px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-card-horizontal{flex:0 0 146px !important;width:146px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .pro-card-h-img{width:146px !important;height:146px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-name{font-size:14px !important;font-weight:500 !important;line-height:1.32 !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *{font-size:14px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn:not(.v-btn--block){width:33px !important;height:33px !important;min-width:33px !important;max-width:33px !important;min-height:33px !important;max-height:33px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .add-btn:not(.v-btn--block) svg{width:15px !important;height:15px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card>.v-card{gap:14px !important;padding:16px 4px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-image-frame{flex:0 0 96px !important;width:96px !important;height:96px !important;min-width:96px !important;max-width:96px !important;min-height:96px !important;max-height:96px !important;border-radius:15px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-name{font-size:14px !important;font-weight:500 !important;line-height:1.32 !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .product-description{font-size:12.5px !important;margin-top:4px !important;}
-.scheme-merchant-page.merchant-mobile-view .scheme-merchant-product-grid-card .price *{font-size:14px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text{gap:14px !important;padding:16px 4px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.tw-grid{gap:14px !important;height:96px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h{flex:0 0 96px !important;width:96px !important;height:96px !important;min-width:96px !important;max-width:96px !important;min-height:96px !important;max-height:96px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .pro-card-h-img{width:96px !important;height:96px !important;min-height:96px !important;max-height:96px !important;border-radius:15px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-name{font-size:14px !important;font-weight:500 !important;line-height:1.32 !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .product-description{font-size:12.5px !important;margin-top:4px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .product-horizontal-cards.merchant-list-view .price *{font-size:14px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .add-btn:not(.v-btn--block){width:33px !important;height:33px !important;min-width:33px !important;max-width:33px !important;min-height:33px !important;max-height:33px !important;}
-.scheme-merchant-page.merchant-mobile-view .cat-section .add-btn:not(.v-btn--block) svg{width:15px !important;height:15px !important;}
 }
 
 /* Search-only rules outrank the legacy [data-color-scheme] styles, regardless of injection order. */
@@ -151,22 +130,22 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
 /* v99 — one product-card visual system for Recommended Products and every category inside a shop.
    Scoped to shop pages. Mobile matching is viewport-based because Hyperzod does not reliably add
    .merchant-mobile-view to every mobile shop renderer. */
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card,
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
   border:0!important;
   border-color:transparent!important;
   outline:0!important;
   background:transparent!important;
   box-shadow:none!important;
 }
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::before,
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::after,
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::before,
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::after,
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .v-card__underlay{
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card::before,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card::after,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::before,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::after,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card__underlay{
   display:none!important;
 }
-:is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame{
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame{
   border:0!important;
   outline:0!important;
   box-shadow:none!important;
@@ -189,7 +168,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
   }
 
   /* Grid categories use the same clean two-column tile shell as Recommended Products. */
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .special-listing-inner>.tw-grid{
+  .scheme-merchant-search-page.scheme-merchant-search-page .special-listing-inner>.tw-grid{
     display:grid!important;
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
     align-items:start!important;
@@ -197,8 +176,8 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     width:100%!important;
     margin:0!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
     align-self:start!important;
     width:100%!important;
     min-width:0!important;
@@ -213,14 +192,14 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     box-shadow:none!important;
     overflow:visible!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::before,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::after,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::before,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::after,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .v-card__underlay{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card::before,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card::after,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::before,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::after,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card__underlay{
     display:none!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame{
     position:relative!important;
     width:100%!important;
     height:0!important;
@@ -234,23 +213,23 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     box-shadow:none!important;
     overflow:hidden!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame>.product-image{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame>.product-image{
     position:absolute!important;
     inset:0!important;
     width:100%!important;
     height:100%!important;
     border-radius:14px!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame img{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
+.scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame img{
     width:100%!important;
     height:100%!important;
     object-fit:cover!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
     padding-bottom:0!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .v-card-text{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card-text{
     display:flex!important;
     flex-direction:column!important;
     justify-content:flex-start!important;
@@ -259,12 +238,12 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     min-height:0!important;
     padding:8px 0 0!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .card-footer{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .card-footer{
     margin-top:0!important;
   }
 
   /* Shared type and controls. These values are the approved Recommended Products values. */
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .product-name{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-name{
     min-width:0!important;
     min-height:36.96px!important;
     margin:0!important;
@@ -279,23 +258,23 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:2!important;
     overflow:hidden!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .product-description{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-description{
     display:none!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price{
+  .scheme-merchant-search-page.scheme-merchant-search-page .price{
     margin-top:10px!important;
     line-height:1.3!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price,
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price *{
+  .scheme-merchant-search-page.scheme-merchant-search-page .price,
+.scheme-merchant-search-page.scheme-merchant-search-page .price *{
     font-size:14px!important;
     font-weight:500!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-product-btn{
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-product-btn{
     margin:0!important;
     padding:0!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block){
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-btn:not(.v-btn--block){
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
@@ -317,18 +296,17 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     line-height:1!important;
     box-sizing:border-box!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block) svg{
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-btn:not(.v-btn--block) svg{
     width:15px!important;
     height:15px!important;
     margin:0!important;
     color:#5A29DE!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block) svg *{
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-btn:not(.v-btn--block) svg *{
     stroke:#5A29DE!important;
   }
-  .scheme-merchant-page .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{
+  .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
+.scheme-merchant-search-page.scheme-merchant-search-page :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{
     position:absolute!important;
     left:auto!important;
     right:8px!important;
@@ -337,23 +315,21 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     transform:none!important;
     z-index:2!important;
   }
-  html[dir='rtl'] .scheme-merchant-page .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute,
-  html[lang^='ar'] .scheme-merchant-page .scheme-product-recommendation-section .pro-card-h-img>.tw-absolute,
-  html[dir='rtl'] :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control,
-  html[lang^='ar'] :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control,
-  html[dir='rtl'] :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute,
-  html[lang^='ar'] :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{
+  html[dir='rtl'] .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
+html[lang^='ar'] .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
+html[dir='rtl'] .scheme-merchant-search-page.scheme-merchant-search-page :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute,
+html[lang^='ar'] .scheme-merchant-search-page.scheme-merchant-search-page :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{
     right:auto!important;
     left:8px!important;
   }
 
   /* Preserve shops that intentionally use compact list rows, while sharing the same type/button tokens. */
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view{
     display:grid!important;
     grid-template-columns:1fr!important;
     gap:0!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view>.v-card{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view>.v-card{
     width:100%!important;
     max-width:none!important;
     border:0!important;
@@ -362,16 +338,16 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     background:transparent!important;
     box-shadow:none!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text{
     gap:14px!important;
     padding:16px 4px!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.tw-grid{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view>.v-card>.v-card-text>.tw-grid{
     height:96px!important;
     gap:14px!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view .pro-card-h,
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view .pro-card-h-img{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view .pro-card-h,
+.scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view .pro-card-h-img{
     flex:0 0 96px!important;
     width:96px!important;
     min-width:96px!important;
@@ -382,7 +358,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     padding-bottom:0!important;
     border-radius:15px!important;
   }
-  :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards.merchant-list-view .product-name{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards.merchant-list-view .product-name{
     min-height:0!important;
   }
 
@@ -400,22 +376,22 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
 
 @media (min-width:960px){
   /* Desktop keeps its existing grid sizes; typography and controls are still identical across both sources. */
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .product-name{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-name{
     margin:0!important;
     color:#1B2023!important;
     font-size:16px!important;
     font-weight:400!important;
     line-height:1.3!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price,
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price *{
+  .scheme-merchant-search-page.scheme-merchant-search-page .price,
+.scheme-merchant-search-page.scheme-merchant-search-page .price *{
     font-size:16px!important;
     font-weight:500!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .price{
+  .scheme-merchant-search-page.scheme-merchant-search-page .price{
     margin-top:10px!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block){
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-btn:not(.v-btn--block){
     width:33px!important;
     min-width:33px!important;
     max-width:33px!important;
@@ -424,7 +400,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     max-height:33px!important;
     border-radius:50%!important;
   }
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .add-btn:not(.v-btn--block) svg{
+  .scheme-merchant-search-page.scheme-merchant-search-page .add-btn:not(.v-btn--block) svg{
     width:15px!important;
     height:15px!important;
   }
@@ -461,7 +437,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
 
 /* v100 — reserve the same two-line title area for every desktop shop product so prices align. */
 @media (min-width:960px){
-  :is(.scheme-merchant-page :is(.scheme-product-recommendation-section,.cat-section),.scheme-merchant-search-page) .product-name{
+  .scheme-merchant-search-page.scheme-merchant-search-page .product-name{
     min-height:41.6px!important;
     display:-webkit-box!important;
     -webkit-box-orient:vertical!important;
@@ -485,34 +461,22 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
 /* v101 — iOS receives both the legacy horizontal-card rules and the newer two-column grid.
    Fully reset grid-category cards to vertical tiles so those systems cannot combine. */
 @media (max-width:959.98px){
-  html body #app .scheme-merchant-page .scheme-product-recommendation-section .pro-card-h,
-  html body #app .scheme-merchant-page .scheme-product-recommendation-section .pro-card-h-img{
-    flex:0 0 146px!important;
-    width:146px!important;
-    min-width:146px!important;
-    max-width:146px!important;
-    height:146px!important;
-    min-height:146px!important;
-    max-height:146px!important;
-    padding-bottom:0!important;
-    aspect-ratio:1/1!important;
-  }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .special-listing-inner>.tw-grid{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .special-listing-inner>.tw-grid{
     display:grid!important;
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
     align-items:start!important;
     gap:28px 12px!important;
     width:100%!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
     width:100%!important;
     min-width:0!important;
     max-width:none!important;
     height:auto!important;
     min-height:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
     display:flex!important;
     flex-direction:column!important;
     align-items:stretch!important;
@@ -524,7 +488,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     box-shadow:none!important;
     overflow:visible!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame{
     position:relative!important;
     flex:none!important;
     width:100%!important;
@@ -541,23 +505,23 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     background:#F7F7F8!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame>.product-image{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame>.product-image{
     position:absolute!important;
     inset:0!important;
     width:100%!important;
     height:100%!important;
     border-radius:14px!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame img{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame img{
     width:100%!important;
     height:100%!important;
     object-fit:cover!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
     padding-bottom:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .v-card-text{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card-text{
     display:flex!important;
     flex:none!important;
     flex-direction:column!important;
@@ -568,7 +532,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     min-height:0!important;
     padding:8px 0 0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-name{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-name{
     min-height:36.96px!important;
     margin:0!important;
     font-size:14px!important;
@@ -579,19 +543,19 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:2!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-description{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-description{
     display:none!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .price{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price{
     margin-top:10px!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .price,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .price *{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price *{
     font-size:14px!important;
     font-weight:500!important;
     line-height:1.25!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
     position:absolute!important;
     right:8px!important;
     left:auto!important;
@@ -599,8 +563,8 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     transform:none!important;
     z-index:2!important;
   }
-  html[dir='rtl'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control,
-  html[lang^='ar'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control{
+  html[dir='rtl'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
+html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
     right:auto!important;
     left:8px!important;
   }
@@ -608,9 +572,9 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
 
 /* v102 — restore the approved in-shop mobile layout: one horizontal product row per line. */
 @media (max-width:959.98px){
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .special-listing-inner>.tw-grid,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) *:has(>.scheme-merchant-product-grid-card),
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .special-listing-inner>.tw-grid,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page *:has(>.scheme-merchant-product-grid-card),
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards{
     display:flex!important;
     flex-direction:column!important;
     grid-template-columns:1fr!important;
@@ -619,7 +583,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     width:100%!important;
     padding:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card{
     flex:0 0 100%!important;
     width:100%!important;
     min-width:0!important;
@@ -629,8 +593,8 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     margin:0!important;
     padding:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card.v-card,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card.v-card,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
     display:flex!important;
     flex-direction:row!important;
     align-items:center!important;
@@ -648,7 +612,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     box-shadow:none!important;
     overflow:visible!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame{
     position:relative!important;
     flex:0 0 108px!important;
     width:108px!important;
@@ -665,23 +629,23 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     background:#F7F7F8!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame>.product-image{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame>.product-image{
     position:absolute!important;
     inset:0!important;
     width:100%!important;
     height:100%!important;
     border-radius:16px!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame img{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame img{
     width:100%!important;
     height:100%!important;
     object-fit:cover!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
     padding-bottom:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .v-card-text{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card-text{
     display:flex!important;
     flex:1 1 auto!important;
     flex-direction:column!important;
@@ -693,7 +657,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     min-height:108px!important;
     padding:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-name{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-name{
     min-height:0!important;
     margin:0!important;
     color:#1B2023!important;
@@ -705,7 +669,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:2!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .product-description{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-description{
     display:-webkit-box!important;
     margin-top:4px!important;
     color:#8A8A8A!important;
@@ -716,19 +680,19 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:1!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .price{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price{
     margin-top:auto!important;
     color:#1B2023!important;
     font-size:16px!important;
     font-weight:500!important;
     line-height:1.25!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .price *{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price *{
     font-size:16px!important;
     font-weight:500!important;
     line-height:1.25!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
     position:absolute!important;
     right:4px!important;
     left:auto!important;
@@ -736,14 +700,14 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     transform:none!important;
     z-index:2!important;
   }
-  html[dir='rtl'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control,
-  html[lang^='ar'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .scheme-merchant-product-grid-card .grid-add-control{
+  html[dir='rtl'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
+html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
     right:auto!important;
     left:4px!important;
   }
 
   /* Hyperzod's second in-store product renderer. It must match the grid-card renderer exactly. */
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards>.v-card{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards>.v-card{
     width:100%!important;
     min-width:0!important;
     max-width:none!important;
@@ -758,7 +722,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     box-shadow:none!important;
     overflow:visible!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards>.v-card>.v-card-text{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards>.v-card>.v-card-text{
     display:flex!important;
     align-items:center!important;
     width:100%!important;
@@ -767,7 +731,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     min-height:0!important;
     padding:18px 4px!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards>.v-card>.v-card-text>.tw-grid{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards>.v-card>.v-card-text>.tw-grid{
     display:flex!important;
     flex:1 1 auto!important;
     flex-direction:row!important;
@@ -778,7 +742,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     height:108px!important;
     min-height:108px!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards>.v-card>.v-card-text>.tw-grid>div:not(.pro-card-h){
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards>.v-card>.v-card-text>.tw-grid>div:not(.pro-card-h){
     order:1!important;
     display:flex!important;
     flex:1 1 auto!important;
@@ -791,8 +755,8 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     min-height:108px!important;
     padding:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img{
     order:0!important;
     position:relative!important;
     flex:0 0 108px!important;
@@ -810,22 +774,22 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     background:#F7F7F8!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img>.tw-cursor-pointer{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img>.tw-cursor-pointer{
     position:absolute!important;
     inset:0!important;
     width:100%!important;
     height:100%!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img .v-responsive,
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img img{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img .v-responsive,
+html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img img{
     width:100%!important;
     height:100%!important;
     object-fit:cover!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img .v-responsive__sizer{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img .v-responsive__sizer{
     padding-bottom:0!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .product-name{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .product-name{
     min-height:0!important;
     margin:0!important;
     color:#1B2023!important;
@@ -837,7 +801,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:2!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .product-description{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .product-description{
     display:-webkit-box!important;
     margin-top:4px!important;
     color:#8A8A8A!important;
@@ -848,19 +812,19 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     -webkit-line-clamp:1!important;
     overflow:hidden!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .price{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .price{
     margin-top:auto!important;
     color:#1B2023!important;
     font-size:16px!important;
     font-weight:500!important;
     line-height:1.25!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .price *{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .price *{
     font-size:16px!important;
     font-weight:500!important;
     line-height:1.25!important;
   }
-  html body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img>.tw-absolute{
+  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img>.tw-absolute{
     position:absolute!important;
     right:4px!important;
     left:auto!important;
@@ -868,8 +832,8 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     transform:none!important;
     z-index:2!important;
   }
-  html[dir='rtl'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img>.tw-absolute,
-  html[lang^='ar'] body #app :is(.scheme-merchant-page .cat-section,.scheme-merchant-search-page) .product-horizontal-cards .pro-card-h-img>.tw-absolute{
+  html[dir='rtl'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img>.tw-absolute,
+html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .product-horizontal-cards .pro-card-h-img>.tw-absolute{
     right:auto!important;
     left:4px!important;
   }
@@ -1287,32 +1251,32 @@ html body #app #MultiVendorSearch{
    Remove both the ordinary card border and Vuetify's outlined ::after layer.
    Keep the rule inside product structures so shop headers, category tabs,
    merchant cards and product dialogs retain their own borders. */
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-horizontal-cards>.v-card,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-card-horizontal,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card{
+html body #app .scheme-merchant-search-page .product-horizontal-cards>.v-card,
+html body #app .scheme-merchant-search-page .product-card-horizontal,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
   border:0!important;
   border-color:transparent!important;
   outline:0!important;
   box-shadow:none!important;
 }
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-horizontal-cards>.v-card::before,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-horizontal-cards>.v-card::after,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-card-horizontal::before,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-card-horizontal::after,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::before,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card::after,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::before,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card::after{
+html body #app .scheme-merchant-search-page .product-horizontal-cards>.v-card::before,
+html body #app .scheme-merchant-search-page .product-horizontal-cards>.v-card::after,
+html body #app .scheme-merchant-search-page .product-card-horizontal::before,
+html body #app .scheme-merchant-search-page .product-card-horizontal::after,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card::before,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card::after,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::before,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card::after{
   content:none!important;
   display:none!important;
   border:0!important;
   box-shadow:none!important;
 }
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-horizontal-cards>.v-card>.v-card__underlay,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .product-card-horizontal>.v-card__underlay,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card__underlay,
-html body #app :is(.scheme-merchant-page,.scheme-merchant-search-page) .scheme-merchant-product-grid-card>.v-card>.v-card__underlay{
+html body #app .scheme-merchant-search-page .product-horizontal-cards>.v-card>.v-card__underlay,
+html body #app .scheme-merchant-search-page .product-card-horizontal>.v-card__underlay,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card__underlay,
+html body #app .scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card>.v-card__underlay{
   display:none!important;
   border:0!important;
   box-shadow:none!important;
@@ -1409,7 +1373,7 @@ html body #app #MultiVendorSearch .hg-missing-distance>div{display:none!importan
 html body #app #MerchantSearchPage .scheme-merchant-search-control-bar{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-block:4px;}
 html body #app #MerchantSearchPage .scheme-merchant-search-control-bar::-webkit-scrollbar{display:none;}
 /* White product photos need a visible add circle on every store renderer. */
-html body #app :is(.scheme-merchant-page,#MerchantSearchPage) .add-btn{
+html body #app #MerchantSearchPage .add-btn{
   border:1px solid #EEE9F6!important;border-radius:50%!important;
   box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
 }
@@ -1789,4 +1753,295 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
 .pro-card-h-img .v-img,
 .pro-card-h-img .v-img__img{
   border-radius:inherit!important;
+}
+
+/* ==================== STORE PRODUCT CARDS (2026-10-08) ====================
+   The one rule set for product cards on store pages: Recommended Products and every category section, website and app,
+   English and Arabic. It replaces the earlier layers (v81, v99, v100, v101, v102, v109 here; the mobile, ALL SIZES and
+   desktop store-card rules in global-footer-1.js). Layout comes from structure, not from the product's data:
+   - the image slot always exists: a product with no image gets the same box, with the same picture global-footer-1.js
+     already shows when a photo is missing (grey frame, mountain icon), so every row lines up;
+   - the "+" sits in the same corner of that slot in every card, wherever Hyperzod puts the button in its markup
+     (inside the photo when there is one, next to the price when there is none);
+   - the "+" label ("Add Item") is never shown, whatever text rules match around it;
+   - names wrap to at most 2 lines and long words break, so nothing pushes the price or the "+" out.
+   Hyperzod renderers covered: .product-card-horizontal (category rows + Recommended) and .scheme-merchant-product-grid-card.
+   Selectors start with "html body #app .scheme-merchant-page" so they outrank the general card rules that the Search and
+   Home rails still use; !important only to beat Vuetify/Tailwind utilities and those general rules. */
+
+/* ---------- shared: the "+" button, every store product card ---------- */
+html body #app .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-product-btn{
+  margin:0!important;padding:0!important;
+}
+html body #app .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block){
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 33px!important;width:33px!important;min-width:33px!important;max-width:33px!important;
+  height:33px!important;min-height:33px!important;max-height:33px!important;
+  padding:0!important;margin:0!important;border:1px solid #EEE9F6!important;border-radius:50%!important;
+  background:#fff!important;box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
+  font-size:0!important;line-height:0!important;
+}
+html body #app .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) .v-btn__content{
+  font-size:0!important;line-height:0!important;
+}
+html body #app .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) svg{
+  width:15px!important;height:15px!important;margin:0!important;
+}
+html body #app .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) svg *{
+  stroke:#5A29DE!important;
+}
+
+/* ---------- shared: Recommended Products column (no side padding) ---------- */
+html body #app .scheme-merchant-page .scheme-product-recommendation-section .v-col{padding:0!important;}
+
+/* ---------- shared: horizontal-card skeleton (category rows and Recommended, all sizes) ---------- */
+html body #app .scheme-merchant-page .product-card-horizontal{
+  margin:0!important;border:0 solid transparent!important;box-shadow:none!important;background:transparent!important;
+  min-width:0!important;height:auto!important;min-height:0!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal::before,
+html body #app .scheme-merchant-page .product-card-horizontal::after,
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card__underlay{
+  content:none!important;display:none!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text{
+  display:flex!important;height:auto!important;min-width:0!important;
+}
+/* the row inside the card: image slot + text column; position:relative makes it the box the "+" is placed in */
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid{
+  position:relative!important;display:flex!important;height:auto!important;min-width:0!important;min-height:0!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid>div{
+  min-width:0!important;height:auto!important;padding:0!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .tw-justify-between{
+  display:flex!important;flex-direction:column!important;justify-content:space-between!important;height:auto!important;
+  flex:1 1 auto!important;min-width:0!important;min-height:0!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .rec-item-title{max-width:none!important;}
+/* image slot */
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h{
+  display:flex!important;flex:0 0 var(--hgp-img)!important;
+  width:var(--hgp-img)!important;min-width:var(--hgp-img)!important;max-width:var(--hgp-img)!important;
+  height:var(--hgp-img)!important;min-height:var(--hgp-img)!important;max-height:var(--hgp-img)!important;
+  padding:0!important;margin:0!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img{
+  position:relative!important;display:block!important;flex:0 0 var(--hgp-img)!important;
+  width:var(--hgp-img)!important;min-width:var(--hgp-img)!important;max-width:var(--hgp-img)!important;
+  height:var(--hgp-img)!important;min-height:var(--hgp-img)!important;max-height:var(--hgp-img)!important;
+  padding:0!important;margin:0!important;border:0!important;aspect-ratio:auto!important;
+  border-radius:var(--hgp-radius)!important;background:var(--hgp-bg)!important;overflow:hidden!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img>.tw-cursor-pointer{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img .v-responsive,
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img .v-img{
+  width:100%!important;height:100%!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img img{
+  width:100%!important;height:100%!important;object-fit:cover!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img .v-responsive__sizer{padding-bottom:0!important;}
+/* no image: the same slot, drawn by the row itself */
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid:not(:has(>.pro-card-h))::before{
+  content:""!important;display:block!important;flex:0 0 var(--hgp-img)!important;align-self:flex-start!important;
+  width:var(--hgp-img)!important;height:var(--hgp-img)!important;border-radius:var(--hgp-radius)!important;
+  background:#F0F0F0 url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20200'%3E%3Crect%20width%3D'200'%20height%3D'200'%20fill%3D'%23F0F0F0'%2F%3E%3Cpath%20d%3D'M46%20146l38-48%2030%2034%2024-28%2032%2042z'%20fill%3D'%23DCDCDC'%2F%3E%3Ccircle%20cx%3D'70'%20cy%3D'72'%20r%3D'16'%20fill%3D'%23DCDCDC'%2F%3E%3C%2Fsvg%3E") center/cover no-repeat!important;
+}
+/* the "+": one corner of the image slot, same place with or without a photo */
+html body #app .scheme-merchant-page .product-card-horizontal .pro-card-h-img>.tw-absolute{
+  position:absolute!important;top:auto!important;bottom:var(--hgp-inset)!important;
+  left:auto!important;right:auto!important;inset-inline-end:var(--hgp-inset)!important;
+  transform:none!important;z-index:2!important;
+}
+html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid:not(:has(>.pro-card-h)) .price>.tw-relative{
+  position:absolute!important;top:calc(var(--hgp-img) - 33px - var(--hgp-inset))!important;bottom:auto!important;
+  left:auto!important;right:auto!important;inset-inline-start:calc(var(--hgp-img) - 33px - var(--hgp-inset))!important;
+  transform:none!important;z-index:2!important;margin:0!important;
+}
+/* text */
+html body #app .scheme-merchant-page :is(.product-card-horizontal,.scheme-merchant-product-grid-card,.product-card-slider) .product-name{
+  margin:0!important;color:#1B2023!important;font-size:16px!important;font-weight:400!important;line-height:1.3!important;
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;
+  overflow:hidden!important;overflow-wrap:anywhere!important;
+}
+html body #app .scheme-merchant-page :is(.product-card-horizontal,.scheme-merchant-product-grid-card,.product-card-slider) .price{
+  display:block!important;margin:0!important;color:#1B2023!important;font-size:16px!important;font-weight:500!important;
+}
+html body #app .scheme-merchant-page :is(.product-card-horizontal,.scheme-merchant-product-grid-card,.product-card-slider) .product-price{
+  margin:0!important;color:#1B2023!important;font-size:16px!important;font-weight:500!important;
+}
+html body #app .scheme-merchant-page .product-card-slider .product-description{display:none!important;}
+html body #app .scheme-merchant-page .product-card-slider .price{margin-top:10px!important;}
+
+/* ---------- shared: grid-card renderer (.scheme-merchant-product-grid-card) - same row / tile, Hyperzod's other markup ---------- */
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card{
+  margin:0!important;padding:0!important;min-width:0!important;border:0 solid transparent!important;box-shadow:none!important;background:transparent!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card::before,
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card::after,
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card::after,
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .v-card__underlay{
+  content:none!important;display:none!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card{
+  position:relative!important;display:flex!important;min-width:0!important;height:auto!important;
+  border:0 solid transparent!important;box-shadow:none!important;background:transparent!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-image-frame{
+  position:relative!important;display:block!important;flex:0 0 var(--hgp-img)!important;
+  width:var(--hgp-img)!important;min-width:var(--hgp-img)!important;max-width:var(--hgp-img)!important;
+  height:var(--hgp-img)!important;min-height:var(--hgp-img)!important;max-height:var(--hgp-img)!important;
+  padding:0!important;margin:0!important;border:0!important;
+  border-radius:var(--hgp-radius)!important;background:var(--hgp-bg)!important;overflow:hidden!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-image-frame>.product-image{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:var(--hgp-radius)!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-image .v-responsive__sizer{padding-bottom:0!important;}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-image img{object-fit:cover!important;}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .grid-add-control{
+  position:absolute!important;top:auto!important;bottom:var(--hgp-inset)!important;
+  left:auto!important;right:auto!important;inset-inline-end:var(--hgp-inset)!important;transform:none!important;z-index:2!important;
+}
+/* no image: the same slot (Hyperzod's markup for this case has not been seen yet on this renderer) */
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card:not(:has(>.product-image-frame))::before{
+  content:""!important;display:block!important;order:-1!important;flex:0 0 var(--hgp-img)!important;
+  width:var(--hgp-img)!important;height:var(--hgp-img)!important;border-radius:var(--hgp-radius)!important;
+  background:#F0F0F0 url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20200'%3E%3Crect%20width%3D'200'%20height%3D'200'%20fill%3D'%23F0F0F0'%2F%3E%3Cpath%20d%3D'M46%20146l38-48%2030%2034%2024-28%2032%2042z'%20fill%3D'%23DCDCDC'%2F%3E%3Ccircle%20cx%3D'70'%20cy%3D'72'%20r%3D'16'%20fill%3D'%23DCDCDC'%2F%3E%3C%2Fsvg%3E") center/cover no-repeat!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card>.v-card-text{
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;
+  gap:12px!important;min-width:0!important;
+}
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .name,
+html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .card-footer{margin:0!important;max-width:100%!important;}
+
+/* ---------- mobile + app (below 960px) ---------- */
+@media (max-width:959.98px){
+  /* category sections: one product per row, divider between rows */
+  html body #app .scheme-merchant-page .cat-section .product-horizontal-cards{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;
+    grid-template-columns:1fr!important;width:100%!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal{
+    --hgp-img:108px;--hgp-radius:16px;--hgp-bg:#F7F7F8;--hgp-inset:4px;
+    width:100%!important;max-width:none!important;border-radius:0!important;
+    border-bottom:1px solid #EEECEF!important;overflow:visible!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal>.v-card-text{
+    position:relative!important;align-items:center!important;width:100%!important;padding:18px 4px!important;gap:14px!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal>.v-card-text>.clickable{
+    position:absolute!important;inset:0!important;z-index:0;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal>.v-card-text>.tw-grid{
+    flex:1 1 auto!important;flex-direction:row!important;align-items:stretch!important;gap:16px!important;
+    width:100%!important;min-height:108px!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal>.v-card-text>.tw-grid>div:not(.pro-card-h){
+    order:1!important;display:flex!important;flex:1 1 auto!important;flex-direction:column!important;
+    justify-content:flex-start!important;min-height:108px!important;max-width:100%!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal .pro-card-h{
+    order:0!important;position:relative!important;background:var(--hgp-bg)!important;border-radius:var(--hgp-radius)!important;overflow:hidden!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal>.v-card-text>.tw-grid::before{order:0!important;}
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal .tw-justify-between{flex:1 1 auto!important;}
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal .product-description{
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:1!important;overflow:hidden!important;
+    margin-top:4px!important;color:#8A8A8A!important;font-size:13px!important;font-weight:400!important;line-height:1.3!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal .price{margin-top:auto!important;line-height:1.25!important;}
+  html body #app .scheme-merchant-page .cat-section .product-card-horizontal .price>:not(.tw-relative){line-height:1.25!important;}
+
+  /* Recommended Products: sideways rail of 146px tiles */
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .v-row{margin:0 -16px!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .v-col>.tw-grid{
+    display:flex!important;align-items:start!important;gap:12px!important;overflow-x:auto!important;padding:0 16px 8px!important;margin:0!important;
+    scroll-snap-type:x mandatory!important;scroll-padding-inline:16px!important;scrollbar-width:none!important;
+  }
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .v-col>.tw-grid::-webkit-scrollbar{display:none!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal{
+    --hgp-img:146px;--hgp-radius:14px;--hgp-bg:#F2F2F2;--hgp-inset:8px;
+    flex:0 0 146px!important;width:146px!important;scroll-snap-align:start!important;
+  }
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text{padding:0!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text>.tw-grid{
+    flex-direction:column-reverse!important;justify-content:flex-end!important;align-items:center!important;gap:8px!important;
+  }
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text>.tw-grid>div{width:100%!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text>.tw-grid::before{order:1!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .product-name{min-height:36.96px!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .product-description{display:none!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .price{line-height:1.3!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .product-price{line-height:1!important;}
+
+  /* grid-card renderer, category sections: the same one-product row */
+  html body #app .scheme-merchant-page .cat-section .product-cards:has(>.scheme-merchant-product-grid-card){
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;grid-template-columns:1fr!important;width:100%!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card{
+    --hgp-img:108px;--hgp-radius:16px;--hgp-bg:#F7F7F8;--hgp-inset:4px;
+    flex:0 0 100%!important;width:100%!important;max-width:100%!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card>.v-card{
+    flex-direction:row!important;align-items:center!important;gap:16px!important;padding:18px 4px!important;
+    border-bottom:1px solid #EEECEF!important;border-radius:0!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card>.v-card>.v-card-text{
+    order:1!important;flex:1 1 auto!important;min-height:108px!important;padding:0!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card .product-description{
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:1!important;overflow:hidden!important;
+    margin-top:4px!important;color:#8A8A8A!important;font-size:13px!important;font-weight:400!important;line-height:1.3!important;
+  }
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card .price,
+  html body #app .scheme-merchant-page .cat-section .scheme-merchant-product-grid-card .product-price{line-height:1.25!important;}
+  /* slider renderer (.product-card-slider): its name and price spacing stay as they were */
+  html body #app .scheme-merchant-page .product-card-slider .product-name{min-height:36.96px!important;}
+  html body #app .scheme-merchant-page .product-card-slider .price{line-height:1.3!important;}
+}
+
+/* ---------- website, desktop (960px and up): 5 tiles per row ---------- */
+@media (min-width:960px){
+  html body #app .scheme-merchant-page .cat-section .product-horizontal-cards,
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .v-col>.tw-grid{
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:40px 28px!important;align-items:start!important;
+  }
+  html body #app .scheme-merchant-page .product-card-horizontal{
+    --hgp-img:200px;--hgp-radius:0px;--hgp-bg:#F2F2F2;--hgp-inset:10px;
+    width:auto!important;max-width:none!important;
+  }
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal{--hgp-radius:14px;}
+  html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text{padding:0!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid{
+    flex-direction:column-reverse!important;justify-content:flex-end!important;gap:0!important;
+  }
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text>.tw-grid{gap:10px!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid>div{width:100%!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal>.v-card-text>.tw-grid::before{order:1!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal .product-name{min-height:41.6px!important;}
+  html body #app .scheme-merchant-page .scheme-product-recommendation-section .product-card-horizontal .product-name{margin-bottom:4px!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal .product-description{display:none!important;}
+  html body #app .scheme-merchant-page .product-card-horizontal .product-price{line-height:18px!important;}
+
+  /* grid-card renderer: 5 tiles per row, image on top */
+  html body #app .scheme-merchant-page .cat-section .product-cards:has(>.scheme-merchant-product-grid-card){
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:40px 28px!important;align-items:start!important;
+  }
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card{
+    --hgp-img:100%;--hgp-radius:14px;--hgp-bg:#F2F2F2;--hgp-inset:10px;width:auto!important;
+  }
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card{flex-direction:column!important;gap:12px!important;padding:0!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-image-frame{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;max-height:none!important;flex:0 0 auto!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card:not(:has(>.product-image-frame))::before{aspect-ratio:1/1!important;height:auto!important;flex:0 0 auto!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card>.v-card>.v-card-text{padding:16px 4px 0!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-name{min-height:41.6px!important;margin-bottom:4px!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-description{display:none!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .price{margin-top:10px!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .product-price{line-height:18px!important;}
+  html body #app .scheme-merchant-page .scheme-merchant-product-grid-card .grid-add-control{z-index:4!important;}
 }
