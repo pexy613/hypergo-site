@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1824 */
+/* hg-version 2026-10-08-1123 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -443,19 +443,34 @@
 /* TEMP-DIAGNOSTIC-START (hgperf hook: times the app background observer) */ if (window.__hgObsT) window.__hgObsT.begin("app background"); /* TEMP-DIAGNOSTIC-END */
 (function () {
 
+  /* observer trim (2026-10-08): changes inside our countdown, rotating placeholder and temporary panels no longer wake this
+     up, and the purple is only written again when it is not already there (same colour, same 60ms wait as before). */
+  const NOISE = "#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda";
+  function relevant(recs) {
+    if (!recs || !recs.length) return true;
+    for (let i = 0; i < recs.length; i++) {
+      const r = recs[i], t = r.target, el = t && (t.nodeType === 1 ? t : t.parentNode);
+      if (el && el.nodeType === 1 && el.closest && el.closest(NOISE)) continue;
+      if (r.type !== "childList" || r.removedNodes.length) return true;
+      const a = r.addedNodes;
+      for (let j = 0; j < a.length; j++) if (!(a[j].nodeType === 1 && a[j].matches && a[j].matches(NOISE))) return true;
+    }
+    return false;
+  }
+
+  let bgNorm = "";
+  function setBg(el) {
+    const st = el.style;
+    if (bgNorm && st.getPropertyValue("background-color") === bgNorm && st.getPropertyPriority("background-color") === "important") return;
+    st.setProperty("background-color", "#5A29DE", "important");
+    bgNorm = st.getPropertyValue("background-color");
+  }
+
   function applyAppBackground() {
 
-    document.documentElement.style.setProperty(
-      "background-color",
-      "#5A29DE",
-      "important"
-    );
+    setBg(document.documentElement);
 
-    document.body.style.setProperty(
-      "background-color",
-      "#5A29DE",
-      "important"
-    );
+    setBg(document.body);
 
   }
 
@@ -463,7 +478,9 @@
 
   let bgTimer = null;
 
-  new MutationObserver(() => {
+  new MutationObserver((recs) => {
+
+    if (!relevant(recs)) return;
 
     clearTimeout(bgTimer);
 
@@ -494,6 +511,31 @@
   const SNAP = 12;                 /* px over which it goes from see-through to solid once the header has left the strip */
   let ticking = false;
 
+  /* observer trim (2026-10-08): changes inside our countdown, rotating placeholder and temporary panels no longer schedule a
+     re-measure, and the strip's colour is only written when it actually differs from what is already set. */
+  const NOISE = "#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda";
+  function relevant(recs) {
+    if (!recs || !recs.length) return true;
+    for (let i = 0; i < recs.length; i++) {
+      const r = recs[i], t = r.target, el = t && (t.nodeType === 1 ? t : t.parentNode);
+      if (el && el.nodeType === 1 && el.closest && el.closest(NOISE)) continue;
+      if (r.type !== "childList" || r.removedNodes.length) return true;
+      const a = r.addedNodes;
+      for (let j = 0; j < a.length; j++) if (!(a[j].nodeType === 1 && a[j].matches && a[j].matches(NOISE))) return true;
+    }
+    return false;
+  }
+  const lastSet = {};
+  function setIf(st, prop, val) {
+    const l = lastSet[prop];
+    if (l && l.raw === val && st.getPropertyValue(prop) === l.norm && st.getPropertyPriority(prop) === "important") return;
+    st.setProperty(prop, val, "important");
+    lastSet[prop] = { raw: val, norm: st.getPropertyValue(prop) };
+  }
+  function removeIf(st, prop) {
+    if (st.getPropertyValue(prop)) st.removeProperty(prop);
+  }
+
   function mix(t) {
     return PURPLE.map((p, i) => Math.round(WHITE[i] + (p - WHITE[i]) * t));
   }
@@ -522,11 +564,11 @@
        Set here directly, so the store page always wins. Hyperzod's own scrolled "scrim" state is left alone. */
     if (storeOnScreen(strip)) {
       if (/scrim/.test(strip.className)) {
-        strip.style.removeProperty("background-color");
-        strip.style.removeProperty("transition");
+        removeIf(strip.style, "background-color");
+        removeIf(strip.style, "transition");
       } else {
-        strip.style.setProperty("transition", "none", "important");
-        strip.style.setProperty("background-color", "transparent", "important");
+        setIf(strip.style, "transition", "none");
+        setIf(strip.style, "background-color", "transparent");
       }
       return;
     }
@@ -534,13 +576,13 @@
     const modal = document.querySelector(".v-overlay--active > .v-overlay__scrim");
     /* Search is its own purple-header page. Do not let the Home scroll-fade logic turn its status strip white. */
     if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page")) {
-      strip.style.setProperty("transition", "none", "important");
-      strip.style.setProperty("background-color", "rgb(134,64,252)", "important");
+      setIf(strip.style, "transition", "none");
+      setIf(strip.style, "background-color", "rgb(134,64,252)");
       return;
     }
     if (!root || modal || html.classList.contains("native-status-bar-transparent") || /scrim/.test(strip.className)) {
-      strip.style.removeProperty("background-color");
-      strip.style.removeProperty("transition");
+      removeIf(strip.style, "background-color");
+      removeIf(strip.style, "transition");
       return;
     }
     const box = root.getBoundingClientRect();
@@ -553,8 +595,8 @@
     const aWhite = A_HEADER + (A_PAGE - A_HEADER) * gone;
     const a = 1 - (1 - aWhite) * (1 - t);   /* opaque purple at rest, aWhite once fully faded */
     const c = mix(t);
-    strip.style.setProperty("transition", "none", "important");   /* follow the finger exactly, no lag */
-    strip.style.setProperty("background-color", "rgba(" + c.join(",") + "," + a.toFixed(3) + ")", "important");
+    setIf(strip.style, "transition", "none");   /* follow the finger exactly, no lag */
+    setIf(strip.style, "background-color", "rgba(" + c.join(",") + "," + a.toFixed(3) + ")");
   }
 
   function schedule() {
@@ -562,7 +604,7 @@
   }
 
   document.addEventListener("scroll", schedule, { capture: true, passive: true });
-  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+  new MutationObserver((recs) => { if (relevant(recs)) schedule(); }).observe(document.body, { childList: true, subtree: true });
   schedule();
 })();
 /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */

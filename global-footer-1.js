@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1824 */
+/* hg-version 2026-10-08-1123 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -1133,6 +1133,49 @@
   }
 
 
+  /* ================= OUR OWN NOISE (observer trim, 2026-10-08) =================
+     Changes inside these never matter to our whole-page observers: the launch countdown (#hg-launch, ticks every second),
+     the rotating search placeholder (.hg-ph, swaps its word every few seconds) and the temporary panels (hgperf, hgdiag, Eruda).
+     A batch of changes is "relevant" if any one change is outside them. Adding one of them counts as noise (only our own code
+     adds them); removing one stays relevant (the app may have thrown it away and it has to be rebuilt).
+     classMode (acctMO only): a class change counts as noise when it only ADDED hg- classes (our own markers); any removed
+     class, or any added non-hg class, stays relevant (e.g. the app's own re-render wiping our classes). */
+  const HG_NOISE = "#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda";
+  function hgInNoise(n, sel) {
+    const el = n && (n.nodeType === 1 ? n : n.parentNode);
+    return !!(el && el.nodeType === 1 && el.closest && el.closest(sel || HG_NOISE));
+  }
+  function hgOnlyAddedHg(before, after) {
+    const b = (before || "").split(/\s+/), a = (after || "").split(/\s+/);
+    for (let i = 0; i < b.length; i++) if (b[i] && a.indexOf(b[i]) < 0) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] && b.indexOf(a[i]) < 0 && a[i].indexOf("hg-") !== 0) return false;
+    return true;
+  }
+  function hgMutRelevant(recs, sel, classMode) {
+    if (!recs || !recs.length) return true;
+    sel = sel || HG_NOISE;
+    const de = document.documentElement;
+    let after = null;
+    for (let i = recs.length - 1; i >= 0; i--) {
+      const r = recs[i];
+      if (r.type === "attributes") {
+        if (r.target === de) return true;
+        if (hgInNoise(r.target, sel)) continue;
+        if (!classMode || r.attributeName !== "class") return true;
+        if (!after) after = new Map();
+        const now = after.has(r.target) ? after.get(r.target) : r.target.getAttribute("class");
+        after.set(r.target, r.oldValue);
+        if (!hgOnlyAddedHg(r.oldValue, now)) return true;
+        continue;
+      }
+      if (hgInNoise(r.target, sel)) continue;
+      if (r.type !== "childList" || r.removedNodes.length) return true;
+      const a = r.addedNodes;
+      for (let j = 0; j < a.length; j++) if (!(a[j].nodeType === 1 && a[j].matches && a[j].matches(sel))) return true;
+    }
+    return false;
+  }
+
   /* ================= CURRENCY LABEL =================
      English page  -> "BHD 2.000"
      Arabic page   -> "BD 2.000"
@@ -1147,7 +1190,7 @@
   const CUR_QUICK = /BHD|BD|\u062F\.\s?\u0628/;
   const CUR_ONLY = new RegExp("^" + CUR_WS + CUR_LABEL + CUR_WS + "$");
 
-  function applyCurrency() {
+  function applyCurrency(root) {
     if (!document.body) return;
     const de = document.documentElement;
     const isAr = (de.lang || "").toLowerCase().indexOf("ar") === 0 || de.dir === "rtl";
@@ -1161,7 +1204,7 @@
       return (isAr ? core + NB + T : T + NB + core) + tail;
     };
 
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    const walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
       acceptNode(n) {
         const v = n.nodeValue;
         if (!v || !CUR_QUICK.test(v)) return NodeFilter.FILTER_REJECT;
@@ -1208,14 +1251,67 @@
      (~2-3 frames, at the edge of perceptible) - short enough that the flash should no longer read as a
      visible color/language change, while still well above a single-frame cost on pages that keep the DOM
      continuously busy (the reason this is a throttle and not a debounce in the first place). */
-  let curPending = false;
-  function scheduleCurrency() {
+  /* observer trim (2026-10-08): only the parts of the page that were added or changed are re-checked, not the whole page.
+     Each changed spot is re-checked a few levels up (a lone "BHD" label is converted by looking at its neighbours, so a
+     neighbour's new number must re-check the label too). The whole page is re-checked when the language changed, when
+     there are too many spots, or when called without a list. Our own label rewrites are dropped afterwards, so they no
+     longer wake this up again. Same 40ms throttle as before. */
+  let curPending = false, curFull = false, curKey = "", curMO = null;
+  const curRoots = new Set();
+  function curLangKey() {
+    const de = document.documentElement;
+    return (de.lang || "") + "|" + (de.dir || "");
+  }
+  function curUp(n, k) {
+    const b = document.body;
+    while (k-- > 0 && n && n !== b && n.parentNode) n = n.parentNode;
+    if (!n || n.nodeType !== 1 || !b || !b.contains(n)) return null;
+    return n;
+  }
+  function curAdd(el) {
+    if (!el) return;
+    if (curRoots.size >= 400) curFull = true;
+    else curRoots.add(el);
+  }
+  function curCollect(recs) {
+    for (let i = 0; i < recs.length && !curFull; i++) {
+      const r = recs[i];
+      if (hgInNoise(r.target)) continue;
+      if (r.type === "characterData") { curAdd(curUp(r.target, 3)); continue; }
+      if (r.type !== "childList") continue;
+      const a = r.addedNodes;
+      for (let j = 0; j < a.length && !curFull; j++) {
+        const x = a[j];
+        if (x.nodeType === 3) curAdd(curUp(x, 3));
+        else if (x.nodeType === 1 && !(x.matches && x.matches(HG_NOISE))) curAdd(curUp(x, 2));
+      }
+    }
+  }
+  function curFlush() {
+    curPending = false;
+    const full = curFull || curLangKey() !== curKey;
+    const roots = full ? [] : Array.from(curRoots);
+    curFull = false;
+    curRoots.clear();
+    curKey = curLangKey();
+    if (full) applyCurrency();
+    else {
+      const set = new Set(roots);
+      roots.forEach((el) => {
+        if (!el.isConnected) return;
+        for (let p = el.parentNode; p; p = p.parentNode) if (set.has(p)) return;
+        applyCurrency(el);
+      });
+    }
+    if (curMO) curMO.takeRecords();
+  }
+  function scheduleCurrency(recs) {
+    if (!recs || !recs.length || curLangKey() !== curKey) curFull = true;
+    else curCollect(recs);
+    if (!curFull && !curRoots.size) return;
     if (curPending) return;
     curPending = true;
-    setTimeout(() => {
-      curPending = false;
-      applyCurrency();
-    }, 40);
+    setTimeout(curFlush, 40);
   }
 
   /* ================= ACCOUNT PAGE (mobile / app) =================
@@ -3278,7 +3374,11 @@
   })();
   /* TEMP-DIAGNOSTIC-END */
   /* TEMP-DIAGNOSTIC-START (hgperf hook: times the renderObserver/applyAll observer) */ if (window.__hgObsT) window.__hgObsT.begin("renderObserver/applyAll"); /* TEMP-DIAGNOSTIC-END */
-  renderObserver = new MutationObserver(() => {
+  /* observer trim (2026-10-08): changes inside our own countdown, rotating placeholder and temporary panels no longer
+     restart applyAll; everything else works exactly as before (same 60ms wait). */
+  renderObserver = new MutationObserver((recs) => {
+
+    if (!hgMutRelevant(recs)) return;
 
     clearTimeout(renderTimer);
 
@@ -3356,9 +3456,13 @@
   const acctMQ = window.matchMedia("(max-width: 959.98px)");
   let acctRuns = 0, acctWin = 0;
   /* TEMP-DIAGNOSTIC-START (hgperf hook: times the acctMO observer) */ if (window.__hgObsT) window.__hgObsT.begin("acctMO"); /* TEMP-DIAGNOSTIC-END */
+  /* observer trim (2026-10-08): skips batches that only touched our countdown, placeholder or temporary panels, or that only
+     added our own hg- classes. It still has to watch the app's own class changes on every page: the header, bottom nav,
+     search and address-editor parts below are global, not just the Account page. */
   const acctMO = new MutationObserver((records, observer) => {
     try {
     if (!acctMQ.matches) return;
+    if (!hgMutRelevant(records, HG_NOISE, true)) return;
     syncSearchClass();
     /* home header: style it the moment it is (re)created (e.g. coming Back from Search) so the default white header never flashes */
     const hdrRoot = document.getElementById("MultiVendorHeaderRoot");
@@ -3404,12 +3508,14 @@
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ["class"]
+    attributeFilter: ["class"],
+    attributeOldValue: true
   });
   /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
   /* TEMP-DIAGNOSTIC-START (hgperf hook: times the currency observer) */ if (window.__hgObsT) window.__hgObsT.begin("currency"); /* TEMP-DIAGNOSTIC-END */
-  new MutationObserver(scheduleCurrency).observe(document.body, {
+  curMO = new MutationObserver(scheduleCurrency);
+  curMO.observe(document.body, {
     childList: true,
     characterData: true,
     subtree: true

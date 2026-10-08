@@ -1,4 +1,4 @@
-/* hg-version 2026-10-07-1824 */
+/* hg-version 2026-10-08-1123 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -97,7 +97,7 @@
     });
   }
   const bound=new WeakSet(),composing=new WeakSet();
-  let autoSearchTimer=null,openedRoot=null;
+  let autoSearchTimer=null,openedRoot=null,gf2Idle=false;
   /* v98: the two measured sizes used to live on #MultiVendorSearch. Hyperzod rebuilds that element when a query is
      submitted, so they vanished mid-typing and the pinned header snapped under the status bar (76px fallback, top:0).
      They now live on <html> and are re-measured on every run() while the field is active. */
@@ -212,7 +212,8 @@
     },450);
   }
   function run(){
-    const root=document.getElementById("MultiVendorSearch");if(!root){clearTimeout(autoSearchTimer);if(document.documentElement.classList.contains("hg-search-input-active"))document.documentElement.classList.remove("hg-search-input-active");openedRoot=null;return;}
+    const root=document.getElementById("MultiVendorSearch");if(!root){clearTimeout(autoSearchTimer);if(document.documentElement.classList.contains("hg-search-input-active"))document.documentElement.classList.remove("hg-search-input-active");openedRoot=null;gf2Idle=true;return;}
+    gf2Idle=false;
     resetSearchPosition(root);
     const input=searchInput(root),q=input?input.value.trim():"";
     if(root.classList.contains("hg-has-query")!==!!q)root.classList.toggle("hg-has-query",!!q);
@@ -242,13 +243,31 @@
   run();
   let searchRunTimer;
   /* TEMP-DIAGNOSTIC-START (hgperf hook: times the gf2 observer) */ if (window.__hgObsT) window.__hgObsT.begin("gf2 observer"); /* TEMP-DIAGNOSTIC-END */
-  new MutationObserver(()=>{
+  /* observer trim (2026-10-08): changes inside our countdown, rotating placeholder, temporary panels, and our own search
+     cart button and discovery box no longer wake this up (run() itself writes inside the last two, which used to wake it
+     again). Off the search screen, once run() has already done its clean-up, nothing is scheduled: run() would only
+     repeat that clean-up. The 1-second safety run below is unchanged. */
+  const GF2_NOISE="#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda,#hg-search-discovery,#hg-search-cart";
+  function gf2Relevant(recs){
+    if(!recs||!recs.length)return true;
+    for(let i=0;i<recs.length;i++){
+      const r=recs[i],t=r.target,el=t&&(t.nodeType===1?t:t.parentNode);
+      if(el&&el.nodeType===1&&el.closest&&el.closest(GF2_NOISE))continue;
+      if(r.type!=="childList"||r.removedNodes.length)return true;
+      const a=r.addedNodes;
+      for(let j=0;j<a.length;j++)if(!(a[j].nodeType===1&&a[j].matches&&a[j].matches(GF2_NOISE)))return true;
+    }
+    return false;
+  }
+  new MutationObserver((recs)=>{
+    if(!gf2Relevant(recs))return;
     /* v100: runs before the browser paints. If the search screen was rebuilt, or no field inside it has focus any more,
        the pinned-header mode is dropped right here, so the rebuilt header never shows up pinned with stale offsets. */
     if(document.documentElement.classList.contains("hg-search-input-active")){
       const cur=document.getElementById("MultiVendorSearch"),ae=document.activeElement;
       if(!cur||cur!==openedRoot||!(ae&&ae.tagName==="INPUT"&&cur.contains(ae)))unpinSearchHeader();
     }
+    if(gf2Idle&&!document.getElementById("MultiVendorSearch")&&!document.documentElement.classList.contains("hg-search-input-active"))return;
     clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);
   }).observe(document.body,{childList:true,subtree:true});
   /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
