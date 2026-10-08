@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1123 */
+/* hg-version 2026-10-08-1834 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -1163,6 +1163,309 @@
     try {
       if (!e || e.key !== "Enter" || !inField(e.target)) return;
       if (Date.now() > stopUpUntil) return;
+      stopUpUntil = 0;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    } catch (err) {}
+  }, true);
+})();
+/* TEMP-DIAGNOSTIC-END */
+
+/* TEMP-DIAGNOSTIC-START (hgback: store page jump when going back from checkout)
+   Temporary, hidden, read-only. Secret word hgback, typed in the search field and submitted with Return, shows / hides
+   the panel. While it is shown, it watches the address. Every time a store page (/m/) is entered, it measures on every
+   animation frame for 1.2 seconds and writes a short table to the panel AFTER that window ends, so nothing on the page
+   is written while it measures. It never changes any element, style, class, scroll position or route: it only reads
+   sizes, positions and computed styles. Memory only: no storage, no network, no console output.
+   Panel (px, screen coordinates):
+   - "store page": the store page element after the return is the SAME element as before checkout, or a NEW one (rebuilt).
+   - BEFORE: the store page as last measured before leaving it for checkout.
+   - t: ms after the address changed back to the store page. pg = same element / N new element / - no store page yet.
+   - rec: real Recommended cards (c) / grey placeholder blocks (sk, all skeleton elements in brackets), then top y and
+     height of the block that holds Recommended (its page-builder surface, else the first placeholder's surface).
+   - hd: top y of the first category heading (e.g. "Below 5bd"). bar: checkout bar left,top width x height, + = our
+     hg-checkout-bar class is on it. sc: window.scrollY / page scrollTop / scrolling box scrollTop. vv: visual viewport
+     offsetTop / height.
+   - tf / op: nearest ancestor of the store page with a transform (translate x,y) and the lowest opacity above it.
+     barbox: what the checkout bar is positioned against (viewport, or an ancestor with a transform / filter).
+   - surfaces: every block of the store page in display order (o = CSS order), with top y and height.
+   Remove this whole block to delete the feature completely. */
+(function () {
+  "use strict";
+  var W = window, D = document;
+  if (W.__hgBackDiag) return;
+  W.__hgBackDiag = 1;
+  var SECRET = "hgback";
+  var STORE = /\/m\/[^\/]+\/[^\/]+/, CO = /checkout/i;
+  var SK = ".v-skeleton-loader,[class*='skeleton']";
+  var shown = false, panel = null, raf = 0, popOn = false, popAt = -1e9;
+  var lastPath = "", tickN = 0, lastStore = null, lastStoreAt = 0, leaveAt = 0, savedPage = null, savedRec = null;
+  var oldConn = "n/a", scName = "", cap = null, caps = [];
+
+  function n0(v) { return (typeof v === "number" && isFinite(v)) ? String(Math.round(v)) : "?"; }
+  function cs(el) { try { return getComputedStyle(el); } catch (e) { return null; } }
+  function rect(el) { try { return el.getBoundingClientRect(); } catch (e) { return null; } }
+  function short(el) {
+    if (!el || el.nodeType !== 1) return "none";
+    var t = String(el.tagName || "").toLowerCase();
+    var id = el.id ? "#" + el.id : "";
+    var c = (typeof el.className === "string" && el.className.trim()) ? "." + el.className.trim().split(/\s+/).slice(0, 3).join(".") : "";
+    return (t + id + c).slice(0, 60);
+  }
+  function topSkels(root) {
+    var out = [];
+    if (!root) return out;
+    var all = root.querySelectorAll(SK);
+    for (var i = 0; i < all.length; i++) {
+      var pe = all[i].parentElement;
+      if (!(pe && pe.closest(SK))) out.push(all[i]);
+    }
+    return out;
+  }
+  function tf(v) {
+    if (!v || v === "none") return "";
+    var m = v.match(/matrix(3d)?\(([^)]+)\)/);
+    if (!m) return v.slice(0, 30);
+    var a = m[2].split(",").map(parseFloat);
+    if (m[1]) return n0(a[12]) + "," + n0(a[13]);
+    return n0(a[4]) + "," + n0(a[5]) + ((a[0] !== 1 || a[3] !== 1) ? " scale " + a[0].toFixed(2) : "");
+  }
+  function ancInfo(el) {
+    var t = "", o = "", minOp = 1;
+    for (var e = el; e && e.nodeType === 1; e = e.parentElement) {
+      var s = cs(e);
+      if (!s) continue;
+      if (!t && s.transform && s.transform !== "none") t = short(e).slice(0, 34) + " (" + tf(s.transform) + ")";
+      var op = parseFloat(s.opacity);
+      if (op < minOp) { minOp = op; o = short(e).slice(0, 34) + " " + op.toFixed(2); }
+    }
+    return "tf " + (t || "none") + " | op " + (o || "1");
+  }
+  function barBox(el) {
+    for (var e = el && el.parentElement; e && e.nodeType === 1; e = e.parentElement) {
+      var s = cs(e);
+      if (!s) continue;
+      var bf = s.backdropFilter || s.webkitBackdropFilter || "none";
+      if ((s.transform && s.transform !== "none") || (s.filter && s.filter !== "none") || (s.perspective && s.perspective !== "none") ||
+          /paint|layout|strict|content/.test(s.contain || "") || /transform|filter/.test(s.willChange || "") || bf !== "none") {
+        var r = rect(e);
+        return short(e).slice(0, 34) + " x" + n0(r && r.left) + " w" + n0(r && r.width) + " tf " + (tf(s.transform) || "none");
+      }
+    }
+    return "viewport";
+  }
+  function scroller(p) {
+    for (var e = p && p.parentElement; e && e !== D.body && e !== D.documentElement; e = e.parentElement) {
+      if (e.scrollHeight > e.clientHeight + 1) {
+        var s = cs(e);
+        if (s && /auto|scroll/.test(s.overflowY)) return e;
+      }
+    }
+    return null;
+  }
+  function surfaces(p) {
+    if (!p) return "no store page";
+    var kids = [], out = [];
+    for (var i = 0; i < p.children.length; i++) {
+      var c = p.children[i], s = cs(c);
+      if (s && s.display === "contents") { for (var j = 0; j < c.children.length; j++) kids.push(c.children[j]); }
+      else kids.push(c);
+    }
+    kids.forEach(function (c) {
+      var s = cs(c), r = rect(c);
+      if (!s || !r) return;
+      var k;
+      if (c.id === "merchant-header-v2" || c.querySelector("#merchant-header-v2")) k = "header";
+      else if (c.id === "mobileStickyHeader") k = "tabs";
+      else if (c.id === "merchant-content") k = "products";
+      else {
+        var hasRec = c.matches(".scheme-product-recommendation-section") || !!c.querySelector(".scheme-product-recommendation-section");
+        var hasSk = c.matches(SK) || !!c.querySelector(SK);
+        k = hasRec && hasSk ? "REC+SKEL" : hasRec ? "rec" : hasSk ? "SKEL" : short(c).slice(0, 22);
+      }
+      if (s.display === "none") k += ":none";
+      out.push("o" + s.order + " " + k + " y" + n0(r.top) + " h" + n0(r.height));
+    });
+    return out.join(" | ");
+  }
+  function chain(el, stop) {
+    var a = [];
+    for (var e = el; e && a.length < 7; e = e.parentElement) { a.push(short(e).slice(0, 40)); if (e === stop) break; }
+    return a.join(" < ");
+  }
+  function sample(t) {
+    var p = D.querySelector(".scheme-merchant-page");
+    var sec = p ? p.querySelector(".scheme-product-recommendation-section") : null;
+    var cards = sec ? sec.querySelectorAll(".product-card-horizontal").length : 0;
+    var sk = topSkels(p), skAll = p ? p.querySelectorAll(SK).length : 0;
+    var app = D.getElementById("app"), skApp = app ? topSkels(app).length : 0;
+    var surf = sec ? (sec.closest(".page-builder-section-surface") || sec) : (sk.length ? (sk[0].closest(".page-builder-section-surface") || sk[0]) : null);
+    var rs = surf ? rect(surf) : null;
+    var h = p ? (p.querySelector("#merchant-content h3.category-name") || p.querySelector(".cat-section h3.category-name") || p.querySelector(".cat-section")) : null;
+    var rh = h ? rect(h) : null;
+    var b = D.querySelector(".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill");
+    var rb = b ? rect(b) : null;
+    var vv = W.visualViewport, se = D.scrollingElement || D.documentElement, scr = scroller(p);
+    if (scr) scName = short(scr).slice(0, 40);
+    var row = "pg" + (p ? (p === savedPage ? "=" : "N") : "-") +
+      " rec " + cards + "c/" + sk.length + "sk(" + skAll + ")" + (skApp !== sk.length ? " app" + skApp + "sk" : "") +
+      " y" + n0(rs && rs.top) + " h" + n0(rs && rs.height) +
+      " | hd " + n0(rh && rh.top) +
+      " | bar " + (rb ? n0(rb.left) + "," + n0(rb.top) + " " + n0(rb.width) + "x" + n0(rb.height) + (b.classList.contains("hg-checkout-bar") ? "+" : "-") : "none") +
+      " | sc " + n0(W.scrollY) + "/" + n0(se.scrollTop) + "/" + (scr ? n0(scr.scrollTop) : "-") +
+      " | vv " + n0(vv && vv.offsetTop) + "/" + n0(vv && vv.height);
+    var anc = p ? ancInfo(p) : "";
+    var bb = b ? barBox(b) : "";
+    return { t: t, p: p, sec: sec, sk: sk, row: row, anc: anc, bb: bb, sig: row + anc + bb, hd: h ? String(h.textContent || "").trim().slice(0, 14) : "" };
+  }
+  function light(s) { return { t: s.t, row: s.row, anc: s.anc, bb: s.bb, sig: s.sig }; }
+
+  function onRoute(from, to, now) {
+    if (STORE.test(from) && to !== from) leaveAt = now;
+    if (STORE.test(to) && to !== from) {
+      var root = D.documentElement;
+      cap = {
+        t0: now, from: from, to: to,
+        pop: (now - popAt) < 600 ? "yes" : "no",
+        before: (lastStore && lastStore.path === to) ? lastStore : null,
+        beforeAge: n0(leaveAt - lastStoreAt),
+        oldConn: oldConn, rows: [], dropped: 0, sig: "", last: null,
+        samePage: "not seen", sameRec: "not seen", skChain: "", skSizes: "", skSurf: "", surfFirst: "", surfLast: "",
+        lang: (root.lang || "?") + " " + ((cs(root) && cs(root).direction) || "?"), vw: W.innerWidth + "x" + W.innerHeight
+      };
+      oldConn = "n/a";
+    }
+  }
+  function sampleInto(c, now) {
+    var s = sample(now - c.t0);
+    if (s.p && c.samePage === "not seen") { c.samePage = s.p === savedPage ? "SAME element as before" : "NEW element (rebuilt)"; c.surfFirst = surfaces(s.p); }
+    if (s.sec && c.sameRec === "not seen") c.sameRec = s.sec === savedRec ? "SAME element" : "NEW element";
+    if (s.sk.length && !c.skChain) {
+      c.skChain = chain(s.sk[0], s.p);
+      c.skSizes = s.sk.slice(0, 5).map(function (e) { var r = rect(e); return n0(r && r.width) + "x" + n0(r && r.height); }).join(" ");
+      c.skSurf = surfaces(s.p);
+    }
+    var l = light(s);
+    if (l.sig !== c.sig) { c.sig = l.sig; if (c.rows.length < 16) c.rows.push(l); else c.dropped++; }
+    c.last = l;
+  }
+  function finish() {
+    var c = cap;
+    cap = null;
+    if (c.last && c.rows.length && c.rows[c.rows.length - 1] !== c.last) { c.last.end = 1; c.rows.push(c.last); }
+    c.surfLast = surfaces(D.querySelector(".scheme-merchant-page"));
+    caps.unshift(c);
+    if (caps.length > 2) caps.length = 2;
+    render();
+  }
+  function pad(t) { return ("    " + Math.round(t)).slice(-4); }
+  function fmtRows(rows) {
+    var L = [], pa = null, pb = null;
+    rows.forEach(function (r) {
+      L.push("t" + pad(r.t) + (r.end ? "e" : " ") + r.row);
+      if (r.anc !== pa || r.bb !== pb) { L.push("      " + r.anc + " | barbox " + r.bb); pa = r.anc; pb = r.bb; }
+    });
+    return L;
+  }
+  function fmtCap(c, full) {
+    var L = [];
+    L.push("== " + (CO.test(c.from) ? "BACK FROM CHECKOUT" : "OPEN") + " from " + c.from.slice(0, 34) + " | " + c.lang + " | win " + c.vw + " | popstate " + c.pop);
+    L.push("store page: " + c.samePage + " | Recommended: " + c.sameRec + " | old store page still in document while away: " + c.oldConn);
+    if (c.before) {
+      L.push("BEFORE (" + c.beforeAge + "ms before leaving) hd text '" + c.before.hd + "'");
+      L = L.concat(fmtRows([c.before]));
+      if (full) L.push("surfaces BEFORE: " + c.before.surf);
+    } else L.push("BEFORE: none (first open of this store in this session)");
+    if (full) {
+      L = L.concat(fmtRows(c.rows));
+      if (c.dropped) L.push("(" + c.dropped + " more changes not listed)");
+      L.push("surfaces 1st frame: " + c.surfFirst);
+      if (c.skChain) {
+        L.push("placeholders first seen: sizes " + c.skSizes);
+        L.push("placeholder chain: " + c.skChain);
+        L.push("surfaces then: " + c.skSurf);
+      } else L.push("placeholders: none seen");
+      L.push("surfaces at end: " + c.surfLast);
+    } else {
+      L = L.concat(fmtRows(c.rows.length > 1 ? [c.rows[0], c.rows[c.rows.length - 1]] : c.rows));
+    }
+    return L;
+  }
+  function render() {
+    if (!panel) return;
+    var L = ["HGBACK (submit hgback again to hide) | now " + location.pathname.slice(0, 40) + " | scrolling box " + (scName || "none")];
+    if (!caps.length) L.push("waiting: open a store page, add an item, open checkout, press back");
+    caps.forEach(function (c, i) { L = L.concat(fmtCap(c, i === 0)); });
+    var txt = L.join("\n");
+    if (panel.textContent !== txt) panel.textContent = txt;
+  }
+  function tick() {
+    var now = performance.now(), path = location.pathname;
+    if (path !== lastPath) { var from = lastPath; lastPath = path; onRoute(from, path, now); }
+    if (cap) { sampleInto(cap, now); if (now - cap.t0 > 1200) finish(); return; }
+    if (STORE.test(path)) {
+      if (++tickN % 15 === 0) {
+        savedPage = D.querySelector(".scheme-merchant-page");
+        savedRec = savedPage ? savedPage.querySelector(".scheme-product-recommendation-section") : null;
+        var s = sample(0);
+        lastStore = light(s);
+        lastStore.hd = s.hd;
+        lastStore.path = path;
+        lastStore.surf = surfaces(s.p);
+        lastStoreAt = now;
+      }
+    } else if (savedPage) {
+      oldConn = savedPage.isConnected ? "yes" : "no";
+    }
+  }
+  function loop() {
+    raf = 0;
+    if (!shown) return;
+    try { tick(); } catch (e) {}
+    raf = requestAnimationFrame(loop);
+  }
+  function show(on) {
+    shown = on;
+    if (on) {
+      if (!popOn) { popOn = true; W.addEventListener("popstate", function () { popAt = performance.now(); }, true); }
+      if (!panel) {
+        panel = D.createElement("div");
+        panel.id = "hg-temp-back";
+        panel.style.cssText = "position:fixed;left:4px;right:4px;top:calc(env(safe-area-inset-top,0px) + 4px);max-height:80vh;overflow:hidden;" +
+          "background:rgba(0,0,0,.78);color:#fff;font:9px/1.25 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;" +
+          "z-index:2147483647;pointer-events:none;direction:ltr;text-align:left;padding:4px 5px;border-radius:6px;";
+      }
+      if (!panel.isConnected) D.body.appendChild(panel);
+      lastPath = location.pathname;
+      render();
+      if (!raf) raf = requestAnimationFrame(loop);
+    } else {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      cap = null;
+      if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
+    }
+  }
+
+  /* secret word at the search submit (same pattern as the hgdiag hook): only the real Return key toggles; the live
+     search's automatic Enter for the secret word is stopped, and so is the key-up after a stopped Enter. */
+  var stopUpUntil = 0;
+  function inField(t) { return !!(t && t.tagName === "INPUT" && t.closest && t.closest("#MultiVendorSearch .mobile-search-input")); }
+  D.addEventListener("keydown", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target)) return;
+      if (String(e.target.value || "").trim().toLowerCase() !== SECRET) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      stopUpUntil = Date.now() + 1000;
+      if (e.hgAutoSearch) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(e.target, "");
+      show(!shown);
+    } catch (err) {}
+  }, true);
+  D.addEventListener("keyup", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target) || Date.now() > stopUpUntil) return;
       stopUpUntil = 0;
       e.preventDefault();
       e.stopImmediatePropagation();
