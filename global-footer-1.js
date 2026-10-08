@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1930 */
+/* hg-version 2026-10-08-1940 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -2743,7 +2743,9 @@
       "#hg-cat-rows .hg-brand,#hg-cat-rows .hg-brand-img{width:86px;}" +
       "#hg-cat-rows .hg-brand-img{height:86px;}" +
       "#hg-cat-rows .hg-logo-card{flex-basis:108px;}" +
-      "#hg-cat-rows .hg-logo-img{width:108px;height:108px;}" +
+      /* 2026-10-08: flex-basis too. The tile sits in a vertical flex column, where the phone rule's "flex:0 0 88px" sets its
+         HEIGHT, so on desktop it was 108 wide x 88 tall and square logos showed with white bars at the sides. */
+      "#hg-cat-rows .hg-logo-img{width:108px;height:108px;flex-basis:108px;}" +
       "#hg-cat-rows .hg-compact-rail{grid-template-rows:repeat(2,74px);grid-auto-columns:286px;}" +
       "#hg-cat-rows .hg-compact{height:74px;}" +
       "#hg-cat-rows .hg-compact-img{width:74px;height:74px;flex-basis:74px;}" +
