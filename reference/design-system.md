@@ -268,7 +268,7 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Product image | 14px, 15px or 16px — CONFLICT 7 | GF.css L232, L25, L664; GF1 L2107 |
 | Merchant thumbnails | 14px; search 13px (queried) | GF1 (extra) L1825; GF.css L1207 |
 | Store logo | 12px (mobile 62px), 16px (desktop 88px) | GF1 (extra) L1921, L2253 |
-| Store cover | `0 0 24px 24px` (mobile), 20px (desktop) | GF1 (extra) L2055, L2250 |
+| Store cover | `0 0 24px 24px` (mobile, 200px tall), 20px (desktop, 2:1 box so the whole 2000x1000 banner shows, no crop) | GF1 (extra) L2055, L2250 |
 | Chips | 11px / 12px (search), 999px (popular, hero links, see all, view all), 14px (address type) | GF.css L64, L947, L114; GF1 L2648, L1638 |
 | Buttons | 50% ("+", cart, arrows), 13px (primary account/checkout), 14px (cart checkout), 16px (sheet buttons, address submit), 12px (desktop cart-btn), 999px (popup add, filter footer, hero CTA, steppers), 8px (launch download) | GF.css L1362, L1392, L1404; GF1 L1597, L1643, L1909, L2215, L1285; GL L90 |
 | Checkout bar | `18px 18px 0 0` | GF1 (extra) L2180 |

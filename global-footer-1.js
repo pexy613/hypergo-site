@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1327 */
+/* hg-version 2026-10-08-1912 */
 (function () {
 
   /* SHAPES — HyperGo arrow icon */
@@ -2277,7 +2277,10 @@
       ".scheme-merchant-page:not(.merchant-mobile-view)>.page-builder-section-surface:has(.scheme-product-recommendation-section){order:3;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content{order:4;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2{max-width:1200px;margin:20px auto 0 !important;box-shadow:none !important;background:transparent !important;padding:0 24px;box-sizing:content-box;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.cover-image{height:320px !important;border-radius:20px;}" +
+      /* 2026-10-08: store banners are uploaded at 2:1 (e.g. 2000x1000). A fixed 320px height on a 1200px-wide box (3.75:1) cut off
+         almost half of the image. The box now takes the banner's own 2:1 shape, so the whole image shows. !important on height,
+         min-height and max-height only to beat the earlier fixed height and any Hyperzod limit on .cover-image. */
+      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.cover-image{height:auto !important;min-height:0 !important;max-height:none !important;aspect-ratio:2/1;border-radius:20px;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.cover-image img{object-fit:cover !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.storefront-gutter{padding:20px 0 0 !important;min-height:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .merchant-header-img{top:0 !important;width:88px !important;height:88px !important;border:1px solid #E5E5E5 !important;border-radius:16px !important;box-shadow:none !important;}" +
