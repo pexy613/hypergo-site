@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1652 */
+/* hg-version 2026-10-15-1748 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1081,6 +1081,152 @@
     }, { passive: true });
   }
 
+  /* ---------- STORE PAGE (2026-10-15) ----------
+     Hyperzod draws the store page; the look comes from app-new.css (html.hgn-store). This part only adds:
+     - html.hgn-store while a store page is open (so the CSS applies to store pages only)
+     - the "Open now" badge and the info card (delivery time, distance, delivery fee or minimum order),
+       all read from Hyperzod's own store data; a value Hyperzod doesn't give is left out, never guessed
+     - product photos in the lists: Hyperzod leaves the list photo empty (the product's photo only shows
+       inside the product pop-up), so the same photo (its thumbnail) is put into the list box
+     - --hgn-logo (the store's logo) for products that really have no photo */
+  const STXT = {
+    en: { open: "Open now", closed: "Closed", time: "Arrives in", dist: "Away", fee: "Delivery", free: "Free", min: "Min. order", nomin: "No minimum", mins: " mins", km: " km" },
+    ar: { open: "مفتوح الآن", closed: "مغلق", time: "وقت التوصيل", dist: "المسافة", fee: "التوصيل", free: "مجاني", min: "الحد الأدنى", nomin: "بدون حد أدنى", mins: " دقيقة", km: " كم" }
+  };
+  const SICON = {
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    bike: '<circle cx="6" cy="16.5" r="3"/><circle cx="18" cy="16.5" r="3"/><path d="M6 16.5l3.5-7h5l3.5 7M9.5 9.5L8 6.5H6M14.5 9.5l1.5-3h2"/>',
+    bag: '<path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/>'
+  };
+  function sIcon(k) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SICON[k] + "</svg>";
+  }
+  function isStorePath(p) { return /^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(p); }
+  function storeState() {
+    const g = vueGlobals();
+    return g && g.$store && g.$store.state;
+  }
+  function storeListEntry(id) {
+    const S = storeState();
+    const lists = [(S && S.homeData && S.homeData.merchants) || [], window.__hgSearchMerchants || []];
+    for (let i = 0; i < lists.length; i++) {
+      const m = lists[i].find((x) => (x._id || x.id) === id);
+      if (m) return m;
+    }
+    return null;
+  }
+  function money(n) {
+    const v = Number(n).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 3 });
+    return hgIsAr() ? v + " د.ب" : "BHD " + v;
+  }
+  /* all products Hyperzod has loaded for this store, by id */
+  function productPhotos() {
+    const S = storeState(), out = {};
+    const add = (p) => {
+      const id = p && (p._id || p.id), im = p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]);
+      const u = im && (im.thumb_url || im.file_url);
+      if (id && u) out[id] = u;
+    };
+    try { (S.Merchant.categoryProducts || []).forEach((c) => (c.category_products || []).forEach(add)); } catch (e) {}
+    try {
+      (function walk(o, d) {
+        if (!o || typeof o !== "object" || d > 5) return;
+        if (Array.isArray(o.product_images)) { add(o); return; }
+        for (const k in o) walk(o[k], d + 1);
+      })(S.Recommendations, 0);
+    } catch (e) {}
+    return out;
+  }
+  function fillProductPhotos(page) {
+    const boxes = page.querySelectorAll(".pro-card-h-img");
+    if (!boxes.length) return;
+    let photos = null;
+    boxes.forEach((box) => {
+      const card = box.closest(".v-card[id]:not(.pro-card-h-img)");
+      const id = card && card.id;
+      if (!id) return;
+      const real = box.querySelector("img.v-img__img");
+      const mine = box.querySelector("img.hgn-thumb");
+      if (real) { if (mine) mine.remove(); return; }
+      if (mine && mine.getAttribute("data-pid") === id) return;
+      if (!photos) photos = productPhotos();
+      const u = photos[id];
+      if (!u) { if (mine) mine.remove(); return; }
+      const host = box.querySelector(".v-responsive") || box;
+      const img = mine || document.createElement("img");
+      img.className = "hgn-thumb";
+      img.alt = "";
+      img.decoding = "async";
+      img.loading = "lazy";
+      img.setAttribute("data-pid", id);
+      img.src = u;
+      if (!mine) host.appendChild(img);
+    });
+  }
+  function renderStore() {
+    const de = document.documentElement;
+    const on = isStorePath(currentPath());
+    de.classList.toggle("hgn-store", on);
+    if (!on) return;
+    const page = document.querySelector(".scheme-merchant-page");
+    const hdr = page && page.querySelector("#merchant-header-v2");
+    if (!hdr) return;
+    const T = STXT[lang()];
+    const S = storeState();
+    const md = (S && S.Merchant && S.Merchant.merchantData) || {};
+    const id = md._id || md.id || (page.id || "");
+    const entry = storeListEntry(id) || {};
+
+    /* logo for products with no photo */
+    const logoImg = hdr.querySelector(".merchant-header-img img");
+    const logo = logoImg && logoImg.getAttribute("src");
+    if (logo && page.getAttribute("data-hgn-logo") !== logo) {
+      page.setAttribute("data-hgn-logo", logo);
+      page.style.setProperty("--hgn-logo", 'url("' + logo.replace(/"/g, "%22") + '")');
+    }
+
+    /* Open now / Closed */
+    const nameEl = hdr.querySelector("h1");
+    if (nameEl && typeof md.is_open === "boolean") {
+      const txt = md.is_open ? T.open : T.closed;
+      let b = nameEl.parentNode.querySelector(":scope > .hgn-open");
+      if (!b) { b = document.createElement("span"); nameEl.insertAdjacentElement("afterend", b); }
+      const cls = "hgn-open" + (md.is_open ? "" : " is-closed");
+      if (b.className !== cls) b.className = cls;
+      if (b.textContent !== txt) b.textContent = txt;
+    }
+
+    /* info card */
+    const gutter = hdr.querySelector(".storefront-gutter");
+    if (gutter) {
+      const items = [];
+      const tm = entry.delivery_data && entry.delivery_data.time;
+      const mm = tm && String(tm).match(/(\d+)/);
+      if (mm && entry.show_delivery_time !== false) items.push(["clock", mm[1] + T.mins, T.time]);
+      const distEl = gutter.querySelector(":scope > .tw-mt-4 span");
+      const dm = distEl && distEl.textContent.match(/([\d.]+)\s*(km|كم)/i);
+      if (dm) items.push(["pin", dm[1] + T.km, T.dist]);
+      const fee = entry.delivery_data && entry.delivery_data.fee;
+      if (typeof fee === "number") items.push(["bike", fee === 0 ? T.free : money(fee), T.fee]);
+      else if (typeof md.min_order_amount === "number") items.push(["bag", md.min_order_amount > 0 ? money(md.min_order_amount) : T.nomin, T.min]);
+      const html = items.map((x) => '<span class="hgn-sstat">' + sIcon(x[0]) + '<span class="hgn-sstat-t"><b>' + esc(x[1]) + "</b><small>" + esc(x[2]) + "</small></span></span>").join("");
+      let card = gutter.querySelector(":scope > #hgn-sinfo");
+      if (!items.length) { if (card) card.remove(); }
+      else {
+        if (!card) {
+          card = document.createElement("div");
+          card.id = "hgn-sinfo";
+          const after = gutter.querySelector(":scope > .tw-relative");
+          if (after) after.insertAdjacentElement("afterend", card); else gutter.appendChild(card);
+        }
+        if (card.getAttribute("data-sig") !== html) { card.setAttribute("data-sig", html); card.innerHTML = html; }
+      }
+    }
+
+    fillProductPhotos(page);
+  }
+
   /* ---------- running it ---------- */
   let routerHooked = false;
   function hookRouter() {
@@ -1097,6 +1243,7 @@
       applyHyperGoHeader();
       applyLocLang();
       if (isHomePath(currentPath())) renderHome();
+      renderStore();
     } catch (e) {}
   }
 
@@ -1106,7 +1253,7 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = ".hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = "#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

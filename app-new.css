@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1716 */
+/* hg-version 2026-10-15-1748 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -137,3 +137,215 @@ html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;background:
 @media (prefers-reduced-motion:reduce){
   html.hg-new-app .hgn-dot{transition:none!important;}
 }
+
+/* ---------- STORE PAGE (2026-10-15) ----------
+   App only, store pages only (html.hgn-store, set by app-new.js). Restyles Hyperzod's own store page; nothing is
+   rebuilt, so every tap, the cart and checkout work exactly as before. "html.hg-new-app.hgn-store body #app" in front of
+   every rule keeps these ahead of the older store rules in global-footer-1.js and global-footer.css. */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view{
+  background:#FAFAFC!important;
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body #app .scheme-merchant-page.merchant-mobile-view{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+
+/* cover: full width, square corners, the white sheet below rises over it */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2{background:transparent!important;box-shadow:none!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2>div:first-child{height:200px!important;border-radius:0!important;margin:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2>.storefront-gutter{
+  position:relative!important;z-index:1;margin:-22px 0 0!important;min-height:0!important;
+  padding:48px 18px 6px!important;background:#FAFAFC!important;border-radius:28px 28px 0 0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-relative{position:static!important;}
+
+/* logo: rounded square sitting on the sheet edge */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .merchant-header-img{
+  position:absolute!important;top:-36px!important;inset-inline-start:18px!important;inset-inline-end:auto!important;
+  width:72px!important;height:72px!important;border:0!important;border-radius:24px!important;overflow:hidden!important;
+  background:#FFFFFF!important;box-shadow:0 0 0 4px #FAFAFC,0 10px 24px -8px rgba(27,32,35,.25)!important;z-index:2;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .merchant-header-img img{width:100%!important;height:100%!important;object-fit:cover!important;inset:0!important;}
+
+/* name row: name, Open now badge, category tag */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card{background:transparent!important;box-shadow:none!important;margin:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div{margin:0!important;padding:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div{
+  margin:0!important;padding:0!important;top:0!important;display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:flex-start!important;text-align:start!important;gap:8px 10px;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 h1{
+  display:block!important;height:auto!important;max-height:none!important;overflow:visible!important;-webkit-line-clamp:unset!important;
+  flex:1 1 auto;min-width:0;margin:0!important;font-size:26px!important;line-height:1.2!important;font-weight:600!important;
+  letter-spacing:-.035em!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 h1{letter-spacing:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open{
+  flex:none;height:24px;padding:0 9px;border-radius:8px;background:#EEF9EE;color:#1B2023;font-size:12px;font-weight:550;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open::before{
+  content:"";width:6px;height:6px;border-radius:3px;background:#ACE4AA;box-shadow:0 0 0 2px rgba(172,228,170,.45);
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open.is-closed{background:#F4F3F8;color:#5C5C5C;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open.is-closed::before{background:#6B7280;box-shadow:none;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div>div:last-child{
+  flex:0 0 100%;margin:0!important;font-size:0!important;line-height:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div>div:last-child span{
+  display:inline-flex!important;align-items:center;height:24px;padding:0 9px;border-radius:8px;background:#FFFFFF;
+  box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C!important;font-size:12px!important;line-height:1!important;font-weight:500!important;
+}
+
+/* the old distance line is replaced by the info card (#hgn-sinfo); the store's own text line below it stays */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div:first-child{display:none!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4{margin:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4{margin-top:12px!important;}
+html.hg-new-app.hgn-store body #hgn-sinfo{
+  display:flex;gap:8px;margin-top:16px;padding:12px;border-radius:18px;background:#FFFFFF;box-shadow:0 0 0 1px #EEECEF;
+}
+html.hg-new-app.hgn-store body #hgn-sinfo .hgn-sstat{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;color:#1B2023;}
+html.hg-new-app.hgn-store body #hgn-sinfo svg{flex:none;width:20px;height:20px;}
+html.hg-new-app.hgn-store body #hgn-sinfo .hgn-sstat-t{min-width:0;display:flex;flex-direction:column;}
+html.hg-new-app.hgn-store body #hgn-sinfo b{font-size:13.5px;line-height:1.25;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app.hgn-store body #hgn-sinfo small{font-size:11px;line-height:1.3;font-weight:500;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* category tabs: chips (the selected one dark) */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #mobileStickyHeader,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{
+  background:#FAFAFC!important;border:0!important;box-shadow:none!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{padding:6px 0!important;height:auto!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .swiper-wrapper{height:auto!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item{
+  margin-left:0!important;margin-right:0!important;margin-inline-end:8px!important;height:auto!important;width:auto!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item:first-child{margin-inline-start:6px!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item{
+  display:inline-flex!important;align-items:center!important;height:34px!important;padding:0 14px!important;border-radius:17px!important;
+  background:#FFFFFF!important;box-shadow:inset 0 0 0 1px #EEECEF!important;border:0!important;
+  color:#1B2023!important;font-size:13px!important;font-weight:500!important;white-space:nowrap;overflow:hidden;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item.is-active{
+  background:#1B2023!important;color:#FFFFFF!important;box-shadow:none!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item::before,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item::after,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item::after{display:none!important;}
+
+/* sections sit on the off-white page (no white bands) */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .page-builder-section-surface,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view #merchant-content{background:transparent!important;}
+
+/* section titles */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .category-name{
+  font-size:17px!important;line-height:1.25!important;font-weight:600!important;letter-spacing:-.02em!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body #app .scheme-merchant-page.merchant-mobile-view :is(.scheme-product-recommendation-heading,.cat-section .category-name){letter-spacing:0!important;}
+
+/* product photo boxes (lists and Recommended): white tile, hairline, soft corners */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .pro-card-h-img{
+  background:#FFFFFF!important;border-radius:18px!important;box-shadow:inset 0 0 0 1px #EEECEF!important;overflow:hidden!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .pro-card-h-img img.hgn-thumb{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;border-radius:inherit;
+}
+/* a product with no photo at all: the store's logo instead of a grey picture icon */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .pro-card-h-img:has(img.hg-noimg-fallback){
+  background:#FFFFFF var(--hgn-logo) center/56% no-repeat!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .pro-card-h-img img.hg-noimg-fallback{opacity:0!important;}
+
+/* add buttons: small white circle, thin dark plus */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn{
+  background:#FFFFFF!important;color:#1B2023!important;box-shadow:0 0 0 1px #EEECEF,0 4px 12px -4px rgba(27,32,35,.18)!important;border:0!important;
+}
+/* the original plus is painted in the theme purple whatever its colour is set to, so it is swapped for a thin dark one */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn svg{display:none!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn .v-btn__content::before{
+  content:"";display:block;width:14px;height:14px;background:#1B2023;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Recommended cards: no card box, name and price under the photo */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-card.card-shadow{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-card.card-shadow>.v-card-text{padding:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .rec-item-title,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .rec-item-title *{
+  font-size:14px!important;line-height:1.3!important;font-weight:600!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price,
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *{
+  font-size:13px!important;line-height:1.3!important;font-weight:500!important;color:#1B2023!important;
+}
+
+/* product rows: no card box, hairline between rows, photo on the end side */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section{padding-top:36px!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important;border-bottom:1px solid #EEECEF!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal:last-child{border-bottom:0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal>.v-card-text{padding:14px 0!important;}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt{
+  display:flex!important;flex-direction:row!important;align-items:stretch!important;gap:14px!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt>div:not(.pro-card-h){
+  order:0!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;padding:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h{
+  order:1!important;flex:0 0 96px!important;width:96px!important;min-width:96px!important;max-width:96px!important;
+  height:96px!important;min-height:96px!important;max-height:96px!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h-img{
+  width:96px!important;min-width:96px!important;max-width:96px!important;height:96px!important;min-height:96px!important;max-height:96px!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .rec-item-title h4{
+  font-size:15px!important;line-height:1.3!important;font-weight:600!important;color:#1B2023!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-description{
+  margin-top:3px!important;font-size:12.5px!important;line-height:1.4!important;font-weight:400!important;color:#6B7280!important;
+}
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-price{
+  font-size:14px!important;line-height:1.3!important;font-weight:550!important;color:#1B2023!important;
+}
+
+/* View cart bar: floating purple pill above the home bar */
+html.hg-new-app.hgn-store body #app .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{
+  left:16px!important;right:16px!important;width:auto!important;max-width:none!important;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;min-height:54px!important;height:54px!important;
+  padding:0 7px 0 12px!important;border-radius:27px!important;background:#5A29DE!important;background-image:none!important;
+  box-shadow:0 10px 24px -14px rgba(90,41,222,.55)!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body #app .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{padding:0 12px 0 7px!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart{width:28px!important;height:28px!important;border-radius:14px!important;background:#ACE4AA!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart svg{display:none!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-badge{
+  position:static!important;min-width:0!important;height:auto!important;padding:0!important;background:transparent!important;
+  color:#1B2023!important;font-size:12.5px!important;font-weight:600!important;
+}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-label{font-size:15.5px!important;font-weight:550!important;letter-spacing:.01em;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-right{
+  height:40px!important;padding:0 14px!important;border-radius:20px!important;background:rgba(255,255,255,.14)!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-strike{font-size:12px!important;opacity:.7;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-price{font-size:14px!important;font-weight:500!important;font-variant-numeric:tabular-nums;}
+
+/* product pop-up */
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-name{font-size:25px!important;line-height:1.2!important;font-weight:600!important;letter-spacing:-.03em!important;color:#1B2023!important;}
+html.hg-new-app.hgn-store[lang^="ar"] body .v-dialog--fullscreen #productInfo .product-name{letter-spacing:0!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-description,
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-description *{font-size:14px!important;line-height:1.5!important;font-weight:400!important;color:#5C5C5C!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen .similar-items-wrap h1{font-size:15px!important;font-weight:600!important;color:#1B2023!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app>div:first-child{
+  border:0!important;border-radius:27px!important;box-shadow:inset 0 0 0 1px #EEECEF!important;background:#FFFFFF!important;height:54px!important;overflow:hidden;
+}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app .bg-button_normal{
+  height:54px!important;border-radius:27px!important;background:#5A29DE!important;color:#FFFFFF!important;
+  box-shadow:0 10px 24px -14px rgba(90,41,222,.55)!important;font-size:15.5px!important;font-weight:550!important;letter-spacing:.01em!important;text-transform:none!important;
+}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app .bg-button_normal *{font-weight:inherit!important;}
