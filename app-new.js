@@ -1,14 +1,12 @@
-/* hg-version 2026-10-15-1636 */
-/* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15)
-   Loaded by app-footer.js ONLY while the test switch is on (secret word "hgnewapp" in the app's search field). With the
-   switch on, global-footer-1.js and global-footer-2.js stay off and global-footer.css is switched off, so this file and
-   app-new.css draw the app from a blank page. Customers never have the switch: they keep the current layout.
+/* hg-version 2026-10-15-1652 */
+/* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
+   Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
+   every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
    Contents:
    1. KEPT: the main page header (purple header, "Deliver to", cart, search bar, watermark, rotating search text, address
-      language) and everything it needs, copied UNCHANGED from global-footer-1.js. The only old code in this file.
+      language) and everything it needs, copied UNCHANGED from global-footer-1.js.
    2. NEW: Home screen (category grid, featured stores banner, Stores near you).
-   NOT here, on purpose: the Account page and the bottom nav. They stay exactly as they are; with the switch on,
-   global-footer-1.js still runs those two parts (and only those). Global, every merchant. English and Arabic (RTL mirrors). */
+   Global, every merchant. English and Arabic (RTL mirrors). */
 (function () {
   "use strict";
   if (window.__hgNewApp) return;
@@ -917,9 +915,9 @@
   }
 
   const TXT = {
-    en: { cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores",
+    en: { cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
     },
-    ar: { cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة",
+    ar: { cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
     }
   };
 
@@ -1006,16 +1004,17 @@
     }
     html += "</div></section>";
 
-    /* banner: real Featured / Sponsored stores only; hidden while there are none */
+    /* banner, matched to the approved reference: a deep purple card, the store photo on the inline-end side behind a curved
+       edge, kicker + store name + "Shop now" pill. Slides = real Featured / Sponsored stores only; hidden while there are none. */
     if (feat.length) {
       html += '<section class="hgn-banner" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
       feat.forEach((m) => {
         const href = storeHref(m, L);
-        const c = (m.merchant_category_ids || []).map((id) => catMap[id]).filter(Boolean)[0];
         html += '<a class="hgn-slide" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-          '<span class="hgn-slide-img"><img src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async"></span>' +
+          '<img class="hgn-slide-photo" src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async">' +
+          '<svg class="hgn-slide-panel" viewBox="0 0 200 152" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H200C178 52 152 104 134 152H0Z"/></svg>' +
           '<span class="hgn-slide-text">' +
-          '<span class="hgn-slide-top">' + (c ? '<span class="hgn-kicker">' + esc(catLabel(c)) + "</span>" : "") +
+          '<span class="hgn-slide-top"><span class="hgn-kicker">' + esc(t.week) + "</span>" +
           '<span class="hgn-slide-title">' + esc(m.name) + "</span></span>" +
           '<span class="hgn-shop">' + esc(t.shop) + '<span class="hgn-shop-go">' + GO_ARROW + "</span></span>" +
           "</span></a>";

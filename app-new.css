@@ -1,5 +1,5 @@
-/* hg-version 2026-10-15-1636 */
-/* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js only while the test switch is on.
+/* hg-version 2026-10-15-1652 */
+/* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    (#FAFAFC off-white page, #341A76 banner, #F4F3F8 image backing, #F2ECFF pill, #EEECEF line, #6B7280 / #5C5C5C greys). */
 
@@ -36,7 +36,7 @@ html.hg-new-app #hgn-home a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-home img{display:block;}
 
 /* old Home content is replaced by #hgn-home (the bottom nav and the Account page stay as they are) */
-html.hg-new-app #MultiVendorHome{background:#FAFAFC;overscroll-behavior-y:none;}
+html.hg-new-app body #app #MultiVendorHome{background:#FAFAFC!important;overscroll-behavior-y:none;} /* !important: beats the old Home white (hg-home-v88, global-footer-1.js) */
 html.hg-new-app #MultiVendorHome>main.v-main{display:none!important;}
 html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
 
@@ -68,7 +68,8 @@ html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;}
 html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{width:26px;height:26px;}
 html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;outline-offset:2px;}
 
-/* featured stores banner */
+/* featured stores banner, matched to the approved reference (card 152px tall, radius 24, curved photo edge, dots bottom end).
+   Card colour: the reference's deep purple is not in the palette or the old code; closest allowed is #341A76 (old code). */
 html.hg-new-app .hgn-banner{
   position:relative;margin:20px 16px 0;height:152px;border-radius:24px;overflow:hidden;background:#341A76;
   box-shadow:0 16px 30px -14px rgba(90,41,222,.55);
@@ -79,18 +80,15 @@ html.hg-new-app .hgn-slides{
 }
 html.hg-new-app .hgn-slides::-webkit-scrollbar{display:none;}
 html.hg-new-app .hgn-slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;color:#FFFFFF;}
-html.hg-new-app .hgn-slide-img{
-  position:absolute;top:0;bottom:0;inset-inline-end:0;width:60%;
-  clip-path:polygon(22% 0,100% 0,100% 100%,0 100%);
-}
-html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-img{clip-path:polygon(0 0,78% 0,100% 100%,0 100%);}
-html.hg-new-app .hgn-slide-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-slide-photo{position:absolute;top:0;inset-inline-end:0;width:60%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-slide-panel{position:absolute;top:0;inset-inline-start:0;width:63%;height:100%;fill:#341A76;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-panel{transform:scaleX(-1);}
 html.hg-new-app .hgn-slide-text{
   position:absolute;top:0;bottom:0;inset-inline-start:0;width:58%;padding:18px;
   display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;
 }
 html.hg-new-app .hgn-slide-top{display:flex;flex-direction:column;min-width:0;max-width:100%;}
-html.hg-new-app .hgn-kicker{font-size:12px;line-height:1.3;font-weight:700;color:#ACE4AA;}
+html.hg-new-app .hgn-kicker{font-size:12px;line-height:1.3;font-weight:700;color:#ACE4AA;white-space:nowrap;}
 html.hg-new-app .hgn-slide-title{
   margin-top:6px;font-size:21px;line-height:1.08;font-weight:900;letter-spacing:-.02em;color:#FFFFFF;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;
@@ -106,8 +104,8 @@ html.hg-new-app .hgn-shop-go{
 }
 html.hg-new-app .hgn-shop-go svg{width:13px;height:13px;}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-shop-go svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-dots{position:absolute;bottom:10px;inset-inline-end:10px;display:flex;gap:4px;padding:5px 6px;border-radius:7px;background:rgba(27,32,35,.35);pointer-events:none;}
-html.hg-new-app .hgn-dot{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.55);transition:width .2s ease,background-color .2s ease;}
+html.hg-new-app .hgn-dots{position:absolute;bottom:14px;inset-inline-end:12px;display:flex;gap:4px;pointer-events:none;}
+html.hg-new-app .hgn-dot{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.6);transition:width .2s ease,background-color .2s ease;}
 html.hg-new-app .hgn-dot.is-on{width:16px;background:#FFFFFF;}
 
 /* Stores near you */

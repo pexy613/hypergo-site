@@ -1,7 +1,5 @@
-/* hg-version 2026-10-15-1612 */
+/* hg-version 2026-10-15-1646 */
 (function(){
-  /* NEW APP TEST SWITCH (app rebuild): off on a phone where the switch is on (see app-footer.js); customers never have it. */
-  try{if(localStorage.getItem("hg_newapp")==="1")return;}catch(e){}
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
