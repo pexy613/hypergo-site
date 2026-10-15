@@ -1,7 +1,58 @@
-/* hg-version 2026-10-08-1834 */
+/* hg-version 2026-10-15-1612 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
+/* NEW APP TEST SWITCH (app rebuild, started 2026-10-15)
+   The new app layout is built in app-new.js and app-new.css. It only turns on for a phone where the switch is on: type
+   hgnewapp in the app's search field and press Return (again to switch it off; the app reloads each time). With the switch
+   on, global-footer-1.js and global-footer-2.js stay off and global-footer.css is switched off (they check the same flag),
+   so the new layout starts from a blank page. Customers never have the switch, so they keep the current layout until the
+   rebuild is approved, switched on for everyone and the old code is deleted. */
+(function () {
+  "use strict";
+  var KEY = "hg_newapp", WORD = "hgnewapp", BASE = "https://pexy613.github.io/hypergo-site/";
+  var on = false;
+  try { on = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  if (on) {
+    try {
+      document.documentElement.classList.add("hg-new-app");
+      var l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = BASE + "app-new.css";
+      document.head.appendChild(l);
+      var s = document.createElement("script");
+      s.src = BASE + "app-new.js";
+      s.async = false;
+      document.head.appendChild(s);
+    } catch (e) {}
+  }
+  /* the switch word at the search submit (same pattern as the hgdiag hook): only the real Return key switches;
+     the live search's automatic Enter for the word is stopped, and so is the key-up after a stopped Enter */
+  var stopUpUntil = 0;
+  function inField(t) { return !!(t && t.tagName === "INPUT" && t.closest && t.closest("#MultiVendorSearch .mobile-search-input")); }
+  document.addEventListener("keydown", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target)) return;
+      if (String(e.target.value || "").trim().toLowerCase() !== WORD) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      stopUpUntil = Date.now() + 1000;
+      if (e.hgAutoSearch) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(e.target, "");
+      try { if (on) localStorage.removeItem(KEY); else localStorage.setItem(KEY, "1"); } catch (err) {}
+      location.reload();
+    } catch (err) {}
+  }, true);
+  document.addEventListener("keyup", function (e) {
+    try {
+      if (!e || e.key !== "Enter" || !inField(e.target) || Date.now() > stopUpUntil) return;
+      stopUpUntil = 0;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    } catch (err) {}
+  }, true);
 })();
 
 /* TEMP-DIAGNOSTIC-START (hgperf: tap / swipe delay panel + hgnoswipe and hgnosentry switches)
