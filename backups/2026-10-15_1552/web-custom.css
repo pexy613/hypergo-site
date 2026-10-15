@@ -1,0 +1,164 @@
+/* ============================================================
+   HYPERGO FOOTER — ARABIC TRANSLATIONS ONLY
+   NO FONT FAMILY / LAYOUT / COLOR CHANGES
+   ============================================================ */
+
+
+/* RTL MODE */
+#MainFooter:lang(ar) {
+  direction: rtl !important;
+}
+
+
+/* ============================================================
+   ABOUT US
+   ============================================================ */
+
+#MainFooter:lang(ar) a[href*="about-us"] {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) a[href*="about-us"]::after {
+  content: "من نحن";
+
+  display: inline-block;
+
+  font-size: 15px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   CONTACT US
+   ============================================================ */
+
+#MainFooter:lang(ar) a[href*="contact-us"] {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) a[href*="contact-us"]::after {
+  content: "تواصل معنا";
+
+  display: inline-block;
+
+  font-size: 15px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   PRIVACY POLICY
+   ============================================================ */
+
+#MainFooter:lang(ar) a[href*="privacy-policy"] {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) a[href*="privacy-policy"]::after {
+  content: "سياسة الخصوصية";
+
+  display: inline-block;
+
+  font-size: 15px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   TERMS & CONDITIONS
+   ============================================================ */
+
+#MainFooter:lang(ar) a[href*="terms-and-conditions"] {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) a[href*="terms-and-conditions"]::after {
+  content: "الشروط والأحكام";
+
+  display: inline-block;
+
+  font-size: 15px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   JOIN AS A VENDOR
+   ============================================================ */
+
+#MainFooter:lang(ar) a[href*="tally.so"] {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) a[href*="tally.so"]::after {
+  content: "انضم كبائع";
+
+  display: inline-block;
+
+  font-size: 15px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   COPYRIGHT
+   ============================================================ */
+
+#MainFooter:lang(ar) .copyright {
+  font-size: 0 !important;
+}
+
+#MainFooter:lang(ar) .copyright::after {
+  content: "© 2026 HyperGo. جميع الحقوق محفوظة.";
+
+  display: inline-block;
+
+  font-size: 13px !important;
+  line-height: 1.5;
+
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+
+/* ============================================================
+   RTL TEXT BEHAVIOR
+   ============================================================ */
+
+#MainFooter:lang(ar) a,
+#MainFooter:lang(ar) .copyright {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  #MainFooter:lang(ar) a[href*="about-us"]::after,
+  #MainFooter:lang(ar) a[href*="contact-us"]::after,
+  #MainFooter:lang(ar) a[href*="privacy-policy"]::after,
+  #MainFooter:lang(ar) a[href*="terms-and-conditions"]::after,
+  #MainFooter:lang(ar) a[href*="tally.so"]::after {
+    font-size: 14px !important;
+  }
+
+}
