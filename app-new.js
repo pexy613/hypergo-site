@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1612 */
+/* hg-version 2026-10-15-1623 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15)
    Loaded by app-footer.js ONLY while the test switch is on (secret word "hgnewapp" in the app's search field). With the
    switch on, global-footer-1.js and global-footer-2.js stay off and global-footer.css is switched off, so this file and
@@ -6,8 +6,9 @@
    Contents:
    1. KEPT: the main page header (purple header, "Deliver to", cart, search bar, watermark, rotating search text, address
       language) and everything it needs, copied UNCHANGED from global-footer-1.js. The only old code in this file.
-   2. NEW: Home screen (category grid, featured stores banner, Stores near you) and the floating bottom nav.
-   Global, every merchant. English and Arabic (RTL mirrors). */
+   2. NEW: Home screen (category grid, featured stores banner, Stores near you).
+   NOT here, on purpose: the Account page and the bottom nav. They stay exactly as they are; with the switch on,
+   global-footer-1.js still runs those two parts (and only those). Global, every merchant. English and Arabic (RTL mirrors). */
 (function () {
   "use strict";
   if (window.__hgNewApp) return;
@@ -872,7 +873,7 @@
   }
 
   /* the header's cart button reads and taps the native Cart tab, found by the data-hg-nav tag below.
-     Copied unchanged from applyHyperGoNav() in global-footer-1.js (only the tagging part; the old nav styling is gone). */
+     Copied unchanged from applyHyperGoNav() in global-footer-1.js (only the tagging part; the nav's look is still drawn by global-footer-1.js). */
   function tagNativeNav() {
     const nav = document.querySelector("#MultiVendorBottomNav");
     if (!nav) return;
@@ -917,21 +918,14 @@
 
   const TXT = {
     en: { cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores",
-      home: "Home", search: "Search", orders: "Orders", profile: "Profile", nav: "Main" },
+    },
     ar: { cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة",
-      home: "الرئيسية", search: "البحث", orders: "الطلبات", profile: "حسابي", nav: "القائمة الرئيسية" }
+    }
   };
 
   /* HyperGo arrow (brand mark), same shape as the logo files */
   const MARK = '<svg viewBox="0 0 394.75 456.09" aria-hidden="true"><path fill="currentColor" d="M394.75,0v442.61h-138.8v-98.54c-8.03,10.28-16.78,19.94-26.15,29.12-28.07,27.3-62.4,48-102.99,62.01-37.53,12.96-79.8,19.94-126.8,20.89v-153.67c38.82-1.43,74.88-10.52,108.06-27.06,36.39-18.22,65.6-43.61,87.59-76.26,11.52-17.02,20.42-35.24,26.73-54.6H0V0h394.75Z"/></svg>';
   const GO_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const ICONS = {
-    home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.6 3.5a2.2 2.2 0 0 1 2.8 0l6.4 5.3c.5.4.8 1 .8 1.7V19a2 2 0 0 1-2 2h-3.4v-5.2a2.2 2.2 0 0 0-4.4 0V21H7.4a2 2 0 0 1-2-2v-8.5c0-.7.3-1.3.8-1.7z"/></svg>',
-    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></g></svg>',
-    orders: '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="3"/><path d="M8.5 8.5h7M8.5 12.5h7M8.5 16.5h4"/></g></svg>',
-    profile: '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20c1.3-3.6 4-5.4 7-5.4s5.7 1.8 7 5.4"/></g></svg>'
-  };
-
   /* ---------- data (Hyperzod's own store, nothing invented) ---------- */
   function catLabel(c) {
     const n = (c && c.name) || "";
@@ -1087,65 +1081,7 @@
     }, { passive: true });
   }
 
-  /* ---------- FLOATING BOTTOM NAV ---------- */
-  const TABS = ["home", "search", "orders", "profile"];
-
-  function tabOf(p) {
-    const s = p.replace(/^\/(en|ar)(?=\/|$)/, "") || "/";
-    if (s === "/" || s === "/home" || s === "/home/") return "home";
-    if (/^\/search\/?$/.test(s)) return "search";
-    if (/^\/profile\/orders\/?$/.test(s)) return "orders";
-    if (/^\/profile\/?$/.test(s)) return "profile";
-    return "";
-  }
-
-  function nativeTab(key) {
-    return document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='" + key + "'] button");
-  }
-
-  function onNavClick(e) {
-    const b = e.target.closest(".hgn-tab");
-    if (!b) return;
-    const L = lang(), k = b.getAttribute("data-tab");
-    if (k === "home") return go("/" + L + "/home");
-    if (k === "search") return go("/" + L + "/search");
-    if (k === "orders") { const n = nativeTab("reorder"); return n ? n.click() : go("/" + L + "/profile/orders"); }
-    if (k === "profile") { const n = nativeTab("account"); return n ? n.click() : go("/" + L + "/profile"); }
-  }
-
-  let navLang = "";
-  function renderNav() {
-    let nav = document.getElementById("hgn-nav");
-    const L = lang(), t = TXT[L];
-    if (!nav) {
-      nav = document.createElement("nav");
-      nav.id = "hgn-nav";
-      nav.addEventListener("click", onNavClick);
-      navLang = "";
-    }
-    if (nav.parentNode !== document.body) document.body.appendChild(nav);
-    if (navLang !== L) {
-      navLang = L;
-      nav.setAttribute("aria-label", t.nav);
-      nav.setAttribute("dir", L === "ar" ? "rtl" : "ltr");
-      nav.innerHTML = TABS.map((k) => '<button type="button" class="hgn-tab" data-tab="' + k + '" aria-label="' + esc(t[k]) + '">' +
-        '<span class="hgn-tab-ic">' + ICONS[k] + '</span><span class="hgn-tab-label">' + esc(t[k]) + "</span></button>").join("");
-    }
-    const tab = tabOf(currentPath());
-    nav.classList.toggle("is-on", !!tab);
-    document.documentElement.classList.toggle("hgn-has-nav", !!tab);
-    nav.querySelectorAll(".hgn-tab").forEach((b) => {
-      const on = b.getAttribute("data-tab") === tab;
-      b.classList.toggle("is-active", on);
-      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
-    });
-  }
-
   /* ---------- running it ---------- */
-  function offOldStyles() {
-    document.querySelectorAll('link[href*="global-footer.css"]').forEach((l) => { if (!l.disabled) l.disabled = true; });
-  }
-
   let routerHooked = false;
   function hookRouter() {
     if (routerHooked) return;
@@ -1156,13 +1092,11 @@
   function tick() {
     try {
       hookRouter();
-      offOldStyles();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();
       applyLocLang();
       if (isHomePath(currentPath())) renderHome();
-      renderNav();
     } catch (e) {}
   }
 
@@ -1172,7 +1106,7 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = ".hg-ph,#hgn-home,#hgn-nav,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = ".hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
