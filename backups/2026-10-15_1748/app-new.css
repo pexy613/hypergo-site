@@ -1,0 +1,139 @@
+/* hg-version 2026-10-15-1716 */
+/* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
+   Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
+   Type is kept light (weights 500-650) for a refined look (2026-10-15).
+   (#FAFAFC off-white page, #341A76 banner, #F4F3F8 image backing, #F2ECFF pill, #EEECEF line, #6B7280 / #5C5C5C greys). */
+
+/* ---------- fonts (files in /fonts, OFL licence files beside them) ---------- */
+@font-face{font-family:"Inter";src:url("https://pexy613.github.io/hypergo-site/fonts/Inter-var.woff") format("woff");font-weight:400 900;font-style:normal;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Regular.woff") format("woff");font-weight:400;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Medium.woff") format("woff");font-weight:500;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-SemiBold.woff") format("woff");font-weight:600;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Bold.woff") format("woff");font-weight:700 900;font-display:swap;}
+
+/* ---------- KEPT (main page header): rule copied unchanged from global-footer.css ---------- */
+@media (max-width:959.98px){
+  #hg-cart-btn svg path{
+    fill:#111!important;
+    stroke:none!important;
+  }
+  #hg-cart-btn{
+    color:#111!important;
+  }
+}
+
+/* ---------- NEW: shared ---------- */
+html.hg-new-app #hgn-home{
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  color:#1B2023;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+html.hg-new-app #hgn-home[dir="rtl"]{
+  font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;
+}
+html.hg-new-app #hgn-home *{box-sizing:border-box;}
+html.hg-new-app #hgn-home a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-home img{display:block;}
+
+/* old Home content is replaced by #hgn-home (the bottom nav and the Account page stay as they are) */
+html.hg-new-app body #app #MultiVendorHome{background:#FAFAFC!important;overscroll-behavior-y:none;} /* !important: beats the old Home white (hg-home-v88, global-footer-1.js) */
+html.hg-new-app #MultiVendorHome>main.v-main{display:none!important;}
+html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
+
+/* ---------- HOME ---------- */
+html.hg-new-app #hgn-home{
+  background:#FAFAFC;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
+}
+
+/* category grid */
+html.hg-new-app .hgn-cats{padding:18px 14px 0;}
+html.hg-new-app .hgn-cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;}
+html.hg-new-app .hgn-cat{
+  display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;
+  padding:0;margin:0;border:0;background:none;font:inherit;color:#1B2023;cursor:pointer;
+}
+html.hg-new-app .hgn-cat-ring{
+  width:72px;height:72px;border-radius:24px;padding:4px;background:#FFFFFF;box-shadow:0 0 0 1px #EEECEF;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+html.hg-new-app .hgn-cat-ring img{width:64px;height:64px;border-radius:20px;object-fit:cover;background:#FFFFFF;}
+html.hg-new-app .hgn-cat-name{
+  max-width:100%;font-size:12px;line-height:1.3;font-weight:550;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;}
+/* the HyperGo arrow is the logo mark: same shape and direction in English and Arabic */
+html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;}
+html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{width:26px;height:26px;}
+html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;outline-offset:2px;}
+
+/* featured stores banner, matched to the approved reference (card 152px tall, radius 24, curved photo edge, dots bottom end).
+   Card colour: the reference's deep purple is not in the palette or the old code; closest allowed is #341A76 (old code). */
+html.hg-new-app .hgn-banner{
+  position:relative;margin:20px 16px 0;height:152px;border-radius:24px;overflow:hidden;background:#341A76;
+  box-shadow:0 16px 30px -14px rgba(90,41,222,.55);
+}
+html.hg-new-app .hgn-slides{
+  display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;
+}
+html.hg-new-app .hgn-slides::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;color:#FFFFFF;}
+html.hg-new-app .hgn-slide-photo{position:absolute;top:0;inset-inline-end:0;width:60%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-slide-panel{position:absolute;top:0;inset-inline-start:0;width:63%;height:100%;fill:#341A76;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-panel{transform:scaleX(-1);}
+html.hg-new-app .hgn-slide-text{
+  position:absolute;top:0;bottom:0;inset-inline-start:0;width:58%;padding:18px;
+  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;
+}
+html.hg-new-app .hgn-slide-top{display:flex;flex-direction:column;min-width:0;max-width:100%;}
+html.hg-new-app .hgn-kicker{font-size:12px;line-height:1.3;font-weight:550;color:#ACE4AA;white-space:nowrap;}
+html.hg-new-app .hgn-slide-title{
+  margin-top:6px;font-size:21px;line-height:1.08;font-weight:650;letter-spacing:-.03em;color:#FFFFFF;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;
+}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-title{letter-spacing:0;line-height:1.25;}
+html.hg-new-app .hgn-shop{
+  display:inline-flex;align-items:center;gap:8px;height:38px;padding-inline-start:16px;padding-inline-end:5px;
+  border-radius:19px;background:#FFFFFF;color:#341A76;font-size:13px;font-weight:600;white-space:nowrap;
+}
+html.hg-new-app .hgn-shop-go{
+  width:28px;height:28px;border-radius:14px;background:#FF4000;color:#FFFFFF;
+  display:flex;align-items:center;justify-content:center;
+}
+html.hg-new-app .hgn-shop-go svg{width:13px;height:13px;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-shop-go svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-dots{position:absolute;bottom:14px;inset-inline-end:12px;display:flex;gap:4px;pointer-events:none;}
+html.hg-new-app .hgn-dot{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.6);transition:width .2s ease,background-color .2s ease;}
+html.hg-new-app .hgn-dot.is-on{width:16px;background:#FFFFFF;}
+
+/* Stores near you */
+html.hg-new-app .hgn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 16px 0;}
+html.hg-new-app .hgn-h2{margin:0;font-size:20px;line-height:1.2;font-weight:650;letter-spacing:-.03em;color:#1B2023;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-h2{letter-spacing:0;}
+html.hg-new-app .hgn-pill{
+  flex:0 0 auto;height:32px;padding:0 12px;border-radius:16px;background:#F2ECFF;color:#5A29DE!important;
+  font-size:13px;font-weight:600;display:inline-flex;align-items:center;
+}
+html.hg-new-app .hgn-store-row{
+  display:flex;gap:12px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;scrollbar-width:none;
+}
+html.hg-new-app .hgn-store-row::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-store{flex:0 0 248px;min-width:0;scroll-snap-align:start;}
+html.hg-new-app .hgn-store-img{display:block;width:248px;height:132px;border-radius:20px;overflow:hidden;background:#F4F3F8;}
+html.hg-new-app .hgn-store-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-store-img.is-logo img{object-fit:contain;padding:18px;}
+html.hg-new-app .hgn-store-name{
+  display:block;margin-top:10px;font-size:16px;line-height:1.25;font-weight:600;color:#1B2023;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+html.hg-new-app .hgn-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:500;display:inline-flex;align-items:center;}
+
+@media (prefers-reduced-motion:reduce){
+  html.hg-new-app .hgn-dot{transition:none!important;}
+}
