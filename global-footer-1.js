@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1623 */
+/* hg-version 2026-10-15-1629 */
 (function () {
   /* NEW APP TEST SWITCH (app rebuild, started 2026-10-15): on a phone where the switch is on (secret word "hgnewapp",
      see app-footer.js) this file only keeps the Account page and the bottom nav exactly as they are; everything else
@@ -31,8 +31,10 @@
         document.head.appendChild(st);
       }).catch(() => {});
     });
-    const ex = document.getElementById("hg-extra-style");
-    if (ex && !ex.dataset.hgNew && ex.sheet) { ex.dataset.hgNew = "1"; ex.textContent = keepText(ex.sheet.cssRules); }
+    ["hg-extra-style", "hg-home-v88"].forEach((id) => {
+      const ex = document.getElementById(id);
+      if (ex && !ex.dataset.hgNew && ex.sheet) { ex.dataset.hgNew = "1"; ex.textContent = keepText(ex.sheet.cssRules); }
+    });
   }
 
   /* SHAPES — HyperGo arrow icon */

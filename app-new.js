@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1623 */
+/* hg-version 2026-10-15-1636 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15)
    Loaded by app-footer.js ONLY while the test switch is on (secret word "hgnewapp" in the app's search field). With the
    switch on, global-footer-1.js and global-footer-2.js stay off and global-footer.css is switched off, so this file and
@@ -925,6 +925,7 @@
 
   /* HyperGo arrow (brand mark), same shape as the logo files */
   const MARK = '<svg viewBox="0 0 394.75 456.09" aria-hidden="true"><path fill="currentColor" d="M394.75,0v442.61h-138.8v-98.54c-8.03,10.28-16.78,19.94-26.15,29.12-28.07,27.3-62.4,48-102.99,62.01-37.53,12.96-79.8,19.94-126.8,20.89v-153.67c38.82-1.43,74.88-10.52,108.06-27.06,36.39-18.22,65.6-43.61,87.59-76.26,11.52-17.02,20.42-35.24,26.73-54.6H0V0h394.75Z"/></svg>';
+  const LESS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const GO_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   /* ---------- data (Hyperzod's own store, nothing invented) ---------- */
   function catLabel(c) {
@@ -1000,7 +1001,7 @@
     });
     if (many) {
       html += '<button type="button" class="hgn-cat hgn-cat-all' + (catsOpen ? " is-open" : "") + '" data-act="cats" aria-expanded="' + catsOpen + '">' +
-        '<span class="hgn-cat-ring">' + MARK + "</span>" +
+        '<span class="hgn-cat-ring">' + (catsOpen ? LESS_ICON : MARK) + "</span>" +
         '<span class="hgn-cat-name">' + esc(catsOpen ? t.less : t.seeAll) + "</span></button>";
     }
     html += "</div></section>";
@@ -1118,7 +1119,15 @@
 
   function start() {
     tick();
-    new MutationObserver((recs) => { if (relevant(recs)) schedule(); }).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver((recs) => {
+      if (!relevant(recs)) return;
+      /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */
+      const hdr = document.getElementById("MultiVendorHeaderRoot");
+      const bareHeader = hdr && !hdr.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row");
+      const bareHome = document.getElementById("MultiVendorHome") && !document.getElementById("hgn-home") && isHomePath(currentPath());
+      if (bareHeader || bareHome) { tick(); return; }
+      schedule();
+    }).observe(document.body, { childList: true, subtree: true });
     setInterval(schedule, 1500);
   }
 

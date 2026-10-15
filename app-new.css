@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1627 */
+/* hg-version 2026-10-15-1636 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js only while the test switch is on.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    (#FAFAFC off-white page, #341A76 banner, #F4F3F8 image backing, #F2ECFF pill, #EEECEF line, #6B7280 / #5C5C5C greys). */
@@ -37,7 +37,8 @@ html.hg-new-app #hgn-home img{display:block;}
 
 /* old Home content is replaced by #hgn-home (the bottom nav and the Account page stay as they are) */
 html.hg-new-app #MultiVendorHome{background:#FAFAFC;overscroll-behavior-y:none;}
-html.hg-new-app #MultiVendorHome:has(#hgn-home)>main.v-main{display:none!important;}
+html.hg-new-app #MultiVendorHome>main.v-main{display:none!important;}
+html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
 
 /* ---------- HOME ---------- */
 html.hg-new-app #hgn-home{
@@ -62,10 +63,9 @@ html.hg-new-app .hgn-cat-name{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;}
-html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;transition:transform .25s ease;}
-html.hg-new-app #hgn-home[dir="rtl"] .hgn-cat-all .hgn-cat-ring svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{transform:rotate(180deg);}
-html.hg-new-app #hgn-home[dir="rtl"] .hgn-cat-all.is-open .hgn-cat-ring svg{transform:scaleX(-1) rotate(180deg);}
+/* the HyperGo arrow is the logo mark: same shape and direction in English and Arabic */
+html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;}
+html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{width:26px;height:26px;}
 html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;outline-offset:2px;}
 
 /* featured stores banner */
@@ -106,7 +106,7 @@ html.hg-new-app .hgn-shop-go{
 }
 html.hg-new-app .hgn-shop-go svg{width:13px;height:13px;}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-shop-go svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-dots{position:absolute;bottom:12px;inset-inline-end:12px;display:flex;gap:4px;pointer-events:none;}
+html.hg-new-app .hgn-dots{position:absolute;bottom:10px;inset-inline-end:10px;display:flex;gap:4px;padding:5px 6px;border-radius:7px;background:rgba(27,32,35,.35);pointer-events:none;}
 html.hg-new-app .hgn-dot{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.55);transition:width .2s ease,background-color .2s ease;}
 html.hg-new-app .hgn-dot.is-on{width:16px;background:#FFFFFF;}
 
@@ -136,6 +136,5 @@ html.hg-new-app .hgn-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:600;display:inline-flex;align-items:center;}
 
 @media (prefers-reduced-motion:reduce){
-  html.hg-new-app .hgn-dot,
-  html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{transition:none!important;}
+  html.hg-new-app .hgn-dot{transition:none!important;}
 }
