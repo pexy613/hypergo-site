@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1748 */
+/* hg-version 2026-10-17-1221 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -943,9 +943,49 @@
     const v = parseFloat(m && (m.user_to_merchant_distance_meters != null ? m.user_to_merchant_distance_meters : m.distance));
     return isNaN(v) ? 1e12 : v;
   }
+  /* Featured collection (2026-10-17): the "Featured" Merchant Collection section on the Hyperzod home page (page builder).
+     Its store ids come from Hyperzod's own boot settings; the stores are loaded once by id, with the same call Hyperzod's
+     own section makes. A collection titled "Featured" wins; otherwise the first Merchant Collection on a page is used. */
+  const featColl = { key: "", list: [], busy: false };
+  function featuredCollectionIds() {
+    try {
+      const S = vueGlobals().$store.state;
+      const pages = (S.Utils && S.Utils.bootSettings && S.Utils.bootSettings.page_builder_boot && S.Utils.bootSettings.page_builder_boot.primaryPages) || [];
+      let pick = null;
+      pages.forEach((pg) => (pg.sections || []).forEach((sec) => {
+        if (!sec || sec.type !== "MerchantCollection" || sec.is_visible === false) return;
+        const a = (sec.attributes || []).find((x) => x && x.key === "MerchantCollectionConfig");
+        const v = a && a.value;
+        if (!v || !Array.isArray(v.merchantIds) || !v.merchantIds.length) return;
+        const isFeat = /featured|\u0645\u0645\u064a\u0632/i.test(String(v.title || ""));
+        if (!pick || (isFeat && !pick.feat)) pick = { ids: v.merchantIds.slice(), feat: isFeat };
+      }));
+      return pick ? pick.ids : [];
+    } catch (e) { return []; }
+  }
+  function loadFeaturedCollection(ids) {
+    const key = ids.join(",");
+    if (featColl.key === key || featColl.busy) return;
+    featColl.busy = true;
+    const qs = ids.map((id) => "merchant_ids%5B%5D=" + encodeURIComponent(id)).join("&");
+    fetch("https://api.hyperzod.app/store/v1/merchant/listByIds?" + qs, {
+      headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" }
+    }).then((r) => r.json()).then((j) => {
+      const d = j && j.data;
+      const list = Array.isArray(d) ? d : (d && Array.isArray(d.data) ? d.data : []);
+      const byId = {};
+      list.forEach((m) => { if (m) byId[m._id || m.id] = m; });
+      featColl.list = ids.map((id) => byId[id]).filter(Boolean);
+    }, () => { featColl.list = []; }).then(() => { featColl.key = key; featColl.busy = false; schedule(); });
+  }
   function featuredStores(hd) {
     const out = [], seen = {};
     const add = (m) => { const id = m && (m._id || m.id); if (!id || seen[id] || !storeImg(m, "cover")) return; seen[id] = true; out.push(m); };
+    const ids = featuredCollectionIds();
+    if (ids.length) {
+      loadFeaturedCollection(ids);
+      if (featColl.key === ids.join(",")) featColl.list.forEach(add);
+    }
     (hd.featured_merchants || []).forEach(add);
     (hd.merchants || []).forEach((m) => { if (m.is_featured || m.is_sponsored) add(m); });
     return out;
@@ -1005,7 +1045,8 @@
     html += "</div></section>";
 
     /* banner, matched to the approved reference: a deep purple card, the store photo on the inline-end side behind a curved
-       edge, kicker + store name + "Shop now" pill. Slides = real Featured / Sponsored stores only; hidden while there are none. */
+       edge, kicker + store name + "Shop now" pill. Slides = the stores in the Featured collection (Hyperzod page builder), then
+       any Featured / Sponsored stores; a store without a cover photo is left out; hidden while there are none. */
     if (feat.length) {
       html += '<section class="hgn-banner" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
       feat.forEach((m) => {
