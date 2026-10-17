@@ -1,4 +1,4 @@
-/* hg-version 2026-10-17-1221 */
+/* hg-version 2026-10-17-1254 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1015,9 +1015,13 @@
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
     const cats = hd.merchant_categories.filter((c) => c && c.status !== false && c.status !== 0)
       .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-    const stores = (hd.merchants || []).slice().sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
     const feat = featuredStores(hd);
     const idOf = (x) => x._id || x.id;
+    /* Stores near you leaves out the stores already in the banner, so the two never repeat each other */
+    const featIds = {};
+    feat.forEach((m) => { featIds[idOf(m)] = true; });
+    const stores = (hd.merchants || []).filter((m) => m && !featIds[idOf(m)])
+      .sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
     const sig = [L, catsOpen, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
     if (sig === homeSig && box.firstChild) return;
     homeSig = sig;
