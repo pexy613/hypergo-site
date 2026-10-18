@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1646 */
+/* hg-version 2026-10-18-1206 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -10,12 +10,15 @@
 (function () {
   try {
     var BASE = "https://pexy613.github.io/hypergo-site/";
+    /* GitHub Pages tells phones to keep these files for 10 minutes, so the app could keep showing an older copy after a
+       push. A fresh "v" each minute makes the app ask for the newest app-new.css / app-new.js. */
+    var V = "?v=" + Math.floor(Date.now() / 60000);
     var l = document.createElement("link");
     l.rel = "stylesheet";
-    l.href = BASE + "app-new.css";
+    l.href = BASE + "app-new.css" + V;
     document.head.appendChild(l);
     var s = document.createElement("script");
-    s.src = BASE + "app-new.js";
+    s.src = BASE + "app-new.js" + V;
     s.async = false;
     document.head.appendChild(s);
   } catch (e) {}
