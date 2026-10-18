@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1727 */
+/* hg-version 2026-10-18-1836 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1893,21 +1893,18 @@
       }).join("") + "</div></section>";
   }
 
+  /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
+     doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
+  const PARTS = [
+    hookRouter, renderPage, renderAccountFav, renderSearchFav, renderSearchResults, renderCategoryPage,
+    ensureHeaderExtraStyle, tagNativeNav, applyHyperGoHeader, applyLocLang,
+    () => { if (isHomePath(currentPath())) renderHome(); },
+    renderStore
+  ];
   function tick() {
-    try {
-      hookRouter();
-      renderPage();
-      renderAccountFav();
-      renderSearchFav();
-      renderSearchResults();
-      renderCategoryPage();
-      ensureHeaderExtraStyle();
-      tagNativeNav();
-      applyHyperGoHeader();
-      applyLocLang();
-      if (isHomePath(currentPath())) renderHome();
-      renderStore();
-    } catch (e) {}
+    for (let i = 0; i < PARTS.length; i++) {
+      try { PARTS[i](); } catch (e) {}
+    }
   }
 
   let timer = null;
