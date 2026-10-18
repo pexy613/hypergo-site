@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1400 */
+/* hg-version 2026-10-18-1724 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1323,12 +1323,27 @@
       if (!mine) host.appendChild(img);
     });
   }
+  /* A store opens in two ways in the phone app (found 2026-10-18):
+     1. as its own page: the address is /en/m/<slug>/<id>, inside #app (our Home, Stores page, Search results);
+     2. as a full-screen sheet that slides up over the current screen: Hyperzod's "merchant" side panel, used whenever
+        window.ReactNativeWebView exists (the app) and the store is tapped in Hyperzod's own sections: category pages,
+        Featured stores, banners, the cart, notifications. The address stays on the old screen (e.g. /m-category/...)
+        and the sheet lives outside #app, under body > .v-overlay-container.
+     So "a store is open" is decided by the visible store screen itself, never by the address alone, and every store
+     rule in app-new.css is scoped to :is(#app,.v-overlay-container), not #app. */
+  function openStorePage() {
+    const pages = Array.prototype.filter.call(document.querySelectorAll(".scheme-merchant-page"), (p) => p.offsetWidth > 0 && p.getClientRects().length > 0);
+    if (!pages.length) return null;
+    const sheet = pages.filter((p) => p.closest(".v-overlay-container")).pop();
+    if (sheet) return sheet;
+    return isStorePath(currentPath()) ? pages[pages.length - 1] : null;
+  }
   function renderStore() {
     const de = document.documentElement;
-    const on = isStorePath(currentPath());
+    const page = openStorePage();
+    const on = !!page;
     de.classList.toggle("hgn-store", on);
     if (!on) return;
-    const page = document.querySelector(".scheme-merchant-page");
     const hdr = page && page.querySelector("#merchant-header-v2");
     if (!hdr) return;
     const T = STXT[lang()];
