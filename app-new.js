@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1222 */
+/* hg-version 2026-10-18-1235 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -102,7 +102,7 @@
 
     /* SEARCH AREA — extra bottom space so the purple continues below search */
 
-    searchRow.style.setProperty("padding", "10px 16px 30px", "important");
+    searchRow.style.setProperty("padding", "10px 16px 22px", "important"); /* 2026-10-18: 8px shorter header (was 30px) */
 
 
     /* FILTER: Hyperzod's own filter button, restyled as a tiny icon at the end of the search pill (see hg-extra-style) */
@@ -1011,6 +1011,10 @@
 
   function isHomePath(p) { return /^\/(en|ar)(\/home)?\/?$/.test(p); }
 
+  /* icons for Home, copied from the approved design (the heart sits on each Stores near you photo) */
+  const TOP_ICON = {
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="#1B2023" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>'
+  };
   function renderHome() {
     const home = document.getElementById("MultiVendorHome");
     const hdr = document.getElementById("MultiVendorHeaderRoot");
@@ -1076,7 +1080,7 @@
         const href = storeHref(m, L);
         html += '<a class="hgn-slide" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
           '<img class="hgn-slide-photo" src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async">' +
-          '<svg class="hgn-slide-panel" viewBox="0 0 200 152" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H200C178 52 152 104 134 152H0Z"/></svg>' +
+          '<svg class="hgn-slide-panel" viewBox="0 0 200 152" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H200C168 40 160 110 120 152H0Z"/></svg>' +
           '<span class="hgn-slide-text">' +
           '<span class="hgn-slide-top"><span class="hgn-kicker">' + esc(t.week) + "</span>" +
           '<span class="hgn-slide-title">' + esc(m.name) + "</span></span>" +
@@ -1102,7 +1106,8 @@
         const tags = (m.merchant_category_ids || []).map((id) => catMap[id]).filter(Boolean).slice(0, 2);
         html += '<a class="hgn-store" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
           '<span class="hgn-store-img' + (cover ? "" : " is-logo") + '">' +
-          ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+          ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
+          '<span class="hgn-fav">' + TOP_ICON.heart + "</span></span>" +
           '<span class="hgn-store-name">' + esc(m.name) + "</span>" +
           (tags.length ? '<span class="hgn-tags">' + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
           "</a>";
@@ -1299,9 +1304,26 @@
     if (g && g.$router && g.$router.afterEach) { g.$router.afterEach(() => schedule()); routerHooked = true; }
   }
 
+  /* Bottom bar, copied from the approved design: Home, Search, Orders, Account. Hyperzod's own bar is restyled
+     (app-new.css); its Cart tab is shown as Search and a tap on it opens Search (the cart is in the header).
+     Only real taps are redirected: the header cart button still "clicks" Hyperzod's Cart tab to open the cart. */
+  document.addEventListener("click", (e) => {
+    if (!e.isTrusted) return;
+    const it = e.target && e.target.closest && e.target.closest("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart']");
+    if (!it) return;
+    e.preventDefault();
+    e.stopPropagation();
+    go("/" + lang() + "/search");
+  }, true);
+  function navFlags() {
+    const de = document.documentElement, p = currentPath();
+    de.classList.toggle("hgn-on-search", /^\/(en|ar)\/search\/?$/.test(p));
+  }
+
   function tick() {
     try {
       hookRouter();
+      navFlags();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1222 */
+/* hg-version 2026-10-18-1235 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -142,6 +142,86 @@ html.hg-new-app .hgn-store-name{
 }
 html.hg-new-app .hgn-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:500;display:inline-flex;align-items:center;}
+
+/* ================= APPROVED DESIGN, COPIED EXACTLY (2026-10-18): Home tiles, banner, Stores near you, bottom bar =================
+   (the header keeps its own design, only 8px shorter, see app-new.js) */
+html.hg-new-app body #app #MultiVendorHome{background:#FFFFFF!important;}
+html.hg-new-app #hgn-home{background:#FFFFFF;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
+
+/* category tiles: 72px light lavender tile, 24px corners, 4px inset, photo 64px with 20px corners */
+html.hg-new-app .hgn-cat-ring,
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{width:72px;height:72px;border-radius:24px;padding:4px;background:#F4F2FA;box-shadow:none;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring::after{display:none;}
+html.hg-new-app .hgn-cat-ring img,
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{width:64px;height:64px;margin:0;padding:7px;border-radius:20px;object-fit:contain;background:#F4F2FA;}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;padding:0;border-radius:24px;}
+
+/* banner */
+html.hg-new-app .hgn-banner{background:#2A1468;box-shadow:0 16px 30px -14px rgba(42,20,104,.6);}
+html.hg-new-app .hgn-slide-photo{width:58%;}
+html.hg-new-app .hgn-slide-panel{width:64%;fill:#2A1468;}
+html.hg-new-app .hgn-slide-text{width:60%;}
+html.hg-new-app .hgn-shop{color:#2A1468;}
+html.hg-new-app .hgn-dots{bottom:12px;inset-inline-end:12px;}
+html.hg-new-app .hgn-dot{background:rgba(255,255,255,.55);}
+
+/* Stores near you */
+html.hg-new-app .hgn-head{margin:22px 16px 0;}
+html.hg-new-app .hgn-pill{background:#F1EEFC;color:#1B2023!important;}
+html.hg-new-app .hgn-store-img{position:relative;}
+html.hg-new-app .hgn-fav{position:absolute;top:10px;inset-inline-end:10px;width:34px;height:34px;border-radius:17px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;}
+html.hg-new-app .hgn-fav svg{width:17px;height:17px;}
+html.hg-new-app .hgn-tag{background:#F4F2FA;box-shadow:none;color:#4A4E54;}
+
+/* bottom bar: floating white pill, Home / Search / Orders / Account; the current tab is a purple pill with its name.
+   Hyperzod's own bar restyled (its Cart tab is shown as Search, see app-new.js). */
+@media (max-width:959.98px){
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav{left:14px!important;right:14px!important;width:auto!important;bottom:calc(22px + env(safe-area-inset-bottom,0px))!important;
+  height:66px!important;border-radius:33px!important;background:#FFFFFF!important;border:0!important;overflow:visible!important;
+  box-shadow:0 0 0 1px #EEEBF6,0 18px 36px -10px rgba(42,20,104,.35)!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .v-bottom-navigation__content{height:66px!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-container{height:66px!important;padding:0 9px!important;border-radius:33px!important;background:transparent!important;justify-content:space-between!important;align-items:center!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item{flex:0 0 auto!important;width:auto!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='home']{order:0;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart']{display:inline-flex!important;order:1;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='reorder']{order:2;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account']{order:3;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .v-badge__badge{display:none!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn{height:48px!important;min-width:52px!important;width:auto!important;padding:0!important;margin:0!important;border-radius:24px!important;color:#5E6268!important;background:transparent!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn .nav-label{display:none!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn__content,
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-nav-container .classic-footer-btn__content--with-label{flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:48px!important;min-height:0!important;padding:0!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn__content object{display:none!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn__content::before{content:''!important;display:block!important;width:24px!important;height:24px!important;margin:0!important;background:currentColor!important;
+  -webkit-mask-repeat:no-repeat!important;mask-repeat:no-repeat!important;-webkit-mask-position:center!important;mask-position:center!important;-webkit-mask-size:contain!important;mask-size:contain!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='home'] .classic-footer-btn__content::before{width:22px!important;height:22px!important;-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27%23000%27%20d%3D%27M10.6%203.5a2.2%202.2%200%200%201%202.8%200l6.4%205.3c.5.4.8%201%20.8%201.7V19a2%202%200%200%201-2%202h-3.4v-5.2a2.2%202.2%200%200%200-4.4%200V21H7.4a2%202%200%200%201-2-2v-8.5c0-.7.3-1.3.8-1.7z%27%2F%3E%3C%2Fsvg%3E")!important;mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27%23000%27%20d%3D%27M10.6%203.5a2.2%202.2%200%200%201%202.8%200l6.4%205.3c.5.4.8%201%20.8%201.7V19a2%202%200%200%201-2%202h-3.4v-5.2a2.2%202.2%200%200%200-4.4%200V21H7.4a2%202%200%200%201-2-2v-8.5c0-.7.3-1.3.8-1.7z%27%2F%3E%3C%2Fsvg%3E")!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .classic-footer-btn__content::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2711%27%20cy%3D%2711%27%20r%3D%277%27%2F%3E%3Cpath%20d%3D%27M20%2020l-3.5-3.5%27%2F%3E%3C%2Fsvg%3E")!important;mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2711%27%20cy%3D%2711%27%20r%3D%277%27%2F%3E%3Cpath%20d%3D%27M20%2020l-3.5-3.5%27%2F%3E%3C%2Fsvg%3E")!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='reorder'] .classic-footer-btn__content::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%274.5%27%20y%3D%273.5%27%20width%3D%2715%27%20height%3D%2717%27%20rx%3D%273%27%2F%3E%3Cpath%20d%3D%27M8.5%208.5h7M8.5%2012.5h7M8.5%2016.5h4%27%2F%3E%3C%2Fsvg%3E")!important;mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%274.5%27%20y%3D%273.5%27%20width%3D%2715%27%20height%3D%2717%27%20rx%3D%273%27%2F%3E%3Cpath%20d%3D%27M8.5%208.5h7M8.5%2012.5h7M8.5%2016.5h4%27%2F%3E%3C%2Fsvg%3E")!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account'] .classic-footer-btn__content::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%278.5%27%20r%3D%273.8%27%2F%3E%3Cpath%20d%3D%27M5%2020c1.3-3.6%204-5.4%207-5.4s5.7%201.8%207%205.4%27%2F%3E%3C%2Fsvg%3E")!important;mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%278.5%27%20r%3D%273.8%27%2F%3E%3Cpath%20d%3D%27M5%2020c1.3-3.6%204-5.4%207-5.4s5.7%201.8%207%205.4%27%2F%3E%3C%2Fsvg%3E")!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn__content::after{display:none;font-size:14px;line-height:1;font-weight:600;color:#FFFFFF;white-space:nowrap;font-family:"Inter",system-ui,sans-serif;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='home'] .classic-footer-btn__content::after{content:"Home";}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .classic-footer-btn__content::after{content:"Search";}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='reorder'] .classic-footer-btn__content::after{content:"Orders";}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account'] .classic-footer-btn__content::after{content:"Account";}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn__content::after{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='home'] .classic-footer-btn__content::after{content:"\0627\0644\0631\0626\064A\0633\064A\0629";}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .classic-footer-btn__content::after{content:"\0627\0644\0628\062D\062B";}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='reorder'] .classic-footer-btn__content::after{content:"\0627\0644\0637\0644\0628\0627\062A";}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account'] .classic-footer-btn__content::after{content:"\0627\0644\062D\0633\0627\0628";}
+/* the current tab */
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn.classic-tab-active,
+html.hgn-on-search.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .classic-footer-btn,
+html.hg-orders-acct.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account'] .classic-footer-btn{background:#5A29DE!important;color:#FFFFFF!important;padding:0 18px 0 14px!important;}
+html[lang^='ar'].hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn.classic-tab-active{padding:0 14px 0 18px!important;}
+html.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item .classic-footer-btn.classic-tab-active .classic-footer-btn__content::after,
+html.hgn-on-search.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .classic-footer-btn__content::after,
+html.hg-orders-acct.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item[data-hg-nav='account'] .classic-footer-btn__content::after{display:block;}
+/* on Search, and on Orders opened from Account, the other tabs are not lit */
+html.hgn-on-search.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item:not([data-hg-nav='cart']) .classic-footer-btn.classic-tab-active,
+html.hg-orders-acct.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item:not([data-hg-nav='account']) .classic-footer-btn.classic-tab-active{background:transparent!important;color:#5E6268!important;padding:0!important;}
+html.hgn-on-search.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item:not([data-hg-nav='cart']) .classic-footer-btn.classic-tab-active .classic-footer-btn__content::after,
+html.hg-orders-acct.hg-new-app body #MultiVendorBottomNav#MultiVendorBottomNav .classic-nav-item:not([data-hg-nav='account']) .classic-footer-btn.classic-tab-active .classic-footer-btn__content::after{display:none;}
+}
 
 @media (prefers-reduced-motion:reduce){
   html.hg-new-app .hgn-dot{transition:none!important;}
