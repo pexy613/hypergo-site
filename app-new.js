@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1340 */
+/* hg-version 2026-10-18-1352 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1140,8 +1140,8 @@
     }
     html += "</div></section>";
 
-    /* banner (A2, chosen 2026-10-18): the store photo fills the whole card, a purple shade behind the text,
-       kicker + store name + "Shop now" pill. Slides = the stores in the Featured collection (Hyperzod page builder), then
+    /* banner (C1, chosen 2026-10-18): the store's own banner photo as it is (it already shows the store's name and logo,
+       so we add no text on it), with only a small "Shop now" pill in the corner. Slides = the stores in the Featured collection (Hyperzod page builder), then
        any Featured / Sponsored stores; a store without a cover photo is left out; hidden while there are none. */
     if (feat.length) {
       html += '<section class="hgn-banner" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
@@ -1149,12 +1149,8 @@
         const href = storeHref(m, L);
         html += '<a class="hgn-slide" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
           '<img class="hgn-slide-photo" src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async">' +
-          '<span class="hgn-slide-shade" aria-hidden="true"></span>' +
-          '<span class="hgn-slide-text">' +
-          '<span class="hgn-slide-top"><span class="hgn-kicker">' + esc(t.week) + "</span>" +
-          '<span class="hgn-slide-title">' + esc(m.name) + "</span></span>" +
-          '<span class="hgn-shop">' + esc(t.shop) + '<span class="hgn-shop-go">' + GO_ARROW + "</span></span>" +
-          "</span></a>";
+          '<span class="hgn-shop hgn-shop-c1" aria-label="' + esc(t.shop + " " + m.name) + '">' + esc(t.shop) + '<span class="hgn-shop-go">' + GO_ARROW + "</span></span>" +
+          "</a>";
       });
       html += "</div>";
       if (feat.length > 1) {
@@ -1166,8 +1162,8 @@
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
     html += storeRow(t.stores, stores, L, catMap, t, favIds, "/" + L + "/home?hgn=stores");
 
-    /* Your favourites: the stores hearted on this phone (newest first) */
-    html += storeRow(t.favs, favStoresOf(hd), L, catMap, t, favIds, "/" + L + "/home?hgn=favs");
+    /* Your favourites row is not shown on Home (2026-10-18): the hearts still save, and the saved stores show in
+       Account (Favourites) and on the Search page */
 
     /* Top rated: Hyperzod's store rating, best first, only stores that have a rating */
     const all = (hd.merchants || []).concat(feat.filter((m) => !(hd.merchants || []).some((x) => idOf(x) === idOf(m))));

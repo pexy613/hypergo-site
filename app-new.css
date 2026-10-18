@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1340 */
+/* hg-version 2026-10-18-1352 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -216,6 +216,16 @@ html.hg-new-app .hgn-slide-panel{display:none;}
 html.hg-new-app .hgn-slide-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-shade{background:linear-gradient(270deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
 html.hg-new-app .hgn-slide-text{width:70%;}
+/* banner C1 (2026-10-18): the store's own banner, no shade or text on it; Shop pill bottom end, dots bottom start */
+html.hg-new-app .hgn-banner{height:auto;aspect-ratio:2/1;background:#F4F2FA;box-shadow:0 10px 24px -14px rgba(27,32,35,.35);}
+html.hg-new-app .hgn-slide-shade,html.hg-new-app .hgn-slide-text{display:none;}
+html.hg-new-app .hgn-slide-photo{inset:0;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-shop-c1{position:absolute;bottom:10px;inset-inline-end:10px;height:34px;padding-inline-start:13px;padding-inline-end:4px;gap:7px;font-size:12px;
+  background:#FFFFFF;color:#2A1468;box-shadow:0 2px 8px rgba(27,32,35,.18);}
+html.hg-new-app .hgn-shop-c1 .hgn-shop-go{width:26px;height:26px;border-radius:13px;}
+html.hg-new-app .hgn-dots{inset-inline-end:auto;inset-inline-start:12px;bottom:12px;}
+html.hg-new-app .hgn-dot{width:5px;height:5px;border-radius:3px;background:rgba(27,32,35,.25);}
+html.hg-new-app .hgn-dot.is-on{width:16px;background:#5A29DE;}
 /* Stores page: back bar + category chips stay on top */
 html.hg-new-app .hgn-page-top{position:sticky;top:0;z-index:2;background:#FFFFFF;box-shadow:0 1px 0 #EEECEF;}
 html.hg-new-app .hgn-page-top .hgn-page-bar{position:static;box-shadow:none;}
