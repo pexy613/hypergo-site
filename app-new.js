@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1147 */
+/* hg-version 2026-10-18-1222 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1048,7 +1048,7 @@
 
     /* category grid: 4 per row; 7 categories + "See all" when there are more than 8 */
     const many = cats.length > 8;
-    const shown = many && !catsOpen ? cats.slice(0, 7) : cats;
+    const shown = many ? cats.slice(0, 7) : cats;
     html += '<section class="hgn-cats" aria-label="' + esc(t.cats) + '"><div class="hgn-cat-grid">';
     shown.forEach((c) => {
       const href = catHref(c, L);
@@ -1058,10 +1058,12 @@
         '<span class="hgn-cat-ring">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
         '<span class="hgn-cat-name">' + esc(catLabel(c)) + "</span></a>";
     });
+    /* "See all" opens the Search page, which lists every category ("Shop by category") */
     if (many) {
-      html += '<button type="button" class="hgn-cat hgn-cat-all' + (catsOpen ? " is-open" : "") + '" data-act="cats" aria-expanded="' + catsOpen + '">' +
-        '<span class="hgn-cat-ring">' + (catsOpen ? LESS_ICON : MARK) + "</span>" +
-        '<span class="hgn-cat-name">' + esc(catsOpen ? t.less : t.seeAll) + "</span></button>";
+      const allHref = "/" + L + "/search";
+      html += '<a class="hgn-cat hgn-cat-all" href="' + esc(allHref) + '" data-href="' + esc(allHref) + '">' +
+        '<span class="hgn-cat-ring">' + MARK + "</span>" +
+        '<span class="hgn-cat-name">' + esc(t.seeAll) + "</span></a>";
     }
     html += "</div></section>";
 

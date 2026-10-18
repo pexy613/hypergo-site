@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1147 */
+/* hg-version 2026-10-18-1222 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -64,15 +64,15 @@ html.hg-new-app .hgn-cat-name{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 /* tiles with our own cut-out product photo: soft pink-lavender tile, the product centred and large, a soft shadow under it */
-html.hg-new-app .hgn-cat-photo .hgn-cat-ring{background:#DFC4F3;box-shadow:none;padding:0;position:relative;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{background:#DFC4F3;box-shadow:none;padding:0;position:relative;border-radius:16px;}
 html.hg-new-app .hgn-cat-photo .hgn-cat-ring::after{
   content:"";position:absolute;inset-inline:22%;bottom:9%;height:8%;border-radius:50%;
   background:rgba(52,26,118,.28);filter:blur(4px);
 }
 html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{
-  position:relative;z-index:1;width:78%;height:78%;margin-top:-4%;border-radius:0;object-fit:contain;background:none;
+  position:relative;z-index:1;width:60%;height:60%;margin-top:-4%;border-radius:0;object-fit:contain;background:none;
 }
-html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;border-radius:16px;}
 /* the HyperGo arrow is the logo mark: same shape and direction in English and Arabic */
 html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;}
 html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{width:26px;height:26px;}
