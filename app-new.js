@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1254 */
+/* hg-version 2026-10-18-1318 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -915,9 +915,9 @@
   }
 
   const TXT = {
-    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
+    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo", all: "All", freeDel: "Free delivery", delFee: " delivery",
     },
-    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
+    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو", all: "الكل", freeDel: "توصيل مجاني", delFee: "توصيل ",
     }
   };
 
@@ -1139,8 +1139,8 @@
     }
     html += "</div></section>";
 
-    /* banner, matched to the approved reference: a deep purple card, the store photo on the inline-end side behind a curved
-       edge, kicker + store name + "Shop now" pill. Slides = the stores in the Featured collection (Hyperzod page builder), then
+    /* banner (A2, chosen 2026-10-18): the store photo fills the whole card, a purple shade behind the text,
+       kicker + store name + "Shop now" pill. Slides = the stores in the Featured collection (Hyperzod page builder), then
        any Featured / Sponsored stores; a store without a cover photo is left out; hidden while there are none. */
     if (feat.length) {
       html += '<section class="hgn-banner" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
@@ -1148,7 +1148,7 @@
         const href = storeHref(m, L);
         html += '<a class="hgn-slide" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
           '<img class="hgn-slide-photo" src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async">' +
-          '<svg class="hgn-slide-panel" viewBox="0 0 200 152" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H200C168 40 160 110 120 152H0Z"/></svg>' +
+          '<span class="hgn-slide-shade" aria-hidden="true"></span>' +
           '<span class="hgn-slide-text">' +
           '<span class="hgn-slide-top"><span class="hgn-kicker">' + esc(t.week) + "</span>" +
           '<span class="hgn-slide-title">' + esc(m.name) + "</span></span>" +
@@ -1215,18 +1215,21 @@
     const pause = () => { pausedUntil = Date.now() + 6000; };
     track.addEventListener("touchstart", pause, { passive: true });
     track.addEventListener("pointerdown", pause, { passive: true });
+    /* she asked for it to slide every 4 seconds; with reduce-motion on it jumps instead of gliding */
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduce) {
-      slideTimer = setInterval(() => {
-        if (!track.isConnected) { clearInterval(slideTimer); slideTimer = 0; return; }
-        if (document.hidden || Date.now() < pausedUntil) return;
-        const w = track.clientWidth || 1, n = dots.length;
-        const cur = Math.round(Math.abs(track.scrollLeft) / w);
-        const next = (cur + 1) % n;
-        const sign = getComputedStyle(track).direction === "rtl" ? -1 : 1;
-        track.scrollTo({ left: sign * next * w, behavior: next === 0 ? "auto" : "smooth" });
-      }, 4000);
-    }
+    slideTimer = setInterval(() => {
+      if (!track.isConnected) { clearInterval(slideTimer); slideTimer = 0; return; }
+      if (document.hidden || Date.now() < pausedUntil) return;
+      const w = track.clientWidth || 1, n = dots.length;
+      const cur = Math.round(Math.abs(track.scrollLeft) / w);
+      const next = (cur + 1) % n;
+      const sign = getComputedStyle(track).direction === "rtl" ? -1 : 1;
+      const left = sign * next * w;
+      if (reduce || next === 0) { track.scrollLeft = left; return; }
+      track.scrollTo({ left: left, behavior: "smooth" });
+      /* some phone webviews ignore a smooth scroll on a snapping row: then move it directly */
+      setTimeout(() => { if (track.isConnected && Math.round(Math.abs(track.scrollLeft) / w) !== next) track.scrollLeft = left; }, 900);
+    }, 4000);
     let ticking = false;
     track.addEventListener("scroll", () => {
       if (ticking) return;
@@ -1397,7 +1400,7 @@
   /* ---------- PAGES (2026-10-18): "Stores near you" (See all) and "Favourites" ----------
      Hyperzod has no page for these, so they open on top of Home: /home?hgn=stores and /home?hgn=favs.
      Back goes to where the customer came from. */
-  let pageSig = "";
+  let pageSig = "", pageCat = "", pageWas = "";
   function pageQuery() {
     const g = vueGlobals();
     const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
@@ -1409,6 +1412,7 @@
     const q = pageQuery();
     let pg = document.getElementById("hgn-page");
     document.documentElement.classList.toggle("hgn-page-open", !!q);
+    if (q !== pageWas) { pageWas = q; pageCat = ""; }
     if (!q) { if (pg) pg.remove(); pageSig = ""; return; }
     const hd = homeData();
     if (!hd) return;
@@ -1416,7 +1420,7 @@
     const list = q === "favs" ? favStoresOf(hd) : homeStores(hd);
     const favIds = {};
     favList().forEach((f) => { favIds[f.id] = true; });
-    const sig = [q, L, list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
+    const sig = [q, L, pageCat, list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
     if (!pg) {
       pg = document.createElement("div");
       pg.id = "hgn-page";
@@ -1428,15 +1432,59 @@
     pageSig = sig;
     const catMap = catMapOf(hd);
     pg.setAttribute("dir", ar ? "rtl" : "ltr");
-    pg.innerHTML = '<div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + BACK_ICON + "</button>" +
-      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div>" +
-      (list.length ? '<div class="hgn-page-list">' + list.map((m) => storeCard(m, L, catMap, t, favIds, "")).join("") + "</div>"
+    /* category chips (Stores near you only): the categories these stores are in, in Hyperzod's order */
+    let chips = "";
+    let shown = list;
+    if (q === "stores") {
+      const have = {};
+      list.forEach((m) => (m.merchant_category_ids || []).forEach((x) => { have[String(x)] = true; }));
+      const cats = (hd.merchant_categories || []).filter((c) => c && have[String(c.id || c._id)])
+        .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      if (pageCat && !have[pageCat]) pageCat = "";
+      if (pageCat) shown = list.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === pageCat));
+      if (cats.length > 1) {
+        chips = '<div class="hgn-chips">' +
+          '<button type="button" class="hgn-chip' + (pageCat ? "" : " is-on") + '" data-act="pcat" data-id="">' + esc(t.all) + "</button>" +
+          cats.map((c) => { const cid = String(c.id || c._id); return '<button type="button" class="hgn-chip' + (pageCat === cid ? " is-on" : "") + '" data-act="pcat" data-id="' + esc(cid) + '">' + esc(catLabel(c)) + "</button>"; }).join("") +
+          "</div>";
+      }
+    }
+    pg.innerHTML = '<div class="hgn-page-top"><div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + BACK_ICON + "</button>" +
+      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div>" + chips + "</div>" +
+      (shown.length ? '<div class="hgn-plist">' + shown.map((m) => pageRow(m, L, catMap, t, favIds)).join("") + "</div>"
         : '<p class="hgn-page-empty">' + esc(t.nofavs) + "</p>");
+  }
+  /* one store in the list (B3, chosen 2026-10-18): round logo, name, category tags, delivery fee, heart */
+  function pageRow(m, L, catMap, t, favIds) {
+    const id = m._id || m.id;
+    seenStores[id] = m;
+    const href = storeHref(m, L);
+    const img = storeImg(m, "logo") || storeImg(m, "cover");
+    const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2);
+    const fee = storeFee(m);
+    const feeHtml = fee === null ? "" : fee === 0 ? '<span class="hgn-prow-fee is-free">' + esc(t.freeDel) + "</span>"
+      : '<span class="hgn-prow-fee">' + esc(L === "ar" ? t.delFee + money(fee) : money(fee) + t.delFee) + "</span>";
+    const on = !!favIds[id];
+    return '<a class="hgn-prow" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+      '<span class="hgn-prow-logo">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+      '<span class="hgn-prow-main"><span class="hgn-prow-name">' + esc(m.name) + "</span>" +
+      (tags.length ? '<span class="hgn-tags">' + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
+      feeHtml + "</span>" +
+      '<button type="button" class="hgn-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + TOP_ICON.heart + "</button>" +
+      "</a>";
   }
   function onPageClick(e) {
     const act = e.target.closest("[data-act]");
     if (act && act.getAttribute("data-act") === "back") {
       if (history.length > 1) history.back(); else go("/" + lang() + "/home");
+      return;
+    }
+    if (act && act.getAttribute("data-act") === "pcat") {
+      pageCat = act.getAttribute("data-id") || "";
+      pageSig = "";
+      renderPage();
+      const pg = document.getElementById("hgn-page");
+      if (pg) pg.scrollTop = 0;
       return;
     }
     onHomeClick(e);
@@ -1488,7 +1536,16 @@
     if (sig === searchFavSig) return;
     searchFavSig = sig;
     box.setAttribute("dir", ar ? "rtl" : "ltr");
-    box.innerHTML = storeRow(t.favs, list, L, catMapOf(hd), t, favIds, "/" + L + "/home?hgn=favs");
+    /* D2 (chosen 2026-10-18): round store pictures with the name underneath */
+    const all = "/" + L + "/home?hgn=favs";
+    box.innerHTML = '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.favs) + "</h2>" +
+      '<a class="hgn-pill" href="' + esc(all) + '" data-href="' + esc(all) + '">' + esc(t.seeAll) + "</a></div>" +
+      '<div class="hgn-circles">' + list.map((m) => {
+        const href = storeHref(m, L), img = storeImg(m, "logo") || storeImg(m, "cover");
+        return '<a class="hgn-circ" href="' + esc(href) + '" data-href="' + esc(href) + '"><span class="hgn-circ-img">' +
+          (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+          '<span class="hgn-circ-name">' + esc(m.name) + "</span></a>";
+      }).join("") + "</div></section>";
   }
 
   function tick() {

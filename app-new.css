@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1255 */
+/* hg-version 2026-10-18-1318 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -203,6 +203,42 @@ html.hg-new-app .hgn-page-empty{margin:40px 24px 0;font-size:14px;line-height:1.
 html.hg-new-app #hgn-sfav{margin:0 -16px 6px;}
 html.hg-new-app #hgn-sfav .hgn-head{margin-top:12px;}
 html.hg-new-app .hgn-tag{background:#F4F2FA;box-shadow:none;color:#4A4E54;}
+
+
+/* ---------- CHOSEN 2026-10-18 (round 2 previews): banner A2, Stores page B3 + chips, Search favourites D2 ---------- */
+/* banner: photo fills the card, purple shade behind the text */
+html.hg-new-app .hgn-slide-photo{inset:0;width:100%;height:100%;}
+html.hg-new-app .hgn-slide-panel{display:none;}
+html.hg-new-app .hgn-slide-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-shade{background:linear-gradient(270deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
+html.hg-new-app .hgn-slide-text{width:70%;}
+/* Stores page: back bar + category chips stay on top */
+html.hg-new-app .hgn-page-top{position:sticky;top:0;z-index:2;background:#FFFFFF;box-shadow:0 1px 0 #EEECEF;}
+html.hg-new-app .hgn-page-top .hgn-page-bar{position:static;box-shadow:none;}
+html.hg-new-app .hgn-chips{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-chips::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-chip{flex:none;height:34px;padding:0 14px;margin:0;border:0;border-radius:17px;background:#F4F2FA;color:#1B2023;font:inherit;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-chip.is-on{background:#5A29DE;color:#FFFFFF;}
+html.hg-new-app .hgn-plist{display:flex;flex-direction:column;padding:4px 16px 0;}
+html.hg-new-app .hgn-prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F0EEF5;}
+html.hg-new-app .hgn-prow:last-child{border-bottom:0;}
+html.hg-new-app .hgn-prow-logo{flex:none;width:56px;height:56px;border-radius:28px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEECEF;}
+html.hg-new-app .hgn-prow-logo img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-prow-main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;}
+html.hg-new-app .hgn-prow-name{max-width:100%;font-size:15px;line-height:1.25;font-weight:600;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-prow .hgn-tags{margin-top:5px;gap:5px;}
+html.hg-new-app .hgn-prow .hgn-tag{height:22px;padding:0 8px;border-radius:7px;font-size:11px;}
+html.hg-new-app .hgn-prow-fee{margin-top:5px;font-size:12px;line-height:1.3;font-weight:600;color:#4A4E54;}
+html.hg-new-app .hgn-prow-fee.is-free{height:22px;padding:0 8px;border-radius:7px;background:#ACE4AA;color:#1B2023;display:inline-flex;align-items:center;font-size:11px;}
+html.hg-new-app .hgn-prow .hgn-fav{position:static;flex:none;background:#F4F2FA;box-shadow:none;}
+/* Search page favourites: round pictures */
+html.hg-new-app .hgn-circles{display:flex;gap:14px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-circles::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-circ{flex:0 0 66px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:#1B2023;}
+html.hg-new-app .hgn-circ-img{width:62px;height:62px;border-radius:31px;overflow:hidden;background:#F4F2FA;box-shadow:0 0 0 2px #F1EEFC;}
+html.hg-new-app .hgn-circ-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-circ-name{width:100%;font-size:11.5px;line-height:1.2;font-weight:550;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 
 @media (prefers-reduced-motion:reduce){
   html.hg-new-app .hgn-dot{transition:none!important;}
