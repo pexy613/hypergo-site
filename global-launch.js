@@ -1,4 +1,4 @@
-/* hg-version 2026-10-05-1428 */
+/* hg-version 2026-10-18-1213 */
 /* HYPERGO LAUNCH COUNTDOWN - homepage section directly under the header, on the website and in the app.
    Loaded by the Global Custom HTML Head box. The image is launch-countdown.jpg in this repo.
    v2: card look from the reference (lavender card, glass tiles, big date, progress bar, flip on change).
@@ -8,6 +8,14 @@
   "use strict";
   if (window.__hgLaunchLoaded) return;
   window.__hgLaunchLoaded = true;
+
+  /* ===== COUNTDOWN ON / OFF. Turned off 2026-10-18 (asked to remove it now, on the website and in the app).
+     Set to true to show it again. ===== */
+  var COUNTDOWN_ON = false;
+  if (!COUNTDOWN_ON) {
+    try { var old = document.getElementById("hg-launch"); if (old && old.parentNode) old.parentNode.removeChild(old); } catch (e) {}
+    return;
+  }
 
   /* ===== LAUNCH DATE AND TIME - Bahrain time (+03:00). Change only this line. ===== */
   var LAUNCH_AT = "2026-10-25T00:00:00+03:00";

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-08-1327 */
+/* hg-version 2026-10-18-1213 */
 (() => {
   "use strict";
 
@@ -35,6 +35,7 @@
     ["Gift Shop", "هدايا"],
     ["Gifts", "هدايا"],
     ["Baby Care", "مستلزمات الأطفال"],
+    ["Party Stores", "حفلات وبالونات"],
     ["Balloons/Party Stores", "حفلات وبالونات"],
     ["Party", "حفلات وبالونات"]
   ]);
@@ -739,6 +740,91 @@
       for (const r of recs) {
         const t = r.target;
         if (t && t.nodeType === 1 && t.closest && t.closest(".hg-sp-cell")) continue;
+        queue();
+        return;
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+  queue();
+})();
+
+/* HOME CATEGORY PHOTOS (website, 2026-10-18): the category row uses our own cut-out product photos (the same ones as the
+   app, stored in the repo's cat-photos folder) on a pink-lavender tile, with the category name under the tile.
+   The tile is matched by the image's alt text (the category name Hyperzod puts there). A category not listed keeps
+   Hyperzod's own image. Only the image address and our own classes/label are changed; the Vue-owned row is not moved. */
+(() => {
+  "use strict";
+  if (window.__hgCatPhotos) return;
+  window.__hgCatPhotos = true;
+
+  const BASE = "https://pexy613.github.io/hypergo-site/cat-photos/";
+  const BY_NAME = {
+    "food": ["food", "Food"], "مطاعم": ["food", "Food"],
+    "retail": ["retail-trade", "Retail Trade"], "retail trade": ["retail-trade", "Retail Trade"], "تسوق": ["retail-trade", "Retail Trade"],
+    "flowers": ["flowers", "Flowers"], "ورد": ["flowers", "Flowers"],
+    "beauty": ["beauty", "Beauty"], "تجميل": ["beauty", "Beauty"],
+    "electronics": ["electronics", "Electronics"], "إلكترونيات": ["electronics", "Electronics"],
+    "perfumes": ["perfumes", "Perfumes"], "عطور": ["perfumes", "Perfumes"],
+    "fashion": ["fashion", "Fashion"], "أزياء": ["fashion", "Fashion"],
+    "pharmacy": ["pharmacies", "Pharmacies"], "pharmacies": ["pharmacies", "Pharmacies"], "صيدليات": ["pharmacies", "Pharmacies"],
+    "groceries": ["groceries", "Groceries"], "grocery": ["groceries", "Groceries"], "سوبرماركت": ["groceries", "Groceries"],
+    "pets": ["pets", "Pets"], "حيوانات أليفة": ["pets", "Pets"],
+    "nutrition": ["nutrition", "Nutrition"], "تغذية": ["nutrition", "Nutrition"],
+    "party stores": ["party-stores", "Party Stores"], "party": ["party-stores", "Party Stores"], "حفلات وبالونات": ["party-stores", "Party Stores"],
+    "baby care": ["baby-care", "Baby Care"], "مستلزمات الأطفال": ["baby-care", "Baby Care"],
+    "gifts": ["gifts", "Gifts"], "gift shop": ["gifts", "Gifts"], "هدايا": ["gifts", "Gifts"],
+    "toys": ["toys", "Toys"], "ألعاب": ["toys", "Toys"],
+    "sports": ["sports", "Sports"], "رياضة": ["sports", "Sports"],
+    "home goods": ["home-goods", "Home Goods"], "home": ["home-goods", "Home Goods"], "مستلزمات المنزل": ["home-goods", "Home Goods"]
+  };
+  const STYLE_ID = "hg-catph-style";
+  function addStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    const st = document.createElement("style");
+    st.id = STYLE_ID;
+    st.textContent =
+      "html body #ProductCategories .hg-cat-icon-grid>.hg-catph{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 !important;}" +
+      "html body #ProductCategories .hg-cat-icon-grid>.hg-catph:active{transform:scale(.97);}" +
+      "html body #ProductCategories .hg-catph .hg-catph-box{position:relative;display:flex !important;align-items:center;justify-content:center;background:#DFC4F3 !important;border-radius:16px !important;}" +
+      "html body #ProductCategories .hg-catph .hg-catph-box::after{content:'';position:absolute;inset-inline:22%;bottom:9%;height:8%;border-radius:50%;background:rgba(52,26,118,.28);filter:blur(4px);}" +
+      "html body #ProductCategories .hg-catph img{position:relative;z-index:1;width:78% !important;height:78% !important;margin-top:-4%;object-fit:contain !important;border-radius:0 !important;background:none !important;}" +
+      "html body #ProductCategories .hg-catph .hg-catph-name{display:block;width:100%;margin-top:6px;font-size:12px;line-height:1.3;font-weight:550;color:#1B2023;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}";
+    document.head.appendChild(st);
+  }
+  function apply() {
+    const imgs = document.querySelectorAll("#ProductCategories .hg-cat-icon-grid img");
+    if (!imgs.length) return;
+    addStyle();
+    imgs.forEach((img) => {
+      const hit = BY_NAME[String(img.getAttribute("alt") || "").replace(/\s+/g, " ").trim().toLowerCase()];
+      if (!hit) return;
+      const url = BASE + hit[0] + ".webp";
+      if (img.getAttribute("src") !== url) img.setAttribute("src", url);
+      const box = img.parentElement;
+      if (box && !box.classList.contains("hg-catph-box")) box.classList.add("hg-catph-box");
+      const card = img.closest(".hg-cat-icon-grid>*");
+      if (!card) return;
+      if (!card.classList.contains("hg-catph")) card.classList.add("hg-catph");
+      let name = card.querySelector(":scope>.hg-catph-name");
+      if (!name) {
+        name = document.createElement("span");
+        name.className = "hg-catph-name";
+        card.appendChild(name);
+      }
+      if (name.getAttribute("data-en") !== hit[1]) { name.setAttribute("data-en", hit[1]); name.textContent = hit[1]; }
+    });
+  }
+  let queued = false;
+  function queue() {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; try { apply(); } catch (e) {} }, 120);
+  }
+  try {
+    new MutationObserver((recs) => {
+      for (const r of recs) {
+        const t = r.target;
+        if (t && t.nodeType === 1 && t.closest && t.closest(".hg-catph-name")) continue;
         queue();
         return;
       }
