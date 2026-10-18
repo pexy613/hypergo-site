@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1724 */
+/* hg-version 2026-10-18-1727 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1568,14 +1568,144 @@
     if (a === "lflt") { st[v] = !st[v]; st.menu = false; return true; }
     return false;
   }
-  /* every store near the customer: Hyperzod's full nearby list when the Global code has loaded it, plus the Home stores */
+  /* every store near the customer: Hyperzod's nearby list for the chosen address (the same call Hyperzod's category
+     pages use, 20 per page), plus the Home stores. Loaded once per address and language. */
+  const nearAll = { key: "", list: [], busy: false };
+  function loadNearAll() {
+    const S = storeState();
+    const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
+    if (!sel || typeof sel.latitude !== "number") return;
+    const L = lang(), key = sel.latitude.toFixed(5) + "," + sel.longitude.toFixed(5) + "|" + L;
+    if (nearAll.key === key || nearAll.busy) return;
+    nearAll.busy = true;
+    const H = { "content-type": "application/json", accept: "application/json", "x-tenant": location.host, "x-client-device": "web" };
+    let all = [];
+    const page = (p) => fetch("https://api.hyperzod.app/store/v1/search/merchant/nearby", {
+      method: "POST", headers: H,
+      body: JSON.stringify({ user_location: [sel.latitude, sel.longitude], filters: [], sort_by: [], page: p, locale: L })
+    }).then((r) => r.json()).then((j) => {
+      const d = j && j.data;
+      const list = Array.isArray(d) ? d : (d && Array.isArray(d.data) ? d.data : []);
+      all = all.concat(list);
+      if (list.length && p < 15) return page(p + 1);
+    });
+    page(1).then(() => { nearAll.list = all; }, () => {}).then(() => { nearAll.key = key; nearAll.busy = false; pageSig = ""; catSig = ""; schedule(); });
+  }
   function nearStores(hd) {
+    loadNearAll();
     const out = [], seen = {};
-    (Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : []).concat(homeStores(hd)).forEach((m) => {
+    nearAll.list.concat(Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : [], homeStores(hd)).forEach((m) => {
       const id = m && (m._id || m.id);
       if (id && !seen[id] && m.slug) { seen[id] = true; out.push(m); }
     });
     return out.sort((a, b) => storeDist(a) - storeDist(b));
+  }
+
+  /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ----------
+     On /<lang>/m-category/<slug>/<id> our list replaces Hyperzod's: back button, category name and how many stores,
+     Sort / Open now / Free delivery, then one big card per store (cover photo, delivery time, name, distance, tags).
+     A store opens as its own page. Hyperzod's list stays until the nearby stores have loaded. */
+  const CTXT = {
+    en: { n1: " store near you", n: " stores near you", sort: "Sort: ", closed: "Closed" },
+    ar: { n1: " متجر قريب منك", n: " متاجر قريبة منك", sort: "ترتيب: ", closed: "مغلق" }
+  };
+  const CICON = {
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+    sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>'
+  };
+  let catSig = "", catSt = newListState(), catWas = "";
+  function catRoute() {
+    const g = vueGlobals();
+    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    return r && r.name === "merchant-category" && r.params && r.params.id ? r : null;
+  }
+  function storeKm(m) {
+    const t = String((m && m.user_to_merchant_distance) || "");
+    const v = parseFloat(t);
+    if (!isNaN(v) && v > 0 && v < 100) return v.toFixed(v < 10 ? 2 : 1).replace(/\.?0+$/, "") + (lang() === "ar" ? " كم" : " km");
+    const mt = storeDist(m);
+    return mt > 0 && mt < 1e8 ? (mt / 1000).toFixed(1) + (lang() === "ar" ? " كم" : " km") : "";
+  }
+  function catCard(m, L, catMap, cat) {
+    const id = m._id || m.id;
+    seenStores[id] = m;
+    const href = storeHref(m, L), cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
+    const T = LTXT[L], C = CTXT[L];
+    const tm = storeTime(m), km = storeKm(m);
+    const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2).map((c) => catLabel(c));
+    if (storeFee(m) === 0) tags.push(T.free);
+    const closed = m.is_open === false || m.is_accepting_orders === false;
+    return '<a class="hgn-cc' + (closed ? " is-closed" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+      '<span class="hgn-cc-img' + (cover ? "" : " is-logo") + '">' + ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
+      (tm ? '<span class="hgn-cc-time">' + CICON.clock + "<bdi>" + esc(tm) + "</bdi></span>" : "") +
+      (closed ? '<span class="hgn-cc-closed">' + esc(C.closed) + "</span>" : "") + "</span>" +
+      '<span class="hgn-cc-row"><span class="hgn-cc-name">' + esc(nameOf(m) || m.name) + "</span>" +
+      (km ? '<span class="hgn-cc-dist">' + CICON.pin + "<bdi>" + esc(km) + "</bdi></span>" : "") + "</span>" +
+      (tags.length ? '<span class="hgn-cc-tags">' + tags.map((x) => '<span class="hgn-cc-tag">' + esc(x) + "</span>").join("") + "</span>" : "") +
+      "</a>";
+  }
+  function renderCategoryPage() {
+    const r = catRoute();
+    const root = document.getElementById("merchants_by_category");
+    const de = document.documentElement;
+    let box = document.getElementById("hgn-catpage");
+    const off = () => { de.classList.remove("hgn-cat-on"); if (box) box.remove(); catSig = ""; };
+    if (!r || !root) { off(); return; }
+    const hd = homeData();
+    if (!hd) { off(); return; }
+    const cid = String(r.params.id);
+    if (cid !== catWas) { catWas = cid; catSt = newListState(); }
+    const all = nearStores(hd);
+    if (!nearAll.key) { off(); return; } /* nearby stores not loaded yet: Hyperzod's own list stays meanwhile */
+    const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L], T = LTXT[L], C = CTXT[L];
+    const catMap = catMapOf(hd);
+    const cat = catMap[cid] || (hd.merchant_categories || []).find((c) => String(c.id || c._id) === cid);
+    const list = all.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === cid));
+    de.classList.add("hgn-cat-on");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "hgn-catpage";
+      box.addEventListener("click", onCatClick);
+      catSig = "";
+    }
+    if (root.firstElementChild !== box) root.insertAdjacentElement("afterbegin", box);
+    const sig = [cid, L, JSON.stringify(catSt), list.map((m) => m._id || m.id).join(",")].join("|");
+    if (sig === catSig) return;
+    catSig = sig;
+    let shown = list.slice();
+    if (catSt.free) shown = shown.filter((m) => storeFee(m) === 0);
+    if (catSt.open) shown = shown.filter((m) => m.is_open !== false && m.is_accepting_orders !== false);
+    const tnum = (m) => { const n = parseInt(m.delivery_data && m.delivery_data.time, 10); return isNaN(n) ? 1e9 : n; };
+    if (catSt.sort === "fastest") shown.sort((a, b) => tnum(a) - tnum(b) || storeDist(a) - storeDist(b));
+    else if (catSt.sort === "az") shown.sort((a, b) => (nameOf(a) || a.name || "").localeCompare(nameOf(b) || b.name || "", L));
+    else shown.sort((a, b) => storeDist(a) - storeDist(b));
+    const sortLbl = catSt.sort === "fastest" ? T.fastest : catSt.sort === "az" ? T.az : T.nearest;
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    box.innerHTML =
+      '<div class="hgn-cp-top"><button type="button" class="hgn-cp-btn" data-act="back" aria-label="' + esc(t.back) + '">' + BACK_CHEV + "</button>" +
+      '<div class="hgn-cp-title"><h1>' + esc(cat ? catLabel(cat) : "") + "</h1><p>" + list.length + esc(list.length === 1 ? C.n1 : C.n) + "</p></div>" +
+      '<button type="button" class="hgn-cp-btn" data-act="csearch" aria-label="' + esc(L === "ar" ? "بحث" : "Search") + '">' + SEARCH_IC + "</button></div>" +
+      '<div class="hgn-cp-pills">' +
+      '<button type="button" class="hgn-cp-pill is-dark" data-act="lsort" aria-expanded="' + catSt.menu + '">' + CICON.sliders + "<span>" + esc(C.sort + sortLbl) + "</span></button>" +
+      '<button type="button" class="hgn-cp-pill' + (catSt.open ? " is-on" : "") + '" data-act="lflt" data-id="open">' + esc(T.open) + "</button>" +
+      '<button type="button" class="hgn-cp-pill' + (catSt.free ? " is-on" : "") + '" data-act="lflt" data-id="free">' + esc(T.free) + "</button></div>" +
+      (catSt.menu ? '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
+        '<button type="button" class="hgn-sortopt' + (catSt.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>" : "") +
+      (shown.length ? '<div class="hgn-cp-list">' + shown.map((m) => catCard(m, L, catMap, cat)).join("") + "</div>"
+        : '<p class="hgn-page-empty">' + esc(list.length ? T.none : T.nores) + "</p>");
+  }
+  const BACK_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  const SEARCH_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+  function onCatClick(e) {
+    const act = e.target.closest("[data-act]");
+    if (act && act.getAttribute("data-act") === "back") {
+      if (history.length > 1) history.back(); else go("/" + lang() + "/home");
+      return;
+    }
+    if (act && act.getAttribute("data-act") === "csearch") { go("/" + lang() + "/search"); return; }
+    if (act && listClick(act, catSt)) { catSig = ""; renderCategoryPage(); return; }
+    onHomeClick(e);
   }
 
   /* ---------- PAGES (2026-10-18): "Stores near you" (See all) and "Favourites" ----------
@@ -1770,6 +1900,7 @@
       renderAccountFav();
       renderSearchFav();
       renderSearchResults();
+      renderCategoryPage();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();
@@ -1785,7 +1916,7 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = "#hgn-page,#hgn-sres,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

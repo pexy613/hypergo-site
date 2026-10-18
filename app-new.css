@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1724 */
+/* hg-version 2026-10-18-1727 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -312,6 +312,49 @@ html.hg-new-app .hgn-sb-pp{margin-top:3px;font-size:13.5px;font-weight:500;color
 html.hg-new-app .hgn-sb-ph{flex:0 0 118px;height:118px;border-radius:14px;background:#F4F2FA;}
 html.hg-new-app .hgn-sres-loading{display:flex;flex-direction:column;gap:14px;padding:16px;}
 html.hg-new-app .hgn-sres-loading span{height:76px;border-radius:16px;background:#F4F2FA;}
+
+
+/* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ---------- */
+html.hg-new-app.hgn-cat-on #merchants_by_category > :not(#hgn-catpage){display:none!important;}
+html.hg-new-app.hgn-cat-on body #app #merchants_by_category{background:#FAFAFC;min-height:100vh;}
+html.hg-new-app #hgn-catpage{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  background:#FAFAFC;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
+html.hg-new-app #hgn-catpage[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-catpage *{box-sizing:border-box;}
+html.hg-new-app #hgn-catpage a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-catpage img{display:block;}
+html.hg-new-app .hgn-cp-top{display:flex;align-items:center;gap:12px;padding:calc(var(--native-status-bar-height,0px) + 10px) 16px 12px;}
+html.hg-new-app .hgn-cp-btn{flex:none;width:40px;height:40px;margin:0;padding:0;border:0;border-radius:20px;background:#FFFFFF;box-shadow:0 0 0 1px #EEECEF;color:#1B2023;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-cp-btn svg{width:19px;height:19px;}
+html.hg-new-app #hgn-catpage[dir="rtl"] .hgn-cp-btn[data-act="back"] svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-cp-title{flex:1;min-width:0;}
+html.hg-new-app .hgn-cp-title h1{margin:0;font-size:19px;line-height:1.2;font-weight:600;letter-spacing:-.025em;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app #hgn-catpage[dir="rtl"] .hgn-cp-title h1{letter-spacing:0;}
+html.hg-new-app .hgn-cp-title p{margin:2px 0 0;font-size:12.5px;font-weight:500;color:#6B7280;}
+html.hg-new-app .hgn-cp-pills{display:flex;gap:8px;padding:0 16px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-cp-pills::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-cp-pill{flex:none;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;margin:0;border:0;border-radius:17px;background:#FFFFFF;
+  box-shadow:inset 0 0 0 1px #EEECEF;color:#1B2023;font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-cp-pill svg{width:15px;height:15px;flex:none;}
+html.hg-new-app .hgn-cp-pill.is-dark,html.hg-new-app .hgn-cp-pill.is-on{background:#1B2023;color:#FFFFFF;box-shadow:none;}
+html.hg-new-app #hgn-catpage .hgn-sortmenu{margin:10px 16px 0;}
+html.hg-new-app .hgn-cp-list{display:flex;flex-direction:column;gap:18px;padding:16px 16px 0;}
+html.hg-new-app .hgn-cc{display:block;min-width:0;}
+html.hg-new-app .hgn-cc-img{position:relative;display:block;height:180px;border-radius:22px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEECEF;}
+html.hg-new-app .hgn-cc-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-cc-img.is-logo img{object-fit:contain;padding:28px;}
+html.hg-new-app .hgn-cc.is-closed .hgn-cc-img img{filter:grayscale(.6);opacity:.75;}
+html.hg-new-app .hgn-cc-time{position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:14px;
+  background:rgba(255,255,255,.94);color:#1B2023;font-size:12px;font-weight:600;box-shadow:0 4px 12px rgba(27,32,35,.12);}
+html.hg-new-app .hgn-cc-time svg{width:14px;height:14px;flex:none;}
+html.hg-new-app .hgn-cc-closed{position:absolute;top:12px;inset-inline-end:12px;display:flex;align-items:center;height:28px;padding:0 10px;border-radius:14px;background:#1B2023;color:#FFFFFF;font-size:12px;font-weight:600;}
+html.hg-new-app .hgn-cc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;}
+html.hg-new-app .hgn-cc-name{min-width:0;font-size:17px;line-height:1.25;font-weight:600;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-cc-dist{flex:none;display:inline-flex;align-items:center;gap:4px;color:#6B7280;font-size:12.5px;font-weight:500;}
+html.hg-new-app .hgn-cc-dist svg{width:15px;height:15px;}
+html.hg-new-app .hgn-cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+html.hg-new-app .hgn-cc-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:500;display:inline-flex;align-items:center;}
 
 @media (prefers-reduced-motion:reduce){
   html.hg-new-app .hgn-dot{transition:none!important;}
