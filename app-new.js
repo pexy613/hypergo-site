@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1352 */
+/* hg-version 2026-10-18-1400 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1186,7 +1186,7 @@
       e.stopPropagation();
       const id = act.getAttribute("data-id");
       favToggle(seenStores[id] || favList().find((f) => f.id === id) && { _id: id, name: (favList().find((f) => f.id === id) || {}).name });
-      homeSig = ""; pageSig = ""; searchFavSig = "";
+      homeSig = ""; pageSig = ""; searchFavSig = ""; sresSig = "";
       tick();
       return;
     }
@@ -1394,30 +1394,198 @@
     if (g && g.$router && g.$router.afterEach) { g.$router.afterEach(() => schedule()); routerHooked = true; }
   }
 
+  /* ---------- STORE LIST LAYOUT (2026-10-18, from Nouf's example) ----------
+     Used by the "Stores near you" page (See all), the Favourites page and the Search results.
+     Each store: square logo with a heart, name, delivery time and fee (and rating once a store has one), then a row of
+     its products. Products come from Hyperzod's own store menu (the same call the store page makes); on Search they are
+     the products that matched the search. Above the list: category tabs and the filter buttons. */
+  const LTXT = {
+    en: { sortBy: "Sort by", nearest: "Nearest", fastest: "Fastest delivery", az: "A to Z", open: "Open now", top: "Top rated",
+      free: "Free delivery", fee: " delivery", none: "No stores match these filters.", norated: "No stores have ratings yet.", nores: "No stores found.", mins: "mins" },
+    ar: { sortBy: "ترتيب", nearest: "الأقرب", fastest: "الأسرع توصيلًا", az: "أبجديًا", open: "مفتوح الآن", top: "الأعلى تقييمًا",
+      free: "توصيل مجاني", fee: "توصيل ", none: "لا توجد متاجر تطابق هذه الفلاتر.", norated: "لا توجد متاجر مقيّمة بعد.", nores: "لم يتم العثور على متاجر.", mins: "دقيقة" }
+  };
+  const LICON = {
+    sort: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></svg>',
+    chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>'
+  };
+  /* prices with 3 decimals, like Bahrain's own prices (BHD 4.200) */
+  function money3(n) {
+    const v = Number(n).toFixed(3);
+    return hgIsAr() ? v + " د.ب" : "BHD " + v;
+  }
+  function nameOf(o) {
+    const tr = o && Array.isArray(o.language_translation) && o.language_translation.find((x) => x && x.key === "name" && x.locale === lang());
+    return (tr && tr.value) || (o && o.name) || "";
+  }
+  function prodImg(p) {
+    const im = p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]);
+    return (im && (im.thumb_url || im.file_url)) || "";
+  }
+  function prodPrice(p) {
+    const v = p && (p.product_pricing ? p.product_pricing.price_display : p.price_display);
+    return typeof v === "number" ? money3(v) : "";
+  }
+  /* products of a store from its Hyperzod menu (page 1), with photo, featured first; loaded once per store */
+  const menuCache = {};
+  let menuQueue = [], menuBusy = 0;
+  function storeProducts(id) {
+    const c = menuCache[id];
+    if (c) return c.list;
+    menuCache[id] = { list: null };
+    menuQueue.push(id);
+    pumpMenus();
+    return null;
+  }
+  function pumpMenus() {
+    while (menuBusy < 4 && menuQueue.length) {
+      const id = menuQueue.shift();
+      menuBusy++;
+      fetch("https://api.hyperzod.app/store/v1/merchant/menu?merchant_id=" + encodeURIComponent(id) + "&locale=" + lang() + "&page=1", {
+        headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" }
+      }).then((r) => r.json()).then((j) => {
+        const all = [];
+        ((j && j.data && j.data.category_products) || []).forEach((c) => (c.category_products || []).forEach((p) => { if (p && prodImg(p) && p.in_stock !== false) all.push(p); }));
+        all.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+        menuCache[id].list = all.slice(0, 10);
+      }, () => { menuCache[id].list = []; }).then(() => { menuBusy--; fillProducts(id); pumpMenus(); });
+    }
+  }
+  function prodsHtml(m, list, L) {
+    if (!list) return '<span class="hgn-sb-ph"></span><span class="hgn-sb-ph"></span><span class="hgn-sb-ph"></span>';
+    const href = storeHref(m, L);
+    return list.map((p) => '<a class="hgn-sb-p" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+      '<span class="hgn-sb-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"></span>' +
+      '<span class="hgn-sb-pn">' + esc(nameOf(p)) + "</span>" +
+      '<span class="hgn-sb-pp">' + esc(prodPrice(p)) + "</span></a>").join("");
+  }
+  /* a store's product row arrived: put it into every list showing that store */
+  function fillProducts(id) {
+    const c = menuCache[id];
+    document.querySelectorAll('.hgn-sb-prods[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]').forEach((row) => {
+      const m = seenStores[id];
+      if (!m || !c || !c.list) return;
+      if (!c.list.length) { row.remove(); return; }
+      row.innerHTML = prodsHtml(m, c.list, lang());
+    });
+  }
+  function storeTime(m) {
+    const d = m && m.delivery_data;
+    if (!d || !d.time || m.show_delivery_time === false) return "";
+    const n = parseInt(d.time, 10);
+    return isNaN(n) ? "" : (lang() === "ar" ? n + " " + LTXT.ar.mins : String(d.time));
+  }
+  function storeBlock(m, L, t, favIds, prods) {
+    const id = m._id || m.id;
+    seenStores[id] = m;
+    const T = LTXT[L], href = storeHref(m, L);
+    const logo = storeImg(m, "logo") || storeImg(m, "cover");
+    const meta = [];
+    const rate = storeRating(m);
+    if (rate > 0) meta.push('<span class="hgn-sb-rate">' + STAR + rate.toFixed(1) + "</span>");
+    const tm = storeTime(m);
+    if (tm) meta.push("<bdi>" + esc(tm) + "</bdi>");
+    const fee = storeFee(m);
+    if (fee === 0) meta.push(esc(T.free));
+    else if (fee) meta.push("<bdi>" + esc(L === "ar" ? T.fee + money3(fee) : money3(fee) + T.fee) + "</bdi>");
+    const on = !!favIds[id];
+    const list = prods !== undefined ? prods : storeProducts(id);
+    return '<div class="hgn-sb">' +
+      '<a class="hgn-sb-head" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+      '<span class="hgn-sb-logo">' + (logo ? '<img src="' + esc(logo) + '" alt="" loading="lazy" decoding="async">' : "") +
+      '<button type="button" class="hgn-sb-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + LICON.heart + "</button></span>" +
+      '<span class="hgn-sb-info"><span class="hgn-sb-name">' + esc(nameOf(m) || m.name) + "</span>" +
+      (meta.length ? '<span class="hgn-sb-meta">' + meta.join('<i aria-hidden="true">•</i>') + "</span>" : "") + "</span></a>" +
+      ((list && !list.length) ? "" : '<div class="hgn-sb-prods" data-id="' + esc(id) + '">' + prodsHtml(m, list, L) + "</div>") +
+      "</div>";
+  }
+  /* tabs + filter buttons + the list, for one view (its own state object) */
+  function newListState() { return { cat: "", sort: "nearest", free: false, open: false, top: false, menu: false }; }
+  function storeListHtml(st, list, L, t, favIds, hd, prodsOf, withTabs) {
+    const T = LTXT[L];
+    const have = {};
+    list.forEach((m) => (m.merchant_category_ids || []).forEach((x) => { have[String(x)] = true; }));
+    const cats = (hd.merchant_categories || []).filter((c) => c && have[String(c.id || c._id)])
+      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    if (st.cat && !have[st.cat]) st.cat = "";
+    let shown = list.slice();
+    if (st.cat) shown = shown.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === st.cat));
+    if (st.free) shown = shown.filter((m) => storeFee(m) === 0);
+    if (st.open) shown = shown.filter((m) => m.is_open !== false);
+    if (st.top) shown = shown.filter((m) => storeRating(m) > 0);
+    const tnum = (m) => { const n = parseInt(m.delivery_data && m.delivery_data.time, 10); return isNaN(n) ? 1e9 : n; };
+    if (st.top) shown.sort((a, b) => storeRating(b) - storeRating(a));
+    else if (st.sort === "fastest") shown.sort((a, b) => tnum(a) - tnum(b) || storeDist(a) - storeDist(b));
+    else if (st.sort === "az") shown.sort((a, b) => (nameOf(a) || a.name || "").localeCompare(nameOf(b) || b.name || "", L));
+    else if (!prodsOf) shown.sort((a, b) => storeDist(a) - storeDist(b));
+    let html = "";
+    if (withTabs && cats.length > 1) {
+      html += '<div class="hgn-tabs" role="tablist">' +
+        '<button type="button" role="tab" class="hgn-tab' + (st.cat ? "" : " is-on") + '" data-act="lcat" data-id="">' + esc(t.all) + "</button>" +
+        cats.map((c) => { const cid = String(c.id || c._id); return '<button type="button" role="tab" class="hgn-tab' + (st.cat === cid ? " is-on" : "") + '" data-act="lcat" data-id="' + esc(cid) + '">' + esc(catLabel(c)) + "</button>"; }).join("") +
+        "</div>";
+    }
+    if (withTabs) {
+      const sortLbl = st.sort === "fastest" ? T.fastest : st.sort === "az" ? T.az : T.sortBy;
+      html += '<div class="hgn-filters">' +
+        '<button type="button" class="hgn-flt hgn-flt-sort' + (st.sort !== "nearest" ? " is-on" : "") + '" data-act="lsort" aria-expanded="' + st.menu + '">' + LICON.sort + "<span>" + esc(sortLbl) + "</span>" + LICON.chev + "</button>" +
+        '<button type="button" class="hgn-flt' + (st.free ? " is-on" : "") + '" data-act="lflt" data-id="free">' + esc(T.free) + "</button>" +
+        '<button type="button" class="hgn-flt' + (st.open ? " is-on" : "") + '" data-act="lflt" data-id="open">' + esc(T.open) + "</button>" +
+        '<button type="button" class="hgn-flt' + (st.top ? " is-on" : "") + '" data-act="lflt" data-id="top">' + esc(T.top) + "</button>" +
+        "</div>";
+      if (st.menu) {
+        html += '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
+          '<button type="button" class="hgn-sortopt' + (st.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>";
+      }
+    }
+    html += shown.length ? '<div class="hgn-sblist">' + shown.map((m) => storeBlock(m, L, t, favIds, prodsOf ? prodsOf(m) : undefined)).join("") + "</div>"
+      : '<p class="hgn-page-empty">' + esc(st.top ? T.norated : (list.length ? T.none : T.nores)) + "</p>";
+    return html;
+  }
+  /* tab / filter / sort taps; returns true when the tap was one of these */
+  function listClick(act, st) {
+    const a = act.getAttribute("data-act"), v = act.getAttribute("data-id") || "";
+    if (a === "lcat") { st.cat = v; st.menu = false; return true; }
+    if (a === "lsort") { st.menu = !st.menu; return true; }
+    if (a === "lsortopt") { st.sort = v; st.menu = false; return true; }
+    if (a === "lflt") { st[v] = !st[v]; st.menu = false; return true; }
+    return false;
+  }
+  /* every store near the customer: Hyperzod's full nearby list when the Global code has loaded it, plus the Home stores */
+  function nearStores(hd) {
+    const out = [], seen = {};
+    (Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : []).concat(homeStores(hd)).forEach((m) => {
+      const id = m && (m._id || m.id);
+      if (id && !seen[id] && m.slug) { seen[id] = true; out.push(m); }
+    });
+    return out.sort((a, b) => storeDist(a) - storeDist(b));
+  }
+
   /* ---------- PAGES (2026-10-18): "Stores near you" (See all) and "Favourites" ----------
      Hyperzod has no page for these, so they open on top of Home: /home?hgn=stores and /home?hgn=favs.
      Back goes to where the customer came from. */
-  let pageSig = "", pageCat = "", pageWas = "";
+  let pageSig = "", pageWas = "", pageSt = newListState();
   function pageQuery() {
     const g = vueGlobals();
     const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
     const q = r && r.query && r.query.hgn;
     return isHomePath(currentPath()) && (q === "stores" || q === "favs") ? q : "";
   }
-  const BACK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
   function renderPage() {
     const q = pageQuery();
     let pg = document.getElementById("hgn-page");
     document.documentElement.classList.toggle("hgn-page-open", !!q);
-    if (q !== pageWas) { pageWas = q; pageCat = ""; }
+    if (q !== pageWas) { pageWas = q; pageSt = newListState(); }
     if (!q) { if (pg) pg.remove(); pageSig = ""; return; }
     const hd = homeData();
     if (!hd) return;
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
-    const list = q === "favs" ? favStoresOf(hd) : homeStores(hd);
+    const list = q === "favs" ? favStoresOf(hd) : nearStores(hd);
     const favIds = {};
     favList().forEach((f) => { favIds[f.id] = true; });
-    const sig = [q, L, pageCat, list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
+    const sig = [q, L, JSON.stringify(pageSt), list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
     if (!pg) {
       pg = document.createElement("div");
       pg.id = "hgn-page";
@@ -1427,48 +1595,11 @@
     }
     if (sig === pageSig) return;
     pageSig = sig;
-    const catMap = catMapOf(hd);
     pg.setAttribute("dir", ar ? "rtl" : "ltr");
-    /* category chips (Stores near you only): the categories these stores are in, in Hyperzod's order */
-    let chips = "";
-    let shown = list;
-    if (q === "stores") {
-      const have = {};
-      list.forEach((m) => (m.merchant_category_ids || []).forEach((x) => { have[String(x)] = true; }));
-      const cats = (hd.merchant_categories || []).filter((c) => c && have[String(c.id || c._id)])
-        .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-      if (pageCat && !have[pageCat]) pageCat = "";
-      if (pageCat) shown = list.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === pageCat));
-      if (cats.length > 1) {
-        chips = '<div class="hgn-chips">' +
-          '<button type="button" class="hgn-chip' + (pageCat ? "" : " is-on") + '" data-act="pcat" data-id="">' + esc(t.all) + "</button>" +
-          cats.map((c) => { const cid = String(c.id || c._id); return '<button type="button" class="hgn-chip' + (pageCat === cid ? " is-on" : "") + '" data-act="pcat" data-id="' + esc(cid) + '">' + esc(catLabel(c)) + "</button>"; }).join("") +
-          "</div>";
-      }
-    }
-    pg.innerHTML = '<div class="hgn-page-top"><div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + BACK_ICON + "</button>" +
-      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div>" + chips + "</div>" +
-      (shown.length ? '<div class="hgn-plist">' + shown.map((m) => pageRow(m, L, catMap, t, favIds)).join("") + "</div>"
-        : '<p class="hgn-page-empty">' + esc(t.nofavs) + "</p>");
-  }
-  /* one store in the list (B3, chosen 2026-10-18): round logo, name, category tags, delivery fee, heart */
-  function pageRow(m, L, catMap, t, favIds) {
-    const id = m._id || m.id;
-    seenStores[id] = m;
-    const href = storeHref(m, L);
-    const img = storeImg(m, "logo") || storeImg(m, "cover");
-    const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2);
-    const fee = storeFee(m);
-    const feeHtml = fee === null ? "" : fee === 0 ? '<span class="hgn-prow-fee is-free">' + esc(t.freeDel) + "</span>"
-      : '<span class="hgn-prow-fee">' + esc(L === "ar" ? t.delFee + money(fee) : money(fee) + t.delFee) + "</span>";
-    const on = !!favIds[id];
-    return '<a class="hgn-prow" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-      '<span class="hgn-prow-logo">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
-      '<span class="hgn-prow-main"><span class="hgn-prow-name">' + esc(m.name) + "</span>" +
-      (tags.length ? '<span class="hgn-tags">' + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
-      feeHtml + "</span>" +
-      '<button type="button" class="hgn-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + TOP_ICON.heart + "</button>" +
-      "</a>";
+    const body = (q === "favs" && !list.length) ? '<p class="hgn-page-empty">' + esc(t.nofavs) + "</p>"
+      : storeListHtml(pageSt, list, L, t, favIds, hd, null, q === "stores");
+    pg.innerHTML = '<div class="hgn-page-top"><div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + LICON.back + "</button>" +
+      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div></div>" + body;
   }
   function onPageClick(e) {
     const act = e.target.closest("[data-act]");
@@ -1476,14 +1607,86 @@
       if (history.length > 1) history.back(); else go("/" + lang() + "/home");
       return;
     }
-    if (act && act.getAttribute("data-act") === "pcat") {
-      pageCat = act.getAttribute("data-id") || "";
+    if (act && listClick(act, pageSt)) {
+      const wasCat = act.getAttribute("data-act") === "lcat";
       pageSig = "";
       renderPage();
       const pg = document.getElementById("hgn-page");
-      if (pg) pg.scrollTop = 0;
+      if (pg && wasCat) pg.scrollTop = 0;
       return;
     }
+    onHomeClick(e);
+  }
+
+  /* ---------- SEARCH RESULTS (2026-10-18) ----------
+     With a search on the Search page, our list replaces Hyperzod's results: the stores whose products matched (with
+     those products), then the stores whose name matched. Same two searches Hyperzod's own page makes. If they fail,
+     Hyperzod's own results stay. */
+  let sres = { key: "", busy: false, list: null, prods: {}, failed: false }, sresSig = "", sresSt = newListState(), sresQ = "";
+  function searchQuery() {
+    const g = vueGlobals();
+    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    const q = r && r.query && r.query.q;
+    return /^\/(en|ar)\/search\/?$/.test(currentPath()) && typeof q === "string" ? q.trim() : "";
+  }
+  function loadSearch(key, q, sel, L) {
+    sres = { key: key, busy: true, list: null, prods: {}, failed: false };
+    const base = "https://api.hyperzod.app/store/v1/search?location%5B%5D=" + sel.latitude + "&location%5B%5D=" + sel.longitude +
+      "&q=" + encodeURIComponent(q) + "&locale=" + L + "&search_type=";
+    const H = { headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" } };
+    const get = (type) => fetch(base + type, H).then((r) => r.json()).then((j) => (j && Array.isArray(j.data) ? j.data : []));
+    Promise.all([get("product"), get("merchant")]).then((res) => {
+      if (sres.key !== key) return;
+      const out = [], seen = {}, prods = {};
+      res[0].forEach((m) => {
+        const id = m && (m._id || m.id);
+        if (!id || seen[id]) return;
+        seen[id] = true; out.push(m);
+        prods[id] = (m.products || []).filter((p) => prodImg(p)).slice(0, 10);
+      });
+      res[1].forEach((m) => { const id = m && (m._id || m.id); if (id && !seen[id]) { seen[id] = true; out.push(m); } });
+      sres.list = out; sres.prods = prods;
+    }, () => { if (sres.key === key) sres.failed = true; }).then(() => { if (sres.key === key) { sres.busy = false; sresSig = ""; schedule(); } });
+  }
+  function renderSearchResults() {
+    const q = searchQuery();
+    const wrap = document.querySelector("#MultiVendorSearch .scheme-global-search-results");
+    let box = document.getElementById("hgn-sres");
+    const de = document.documentElement;
+    const off = () => { de.classList.remove("hgn-sres-on"); if (box) box.remove(); sresSig = ""; };
+    if (!q || !wrap) { off(); return; }
+    const g = vueGlobals(), S = g && g.$store && g.$store.state;
+    const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
+    const hd = homeData();
+    if (!sel || typeof sel.latitude !== "number" || !hd) { off(); return; }
+    const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
+    if (q !== sresQ) { sresQ = q; sresSt = newListState(); }
+    const key = [q, L, sel.latitude.toFixed(5), sel.longitude.toFixed(5)].join("|");
+    if (sres.key !== key) loadSearch(key, q, sel, L);
+    if (sres.failed) { off(); return; }
+    de.classList.add("hgn-sres-on");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "hgn-sres";
+      box.addEventListener("click", onSresClick);
+      sresSig = "";
+    }
+    if (box.nextElementSibling !== wrap) wrap.insertAdjacentElement("beforebegin", box);
+    const favIds = {};
+    favList().forEach((f) => { favIds[f.id] = true; });
+    const sig = [key, sres.busy, JSON.stringify(sresSt), Object.keys(favIds).join(","), sres.list ? sres.list.length : -1].join("|");
+    if (sig === sresSig) return;
+    sresSig = sig;
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    if (!sres.list) { box.innerHTML = '<div class="hgn-sres-loading"><span></span><span></span><span></span></div>'; return; }
+    box.innerHTML = storeListHtml(sresSt, sres.list, L, t, favIds, hd, (m) => {
+      const p = sres.prods[m._id || m.id];
+      return p && p.length ? p : undefined;
+    }, true);
+  }
+  function onSresClick(e) {
+    const act = e.target.closest("[data-act]");
+    if (act && listClick(act, sresSt)) { sresSig = ""; renderSearchResults(); return; }
     onHomeClick(e);
   }
 
@@ -1551,6 +1754,7 @@
       renderPage();
       renderAccountFav();
       renderSearchFav();
+      renderSearchResults();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();
@@ -1566,7 +1770,7 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = "#hgn-page,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = "#hgn-page,#hgn-sres,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
