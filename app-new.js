@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1318 */
+/* hg-version 2026-10-18-1340 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -926,9 +926,10 @@
   const LESS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const GO_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   /* ---------- data (Hyperzod's own store, nothing invented) ---------- */
-  /* Home category tiles: our own product photos (cut out, one product per category), stored in the repo's
-     cat-photos folder and matched by Hyperzod category id. A category not listed keeps Hyperzod's own image. */
-  const CAT_PHOTO_BASE = "https://pexy613.github.io/hypergo-site/cat-photos/";
+  /* Home category tiles (T1, chosen 2026-10-18): our own real-scene photos, one per category, stored in the repo's
+     cat-photos-real folder and matched by Hyperzod category id. A category not listed keeps Hyperzod's own image.
+     (cat-photos holds the older cut-outs; the website still uses those.) */
+  const CAT_PHOTO_BASE = "https://pexy613.github.io/hypergo-site/cat-photos-real/";
   const CAT_PHOTOS = {
     "6a9beeebdda6795f8c065933": "food", "6a9bf071dda6795f8c065936": "retail-trade", "6a9bee55dda6795f8c065932": "flowers",
     "6a9bef69288fb9d9e903a7e4": "beauty", "6a9bee60288fb9d9e903a7e2": "electronics", "6a9bf0ae288fb9d9e903a7e8": "perfumes",
