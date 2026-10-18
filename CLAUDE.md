@@ -109,5 +109,11 @@ Colors: Opus #CCCBE3, Blue Magenta #5A29DE, Appetite #ACE4AA, Ultimate Orange #F
 - Voice: direct, clear, confident. No hype.
 - Language: English first. Arabic only when I ask or when the task is bilingual.
 
+# APP SCREENS OPEN TWO WAYS (every app change)
+- In the phone app (Hyperzod sets window.ReactNativeWebView), Hyperzod opens a store as a full-screen sheet that slides up over the current screen whenever it's tapped in Hyperzod's own sections: category pages, Featured stores, banners, the cart, notifications. The address stays on the old screen (for example /m-category/...) and the sheet sits outside #app, under body > .v-overlay-container. The same store opened from our own Home, Stores page or Search results is a normal page (/en/m/<slug>/<id>) inside #app.
+- Other panels work the same way (cart, address, login, product sheet): they can be teleported outside #app.
+- So never decide which screen is open from the address alone, and never start a selector with #app for a screen that can open as a sheet. Detect the screen by its own visible element (see openStorePage in app-new.js) and start store rules with :is(#app,.v-overlay-container).
+- Before saying an app change is done, check it both ways: opened as a page and opened as a sheet (from a category page). If only one way was checked, say so.
+
 # BEFORE EVERY PUSH, CHECK
-Followed every instruction? Cause proven before the fix? Matched reference/design-system.md? Global, no single-shop code? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
+Followed every instruction? Cause proven before the fix? Matched reference/design-system.md? Global, no single-shop code? Works when the screen opens as a page and as a sheet? Change obvious enough? Only the colors and styles the code already uses? Only the files I needed? Backup made and named? Marker added? Reply short?
