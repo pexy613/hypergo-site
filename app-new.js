@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1247 */
+/* hg-version 2026-10-18-1254 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -915,9 +915,9 @@
   }
 
   const TXT = {
-    en: { top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
+    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
     },
-    ar: { top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
+    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
     }
   };
 
@@ -1007,7 +1007,7 @@
   }
 
   /* ---------- HOME ---------- */
-  let catsOpen = false, storesOpen = false, homeSig = "";
+  let catsOpen = false, homeSig = "";
 
   function isHomePath(p) { return /^\/(en|ar)(\/home)?\/?$/.test(p); }
 
@@ -1050,14 +1050,28 @@
       ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
-  function storeRow(title, list, L, catMap, t, favIds, more, extraFn) {
+  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn) {
     if (!list.length) return "";
-    /* more = { open, count }: "See all" opens every store right here as a full-width list (Hyperzod has no
-       "all stores" page: /m shows nothing), "Show less" goes back to the row */
-    const pill = more && more.count > list.length || more && more.open
-      ? '<button type="button" class="hgn-pill" data-act="stores" aria-expanded="' + !!more.open + '">' + esc(more.open ? t.less : t.seeAll) + "</button>" : "";
-    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" + pill + "</div>" +
-      '<div class="hgn-store-row' + (more && more.open ? " is-all" : "") + '">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" +
+      (seeAll ? '<a class="hgn-pill" href="' + esc(seeAll) + '" data-href="' + esc(seeAll) + '">' + esc(t.seeAll) + "</a>" : "") + "</div>" +
+      '<div class="hgn-store-row">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+  }
+  /* the stores a page or row needs: every store on Home (nearest first, the banner stores included once) and the favourites */
+  function homeStores(hd) {
+    const out = [], seen = {};
+    (hd.merchants || []).concat(featuredStores(hd)).forEach((m) => { const id = m && (m._id || m.id); if (id && !seen[id]) { seen[id] = true; out.push(m); } });
+    return out.sort((a, b) => storeDist(a) - storeDist(b));
+  }
+  function favStoresOf(hd) {
+    const byId = {};
+    homeStores(hd).forEach((m) => { byId[m._id || m.id] = m; });
+    return favList().map((f) => byId[f.id] || { _id: f.id, name: f.name, slug: f.slug,
+      images: { cover: f.cover ? { image_url: f.cover } : null, logo: f.logo ? { image_url: f.logo } : null } });
+  }
+  function catMapOf(hd) {
+    const m = {};
+    (hd.merchant_categories || []).forEach((c) => { m[c.id || c._id] = c; });
+    return m;
   }
   function storeRating(m) { const v = parseFloat(m && m.average_rating); return isNaN(v) ? 0 : v; }
   /* only Hyperzod's delivery fee for this customer counts (delivery_data.fee); "delivery_amount" is 0 for most stores
@@ -1091,12 +1105,11 @@
     /* Stores near you leaves out the stores already in the banner, so the two never repeat each other */
     const featIds = {};
     feat.forEach((m) => { featIds[idOf(m)] = true; });
-    const nearAll = (hd.merchants || []).filter((m) => m && !featIds[idOf(m)])
-      .sort((a, b) => storeDist(a) - storeDist(b));
-    const stores = storesOpen ? nearAll : nearAll.slice(0, 10);
+    const stores = (hd.merchants || []).filter((m) => m && !featIds[idOf(m)])
+      .sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
     const favs = favList(), favIds = {};
     favs.forEach((f) => { favIds[f.id] = true; });
-    const sig = [L, catsOpen, storesOpen, favs.map((f) => f.id).join(","), cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
+    const sig = [L, catsOpen, favs.map((f) => f.id).join(","), cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
     if (sig === homeSig && box.firstChild) return;
     homeSig = sig;
 
@@ -1150,23 +1163,19 @@
     }
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
-    html += storeRow(t.stores, stores, L, catMap, t, favIds, { open: storesOpen, count: nearAll.length });
+    html += storeRow(t.stores, stores, L, catMap, t, favIds, "/" + L + "/home?hgn=stores");
 
-    /* Your favourites: the stores hearted on this phone (newest first); a store still in Hyperzod's list uses its live data */
-    const byId = {};
-    (hd.merchants || []).concat(feat).forEach((m) => { byId[idOf(m)] = m; });
-    const favStores = favs.map((f) => byId[f.id] || { _id: f.id, name: f.name, slug: f.slug,
-      images: { cover: f.cover ? { image_url: f.cover } : null, logo: f.logo ? { image_url: f.logo } : null } });
-    html += storeRow(t.favs, favStores, L, catMap, t, favIds, null);
+    /* Your favourites: the stores hearted on this phone (newest first) */
+    html += storeRow(t.favs, favStoresOf(hd), L, catMap, t, favIds, "/" + L + "/home?hgn=favs");
 
     /* Top rated: Hyperzod's store rating, best first, only stores that have a rating */
     const all = (hd.merchants || []).concat(feat.filter((m) => !(hd.merchants || []).some((x) => idOf(x) === idOf(m))));
     const rated = all.filter((m) => storeRating(m) > 0).sort((a, b) => storeRating(b) - storeRating(a)).slice(0, 10);
-    html += storeRow(t.top, rated, L, catMap, t, favIds, null, (m) => '<span class="hgn-tag hgn-rate">' + STAR + storeRating(m).toFixed(1) + "</span>");
+    html += storeRow(t.top, rated, L, catMap, t, favIds, "", (m) => '<span class="hgn-tag hgn-rate">' + STAR + storeRating(m).toFixed(1) + "</span>");
 
     /* Free delivery: stores whose delivery fee is 0 (Hyperzod's own delivery data) */
     const free = all.filter((m) => storeFee(m) === 0).sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
-    html += storeRow(t.free, free, L, catMap, t, favIds, null);
+    html += storeRow(t.free, free, L, catMap, t, favIds, "");
 
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML = html;
@@ -1180,13 +1189,8 @@
       e.stopPropagation();
       const id = act.getAttribute("data-id");
       favToggle(seenStores[id] || favList().find((f) => f.id === id) && { _id: id, name: (favList().find((f) => f.id === id) || {}).name });
-      homeSig = "";
-      renderHome();
-      return;
-    }
-    if (act && act.getAttribute("data-act") === "stores") {
-      storesOpen = !storesOpen;
-      renderHome();
+      homeSig = ""; pageSig = ""; searchFavSig = "";
+      tick();
       return;
     }
     if (act && act.getAttribute("data-act") === "cats") {
@@ -1390,9 +1394,109 @@
     if (g && g.$router && g.$router.afterEach) { g.$router.afterEach(() => schedule()); routerHooked = true; }
   }
 
+  /* ---------- PAGES (2026-10-18): "Stores near you" (See all) and "Favourites" ----------
+     Hyperzod has no page for these, so they open on top of Home: /home?hgn=stores and /home?hgn=favs.
+     Back goes to where the customer came from. */
+  let pageSig = "";
+  function pageQuery() {
+    const g = vueGlobals();
+    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    const q = r && r.query && r.query.hgn;
+    return isHomePath(currentPath()) && (q === "stores" || q === "favs") ? q : "";
+  }
+  const BACK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  function renderPage() {
+    const q = pageQuery();
+    let pg = document.getElementById("hgn-page");
+    document.documentElement.classList.toggle("hgn-page-open", !!q);
+    if (!q) { if (pg) pg.remove(); pageSig = ""; return; }
+    const hd = homeData();
+    if (!hd) return;
+    const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
+    const list = q === "favs" ? favStoresOf(hd) : homeStores(hd);
+    const favIds = {};
+    favList().forEach((f) => { favIds[f.id] = true; });
+    const sig = [q, L, list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
+    if (!pg) {
+      pg = document.createElement("div");
+      pg.id = "hgn-page";
+      pg.addEventListener("click", onPageClick);
+      document.body.appendChild(pg);
+      pageSig = "";
+    }
+    if (sig === pageSig) return;
+    pageSig = sig;
+    const catMap = catMapOf(hd);
+    pg.setAttribute("dir", ar ? "rtl" : "ltr");
+    pg.innerHTML = '<div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + BACK_ICON + "</button>" +
+      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div>" +
+      (list.length ? '<div class="hgn-page-list">' + list.map((m) => storeCard(m, L, catMap, t, favIds, "")).join("") + "</div>"
+        : '<p class="hgn-page-empty">' + esc(t.nofavs) + "</p>");
+  }
+  function onPageClick(e) {
+    const act = e.target.closest("[data-act]");
+    if (act && act.getAttribute("data-act") === "back") {
+      if (history.length > 1) history.back(); else go("/" + lang() + "/home");
+      return;
+    }
+    onHomeClick(e);
+  }
+
+  /* Favourites row in Account (Activity group, under My Orders): opens the Favourites page */
+  function renderAccountFav() {
+    if (!/^\/(en|ar)\/profile\/?$/.test(currentPath())) return;
+    const list = document.querySelector("#ProfileSideBar .navigation-list");
+    const orders = list && list.querySelector('a.scheme-profile-nav-item[href$="/profile/orders"]');
+    if (!orders) return;
+    const L = lang(), t = TXT[L];
+    let row = list.querySelector(".hgn-acct-fav");
+    if (!row) {
+      row = orders.cloneNode(true);
+      row.classList.add("hgn-acct-fav");
+      row.removeAttribute("data-test-id");
+      row.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); go("/" + lang() + "/home?hgn=favs"); });
+      const ic = row.querySelector(".scheme-profile-icon");
+      if (ic) ic.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>';
+    }
+    /* href under /profile/ so the Account page groups it with My Orders (Activity) */
+    const href = "/" + L + "/profile/favourites";
+    if (row.getAttribute("href") !== href) row.setAttribute("href", href);
+    const ttl = row.querySelector(".nav-text");
+    if (ttl && ttl.textContent !== t.favRow) ttl.textContent = t.favRow;
+    if (row.previousElementSibling !== orders) orders.insertAdjacentElement("afterend", row);
+  }
+
+  /* Favourites row at the top of the Search page (only while the start screen shows, not with search results) */
+  let searchFavSig = "";
+  function renderSearchFav() {
+    const start = /^\/(en|ar)\/search\/?$/.test(currentPath()) && document.querySelector("#MultiVendorSearch .scheme-global-search-recent");
+    let box = document.getElementById("hgn-sfav");
+    const hd = homeData();
+    const list = start && hd ? favStoresOf(hd) : [];
+    if (!list.length) { if (box) box.remove(); searchFavSig = ""; return; }
+    const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
+    const favIds = {};
+    favList().forEach((f) => { favIds[f.id] = true; });
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "hgn-sfav";
+      box.addEventListener("click", onHomeClick);
+      searchFavSig = "";
+    }
+    if (box.nextElementSibling !== start) start.insertAdjacentElement("beforebegin", box);
+    const sig = [L, list.map((m) => m._id || m.id).join(",")].join("|");
+    if (sig === searchFavSig) return;
+    searchFavSig = sig;
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    box.innerHTML = storeRow(t.favs, list, L, catMapOf(hd), t, favIds, "/" + L + "/home?hgn=favs");
+  }
+
   function tick() {
     try {
       hookRouter();
+      renderPage();
+      renderAccountFav();
+      renderSearchFav();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();
@@ -1408,7 +1512,7 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = "#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = "#hgn-page,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
