@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1836 */
+/* hg-version 2026-10-18-1847 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1455,7 +1455,7 @@
     return null;
   }
   function pumpMenus() {
-    while (menuBusy < 4 && menuQueue.length) {
+    while (menuBusy < 3 && menuQueue.length) {
       const id = menuQueue.shift();
       menuBusy++;
       fetch("https://api.hyperzod.app/store/v1/merchant/menu?merchant_id=" + encodeURIComponent(id) + "&locale=" + lang() + "&page=1", {
@@ -1506,15 +1506,37 @@
     if (fee === 0) meta.push(esc(T.free));
     else if (fee) meta.push("<bdi>" + esc(L === "ar" ? T.fee + money3(fee) : money3(fee) + T.fee) + "</bdi>");
     const on = !!favIds[id];
-    const list = prods !== undefined ? prods : storeProducts(id);
+    /* products load only when the store comes near the screen (watchProdRows), never all stores at once:
+       a page of 80+ stores would otherwise ask Hyperzod for 80+ menus in one go */
+    const cached = menuCache[id];
+    const list = prods !== undefined ? prods : (cached ? cached.list : null);
+    const wait = prods === undefined && !cached;
     return '<div class="hgn-sb">' +
       '<a class="hgn-sb-head" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
       '<span class="hgn-sb-logo">' + (logo ? '<img src="' + esc(logo) + '" alt="" loading="lazy" decoding="async">' : "") +
       '<button type="button" class="hgn-sb-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + LICON.heart + "</button></span>" +
       '<span class="hgn-sb-info"><span class="hgn-sb-name">' + esc(nameOf(m) || m.name) + "</span>" +
       (meta.length ? '<span class="hgn-sb-meta">' + meta.join('<i aria-hidden="true">•</i>') + "</span>" : "") + "</span></a>" +
-      ((list && !list.length) ? "" : '<div class="hgn-sb-prods" data-id="' + esc(id) + '">' + prodsHtml(m, list, L) + "</div>") +
+      ((list && !list.length) ? "" : '<div class="hgn-sb-prods" data-id="' + esc(id) + '"' + (wait ? " data-wait" : "") + ">" + prodsHtml(m, list, L) + "</div>") +
       "</div>";
+  }
+  let prodObs = null;
+  function watchProdRows(root) {
+    const rows = root.querySelectorAll(".hgn-sb-prods[data-wait]");
+    if (!rows.length) return;
+    if (!("IntersectionObserver" in window)) { rows.forEach((r, i) => { if (i < 6) { r.removeAttribute("data-wait"); storeProducts(r.getAttribute("data-id")); } }); return; }
+    if (!prodObs) {
+      prodObs = new IntersectionObserver((ents) => {
+        ents.forEach((e) => {
+          if (!e.isIntersecting) return;
+          prodObs.unobserve(e.target);
+          e.target.removeAttribute("data-wait");
+          const id = e.target.getAttribute("data-id");
+          if (storeProducts(id)) fillProducts(id);
+        });
+      }, { rootMargin: "400px 0px" });
+    }
+    rows.forEach((r) => prodObs.observe(r));
   }
   /* tabs + filter buttons + the list, for one view (its own state object) */
   function newListState() { return { cat: "", sort: "nearest", free: false, open: false, top: false, menu: false }; }
@@ -1745,6 +1767,7 @@
       : storeListHtml(pageSt, list, L, t, favIds, hd, null, q === "stores");
     pg.innerHTML = '<div class="hgn-page-top"><div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + LICON.back + "</button>" +
       '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div></div>" + body;
+    watchProdRows(pg);
   }
   function onPageClick(e) {
     const act = e.target.closest("[data-act]");
@@ -1828,6 +1851,7 @@
       const p = sres.prods[m._id || m.id];
       return p && p.length ? p : undefined;
     }, true);
+    watchProdRows(box);
   }
   function onSresClick(e) {
     const act = e.target.closest("[data-act]");
