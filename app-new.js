@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1235 */
+/* hg-version 2026-10-18-1247 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -915,9 +915,9 @@
   }
 
   const TXT = {
-    en: { cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
+    en: { top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", week: "This week on HyperGo",
     },
-    ar: { cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
+    ar: { top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", week: "هذا الأسبوع على هايبرجو",
     }
   };
 
@@ -1007,14 +1007,66 @@
   }
 
   /* ---------- HOME ---------- */
-  let catsOpen = false, homeSig = "";
+  let catsOpen = false, storesOpen = false, homeSig = "";
 
   function isHomePath(p) { return /^\/(en|ar)(\/home)?\/?$/.test(p); }
 
   /* icons for Home, copied from the approved design (the heart sits on each Stores near you photo) */
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF4000" d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.5l6.1-.7z"/></svg>';
   const TOP_ICON = {
     heart: '<svg viewBox="0 0 24 24" fill="none" stroke="#1B2023" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>'
   };
+  /* FAVOURITES (2026-10-18): Hyperzod has no favourites, so a hearted store is saved on this phone (localStorage,
+     key "hgn_favs": id, name, slug, photo). It stays after closing the app; it is not shared between phones. */
+  const FAV_KEY = "hgn_favs";
+  function favList() {
+    try { const v = JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); return Array.isArray(v) ? v.filter((x) => x && x.id) : []; } catch (e) { return []; }
+  }
+  function favSave(list) { try { localStorage.setItem(FAV_KEY, JSON.stringify(list.slice(0, 40))); } catch (e) {} }
+  function favToggle(m) {
+    const list = favList(), id = m && (m._id || m.id);
+    if (!id) return;
+    const i = list.findIndex((x) => x.id === id);
+    if (i >= 0) list.splice(i, 1);
+    else list.unshift({ id: id, name: m.name || "", slug: m.slug || "", cover: storeImg(m, "cover"), logo: storeImg(m, "logo") });
+    favSave(list);
+  }
+  /* every store seen on Home, by id, so a heart tap can save the store's name and photo */
+  const seenStores = {};
+
+  /* one store card (Stores near you, Top rated, Free delivery, Your favourites) */
+  function storeCard(m, L, catMap, t, favIds, extra) {
+    const id = m._id || m.id;
+    seenStores[id] = m;
+    const href = storeHref(m, L);
+    const cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
+    const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2);
+    const on = !!favIds[id];
+    return '<a class="hgn-store" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+      '<span class="hgn-store-img' + (cover ? "" : " is-logo") + '">' +
+      ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
+      '<button type="button" class="hgn-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + TOP_ICON.heart + "</button></span>" +
+      '<span class="hgn-store-name">' + esc(m.name) + "</span>" +
+      ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
+      "</a>";
+  }
+  function storeRow(title, list, L, catMap, t, favIds, more, extraFn) {
+    if (!list.length) return "";
+    /* more = { open, count }: "See all" opens every store right here as a full-width list (Hyperzod has no
+       "all stores" page: /m shows nothing), "Show less" goes back to the row */
+    const pill = more && more.count > list.length || more && more.open
+      ? '<button type="button" class="hgn-pill" data-act="stores" aria-expanded="' + !!more.open + '">' + esc(more.open ? t.less : t.seeAll) + "</button>" : "";
+    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" + pill + "</div>" +
+      '<div class="hgn-store-row' + (more && more.open ? " is-all" : "") + '">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+  }
+  function storeRating(m) { const v = parseFloat(m && m.average_rating); return isNaN(v) ? 0 : v; }
+  /* only Hyperzod's delivery fee for this customer counts (delivery_data.fee); "delivery_amount" is 0 for most stores
+     even when a fee is charged, so it is not used */
+  function storeFee(m) {
+    const d = m && m.delivery_data;
+    return d && typeof d.fee === "number" ? d.fee : null;
+  }
+
   function renderHome() {
     const home = document.getElementById("MultiVendorHome");
     const hdr = document.getElementById("MultiVendorHeaderRoot");
@@ -1039,9 +1091,12 @@
     /* Stores near you leaves out the stores already in the banner, so the two never repeat each other */
     const featIds = {};
     feat.forEach((m) => { featIds[idOf(m)] = true; });
-    const stores = (hd.merchants || []).filter((m) => m && !featIds[idOf(m)])
-      .sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
-    const sig = [L, catsOpen, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
+    const nearAll = (hd.merchants || []).filter((m) => m && !featIds[idOf(m)])
+      .sort((a, b) => storeDist(a) - storeDist(b));
+    const stores = storesOpen ? nearAll : nearAll.slice(0, 10);
+    const favs = favList(), favIds = {};
+    favs.forEach((f) => { favIds[f.id] = true; });
+    const sig = [L, catsOpen, storesOpen, favs.map((f) => f.id).join(","), cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
     if (sig === homeSig && box.firstChild) return;
     homeSig = sig;
 
@@ -1095,25 +1150,23 @@
     }
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
-    if (stores.length) {
-      const all = "/" + L + "/m";
-      html += '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.stores) + "</h2>" +
-        '<a class="hgn-pill" href="' + all + '" data-href="' + all + '">' + esc(t.seeAll) + "</a></div>" +
-        '<div class="hgn-store-row">';
-      stores.forEach((m) => {
-        const href = storeHref(m, L);
-        const cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
-        const tags = (m.merchant_category_ids || []).map((id) => catMap[id]).filter(Boolean).slice(0, 2);
-        html += '<a class="hgn-store" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-          '<span class="hgn-store-img' + (cover ? "" : " is-logo") + '">' +
-          ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
-          '<span class="hgn-fav">' + TOP_ICON.heart + "</span></span>" +
-          '<span class="hgn-store-name">' + esc(m.name) + "</span>" +
-          (tags.length ? '<span class="hgn-tags">' + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
-          "</a>";
-      });
-      html += "</div></section>";
-    }
+    html += storeRow(t.stores, stores, L, catMap, t, favIds, { open: storesOpen, count: nearAll.length });
+
+    /* Your favourites: the stores hearted on this phone (newest first); a store still in Hyperzod's list uses its live data */
+    const byId = {};
+    (hd.merchants || []).concat(feat).forEach((m) => { byId[idOf(m)] = m; });
+    const favStores = favs.map((f) => byId[f.id] || { _id: f.id, name: f.name, slug: f.slug,
+      images: { cover: f.cover ? { image_url: f.cover } : null, logo: f.logo ? { image_url: f.logo } : null } });
+    html += storeRow(t.favs, favStores, L, catMap, t, favIds, null);
+
+    /* Top rated: Hyperzod's store rating, best first, only stores that have a rating */
+    const all = (hd.merchants || []).concat(feat.filter((m) => !(hd.merchants || []).some((x) => idOf(x) === idOf(m))));
+    const rated = all.filter((m) => storeRating(m) > 0).sort((a, b) => storeRating(b) - storeRating(a)).slice(0, 10);
+    html += storeRow(t.top, rated, L, catMap, t, favIds, null, (m) => '<span class="hgn-tag hgn-rate">' + STAR + storeRating(m).toFixed(1) + "</span>");
+
+    /* Free delivery: stores whose delivery fee is 0 (Hyperzod's own delivery data) */
+    const free = all.filter((m) => storeFee(m) === 0).sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
+    html += storeRow(t.free, free, L, catMap, t, favIds, null);
 
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML = html;
@@ -1122,6 +1175,20 @@
 
   function onHomeClick(e) {
     const act = e.target.closest("[data-act]");
+    if (act && act.getAttribute("data-act") === "fav") {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = act.getAttribute("data-id");
+      favToggle(seenStores[id] || favList().find((f) => f.id === id) && { _id: id, name: (favList().find((f) => f.id === id) || {}).name });
+      homeSig = "";
+      renderHome();
+      return;
+    }
+    if (act && act.getAttribute("data-act") === "stores") {
+      storesOpen = !storesOpen;
+      renderHome();
+      return;
+    }
     if (act && act.getAttribute("data-act") === "cats") {
       catsOpen = !catsOpen;
       renderHome();
@@ -1133,10 +1200,29 @@
     go(a.getAttribute("data-href"));
   }
 
+  /* banner slides by itself every 4 seconds (pauses for 6 seconds after the customer touches it; off with reduce-motion) */
+  let slideTimer = 0;
   function bindSlider(box) {
     const track = box.querySelector(".hgn-slides");
     const dots = box.querySelectorAll(".hgn-dot");
+    if (slideTimer) { clearInterval(slideTimer); slideTimer = 0; }
     if (!track || dots.length < 2) return;
+    let pausedUntil = 0;
+    const pause = () => { pausedUntil = Date.now() + 6000; };
+    track.addEventListener("touchstart", pause, { passive: true });
+    track.addEventListener("pointerdown", pause, { passive: true });
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce) {
+      slideTimer = setInterval(() => {
+        if (!track.isConnected) { clearInterval(slideTimer); slideTimer = 0; return; }
+        if (document.hidden || Date.now() < pausedUntil) return;
+        const w = track.clientWidth || 1, n = dots.length;
+        const cur = Math.round(Math.abs(track.scrollLeft) / w);
+        const next = (cur + 1) % n;
+        const sign = getComputedStyle(track).direction === "rtl" ? -1 : 1;
+        track.scrollTo({ left: sign * next * w, behavior: next === 0 ? "auto" : "smooth" });
+      }, 4000);
+    }
     let ticking = false;
     track.addEventListener("scroll", () => {
       if (ticking) return;
@@ -1304,26 +1390,9 @@
     if (g && g.$router && g.$router.afterEach) { g.$router.afterEach(() => schedule()); routerHooked = true; }
   }
 
-  /* Bottom bar, copied from the approved design: Home, Search, Orders, Account. Hyperzod's own bar is restyled
-     (app-new.css); its Cart tab is shown as Search and a tap on it opens Search (the cart is in the header).
-     Only real taps are redirected: the header cart button still "clicks" Hyperzod's Cart tab to open the cart. */
-  document.addEventListener("click", (e) => {
-    if (!e.isTrusted) return;
-    const it = e.target && e.target.closest && e.target.closest("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart']");
-    if (!it) return;
-    e.preventDefault();
-    e.stopPropagation();
-    go("/" + lang() + "/search");
-  }, true);
-  function navFlags() {
-    const de = document.documentElement, p = currentPath();
-    de.classList.toggle("hgn-on-search", /^\/(en|ar)\/search\/?$/.test(p));
-  }
-
   function tick() {
     try {
       hookRouter();
-      navFlags();
       ensureHeaderExtraStyle();
       tagNativeNav();
       applyHyperGoHeader();
