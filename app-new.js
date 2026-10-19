@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1936 */
+/* hg-version 2026-10-19-2003 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1061,11 +1061,11 @@
       ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
-  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn) {
+  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn, rowCls) {
     if (!list.length) return "";
     return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" +
       (seeAll ? '<a class="hgn-pill" href="' + esc(seeAll) + '" data-href="' + esc(seeAll) + '">' + esc(t.seeAll) + "</a>" : "") + "</div>" +
-      '<div class="hgn-store-row">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+      '<div class="hgn-store-row' + (rowCls ? " " + rowCls : "") + '">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
   }
   /* the stores a page or row needs: every store on Home (nearest first, the banner stores included once) and the favourites */
   function homeStores(hd) {
@@ -1185,7 +1185,8 @@
     }
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
-    html += storeRow(t.stores, stores, L, catMap, t, favIds, "/" + L + "/home?hgn=stores");
+    /* shown as a 2 x 2 grid of the 4 nearest (option 4, chosen 2026-10-19); See all opens the full list */
+    html += storeRow(t.stores, stores.slice(0, 4), L, catMap, t, favIds, "/" + L + "/home?hgn=stores", null, "hgn-store-grid");
 
     /* Your favourites row is not shown on Home (2026-10-18): the hearts still save, and the saved stores show in
        Account (Favourites) and on the Search page */
