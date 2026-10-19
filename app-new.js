@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1856 */
+/* hg-version 2026-10-19-1936 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -939,12 +939,14 @@
     "6a9befd6fbfc7198220f95d3": "baby-care", "6a9bf0d4288fb9d9e903a7e9": "gifts", "6a9bf205dda6795f8c065937": "toys",
     "6a9bf4e4dda6795f8c065939": "sports", "6a9bef89288fb9d9e903a7e6": "home-goods"
   };
-  /* Shop by occasion cards (chosen 2026-10-19): title in English and Arabic, and the Hyperzod category each one opens */
+  /* Shop by occasion cards (O4, chosen 2026-10-19): title in English and Arabic, the Hyperzod category each one opens,
+     and its picture: the product from that category's icon without a background, in the repo's occasion-cutouts folder */
+  const OCC_IMG_BASE = "https://pexy613.github.io/hypergo-site/occasion-cutouts/";
   const OCCASIONS = [
-    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9" },
-    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932" },
-    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7" },
-    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2" }
+    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9", img: "gifts" },
+    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932", img: "flowers" },
+    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7", img: "nutrition" },
+    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2", img: "party-stores" }
   ];
   function catPhoto(c) {
     const slug = CAT_PHOTOS[c && (c.id || c._id)];
@@ -1167,17 +1169,18 @@
       html += "</section>";
     }
 
-    /* Shop by occasion (chosen 2026-10-19, in place of Popular right now): our own cards, each opens a Hyperzod category;
-       the picture is that category's icon. A card whose category is missing or switched off is left out. */
+    /* Shop by occasion (O4, chosen 2026-10-19, in place of Popular right now): purple cards, each opens a Hyperzod category.
+       A card whose category is missing or switched off is left out. */
     const occ = OCCASIONS.map((o) => ({ o, c: catMap[o.cat] })).filter((x) => x.c && x.c.status !== false && x.c.status !== 0);
     if (occ.length) {
       html += '<section class="hgn-occs"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.occ) + '</h2></div><div class="hgn-occ-row">' +
         occ.map(({ o, c }) => {
-          const href = catHref(c, L), img = catPhoto(c) || c.image;
+          const href = catHref(c, L);
           return '<a class="hgn-occ" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
             '<span class="hgn-occ-t">' + esc(o[L]) + "</span>" +
             '<span class="hgn-occ-go">' + esc(t.shop) + "</span>" +
-            (img ? '<img class="hgn-occ-img" src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</a>";
+            '<span class="hgn-occ-glow" aria-hidden="true"></span>' +
+            '<img class="hgn-occ-img" src="' + esc(OCC_IMG_BASE + o.img + ".webp") + '" alt="" loading="lazy" decoding="async"></a>';
         }).join("") + "</div></section>";
     }
 
