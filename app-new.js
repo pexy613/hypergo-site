@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-2003 */
+/* hg-version 2026-10-19-2010 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1061,11 +1061,43 @@
       ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
-  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn, rowCls) {
+  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn) {
     if (!list.length) return "";
     return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" +
       (seeAll ? '<a class="hgn-pill" href="' + esc(seeAll) + '" data-href="' + esc(seeAll) + '">' + esc(t.seeAll) + "</a>" : "") + "</div>" +
-      '<div class="hgn-store-row' + (rowCls ? " " + rowCls : "") + '">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+      '<div class="hgn-store-row">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
+  }
+  /* Stores near you panel (E, chosen 2026-10-19): one white panel, filter chips (All + the most common categories among the
+     nearest stores), then 4 rows: store photo, name, category and delivery time from Hyperzod. Tapping a row opens the store;
+     tapping a chip changes only the rows. */
+  let panelCat = "", panelData = null;
+  function storePanelRows() {
+    const d = panelData;
+    if (!d) return "";
+    const list = d.stores.filter((m) => !panelCat || (m.merchant_category_ids || []).indexOf(panelCat) !== -1).slice(0, 4);
+    return list.map((m) => {
+      seenStores[m._id || m.id] = m;
+      const href = storeHref(m, d.L), img = storeImg(m, "cover") || storeImg(m, "logo");
+      const c = d.catMap[(m.merchant_category_ids || [])[0]];
+      const meta = [c ? catLabel(c) : "", storeTime(m)].filter(Boolean).join(" · ");
+      return '<a class="hgn-sp-row" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+        '<span class="hgn-sp-img">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+        '<span class="hgn-sp-txt"><span class="hgn-sp-name">' + esc(m.name) + "</span>" +
+        (meta ? '<span class="hgn-sp-meta">' + esc(meta) + "</span>" : "") + "</span></a>";
+    }).join("");
+  }
+  function storePanel(title, stores, L, catMap, t, seeAll) {
+    if (!stores.length) return "";
+    panelData = { stores, catMap, L };
+    const count = {};
+    stores.forEach((m) => { const id = (m.merchant_category_ids || [])[0]; if (id && catMap[id]) count[id] = (count[id] || 0) + 1; });
+    const top = Object.keys(count).sort((a, b) => count[b] - count[a]).slice(0, 3);
+    if (panelCat && top.indexOf(panelCat) === -1) panelCat = "";
+    const chip = (id, label) => '<button type="button" class="hgn-sp-chip' + (panelCat === id ? " is-on" : "") + '" data-act="spf" data-cat="' + esc(id) + '">' + esc(label) + "</button>";
+    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" +
+      (seeAll ? '<a class="hgn-pill" href="' + esc(seeAll) + '" data-href="' + esc(seeAll) + '">' + esc(t.seeAll) + "</a>" : "") + "</div>" +
+      '<div class="hgn-sp">' + (top.length > 1 ? '<div class="hgn-sp-chips">' + chip("", t.all) + top.map((id) => chip(id, catLabel(catMap[id]))).join("") + "</div>" : "") +
+      '<div class="hgn-sp-rows">' + storePanelRows() + "</div></div></section>";
   }
   /* the stores a page or row needs: every store on Home (nearest first, the banner stores included once) and the favourites */
   function homeStores(hd) {
@@ -1185,8 +1217,8 @@
     }
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
-    /* shown as a 2 x 2 grid of the 4 nearest (option 4, chosen 2026-10-19); See all opens the full list */
-    html += storeRow(t.stores, stores.slice(0, 4), L, catMap, t, favIds, "/" + L + "/home?hgn=stores", null, "hgn-store-grid");
+    /* shown as one white panel with category filters (E, chosen 2026-10-19), not a sideways row; See all opens the full list */
+    html += storePanel(t.stores, stores, L, catMap, t, "/" + L + "/home?hgn=stores");
 
     /* Your favourites row is not shown on Home (2026-10-18): the hearts still save, and the saved stores show in
        Account (Favourites) and on the Search page */
@@ -1214,6 +1246,14 @@
       favToggle(seenStores[id] || favList().find((f) => f.id === id) && { _id: id, name: (favList().find((f) => f.id === id) || {}).name });
       homeSig = ""; pageSig = ""; searchFavSig = ""; sresSig = "";
       tick();
+      return;
+    }
+    if (act && act.getAttribute("data-act") === "spf") {
+      e.preventDefault();
+      panelCat = act.getAttribute("data-cat") || "";
+      const box = act.closest(".hgn-sp");
+      box.querySelectorAll(".hgn-sp-chip").forEach((b) => b.classList.toggle("is-on", b === act));
+      box.querySelector(".hgn-sp-rows").innerHTML = storePanelRows();
       return;
     }
     if (act && act.getAttribute("data-act") === "cats") {
