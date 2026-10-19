@@ -1,0 +1,592 @@
+/* hg-version 2026-10-19-1643 */
+/* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
+   Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
+   Type is kept light (weights 500-650) for a refined look (2026-10-15).
+   (#FFFCF9 off-white page, #341A76 banner, #F4F3F8 image backing, #F2ECFF pill, #EEECEF line, #6B7280 / #5C5C5C greys). */
+
+/* ---------- fonts (files in /fonts, OFL licence files beside them) ---------- */
+@font-face{font-family:"Inter";src:url("https://pexy613.github.io/hypergo-site/fonts/Inter-var.woff") format("woff");font-weight:400 900;font-style:normal;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Regular.woff") format("woff");font-weight:400;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Medium.woff") format("woff");font-weight:500;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-SemiBold.woff") format("woff");font-weight:600;font-display:swap;}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Bold.woff") format("woff");font-weight:700 900;font-display:swap;}
+
+/* ---------- KEPT (main page header): rule copied unchanged from global-footer.css ---------- */
+@media (max-width:959.98px){
+  #hg-cart-btn svg path{
+    fill:#111!important;
+    stroke:none!important;
+  }
+  #hg-cart-btn{
+    color:#111!important;
+  }
+}
+
+/* ---------- NEW: shared ---------- */
+html.hg-new-app #hgn-home{
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  color:#1B2023;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+html.hg-new-app #hgn-home[dir="rtl"]{
+  font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;
+}
+html.hg-new-app #hgn-home *{box-sizing:border-box;}
+html.hg-new-app #hgn-home a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-home img{display:block;}
+
+/* old Home content is replaced by #hgn-home (the bottom nav and the Account page stay as they are) */
+html.hg-new-app body #app #MultiVendorHome{background:#FFFCF9!important;overscroll-behavior-y:none;} /* !important: beats the old Home white (hg-home-v88, global-footer-1.js) */
+html.hg-new-app #MultiVendorHome>main.v-main{display:none!important;}
+html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
+
+/* ---------- HOME ---------- */
+html.hg-new-app #hgn-home{
+  background:#FFFCF9;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
+}
+
+/* category grid */
+html.hg-new-app .hgn-cats{padding:18px 14px 0;}
+html.hg-new-app .hgn-cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;}
+html.hg-new-app .hgn-cat{
+  display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;
+  padding:0;margin:0;border:0;background:none;font:inherit;color:#1B2023;cursor:pointer;
+}
+html.hg-new-app .hgn-cat-ring{
+  width:72px;height:72px;border-radius:24px;padding:4px;background:#FFFCF9;box-shadow:0 0 0 1px #EEECEF;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+html.hg-new-app .hgn-cat-ring img{width:64px;height:64px;border-radius:20px;object-fit:cover;background:#FFFCF9;}
+html.hg-new-app .hgn-cat-name{
+  max-width:100%;font-size:12px;line-height:1.3;font-weight:550;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* tiles with our own cut-out product photo: soft pink-lavender tile, the product centred and large, a soft shadow under it */
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{background:#DFC4F3;box-shadow:none;padding:0;position:relative;border-radius:16px;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring::after{
+  content:"";position:absolute;inset-inline:22%;bottom:9%;height:8%;border-radius:50%;
+  background:rgba(52,26,118,.28);filter:blur(4px);
+}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{
+  position:relative;z-index:1;width:60%;height:60%;margin-top:-4%;border-radius:0;object-fit:contain;background:none;
+}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;border-radius:16px;}
+/* the HyperGo arrow is the logo mark: same shape and direction in English and Arabic */
+html.hg-new-app .hgn-cat-all .hgn-cat-ring svg{width:24px;height:28px;}
+html.hg-new-app .hgn-cat-all.is-open .hgn-cat-ring svg{width:26px;height:26px;}
+html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;outline-offset:2px;}
+
+/* featured stores banner, matched to the approved reference (card 152px tall, radius 24, curved photo edge, dots bottom end).
+   Card colour: the reference's deep purple is not in the palette or the old code; closest allowed is #341A76 (old code). */
+html.hg-new-app .hgn-banner{
+  position:relative;margin:20px 16px 0;height:152px;border-radius:24px;overflow:hidden;background:#341A76;
+  box-shadow:0 16px 30px -14px rgba(90,41,222,.55);
+}
+html.hg-new-app .hgn-slides{
+  display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;
+}
+html.hg-new-app .hgn-slides::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;color:#FFFFFF;}
+html.hg-new-app .hgn-slide-photo{position:absolute;top:0;inset-inline-end:0;width:60%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-slide-panel{position:absolute;top:0;inset-inline-start:0;width:63%;height:100%;fill:#341A76;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-panel{transform:scaleX(-1);}
+html.hg-new-app .hgn-slide-text{
+  position:absolute;top:0;bottom:0;inset-inline-start:0;width:58%;padding:18px;
+  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;
+}
+html.hg-new-app .hgn-slide-top{display:flex;flex-direction:column;min-width:0;max-width:100%;}
+html.hg-new-app .hgn-kicker{font-size:12px;line-height:1.3;font-weight:550;color:#ACE4AA;white-space:nowrap;}
+html.hg-new-app .hgn-slide-title{
+  margin-top:6px;font-size:21px;line-height:1.08;font-weight:650;letter-spacing:-.03em;color:#FFFFFF;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;
+}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-title{letter-spacing:0;line-height:1.25;}
+html.hg-new-app .hgn-shop{
+  display:inline-flex;align-items:center;gap:8px;height:38px;padding-inline-start:16px;padding-inline-end:5px;
+  border-radius:19px;background:#FFFCF9;color:#341A76;font-size:13px;font-weight:600;white-space:nowrap;
+}
+html.hg-new-app .hgn-shop-go{
+  width:28px;height:28px;border-radius:14px;background:#FF4000;color:#FFFFFF;
+  display:flex;align-items:center;justify-content:center;
+}
+html.hg-new-app .hgn-shop-go svg{width:13px;height:13px;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-shop-go svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-dots{position:absolute;bottom:14px;inset-inline-end:12px;display:flex;gap:4px;pointer-events:none;}
+html.hg-new-app .hgn-dot{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.6);transition:width .2s ease,background-color .2s ease;}
+html.hg-new-app .hgn-dot.is-on{width:16px;background:#FFFCF9;}
+
+/* Stores near you */
+html.hg-new-app .hgn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 16px 0;}
+html.hg-new-app .hgn-h2{margin:0;font-size:20px;line-height:1.2;font-weight:650;letter-spacing:-.03em;color:#1B2023;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-h2{letter-spacing:0;}
+html.hg-new-app .hgn-pill{
+  flex:0 0 auto;height:32px;padding:0 12px;border-radius:16px;background:#F2ECFF;color:#5A29DE!important;
+  font-size:13px;font-weight:600;display:inline-flex;align-items:center;
+}
+html.hg-new-app .hgn-store-row{
+  display:flex;gap:12px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;scrollbar-width:none;
+}
+html.hg-new-app .hgn-store-row::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-store{flex:0 0 248px;min-width:0;scroll-snap-align:start;}
+html.hg-new-app .hgn-store-img{display:block;width:248px;height:132px;border-radius:20px;overflow:hidden;background:#F4F3F8;}
+html.hg-new-app .hgn-store-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-store-img.is-logo img{object-fit:contain;padding:18px;}
+html.hg-new-app .hgn-store-name{
+  display:block;margin-top:10px;font-size:16px;line-height:1.25;font-weight:600;color:#1B2023;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+html.hg-new-app .hgn-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFCF9;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:500;display:inline-flex;align-items:center;}
+
+/* ================= APPROVED DESIGN, COPIED EXACTLY (2026-10-18): Home tiles, banner, Stores near you =================
+   (the bottom bar stays as it was)
+   (the header keeps its own design, only 8px shorter, see app-new.js) */
+html.hg-new-app body #app #MultiVendorHome{background:#FFFCF9!important;}
+html.hg-new-app #hgn-home{background:#FFFCF9;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
+
+/* category tiles: 72px light lavender tile, 24px corners, 4px inset, photo 64px with 20px corners */
+html.hg-new-app .hgn-cat-ring,
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{width:72px;height:72px;border-radius:24px;padding:4px;background:#F4F2FA;box-shadow:none;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring::after{display:none;}
+html.hg-new-app .hgn-cat-ring img,
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{width:64px;height:64px;margin:0;padding:5px;border-radius:20px;object-fit:contain;background:#DFC4F3;}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;padding:0;border-radius:24px;}
+/* T1 (chosen 2026-10-18): the real photo fills the whole rounded square, no tile colour, name underneath */
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{width:72px;height:72px;padding:0;border-radius:20px;background:#F4F2FA;overflow:hidden;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{width:100%;height:100%;margin:0;padding:0;border-radius:0;object-fit:cover;background:none;}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{border-radius:20px;}
+
+/* banner */
+html.hg-new-app .hgn-banner{background:#2A1468;box-shadow:0 16px 30px -14px rgba(42,20,104,.6);}
+html.hg-new-app .hgn-slide-photo{width:58%;}
+html.hg-new-app .hgn-slide-panel{width:64%;fill:#2A1468;}
+html.hg-new-app .hgn-slide-text{width:60%;}
+html.hg-new-app .hgn-shop{color:#2A1468;}
+html.hg-new-app .hgn-dots{bottom:12px;inset-inline-end:12px;}
+html.hg-new-app .hgn-dot{background:rgba(255,255,255,.55);}
+
+/* Stores near you */
+html.hg-new-app .hgn-head{margin:22px 16px 0;}
+html.hg-new-app .hgn-pill{background:#F1EEFC;color:#1B2023!important;}
+html.hg-new-app .hgn-store-img{position:relative;}
+html.hg-new-app .hgn-fav{position:absolute;top:10px;inset-inline-end:10px;width:34px;height:34px;border-radius:17px;background:#FFFCF9;display:flex;align-items:center;justify-content:center;
+  border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 6px rgba(27,32,35,.12);}
+html.hg-new-app .hgn-fav svg{width:17px;height:17px;transition:transform .15s ease;}
+html.hg-new-app .hgn-fav:active svg{transform:scale(.85);}
+html.hg-new-app .hgn-fav.is-on svg path{fill:#FF4000;stroke:#FF4000;}
+html.hg-new-app .hgn-rate{gap:4px;color:#1B2023;font-weight:600;}
+html.hg-new-app .hgn-rate svg{width:12px;height:12px;}
+
+/* ---------- PAGES: "Stores near you" (See all) and "Favourites" (open on top of Home, see app-new.js) ---------- */
+html.hg-new-app #hgn-page,html.hg-new-app #hgn-sfav{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app #hgn-page[dir="rtl"],html.hg-new-app #hgn-sfav[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-page *,html.hg-new-app #hgn-sfav *{box-sizing:border-box;}
+html.hg-new-app #hgn-page a,html.hg-new-app #hgn-sfav a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-page img,html.hg-new-app #hgn-sfav img{display:block;}
+html.hg-new-app.hgn-page-open body{overflow:hidden!important;}
+html.hg-new-app #hgn-page{position:fixed;inset:0;z-index:10050;background:#FFFCF9;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));}
+html.hg-new-app .hgn-page-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:#FFFCF9;
+  padding:calc(var(--native-status-bar-height,0px) + 10px) 16px 12px;box-shadow:0 1px 0 #EEECEF;}
+html.hg-new-app .hgn-page-back{flex:none;width:40px;height:40px;border-radius:20px;border:0;margin:0;padding:0;background:#F1EEFC;color:#1B2023;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-page-back svg{width:20px;height:20px;}
+html.hg-new-app #hgn-page[dir="rtl"] .hgn-page-back svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-page-title{margin:0;font-size:20px;line-height:1.2;font-weight:650;letter-spacing:-.03em;color:#1B2023;}
+html.hg-new-app #hgn-page[dir="rtl"] .hgn-page-title{letter-spacing:0;}
+html.hg-new-app .hgn-page-list{display:flex;flex-direction:column;gap:20px;padding:16px 16px 0;}
+html.hg-new-app .hgn-page-list .hgn-store{flex:none;width:100%;}
+html.hg-new-app .hgn-page-list .hgn-store-img{width:100%;height:160px;}
+html.hg-new-app .hgn-page-empty{margin:40px 24px 0;font-size:14px;line-height:1.5;color:#6B7280;text-align:center;}
+/* Favourites row on the Search page */
+html.hg-new-app #hgn-sfav{margin:0 -16px 6px;}
+html.hg-new-app #hgn-sfav .hgn-head{margin-top:12px;}
+html.hg-new-app .hgn-tag{background:#F4F2FA;box-shadow:none;color:#4A4E54;}
+
+
+/* ---------- CHOSEN 2026-10-18 (round 2 previews): banner A2, Stores page B3 + chips, Search favourites D2 ---------- */
+/* banner: photo fills the card, purple shade behind the text */
+html.hg-new-app .hgn-slide-photo{inset:0;width:100%;height:100%;}
+html.hg-new-app .hgn-slide-panel{display:none;}
+html.hg-new-app .hgn-slide-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide-shade{background:linear-gradient(270deg,rgba(42,20,104,.92) 0%,rgba(42,20,104,.55) 55%,rgba(42,20,104,0) 100%);}
+html.hg-new-app .hgn-slide-text{width:70%;}
+/* banner C1 (2026-10-18): the store's own banner, no shade or text on it; Shop pill bottom end, dots bottom start */
+html.hg-new-app .hgn-banner{height:auto;aspect-ratio:2/1;background:#F4F2FA;box-shadow:0 10px 24px -14px rgba(27,32,35,.35);}
+html.hg-new-app .hgn-slide-shade,html.hg-new-app .hgn-slide-text{display:none;}
+html.hg-new-app .hgn-slide-photo{inset:0;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-shop-c1{position:absolute;bottom:10px;inset-inline-end:10px;height:34px;padding-inline-start:13px;padding-inline-end:4px;gap:7px;font-size:12px;
+  background:#FFFCF9;color:#2A1468;box-shadow:0 2px 8px rgba(27,32,35,.18);}
+html.hg-new-app .hgn-shop-c1 .hgn-shop-go{width:26px;height:26px;border-radius:13px;}
+html.hg-new-app .hgn-dots{inset-inline-end:auto;inset-inline-start:12px;bottom:12px;}
+html.hg-new-app .hgn-dot{width:5px;height:5px;border-radius:3px;background:rgba(27,32,35,.25);}
+html.hg-new-app .hgn-dot.is-on{width:16px;background:#5A29DE;}
+/* Stores page: back bar + category chips stay on top */
+html.hg-new-app .hgn-page-top{position:sticky;top:0;z-index:2;background:#FFFCF9;box-shadow:0 1px 0 #EEECEF;}
+html.hg-new-app .hgn-page-top .hgn-page-bar{position:static;box-shadow:none;}
+html.hg-new-app .hgn-chips{display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-chips::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-chip{flex:none;height:34px;padding:0 14px;margin:0;border:0;border-radius:17px;background:#F4F2FA;color:#1B2023;font:inherit;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-chip.is-on{background:#5A29DE;color:#FFFFFF;}
+html.hg-new-app .hgn-plist{display:flex;flex-direction:column;padding:4px 16px 0;}
+html.hg-new-app .hgn-prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F0EEF5;}
+html.hg-new-app .hgn-prow:last-child{border-bottom:0;}
+html.hg-new-app .hgn-prow-logo{flex:none;width:56px;height:56px;border-radius:28px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEECEF;}
+html.hg-new-app .hgn-prow-logo img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-prow-main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;}
+html.hg-new-app .hgn-prow-name{max-width:100%;font-size:15px;line-height:1.25;font-weight:600;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-prow .hgn-tags{margin-top:5px;gap:5px;}
+html.hg-new-app .hgn-prow .hgn-tag{height:22px;padding:0 8px;border-radius:7px;font-size:11px;}
+html.hg-new-app .hgn-prow-fee{margin-top:5px;font-size:12px;line-height:1.3;font-weight:600;color:#4A4E54;}
+html.hg-new-app .hgn-prow-fee.is-free{height:22px;padding:0 8px;border-radius:7px;background:#ACE4AA;color:#1B2023;display:inline-flex;align-items:center;font-size:11px;}
+html.hg-new-app .hgn-prow .hgn-fav{position:static;flex:none;background:#F4F2FA;box-shadow:none;}
+/* Search page favourites: round pictures */
+html.hg-new-app .hgn-circles{display:flex;gap:14px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-circles::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-circ{flex:0 0 66px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:#1B2023;}
+html.hg-new-app .hgn-circ-img{width:62px;height:62px;border-radius:31px;overflow:hidden;background:#F4F2FA;box-shadow:0 0 0 2px #F1EEFC;}
+html.hg-new-app .hgn-circ-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-circ-name{width:100%;font-size:11.5px;line-height:1.2;font-weight:550;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+
+/* ---------- STORE LIST LAYOUT (2026-10-18, from Nouf's example): Stores near you page, Favourites page, Search results ---------- */
+html.hg-new-app #hgn-sres{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;margin:0 -16px;}
+html.hg-new-app #hgn-sres[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-sres *{box-sizing:border-box;}
+html.hg-new-app #hgn-sres a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-sres img{display:block;}
+html.hg-new-app.hgn-sres-on #MultiVendorSearch .scheme-global-search-results{display:none!important;}
+/* page bar: round back button with a thin outline */
+html.hg-new-app .hgn-page-top .hgn-page-bar{padding-bottom:8px;}
+html.hg-new-app .hgn-page-back{width:42px;height:42px;border-radius:21px;background:#FFFCF9;box-shadow:inset 0 0 0 1px #E6E3EF;}
+html.hg-new-app .hgn-page-title{font-size:18px;}
+/* category tabs with an underline */
+html.hg-new-app .hgn-tabs{display:flex;gap:24px;padding:4px 16px 0;border-bottom:2px solid #EEEEF0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-tabs::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-tab{position:relative;flex:none;margin:0 0 -2px;padding:8px 2px 11px;border:0;background:none;font:inherit;font-size:15px;line-height:1.2;color:#8A8F98;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-tab.is-on{color:#1B2023;font-weight:600;}
+html.hg-new-app .hgn-tab.is-on::after{content:"";position:absolute;inset-inline:-6px;bottom:0;height:3px;border-radius:2px;background:#5A29DE;}
+/* filter buttons */
+html.hg-new-app .hgn-filters{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;box-shadow:0 6px 10px -8px rgba(27,32,35,.18);}
+html.hg-new-app .hgn-filters::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-flt{flex:none;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;margin:0;border:0;border-radius:18px;background:#FFFCF9;box-shadow:inset 0 0 0 1px #E1E1E6;
+  color:#1B2023;font:inherit;font-size:13.5px;font-weight:500;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-flt svg{width:16px;height:16px;flex:none;}
+html.hg-new-app .hgn-flt.is-on{background:#F1EEFC;box-shadow:inset 0 0 0 1.5px #5A29DE;color:#5A29DE;font-weight:600;}
+html.hg-new-app .hgn-sortmenu{margin:0 16px 4px;border-radius:16px;background:#FFFCF9;box-shadow:0 8px 24px rgba(27,32,35,.14),0 0 0 1px #EEECEF;padding:4px 14px;}
+html.hg-new-app .hgn-sortopt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 0;margin:0;border:0;border-bottom:1px solid #F0EEF5;background:none;
+  font:inherit;font-size:14px;color:#1B2023;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-sortopt:last-child{border-bottom:0;}
+html.hg-new-app .hgn-rad{width:18px;height:18px;border-radius:9px;box-shadow:inset 0 0 0 2px #CCCBE3;}
+html.hg-new-app .hgn-sortopt.is-on .hgn-rad{box-shadow:inset 0 0 0 5px #5A29DE;}
+/* one store: logo + heart, name, time and fee, then its products */
+html.hg-new-app .hgn-sblist{display:flex;flex-direction:column;padding:0 16px;}
+html.hg-new-app .hgn-sb{padding:16px 0;border-bottom:1px solid #EEEEF0;}
+html.hg-new-app .hgn-sb:last-child{border-bottom:0;}
+html.hg-new-app .hgn-sb-head{display:flex;align-items:center;gap:12px;min-width:0;}
+html.hg-new-app .hgn-sb-logo{position:relative;flex:none;width:76px;height:76px;border-radius:16px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEEEF0;}
+html.hg-new-app .hgn-sb-logo img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-sb-fav{position:absolute;top:3px;inset-inline-end:3px;width:30px;height:30px;margin:0;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-sb-fav svg{width:20px;height:20px;fill:rgba(27,32,35,.55);stroke:#FFFFFF;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));transition:transform .15s ease;}
+html.hg-new-app .hgn-sb-fav:active svg{transform:scale(.85);}
+html.hg-new-app .hgn-sb-fav.is-on svg{fill:#FF4000;}
+html.hg-new-app .hgn-sb-info{min-width:0;display:flex;flex-direction:column;}
+html.hg-new-app .hgn-sb-name{font-size:16px;line-height:1.25;font-weight:600;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-sb-meta{margin-top:4px;font-size:13.5px;line-height:1.3;color:#4A4E54;display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;}
+html.hg-new-app .hgn-sb-meta i{font-style:normal;color:#9AA0A6;}
+html.hg-new-app .hgn-sb-rate{display:inline-flex;align-items:center;gap:3px;color:#1B2023;font-weight:500;}
+html.hg-new-app .hgn-sb-rate svg{width:14px;height:14px;}
+html.hg-new-app .hgn-sb-prods{display:flex;gap:10px;margin:12px -16px 0;padding:0 16px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-padding-inline:16px;}
+html.hg-new-app .hgn-sb-prods::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-sb-p{flex:0 0 118px;min-width:0;display:flex;flex-direction:column;}
+html.hg-new-app .hgn-sb-pi{width:118px;height:118px;border-radius:14px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEEEF0;}
+html.hg-new-app .hgn-sb-pi img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-sb-pn{margin-top:7px;font-size:13.5px;line-height:1.25;color:#1B2023;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+html.hg-new-app .hgn-sb-pp{margin-top:3px;font-size:13.5px;font-weight:500;color:#1B2023;}
+html.hg-new-app .hgn-sb-ph{flex:0 0 118px;height:118px;border-radius:14px;background:#F4F2FA;}
+html.hg-new-app .hgn-sres-loading{display:flex;flex-direction:column;gap:14px;padding:16px;}
+html.hg-new-app .hgn-sres-loading span{height:76px;border-radius:16px;background:#F4F2FA;}
+
+
+/* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ---------- */
+html.hg-new-app.hgn-cat-on #merchants_by_category > :not(#hgn-catpage){display:none!important;}
+html.hg-new-app.hgn-cat-on body #app #merchants_by_category{background:#FFFCF9;min-height:100vh;}
+html.hg-new-app #hgn-catpage{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  background:#FFFCF9;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
+html.hg-new-app #hgn-catpage[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-catpage *{box-sizing:border-box;}
+html.hg-new-app #hgn-catpage a{color:inherit;text-decoration:none;}
+html.hg-new-app #hgn-catpage img{display:block;}
+html.hg-new-app .hgn-cp-top{display:flex;align-items:center;gap:12px;padding:calc(var(--native-status-bar-height,0px) + 10px) 16px 12px;}
+html.hg-new-app .hgn-cp-btn{flex:none;width:40px;height:40px;margin:0;padding:0;border:0;border-radius:20px;background:#FFFCF9;box-shadow:0 0 0 1px #EEECEF;color:#1B2023;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-cp-btn svg{width:19px;height:19px;}
+html.hg-new-app #hgn-catpage[dir="rtl"] .hgn-cp-btn[data-act="back"] svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-cp-title{flex:1;min-width:0;}
+html.hg-new-app .hgn-cp-title h1{margin:0;font-size:19px;line-height:1.2;font-weight:600;letter-spacing:-.025em;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app #hgn-catpage[dir="rtl"] .hgn-cp-title h1{letter-spacing:0;}
+html.hg-new-app .hgn-cp-title p{margin:2px 0 0;font-size:12.5px;font-weight:500;color:#6B7280;}
+html.hg-new-app .hgn-cp-pills{display:flex;gap:8px;padding:0 16px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+html.hg-new-app .hgn-cp-pills::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-cp-pill{flex:none;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;margin:0;border:0;border-radius:17px;background:#FFFCF9;
+  box-shadow:inset 0 0 0 1px #EEECEF;color:#1B2023;font:inherit;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-cp-pill svg{width:15px;height:15px;flex:none;}
+html.hg-new-app .hgn-cp-pill.is-dark,html.hg-new-app .hgn-cp-pill.is-on{background:#1B2023;color:#FFFFFF;box-shadow:none;}
+html.hg-new-app #hgn-catpage .hgn-sortmenu{margin:10px 16px 0;}
+html.hg-new-app .hgn-cp-list{display:flex;flex-direction:column;gap:18px;padding:16px 16px 0;}
+html.hg-new-app .hgn-cc{display:block;min-width:0;}
+html.hg-new-app .hgn-cc-img{position:relative;display:block;height:180px;border-radius:22px;overflow:hidden;background:#F4F2FA;box-shadow:inset 0 0 0 1px #EEECEF;}
+html.hg-new-app .hgn-cc-img img{width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-cc-img.is-logo img{object-fit:contain;padding:28px;}
+html.hg-new-app .hgn-cc.is-closed .hgn-cc-img img{filter:grayscale(.6);opacity:.75;}
+html.hg-new-app .hgn-cc-time{position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:14px;
+  background:rgba(255,255,255,.94);color:#1B2023;font-size:12px;font-weight:600;box-shadow:0 4px 12px rgba(27,32,35,.12);}
+html.hg-new-app .hgn-cc-time svg{width:14px;height:14px;flex:none;}
+html.hg-new-app .hgn-cc-closed{position:absolute;top:12px;inset-inline-end:12px;display:flex;align-items:center;height:28px;padding:0 10px;border-radius:14px;background:#1B2023;color:#FFFFFF;font-size:12px;font-weight:600;}
+html.hg-new-app .hgn-cc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;}
+html.hg-new-app .hgn-cc-name{min-width:0;font-size:17px;line-height:1.25;font-weight:600;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-cc-dist{flex:none;display:inline-flex;align-items:center;gap:4px;color:#6B7280;font-size:12.5px;font-weight:500;}
+html.hg-new-app .hgn-cc-dist svg{width:15px;height:15px;}
+html.hg-new-app .hgn-cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+html.hg-new-app .hgn-cc-tag{height:24px;padding:0 9px;border-radius:8px;background:#FFFCF9;box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C;font-size:12px;font-weight:500;display:inline-flex;align-items:center;}
+
+@media (prefers-reduced-motion:reduce){
+  html.hg-new-app .hgn-dot{transition:none!important;}
+}
+
+/* ---------- STORE PAGE (2026-10-15) ----------
+   App only, store pages only (html.hgn-store, set by app-new.js). Restyles Hyperzod's own store page; nothing is
+   rebuilt, so every tap, the cart and checkout work exactly as before. "html.hg-new-app.hgn-store body #app" in front of
+   every rule keeps these ahead of the older store rules in global-footer-1.js and global-footer.css.
+   2026-10-18: "#app" became ":is(#app,.v-overlay-container)" (same strength): in the phone app a store tapped on a
+   category page, a banner, Featured stores, the cart or a notification opens as a sheet outside #app (see openStorePage
+   in app-new.js). Every new store rule must use the same :is(#app,.v-overlay-container) start. */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view{
+  background:#FFFCF9!important;
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+
+/* cover: full width, square corners, the white sheet below rises over it */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2{background:transparent!important;box-shadow:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2>div:first-child{height:200px!important;border-radius:0!important;margin:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2>.storefront-gutter{
+  position:relative!important;z-index:1;margin:-22px 0 0!important;min-height:0!important;
+  padding:48px 18px 6px!important;background:#FFFCF9!important;border-radius:28px 28px 0 0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-relative{position:static!important;}
+
+/* logo: rounded square sitting on the sheet edge */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .merchant-header-img{
+  position:absolute!important;top:-36px!important;inset-inline-start:18px!important;inset-inline-end:auto!important;
+  width:72px!important;height:72px!important;border:0!important;border-radius:24px!important;overflow:hidden!important;
+  background:#FFFCF9!important;box-shadow:0 0 0 4px #FFFCF9,0 10px 24px -8px rgba(27,32,35,.25)!important;z-index:2;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .merchant-header-img img{width:100%!important;height:100%!important;object-fit:cover!important;inset:0!important;}
+
+/* name row: name, Open now badge, category tag */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card{background:transparent!important;box-shadow:none!important;margin:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div{margin:0!important;padding:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div{
+  margin:0!important;padding:0!important;top:0!important;display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:flex-start!important;text-align:start!important;gap:8px 10px;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 h1{
+  display:block!important;height:auto!important;max-height:none!important;overflow:visible!important;-webkit-line-clamp:unset!important;
+  flex:1 1 auto;min-width:0;margin:0!important;font-size:26px!important;line-height:1.2!important;font-weight:600!important;
+  letter-spacing:-.035em!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 h1{letter-spacing:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open{
+  flex:none;height:24px;padding:0 9px;border-radius:8px;background:#EEF9EE;color:#1B2023;font-size:12px;font-weight:550;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open::before{
+  content:"";width:6px;height:6px;border-radius:3px;background:#ACE4AA;box-shadow:0 0 0 2px rgba(172,228,170,.45);
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open.is-closed{background:#F4F3F8;color:#5C5C5C;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open.is-closed::before{background:#6B7280;box-shadow:none;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div>div:last-child{
+  flex:0 0 100%;margin:0!important;font-size:0!important;line-height:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .v-card-text>div>div>div:last-child span{
+  display:inline-flex!important;align-items:center;height:24px;padding:0 9px;border-radius:8px;background:#FFFCF9;
+  box-shadow:inset 0 0 0 1px #EEECEF;color:#5C5C5C!important;font-size:12px!important;line-height:1!important;font-weight:500!important;
+}
+
+/* the old distance line is replaced by the info card (#hgn-sinfo); the store's own text line below it stays */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div:first-child{display:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4{margin:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4{margin-top:12px!important;}
+html.hg-new-app.hgn-store body #hgn-sinfo{
+  display:flex;gap:8px;margin-top:16px;padding:12px;border-radius:18px;background:#FFFCF9;box-shadow:0 0 0 1px #EEECEF;
+}
+html.hg-new-app.hgn-store body #hgn-sinfo .hgn-sstat{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;color:#1B2023;}
+html.hg-new-app.hgn-store body #hgn-sinfo svg{flex:none;width:20px;height:20px;}
+html.hg-new-app.hgn-store body #hgn-sinfo .hgn-sstat-t{min-width:0;display:flex;flex-direction:column;}
+html.hg-new-app.hgn-store body #hgn-sinfo b{font-size:13.5px;line-height:1.25;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app.hgn-store body #hgn-sinfo small{font-size:11px;line-height:1.3;font-weight:500;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* category tabs: chips (the selected one purple) */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #mobileStickyHeader,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{
+  background:#FFFCF9!important;border:0!important;box-shadow:none!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{padding:6px 0!important;height:auto!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .swiper-wrapper{height:auto!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item{
+  margin-left:0!important;margin-right:0!important;margin-inline-end:8px!important;height:auto!important;width:auto!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item:first-child{margin-inline-start:6px!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item{
+  display:inline-flex!important;align-items:center!important;height:34px!important;padding:0 14px!important;border-radius:17px!important;
+  background:#FFFCF9!important;box-shadow:inset 0 0 0 1px #EEECEF!important;border:0!important;
+  color:#1B2023!important;font-size:13px!important;font-weight:500!important;white-space:nowrap;overflow:hidden;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item.is-active{
+  background:#5A29DE!important;color:#FFFFFF!important;box-shadow:none!important; /* purple, chosen 2026-10-19 */
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item::before,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .scheme-category-primary-nav__item::after,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav .product-category-item::after{display:none!important;}
+
+/* sections sit on the off-white page (no white bands) */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .page-builder-section-surface,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-content{background:transparent!important;}
+
+/* section titles */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .category-name{
+  font-size:17px!important;line-height:1.25!important;font-weight:600!important;letter-spacing:-.02em!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view :is(.scheme-product-recommendation-heading,.cat-section .category-name){letter-spacing:0!important;}
+/* store sections (S3, chosen 2026-10-19): bigger name with a purple bar before it and the number of products in a bubble;
+   headers scroll with their section (not pinned: the pinned chips already show where you are, pinning repeated the name; changed 2026-10-19). data-hgn-count is set by app-new.js */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .category-name{
+  position:static!important;
+  display:flex!important;align-items:center!important;gap:10px!important;
+  margin:0!important;padding:16px 0 10px!important;background:#FFFCF9!important;
+  font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .category-name::before{
+  content:""!important;flex:none!important;width:4px!important;height:22px!important;border-radius:2px!important;background:#5A29DE!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .category-name[data-hgn-count]::after{
+  content:attr(data-hgn-count)!important;margin-inline-start:auto!important;height:24px!important;min-width:28px!important;padding:0 9px!important;
+  border-radius:12px!important;background:#F1EEFC!important;color:#5A29DE!important;font-size:12px!important;font-weight:700!important;letter-spacing:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+}
+
+/* product photo boxes (lists and Recommended): white tile, hairline, soft corners */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .pro-card-h-img{
+  background:#FFFCF9!important;border-radius:18px!important;box-shadow:inset 0 0 0 1px #EEECEF!important;overflow:hidden!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .pro-card-h-img img.hgn-thumb{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;border-radius:inherit;
+}
+/* a product with no photo at all: the store's logo instead of a grey picture icon */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .pro-card-h-img:has(img.hg-noimg-fallback){
+  background:#FFFCF9 var(--hgn-logo) center/56% no-repeat!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .pro-card-h-img img.hg-noimg-fallback{opacity:0!important;}
+
+/* add buttons: small white circle, thin dark plus */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn{
+  background:#FFFCF9!important;color:#1B2023!important;box-shadow:0 0 0 1px #EEECEF,0 4px 12px -4px rgba(27,32,35,.18)!important;border:0!important;
+}
+/* the original plus is painted in the theme purple whatever its colour is set to, so it is swapped for a thin dark one */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn svg{display:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .add-product-btn .add-btn .v-btn__content::before{
+  content:"";display:block;width:14px;height:14px;background:#1B2023;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Recommended cards: no card box, name and price under the photo */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-card.card-shadow{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .v-card.card-shadow>.v-card-text{padding:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .rec-item-title,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .rec-item-title *{
+  font-size:14px!important;line-height:1.3!important;font-weight:600!important;color:#1B2023!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *{
+  font-size:13px!important;line-height:1.3!important;font-weight:500!important;color:#1B2023!important;
+}
+
+/* product rows: no card box, hairline between rows, photo on the end side */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section{padding-top:36px!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important;border-bottom:1px solid #EEECEF!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal:last-child{border-bottom:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal>.v-card-text{padding:14px 0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt{
+  display:flex!important;flex-direction:row!important;align-items:stretch!important;gap:14px!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt>div:not(.pro-card-h){
+  order:0!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;padding:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h{
+  order:1!important;flex:0 0 96px!important;width:96px!important;min-width:96px!important;max-width:96px!important;
+  height:96px!important;min-height:96px!important;max-height:96px!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h-img{
+  width:96px!important;min-width:96px!important;max-width:96px!important;height:96px!important;min-height:96px!important;max-height:96px!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .rec-item-title h4{
+  font-size:15px!important;line-height:1.3!important;font-weight:600!important;color:#1B2023!important;margin:0!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-description{
+  margin-top:3px!important;font-size:12.5px!important;line-height:1.4!important;font-weight:400!important;color:#6B7280!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-price{
+  font-size:14px!important;line-height:1.3!important;font-weight:550!important;color:#1B2023!important;
+}
+
+/* View cart bar: floating purple pill above the home bar */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{
+  left:16px!important;right:16px!important;width:auto!important;max-width:none!important;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;min-height:54px!important;height:54px!important;
+  padding:0 7px 0 12px!important;border-radius:27px!important;background:#5A29DE!important;background-image:none!important;
+  box-shadow:0 10px 24px -14px rgba(90,41,222,.55)!important;
+}
+html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{padding:0 12px 0 7px!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart{width:28px!important;height:28px!important;border-radius:14px!important;background:#ACE4AA!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart svg{display:none!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-badge{
+  position:static!important;min-width:0!important;height:auto!important;padding:0!important;background:transparent!important;
+  color:#1B2023!important;font-size:12.5px!important;font-weight:600!important;
+}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-label{font-size:15.5px!important;font-weight:550!important;letter-spacing:.01em;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-right{
+  height:40px!important;padding:0 14px!important;border-radius:20px!important;background:rgba(255,255,255,.14)!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-strike{font-size:12px!important;opacity:.7;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-price{font-size:14px!important;font-weight:500!important;font-variant-numeric:tabular-nums;}
+
+/* product pop-up */
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-name{font-size:25px!important;line-height:1.2!important;font-weight:600!important;letter-spacing:-.03em!important;color:#1B2023!important;}
+html.hg-new-app.hgn-store[lang^="ar"] body .v-dialog--fullscreen #productInfo .product-name{letter-spacing:0!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-description,
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #productInfo .product-description *{font-size:14px!important;line-height:1.5!important;font-weight:400!important;color:#5C5C5C!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen .similar-items-wrap h1{font-size:15px!important;font-weight:600!important;color:#1B2023!important;}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app>div:first-child{
+  border:0!important;border-radius:27px!important;box-shadow:inset 0 0 0 1px #EEECEF!important;background:#FFFCF9!important;height:54px!important;overflow:hidden;
+}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app .bg-button_normal{
+  height:54px!important;border-radius:27px!important;background:#5A29DE!important;color:#FFFFFF!important;
+  box-shadow:0 10px 24px -14px rgba(90,41,222,.55)!important;font-size:15.5px!important;font-weight:550!important;letter-spacing:.01em!important;text-transform:none!important;
+}
+html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app .bg-button_normal *{font-weight:inherit!important;}
