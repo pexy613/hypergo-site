@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1738 */
+/* hg-version 2026-10-19-1856 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -915,9 +915,9 @@
   }
 
   const TXT = {
-    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", pop: "Popular right now", week: "This week on HyperGo", all: "All", freeDel: "Free delivery", delFee: " delivery",
+    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", occ: "Shop by occasion", week: "This week on HyperGo", all: "All", freeDel: "Free delivery", delFee: " delivery",
     },
-    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", pop: "الأكثر رواجًا الآن", week: "هذا الأسبوع على هايبرجو", all: "الكل", freeDel: "توصيل مجاني", delFee: "توصيل ",
+    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", occ: "تسوّق حسب المناسبة", week: "هذا الأسبوع على هايبرجو", all: "الكل", freeDel: "توصيل مجاني", delFee: "توصيل ",
     }
   };
 
@@ -926,10 +926,11 @@
   const LESS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const GO_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   /* ---------- data (Hyperzod's own store, nothing invented) ---------- */
-  /* Home category tiles (B at 50%, chosen 2026-10-19): our own cut-out product photos, one per category, stored in the
-     repo's cat-photos folder and matched by Hyperzod category id. A category not listed keeps Hyperzod's own image.
-     (cat-photos-real holds the real-scene photos used from 18 to 19 Oct.) */
-  const CAT_PHOTO_BASE = "https://pexy613.github.io/hypergo-site/cat-photos/";
+  /* Home category tiles (chosen 2026-10-19): the HyperGo category icons made in Higgsfield (the ones uploaded in Hyperzod),
+     each put on the same cream-peach background with a soft glow and shadow, stored in the repo's cat-icons folder and
+     matched by Hyperzod category id. A category not listed keeps Hyperzod's own image.
+     (Older sets: cat-photos = product cut-outs, cat-photos-real = real-scene photos.) */
+  const CAT_PHOTO_BASE = "https://pexy613.github.io/hypergo-site/cat-icons/";
   const CAT_PHOTOS = {
     "6a9beeebdda6795f8c065933": "food", "6a9bf071dda6795f8c065936": "retail-trade", "6a9bee55dda6795f8c065932": "flowers",
     "6a9bef69288fb9d9e903a7e4": "beauty", "6a9bee60288fb9d9e903a7e2": "electronics", "6a9bf0ae288fb9d9e903a7e8": "perfumes",
@@ -938,6 +939,13 @@
     "6a9befd6fbfc7198220f95d3": "baby-care", "6a9bf0d4288fb9d9e903a7e9": "gifts", "6a9bf205dda6795f8c065937": "toys",
     "6a9bf4e4dda6795f8c065939": "sports", "6a9bef89288fb9d9e903a7e6": "home-goods"
   };
+  /* Shop by occasion cards (chosen 2026-10-19): title in English and Arabic, and the Hyperzod category each one opens */
+  const OCCASIONS = [
+    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9" },
+    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932" },
+    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7" },
+    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2" }
+  ];
   function catPhoto(c) {
     const slug = CAT_PHOTOS[c && (c.id || c._id)];
     return slug ? CAT_PHOTO_BASE + slug + ".webp" : "";
@@ -1159,8 +1167,19 @@
       html += "</section>";
     }
 
-    /* Popular right now (2026-10-19): filled by fillPopular() as the store menus arrive; hidden while empty */
-    html += '<section class="hgn-pop" hidden><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.pop) + '</h2></div><div class="hgn-pop-row"></div></section>';
+    /* Shop by occasion (chosen 2026-10-19, in place of Popular right now): our own cards, each opens a Hyperzod category;
+       the picture is that category's icon. A card whose category is missing or switched off is left out. */
+    const occ = OCCASIONS.map((o) => ({ o, c: catMap[o.cat] })).filter((x) => x.c && x.c.status !== false && x.c.status !== 0);
+    if (occ.length) {
+      html += '<section class="hgn-occs"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.occ) + '</h2></div><div class="hgn-occ-row">' +
+        occ.map(({ o, c }) => {
+          const href = catHref(c, L), img = catPhoto(c) || c.image;
+          return '<a class="hgn-occ" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+            '<span class="hgn-occ-t">' + esc(o[L]) + "</span>" +
+            '<span class="hgn-occ-go">' + esc(t.shop) + "</span>" +
+            (img ? '<img class="hgn-occ-img" src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</a>";
+        }).join("") + "</div></section>";
+    }
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
     html += storeRow(t.stores, stores, L, catMap, t, favIds, "/" + L + "/home?hgn=stores");
@@ -1180,7 +1199,6 @@
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML = html;
     bindSlider(box);
-    fillPopular();
   }
 
   function onHomeClick(e) {
@@ -1477,8 +1495,6 @@
         ((j && j.data && j.data.category_products) || []).forEach((c) => (c.category_products || []).forEach((p) => { if (p && prodImg(p) && p.in_stock !== false) all.push(p); }));
         all.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
         menuCache[id].list = all.slice(0, 10);
-        menuCache[id].byId = {};
-        all.forEach((p) => { menuCache[id].byId[p.id || p._id] = p; });
       }, () => { menuCache[id].list = []; }).then(() => { menuBusy--; fillProducts(id); pumpMenus(); });
     }
   }
@@ -1499,69 +1515,6 @@
       if (!c.list.length) { row.remove(); return; }
       row.innerHTML = prodsHtml(m, c.list, lang());
     });
-    fillPopular();
-  }
-
-  /* ---------- POPULAR RIGHT NOW (Home, 2026-10-19) ----------
-     Where the products come from, in this order:
-     1. popular.json in this repo: a list like [{"store":"<Hyperzod store id>","product":"<Hyperzod product id>"}, ...],
-        most popular first. It is empty today. When real popularity numbers exist (for example from Hyperzod's order
-        reports), put the products in that file and the row follows it, with no code change.
-     2. Until then, from each of the nearest stores: the products it marked as Featured in Hyperzod (at most 2);
-        a store with none marked gives its first product (chosen 2026-10-19). 10 products in all.
-     Only products with a photo that are in stock. The row stays hidden while it has nothing to show.
-     Tapping a product opens its store. Menus load 3 at a time and are shared with the store lists (menuCache). */
-  const POP_STORES = 8, POP_MAX = 10, POP_PER_STORE = 2;
-  const popular = { list: null, busy: false };
-  function loadPopularFile() {
-    if (popular.busy || popular.list) return;
-    popular.busy = true;
-    fetch("https://pexy613.github.io/hypergo-site/popular.json?v=" + Math.floor(Date.now() / 36e5), { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : [])).then((j) => { popular.list = Array.isArray(j) ? j.filter((x) => x && x.store && x.product) : []; },
-        () => { popular.list = []; })
-      .then(() => { popular.busy = false; fillPopular(); });
-  }
-  function popularItems(hd) {
-    const out = [];
-    if (popular.list && popular.list.length) {
-      const byStore = {};
-      homeStores(hd).forEach((m) => { byStore[m._id || m.id] = m; });
-      popular.list.forEach((x) => {
-        const m = byStore[x.store];
-        if (!m || out.length >= POP_MAX) return;
-        const list = storeProducts(x.store);
-        const p = list && menuCache[x.store].byId && menuCache[x.store].byId[x.product];
-        if (p) out.push({ m, p });
-      });
-      return out;
-    }
-    homeStores(hd).slice(0, POP_STORES).forEach((m) => {
-      const list = storeProducts(m._id || m.id) || [];
-      const feat = list.filter((p) => p.is_featured).slice(0, POP_PER_STORE);
-      (feat.length ? feat : list.slice(0, 1)).forEach((p) => { if (out.length < POP_MAX) out.push({ m, p }); });
-    });
-    return out;
-  }
-  function fillPopular() {
-    const sec = document.querySelector("#hgn-home .hgn-pop");
-    if (!sec) return;
-    if (!popular.list) { loadPopularFile(); return; }
-    const hd = homeData();
-    if (!hd) return;
-    const L = lang(), items = popularItems(hd);
-    const sig = L + "|" + items.map((x) => (x.p.id || x.p._id)).join(",");
-    if (sec.getAttribute("data-sig") === sig) return;
-    sec.setAttribute("data-sig", sig);
-    sec.hidden = !items.length;
-    sec.querySelector(".hgn-pop-row").innerHTML = items.map(({ m, p }) => {
-      seenStores[m._id || m.id] = m;
-      const href = storeHref(m, L);
-      return '<a class="hgn-pop-p" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-        '<span class="hgn-pop-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"><span class="hgn-pop-add" aria-hidden="true">+</span></span>' +
-        '<span class="hgn-pop-pn">' + esc(nameOf(p)) + "</span>" +
-        '<span class="hgn-pop-ps">' + esc(m.name) + "</span>" +
-        '<span class="hgn-pop-pp">' + esc(prodPrice(p)) + "</span></a>";
-    }).join("");
   }
   function storeTime(m) {
     const d = m && m.delivery_data;
