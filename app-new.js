@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-2010 */
+/* hg-version 2026-10-19-2043 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1868,7 +1868,10 @@
   function searchQuery() {
     const g = vueGlobals();
     const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
-    const q = r && r.query && r.query.q;
+    /* Hyperzod writes the search into the address bar itself (history.replaceState), so the router's query stays
+       empty when the customer types or taps a suggestion; read the address bar first (found 2026-10-19) */
+    let q = new URLSearchParams(location.search).get("q");
+    if (typeof q !== "string") q = r && r.query && r.query.q;
     return /^\/(en|ar)\/search\/?$/.test(currentPath()) && typeof q === "string" ? q.trim() : "";
   }
   function loadSearch(key, q, sel, L) {
@@ -1991,10 +1994,111 @@
       }).join("") + "</div></section>";
   }
 
+  /* ---------- SEARCH START SCREEN (E2, chosen 2026-10-19) ----------
+     Before the customer types: a top row like Home's (back, "Search", bag) above the white search box, then
+     Recent searches as clean rows (E2), Popular searches as lavender pills (E1), then 4 categories with See all (opens all of them in place).
+     The searches are the same ones the website's search screen already keeps (global-footer-2.js builds them as buttons in
+     #hg-search-discovery, which stays hidden in the app); tapping a row presses that button, so the search runs the same way.
+     Hidden while there is text in the search box or search results are showing. */
+  let slandSig = "", slandAll = false;
+  const STXT2 = {
+    en: { search: "Search", back: "Back", recent: "Recent searches", popular: "Popular searches" },
+    ar: { search: "بحث", back: "رجوع", recent: "عمليات البحث الأخيرة", popular: "عمليات بحث شائعة" }
+  };
+  const SL_ICON = {
+    back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    go: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  function renderSearchLanding() {
+    const de = document.documentElement;
+    const root = document.getElementById("MultiVendorSearch");
+    const onSearch = /^\/(en|ar)\/search\/?$/.test(currentPath()) && root;
+    const hdr = onSearch && root.querySelector(".scheme-global-search-mobile-header");
+    const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L], s2 = STXT2[L];
+    /* top row of the header (on the start screen and with results) */
+    let top = document.getElementById("hgn-shead");
+    if (hdr) {
+      if (!top) {
+        top = document.createElement("div");
+        top.id = "hgn-shead";
+        top.addEventListener("click", (e) => {
+          if (!e.target.closest("[data-act=sback]")) return;
+          const g = vueGlobals();
+          if (history.length > 1 && g && g.$router) g.$router.back(); else go("/" + lang() + "/home");
+        });
+      }
+      if (top.parentElement !== hdr || hdr.firstElementChild !== top) hdr.insertAdjacentElement("afterbegin", top);
+      const th = '<button type="button" class="hgn-shead-back" data-act="sback" aria-label="' + esc(s2.back) + '">' + SL_ICON.back + '</button><span class="hgn-shead-title">' + esc(s2.search) + "</span>";
+      if (top.getAttribute("data-l") !== L) { top.setAttribute("data-l", L); top.innerHTML = th; }
+      de.classList.add("hgn-shead-on");
+    } else {
+      de.classList.remove("hgn-shead-on");
+      if (top) top.remove();
+    }
+    /* start screen body */
+    const start = onSearch && root.querySelector(".scheme-global-search-recent");
+    const input = onSearch && root.querySelector("input");
+    const typing = !!(input && input.value.trim());
+    let box = document.getElementById("hgn-sland");
+    const off = () => { de.classList.remove("hgn-sland-on"); if (box) box.remove(); slandSig = ""; };
+    const hd = homeData();
+    if (!start || typing || de.classList.contains("hgn-sres-on") || !hd) { off(); return; }
+    const disc = document.getElementById("hg-search-discovery");
+    const qs = (sel) => disc ? [...disc.querySelectorAll(sel)].map((b) => b.getAttribute("data-q")).filter(Boolean) : [];
+    const recent = qs(".hg-sd-chip:not(.pop)").slice(0, 3);
+    const popular = qs(".hg-sd-chip.pop").slice(0, 6);
+    const cats = (hd.merchant_categories || []).filter((c) => c && c.status !== false && c.status !== 0)
+      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "hgn-sland";
+      box.addEventListener("click", onSlandClick);
+      slandSig = "";
+    }
+    if (box.nextElementSibling !== start) start.insertAdjacentElement("beforebegin", box);
+    de.classList.add("hgn-sland-on");
+    const sig = [L, slandAll, recent.join("|"), popular.join("|"), cats.map((c) => c.id || c._id).join(",")].join("#");
+    if (sig === slandSig) return;
+    slandSig = sig;
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    const rows = (list, icon, cls) => '<div class="hgn-sl-rows">' + list.map((q) =>
+      '<button type="button" class="hgn-sl-row ' + cls + '" data-act="sq" data-q="' + esc(q) + '"><span class="hgn-sl-ic">' + icon + '</span><span class="hgn-sl-q">' + esc(q) + '</span><span class="hgn-sl-go">' + SL_ICON.go + "</span></button>").join("") + "</div>";
+    let html = "";
+    if (recent.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.recent) + "</h2>" + rows(recent, SL_ICON.clock, "is-recent") + "</section>";
+    if (popular.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.popular) + "</h2>" + '<div class="hgn-sl-pills">' + popular.map((q) =>
+      '<button type="button" class="hgn-sl-pill" data-act="sq" data-q="' + esc(q) + '">' + esc(q) + "</button>").join("") + "</div></section>";
+    if (cats.length) {
+      const shown = slandAll ? cats : cats.slice(0, 4);
+      html += '<section class="hgn-sl-sec"><div class="hgn-sl-head"><h2 class="hgn-sl-h">' + esc(t.cats) + "</h2>" +
+        (cats.length > 4 ? '<button type="button" class="hgn-sl-all" data-act="sall">' + esc(slandAll ? t.less : t.seeAll) + "</button>" : "") + "</div>" +
+        '<div class="hgn-cat-grid">' + shown.map((c) => {
+          const href = catHref(c, L), photo = catPhoto(c), img = photo || c.image;
+          return '<a class="hgn-cat' + (photo ? " hgn-cat-photo" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+            '<span class="hgn-cat-ring">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+            '<span class="hgn-cat-name">' + esc(catLabel(c)) + "</span></a>";
+        }).join("") + "</div></section>";
+    }
+    box.innerHTML = html;
+  }
+  function onSlandClick(e) {
+    const act = e.target.closest("[data-act]");
+    if (act && act.getAttribute("data-act") === "sall") { slandAll = !slandAll; slandSig = ""; renderSearchLanding(); return; }
+    if (act && act.getAttribute("data-act") === "sq") {
+      const q = act.getAttribute("data-q");
+      const disc = document.getElementById("hg-search-discovery");
+      const b = disc && [...disc.querySelectorAll("[data-q]")].find((x) => x.getAttribute("data-q") === q);
+      if (b) b.click();
+      return;
+    }
+    onHomeClick(e);
+  }
+
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
-    hookRouter, renderPage, renderAccountFav, renderSearchFav, renderSearchResults, renderCategoryPage,
+    hookRouter, renderPage, renderAccountFav, renderSearchFav, renderSearchResults, renderSearchLanding, renderCategoryPage,
     ensureHeaderExtraStyle, tagNativeNav, applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); },
     renderStore
