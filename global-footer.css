@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1631 */
+/* hg-version 2026-10-19-1643 */
 /* 2026-10-19: every store rule starts with :is(#app,.v-overlay-container) instead of #app (same strength). In the phone app a store tapped on a category page, banner, Featured stores, the cart or a notification opens as a sheet outside #app, under body > .v-overlay-container; rules scoped to #app missed it, so those stores lost the product-row and Recommended-row layout. The website never opens stores as a sheet, so it is unchanged. */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
@@ -2045,3 +2045,9 @@ html body :is(#app,.v-overlay-container) .scheme-merchant-page .scheme-merchant-
    utility classes. Text and coloured buttons are unchanged. */
 :root,.v-theme--hpzLightTheme{--v-theme-background:255,252,249!important;--v-theme-surface:255,252,249!important;}
 html,body,.v-application,.bg-white,.tw-bg-white,.bg-surface{background-color:#FFFCF9!important;}
+/* Hyperzod's colour scheme (Hyperzod admin > colour schemes) sets --scheme-background:#FFFFFF and paints the app layer and the
+   Account pages with it from a rule that outranks ours, so the white came back there (found 2026-10-19). Set the variable instead.
+   Only the two white schemes; the black one (scheme-mu83wfk2) stays as it is. */
+[data-color-scheme="scheme-mtlgeoeh"],[data-color-scheme="scheme-mu83wtft"]{--scheme-background:#FFFCF9!important;}
+/* page-change slide and the 404 page were hard-coded white (white flash between screens) */
+.router-view-slide-in-enter-active,.router-view-slide-in-leave-active,.router-view-slide-out-enter-active,.router-view-slide-out-leave-active,.error-page-404{background-color:#FFFCF9!important;}

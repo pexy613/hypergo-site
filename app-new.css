@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1631 */
+/* hg-version 2026-10-19-1643 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -469,9 +469,9 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 }
 html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view :is(.scheme-product-recommendation-heading,.cat-section .category-name){letter-spacing:0!important;}
 /* store sections (S3, chosen 2026-10-19): bigger name with a purple bar before it and the number of products in a bubble;
-   the header stays pinned under the chips while its section scrolls (--hgn-sec-top and data-hgn-count are set by app-new.js) */
+   headers scroll with their section (not pinned: the pinned chips already show where you are, pinning repeated the name; changed 2026-10-19). data-hgn-count is set by app-new.js */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .category-name{
-  position:sticky!important;top:var(--hgn-sec-top,99px)!important;z-index:3!important;
+  position:static!important;
   display:flex!important;align-items:center!important;gap:10px!important;
   margin:0!important;padding:16px 0 10px!important;background:#FFFCF9!important;
   font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;color:#1B2023!important;

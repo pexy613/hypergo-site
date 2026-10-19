@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1631 */
+/* hg-version 2026-10-19-1643 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -1400,19 +1400,13 @@
 
     fillProductPhotos(page);
 
-    /* store sections (S3, 2026-10-19): how many products each section has, and how far down the headers pin
-       (just under the sticky chips bar, measured, so it fits a page or a sheet) */
+    /* store sections (S3, 2026-10-19): how many products each section has (shown in the header's bubble) */
     page.querySelectorAll(".cat-section").forEach((sec) => {
       const h = sec.querySelector(".category-name");
       if (!h) return;
       const n = String(sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").length);
       if (n !== "0" && h.getAttribute("data-hgn-count") !== n) h.setAttribute("data-hgn-count", n);
     });
-    const stickyBar = page.querySelector("#mobileStickyHeader");
-    if (stickyBar) {
-      const v = Math.round((parseFloat(getComputedStyle(stickyBar).top) || 0) + stickyBar.offsetHeight) + "px";
-      if (page.style.getPropertyValue("--hgn-sec-top") !== v) page.style.setProperty("--hgn-sec-top", v);
-    }
   }
 
   /* ---------- running it ---------- */
