@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1543 */
+/* hg-version 2026-10-19-1631 */
 /* 2026-10-19: every store rule starts with :is(#app,.v-overlay-container) instead of #app (same strength). In the phone app a store tapped on a category page, banner, Featured stores, the cart or a notification opens as a sheet outside #app, under body > .v-overlay-container; rules scoped to #app missed it, so those stores lost the product-row and Recommended-row layout. The website never opens stores as a sheet, so it is unchanged. */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
@@ -13,17 +13,17 @@
 /* Search-only rules outrank the legacy [data-color-scheme] styles, regardless of injection order. */
 html body #app #MultiVendorSearch #hg-search-discovery[hidden]{display:none!important;}
 @media (max-width:959.98px){
-html body #app #MultiVendorSearch{background:#fff!important;color:#1B2023!important;min-height:100vh!important;min-width:0!important;max-width:100%!important;padding-inline:0!important;box-sizing:border-box!important;}
+html body #app #MultiVendorSearch{background:#FFFCF9!important;color:#1B2023!important;min-height:100vh!important;min-width:0!important;max-width:100%!important;padding-inline:0!important;box-sizing:border-box!important;}
 html body #app #MultiVendorSearch .scheme-global-search-mobile-header{display:flex!important;align-items:center!important;gap:10px!important;background:#8640FC!important;padding:12px 16px 20px!important;margin:0!important;border-radius:0 0 24px 24px!important;}
 html.hg-search-page .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#8640FC!important;}
 html body #app #MultiVendorSearch .mobile-search-input{flex:1 1 auto!important;min-width:0!important;}
 html body #app #MultiVendorSearch .mobile-search-input .v-input__control{padding-inline-start:42px!important;}
 html body #app #MultiVendorSearch .mobile-search-input .v-field{height:44px!important;min-height:44px!important;background:#F6F6F8!important;border:1px solid #E7E5EA!important;padding:0 13px!important;}
 html body #app #MultiVendorSearch .mobile-search-input .v-field__field,html body #app #MultiVendorSearch .mobile-search-input .v-field__input{height:44px!important;min-height:44px!important;font-size:15px!important;}
-html body #app #MultiVendorSearch .mobile-search-input .v-field__prepend-inner{inset-inline-start:-44px!important;width:36px!important;height:36px!important;background:#fff!important;border:1px solid #E7E5EA!important;border-radius:50%!important;}
+html body #app #MultiVendorSearch .mobile-search-input .v-field__prepend-inner{inset-inline-start:-44px!important;width:36px!important;height:36px!important;background:#FFFCF9!important;border:1px solid #E7E5EA!important;border-radius:50%!important;}
 html body #app #MultiVendorSearch .mobile-search-input .v-field__prepend-inner .v-icon::before{width:18px!important;height:18px!important;background:#1B2023!important;}
 html body #app #MultiVendorSearch .mobile-search-input .v-field__append-inner>div::before{width:18px!important;height:18px!important;background:#73707A!important;}
-#hg-search-cart{flex:0 0 40px;width:40px;height:40px;border:1px solid #E7E5EA;border-radius:50%;background:#fff;color:#1B2023;display:flex;align-items:center;justify-content:center;padding:0;position:relative;-webkit-tap-highlight-color:transparent;}
+#hg-search-cart{flex:0 0 40px;width:40px;height:40px;border:1px solid #E7E5EA;border-radius:50%;background:#FFFCF9;color:#1B2023;display:flex;align-items:center;justify-content:center;padding:0;position:relative;-webkit-tap-highlight-color:transparent;}
 #hg-search-cart svg{width:18px;height:18px;}
 #hg-search-cart .hg-sc-badge{display:none;position:absolute;right:-3px;top:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#FF4000;color:#fff;font-size:10px;font-weight:800;line-height:17px;text-align:center;}
 #hg-search-cart.has-items .hg-sc-badge{display:block;}
@@ -33,7 +33,7 @@ html body #app #MultiVendorSearch .recent-searches .tw-grid{grid-template-rows:r
 html body #app #MultiVendorSearch .recent-searches .tw-grid>div{width:68px!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid .category-img{width:58px!important;height:58px!important;flex-basis:58px!important;border-radius:50%!important;box-shadow:0 1px 6px rgba(60,30,140,.12)!important;border:0!important;overflow:hidden!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid>div>div:last-child{width:68px!important;font-size:11.5px!important;font-weight:500!important;margin-top:5px!important;}
-#hg-search-discovery{padding:0 0 34px;background:#fff;color:#1B2023;}
+#hg-search-discovery{padding:0 0 34px;background:#FFFCF9;color:#1B2023;}
 #hg-search-discovery *{box-sizing:border-box;}
 #hg-search-discovery .hg-sd-sec{margin:22px 0 30px;}
 #hg-search-discovery .hg-sd-head{display:flex;align-items:end;justify-content:space-between;padding:0;margin-bottom:12px;}
@@ -41,16 +41,16 @@ html body #app #MultiVendorSearch .recent-searches .tw-grid>div>div:last-child{w
 #hg-search-discovery .hg-sd-sub{font-size:11.5px;color:#817B88;margin-top:3px;}
 #hg-search-discovery .hg-sd-chips{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:0 0 4px;scrollbar-width:none;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;}
 #hg-search-discovery .hg-sd-chips::-webkit-scrollbar,#hg-search-discovery .hg-sd-brands::-webkit-scrollbar{display:none;}
-#hg-search-discovery .hg-sd-chip{flex:0 0 auto;border:1px solid #E7E3EA;background:#fff;border-radius:11px;padding:8px 11px;font-size:12px;font-weight:620;color:#302C35;box-shadow:0 1px 2px rgba(27,32,35,.03);}
-#hg-search-discovery .hg-sd-chip.pop{background:#fff;border-color:#DDD7E8;color:#4E4658;}
+#hg-search-discovery .hg-sd-chip{flex:0 0 auto;border:1px solid #E7E3EA;background:#FFFCF9;border-radius:11px;padding:8px 11px;font-size:12px;font-weight:620;color:#302C35;box-shadow:0 1px 2px rgba(27,32,35,.03);}
+#hg-search-discovery .hg-sd-chip.pop{background:#FFFCF9;border-color:#DDD7E8;color:#4E4658;}
 #hg-search-discovery .hg-sd-brands{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:1px 0 4px;scroll-snap-type:x proximity;scroll-padding-inline:0;scrollbar-width:none;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;}
 #hg-search-discovery .hg-sd-brand{flex:0 0 72px;width:72px;text-align:center;text-decoration:none;color:inherit;scroll-snap-align:start;touch-action:pan-x pan-y;-webkit-user-drag:none;}
-#hg-search-discovery .hg-sd-brand-img{width:72px;height:72px;border:1px solid #E9E6EC;border-radius:14px;background-color:#fff;background-position:center;background-size:contain;background-repeat:no-repeat;}
+#hg-search-discovery .hg-sd-brand-img{width:72px;height:72px;border:1px solid #E9E6EC;border-radius:14px;background-color:#FFFCF9;background-position:center;background-size:contain;background-repeat:no-repeat;}
 #hg-search-discovery .hg-sd-brand-name{font-size:10.5px;font-weight:620;line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html body #app #MultiVendorSearch .v-tabs{min-height:48px!important;height:48px!important;margin:12px 16px 0!important;width:auto!important;border-bottom:1px solid #ECE9EF!important;}
 html body #app #MultiVendorSearch .v-tab{min-height:48px!important;height:48px!important;padding:0 12px!important;font-size:14px!important;font-weight:700!important;text-transform:none!important;letter-spacing:0!important;}
 html body #app #MultiVendorSearch .v-tab:first-child{padding-inline-start:0!important;}
-html body #app #MultiVendorSearch .tab-item-merchant .merchant-card{gap:12px!important;padding:12px 16px!important;background:#fff!important;}
+html body #app #MultiVendorSearch .tab-item-merchant .merchant-card{gap:12px!important;padding:12px 16px!important;background:#FFFCF9!important;}
 html body #app #MultiVendorSearch .tab-item-merchant .merchant-card .cover-img{width:72px!important;height:72px!important;min-width:72px!important;flex-basis:72px!important;border-radius:14px!important;box-shadow:none!important;border:1px solid #ECE9EF!important;}
 html body #app #MultiVendorSearch .tab-item-merchant .merchant-card .merchant-card-title{font-size:14px!important;font-weight:720!important;}
 html body #app #MultiVendorSearch .tab-item-merchant .merchant-card .merchant-card-info{font-size:11.5px!important;color:#77727F!important;}
@@ -72,7 +72,7 @@ html body #app #MultiVendorSearch .product-horizontal-cards .pro-card-h-img>.tw-
 html[lang^='ar'] body #app #MultiVendorSearch .product-horizontal-cards .pro-card-h-img>.tw-absolute{left:8px!important;right:auto!important;}
 
 /* Search product groups: the native result is a merchant wrapper containing product-card-horizontal. */
-html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal){margin:0!important;padding:16px 0 18px!important;border:0!important;border-bottom:1px solid #EEECEF!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;}
+html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal){margin:0!important;padding:16px 0 18px!important;border:0!important;border-bottom:1px solid #EEECEF!important;border-radius:0!important;background:#FFFCF9!important;box-shadow:none!important;}
 html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal) .product-card-horizontal{width:146px!important;min-width:146px!important;max-width:146px!important;height:auto!important;min-height:0!important;border:0!important;background:transparent!important;box-shadow:none!important;}
 html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal) .product-card-horizontal>.v-card-text{padding:0!important;}
 html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal) .product-card-horizontal .pro-card-h,html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal) .product-card-horizontal .pro-card-h-img{width:146px!important;height:146px!important;min-width:146px!important;max-width:146px!important;min-height:146px!important;max-height:146px!important;padding-bottom:0!important;}
@@ -91,14 +91,14 @@ html body #app #MultiVendorSearch .recent-searches .tw-grid{padding-left:16px!im
 #hg-search-discovery .hg-sd-brands{padding:1px 16px 4px!important;scroll-padding-inline:16px!important;scroll-snap-type:none!important;touch-action:auto!important;overscroll-behavior:auto!important;}
 #hg-search-discovery .hg-sd-brand,#hg-search-discovery .hg-sd-brand *{touch-action:auto!important;-webkit-user-select:none!important;user-select:none!important;-webkit-user-drag:none!important;}
 #hg-search-discovery .hg-sd-popular .hg-sd-chips{display:grid!important;grid-auto-flow:column!important;grid-template-rows:repeat(2,auto)!important;grid-auto-columns:max-content!important;gap:8px!important;overflow-x:auto!important;}
-#hg-search-discovery .hg-sd-popular .hg-sd-chip.pop{display:inline-flex!important;align-items:center!important;gap:6px!important;border-color:#E5E2E8!important;border-radius:999px!important;padding:7px 11px!important;background:#fff!important;color:#302C35!important;font-size:11.5px!important;}
+#hg-search-discovery .hg-sd-popular .hg-sd-chip.pop{display:inline-flex!important;align-items:center!important;gap:6px!important;border-color:#E5E2E8!important;border-radius:999px!important;padding:7px 11px!important;background:#FFFCF9!important;color:#302C35!important;font-size:11.5px!important;}
 #hg-search-discovery .hg-sd-popular .hg-sd-chip.pop:before{content:'↗';font-size:12px;font-weight:700;color:#5A29DE;}
 html body #app #MultiVendorSearch.hg-has-query .recent-searches{display:none!important;}
 html body #app #MultiVendorSearch.hg-has-query .v-tabs{width:auto!important;margin:8px 16px 0!important;}
 html body #app #MultiVendorSearch.hg-has-query .v-window,html body #app #MultiVendorSearch.hg-has-query .v-window-item{margin-top:0!important;padding-top:0!important;}
 
 /* v97: search results are merchant rows + compact horizontal product cards, never giant grey panels. */
-html body #app #MultiVendorSearch .merchant-card.hg-search-product-group{display:block!important;width:100%!important;margin:0!important;padding:14px 16px 16px!important;border:0!important;border-bottom:1px solid #EEECEF!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:visible!important;}
+html body #app #MultiVendorSearch .merchant-card.hg-search-product-group{display:block!important;width:100%!important;margin:0!important;padding:14px 16px 16px!important;border:0!important;border-bottom:1px solid #EEECEF!important;border-radius:0!important;background:#FFFCF9!important;box-shadow:none!important;overflow:visible!important;}
 html body #app #MultiVendorSearch .hg-search-product-group .merchant-card-title{font-size:16px!important;font-weight:720!important;line-height:1.25!important;color:#1B2023!important;}
 html body #app #MultiVendorSearch .hg-search-product-group .merchant-card-info{font-size:12.5px!important;line-height:1.35!important;color:#77727F!important;margin-top:3px!important;}
 html body #app #MultiVendorSearch .hg-search-product-rail{display:flex!important;flex-wrap:nowrap!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;margin:12px -16px 0!important;padding:0 16px 5px!important;scrollbar-width:none!important;touch-action:auto!important;-webkit-overflow-scrolling:touch!important;}
@@ -290,7 +290,7 @@ html body #app #MultiVendorSearch .merchant-card.hg-search-product-group .hg-sea
     padding:0!important;
     border:0!important;
     border-radius:50%!important;
-    background:#FFFFFF!important;
+    background:#FFFCF9!important;
     color:#5A29DE!important;
     box-shadow:0 1px 4px rgba(27,32,35,.12)!important;
     font-size:0!important;
@@ -835,7 +835,7 @@ html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-p
 /* v103 — the generated discovery sections previously had mobile-only styling and became raw text on desktop. */
 @media (min-width:960px){
   html body #app #MultiVendorSearch{
-    background:#fff!important;
+    background:#FFFCF9!important;
     color:#1B2023!important;
     min-width:0!important;
   }
@@ -845,7 +845,7 @@ html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-p
     max-width:1350px!important;
     margin:0 auto!important;
     padding:0 24px 48px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     color:#1B2023!important;
     box-sizing:border-box!important;
   }
@@ -902,7 +902,7 @@ html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-p
     padding:9px 14px!important;
     border:1px solid #E7E3EA!important;
     border-radius:12px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     color:#302C35!important;
     box-shadow:0 1px 2px rgba(27,32,35,.03)!important;
     font-size:14px!important;
@@ -953,7 +953,7 @@ html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-p
     height:96px!important;
     border:1px solid #E9E6EC!important;
     border-radius:16px!important;
-    background-color:#fff!important;
+    background-color:#FFFCF9!important;
     background-position:center!important;
     background-size:contain!important;
     background-repeat:no-repeat!important;
@@ -1122,7 +1122,7 @@ html body #app #MultiVendorSearch{
   /* Queried Search results: compact, consistent store rows and product
      previews regardless of which native card renderer Hyperzod returns. */
   html body #app #MultiVendorSearch.hg-has-query{
-    background:#fff!important;
+    background:#FFFCF9!important;
   }
   html body #app #MultiVendorSearch.hg-has-query .v-tabs{
     width:100%!important;
@@ -1130,7 +1130,7 @@ html body #app #MultiVendorSearch{
     min-height:48px!important;
     margin:0!important;
     padding:0 16px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     border-bottom:1px solid #EEECEF!important;
     box-shadow:none!important;
   }
@@ -1140,7 +1140,7 @@ html body #app #MultiVendorSearch{
     max-width:none!important;
     margin:0!important;
     padding:0!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
   }
   html body #app #MultiVendorSearch.hg-has-query .tab-item-merchant .merchant-card{
     display:flex!important;
@@ -1149,7 +1149,7 @@ html body #app #MultiVendorSearch{
     margin:0!important;
     padding:12px 16px!important;
     gap:12px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     border:0!important;
     border-bottom:1px solid #EEECEF!important;
     border-radius:0!important;
@@ -1170,7 +1170,7 @@ html body #app #MultiVendorSearch{
     width:100%!important;
     margin:0!important;
     padding:14px 16px 18px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     border:0!important;
     border-bottom:1px solid #EEECEF!important;
     border-radius:0!important;
@@ -1287,7 +1287,7 @@ html body #app #AppBar .web-main-search:focus-within{
   box-shadow:0 0 0 2px rgba(90,41,222,.38)!important;border-radius:999px!important;
 }
 html body :is(.scheme-side-panel,.product-popup) :is(input,textarea){font-size:16px!important;}
-html body :is(.scheme-cart-panel,.scheme-auth-panel,.scheme-coupon-content,.scheme-edit-profile-surface){color:#1B2023;background:#fff;}
+html body :is(.scheme-cart-panel,.scheme-auth-panel,.scheme-coupon-content,.scheme-edit-profile-surface){color:#1B2023;background:#FFFCF9;}
 html body .scheme-coupon-content{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));}
 html body .scheme-coupon-content .hg-coupon-title{font-size:20px;font-weight:700;line-height:1.4;margin:0;}
 html body .scheme-coupon-content .hg-coupon-close{display:flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;border:0;border-radius:50%;background:#F2EEFF;color:#1B2023;cursor:pointer;}
@@ -1304,12 +1304,12 @@ html body #app #checkout table{width:100%;font-variant-numeric:tabular-nums;}
 html body #app #checkout td{padding-block:10px;vertical-align:top;}
 html body #app #checkout td:last-child{white-space:nowrap;text-align:end;}
 html body #app #checkout :is(.cart-item,.scheme-checkout-content){min-width:0;}
-html body .product-popup .v-card-actions{flex-shrink:0;background:#fff;}
+html body .product-popup .v-card-actions{flex-shrink:0;background:#FFFCF9;}
 html body .product-popup :is(.product-name,.v-list-item-title){overflow-wrap:anywhere;}
-html body #app #custom-scroll-orders.scheme-orders-surface{background:#fff!important;border-color:#EAE4F5!important;max-width:100%;box-sizing:border-box;}
+html body #app #custom-scroll-orders.scheme-orders-surface{background:#FFFCF9!important;border-color:#EAE4F5!important;max-width:100%;box-sizing:border-box;}
 html body #app #custom-scroll-orders>div>svg{max-width:min(240px,100%);height:auto;flex-shrink:0;}
 html body #app .scheme-cart-empty>svg{max-width:100%;height:auto;}
-html body #app .scheme-address-editor__footer{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;background:#fff;}
+html body #app .scheme-address-editor__footer{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;background:#FFFCF9;}
 /* Account, cart and checkout keep Hyperzod's native controls and state. */
 html body #app #custom-scroll-orders .rate-order-btn,
 html body #app #addresses .add-address-btn,
@@ -1353,7 +1353,7 @@ html body #app #checkout :is(#AddressCard,#payment-card,#OrderScheduling) :is(h2
 html body #app #checkout #cartItems .cart-item .product-name{font-size:14px!important;line-height:19px!important;font-weight:600!important;}
 html body #app #checkout #cartItems .cart-item .product-price{font-size:13px!important;line-height:18px!important;}
 html body #app #checkout #summary{border:1px solid #EAE4F5!important;border-radius:14px!important;}
-html body #app #ProceedToCheckoutBottomFixedContainer{background:#fff!important;border-top:1px solid #EAE4F5!important;box-shadow:0 -8px 24px rgba(27,32,35,.08)!important;}
+html body #app #ProceedToCheckoutBottomFixedContainer{background:#FFFCF9!important;border-top:1px solid #EAE4F5!important;box-shadow:0 -8px 24px rgba(27,32,35,.08)!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer>.v-container{max-width:1200px!important;padding:10px 20px!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer>.v-container>.tw-flex{color:#5F5B68!important;gap:14px;font-size:14px!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer .cart-panel-btn{width:44px!important;height:44px!important;min-width:44px!important;margin-inline-end:8px;background:#F2ECFF!important;color:#5A29DE!important;border-radius:12px!important;}
@@ -1371,13 +1371,13 @@ html body #app #MerchantSearchPage .add-btn{
   box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
 }
 /* The live desktop renderer is a native slider, not a merchant-card carousel. */
-html body #app #MultiVendorSearch .scheme-global-search-product-group{background:#fff!important;border:none!important;border-radius:0!important;padding:16px 0!important;margin:0 0 16px!important;min-width:0;}
+html body #app #MultiVendorSearch .scheme-global-search-product-group{background:#FFFCF9!important;border:none!important;border-radius:0!important;padding:16px 0!important;margin:0 0 16px!important;min-width:0;}
 html body #app #MultiVendorSearch .scheme-global-search-product-group>a,
 html body #app #MultiVendorSearch .hg-search-view-all{font-size:13px!important;color:#5A29DE!important;}
 html body #app #MultiVendorSearch .searched-products-rail .slider-inner-container{align-items:stretch!important;gap:12px!important;}
 html body #app #MultiVendorSearch .searched-products-rail__card{width:160px!important;min-width:160px!important;max-width:160px!important;height:100%;}
 html body #app #MultiVendorSearch .searched-products-rail .slider-inner-container>.tw-py-2{flex:0 0 160px!important;min-width:0!important;}
-html body #app #MultiVendorSearch .searched-products-rail .product-card-horizontal{height:100%!important;min-width:0!important;width:100%!important;max-width:none!important;border:0!important;box-shadow:none!important;background:#fff!important;}
+html body #app #MultiVendorSearch .searched-products-rail .product-card-horizontal{height:100%!important;min-width:0!important;width:100%!important;max-width:none!important;border:0!important;box-shadow:none!important;background:#FFFCF9!important;}
 html body #app #MultiVendorSearch .searched-products-rail .v-card-text{padding:0!important;}
 html body #app #MultiVendorSearch .searched-products-rail .v-card-text>.tw-grid{display:flex!important;flex-direction:column-reverse!important;gap:10px!important;}
 html body #app #MultiVendorSearch .searched-products-rail .pro-card-h,
@@ -1393,12 +1393,12 @@ html body #app #app-router-view.scheme-profile-page>.v-container{max-width:1260p
 html body #app .scheme-profile-page>.v-container>.v-row{display:flex;flex-wrap:nowrap;gap:28px;margin:0!important;align-items:flex-start;}
 html body #app .scheme-profile-page>.v-container>.v-row>div:first-child{flex:0 0 300px!important;width:300px!important;max-width:300px!important;padding:0!important;}
 html body #app .scheme-profile-page>.v-container>.v-row>div:last-child{flex:1 1 0!important;width:auto!important;max-width:none!important;min-width:0;padding:0!important;}
-html body #app .scheme-profile-page #ProfileSideBar>.v-card{padding:20px!important;background:#fff!important;border:1px solid #EAE4F5!important;border-radius:18px!important;box-shadow:0 8px 26px rgba(34,18,78,.04)!important;}
+html body #app .scheme-profile-page #ProfileSideBar>.v-card{padding:20px!important;background:#FFFCF9!important;border:1px solid #EAE4F5!important;border-radius:18px!important;box-shadow:0 8px 26px rgba(34,18,78,.04)!important;}
 html body #app .scheme-profile-page #ProfileSideBar .v-card-text{padding:0!important;}
 html body #app .scheme-profile-page #ProfileSideBar .user-details{align-items:flex-start;gap:12px;padding:17px 16px!important;border-radius:14px;background:#F7F3FF;}
 html body #app .scheme-profile-page #ProfileSideBar .user-details h6{font-size:17px!important;line-height:23px!important;}
 html body #app .scheme-profile-page #ProfileSideBar .user-details p{font-size:12px!important;line-height:19px!important;overflow-wrap:anywhere;}
-html body #app .scheme-profile-page #ProfileSideBar .scheme-profile-edit{width:40px!important;height:40px!important;min-width:40px!important;background:#fff!important;color:#5A29DE!important;border-radius:50%!important;}
+html body #app .scheme-profile-page #ProfileSideBar .scheme-profile-edit{width:40px!important;height:40px!important;min-width:40px!important;background:#FFFCF9!important;color:#5A29DE!important;border-radius:50%!important;}
 html body #app .scheme-profile-page #ProfileSideBar .navigation-list{margin-top:16px!important;padding:0!important;}
 html body #app .scheme-profile-page #ProfileSideBar .scheme-profile-nav-item{min-height:48px!important;margin:3px 0!important;padding:0 14px!important;border-radius:12px!important;}
 html body #app .scheme-profile-page #ProfileSideBar .scheme-profile-nav-item.v-list-item--active{background:#F2ECFF!important;color:#5A29DE!important;}
@@ -1412,7 +1412,7 @@ html body #app #custom-scroll-orders>div:first-child{height:auto!important;min-h
 html body #app #custom-scroll-orders h2{font-size:24px!important;line-height:31px!important;margin:18px 0 6px!important;}
 html body #app #custom-scroll-orders p{font-size:15px!important;line-height:23px!important;margin:0!important;}
 html body #app #custom-scroll-orders .rate-order-btn{margin-top:24px!important;max-width:240px!important;}
-html body #app #addresses>.v-card,html body #app #Languages>.v-card{min-height:470px!important;padding:20px!important;background:#fff!important;border:1px solid #EAE4F5!important;border-radius:18px!important;box-shadow:none!important;}
+html body #app #addresses>.v-card,html body #app #Languages>.v-card{min-height:470px!important;padding:20px!important;background:#FFFCF9!important;border:1px solid #EAE4F5!important;border-radius:18px!important;box-shadow:none!important;}
 html body #app #addresses .v-card-title,html body #app #Languages .v-card-title{padding:4px 4px 18px!important;align-items:center;gap:12px;}
 html body #app #addresses .v-card-title h1{font-size:23px!important;line-height:31px!important;font-weight:700!important;}
 html body #app #addresses .v-card-text{padding:20px 4px!important;}
@@ -1491,7 +1491,7 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
     max-width:100%!important;
     margin:0!important;
     padding:16px 16px 18px!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     background-image:none!important;
     border:0!important;
     border-bottom:1px solid #EEECEF!important;
@@ -1593,7 +1593,7 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
   }
   html body #app #MultiVendorSearch.hg-has-query .hg-search-product-card .pro-card-h-img{
     border:1px solid #EEECEF!important;
-    background:#fff!important;
+    background:#FFFCF9!important;
     box-shadow:none!important;
   }
   html body #app #MultiVendorSearch.hg-has-query .hg-search-product-card .product-name,
@@ -1771,7 +1771,7 @@ html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,
   flex:0 0 33px!important;width:33px!important;min-width:33px!important;max-width:33px!important;
   height:33px!important;min-height:33px!important;max-height:33px!important;
   padding:0!important;margin:0!important;border:1px solid #EEE9F6!important;border-radius:50%!important;
-  background:#fff!important;box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
+  background:#FFFCF9!important;box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
   font-size:0!important;line-height:0!important;
 }
 html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) .v-btn__content{
@@ -2038,3 +2038,10 @@ html body :is(#app,.v-overlay-container) .scheme-merchant-page .scheme-merchant-
   html body :is(#app,.v-overlay-container) .scheme-merchant-page .scheme-merchant-product-grid-card .product-price{line-height:18px!important;}
   html body :is(#app,.v-overlay-container) .scheme-merchant-page .scheme-merchant-product-grid-card .grid-add-control{z-index:4!important;}
 }
+
+
+/* ONE BACKGROUND COLOUR (2026-10-19, app + website): #FFFCF9, looks white but isn't. Every surface uses it: pages, cards,
+   bars, sheets. Hyperzod's own screens take their surface colour from these theme values; the classes cover its white
+   utility classes. Text and coloured buttons are unchanged. */
+:root,.v-theme--hpzLightTheme{--v-theme-background:255,252,249!important;--v-theme-surface:255,252,249!important;}
+html,body,.v-application,.bg-white,.tw-bg-white,.bg-surface{background-color:#FFFCF9!important;}

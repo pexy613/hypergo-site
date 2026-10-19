@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1847 */
+/* hg-version 2026-10-19-1631 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -733,7 +733,7 @@
         '<span class="hg-ph-s">' + (ar ? "\u0627\u0628\u062D\u062B \u0639\u0646" : "Search for") + "</span>" +
         '<span class="hg-ph-slot" style="position:relative;display:inline-block;margin-' + side + ':.3em">' +
         '<span class="hg-ph-word" style="display:inline-block"></span>' +
-        '<span class="hg-ph-logo" style="position:absolute;' + side + ':0;opacity:0;pointer-events:none;background:#fff"><img alt="" src="' + LOGO_FILLED + '" style="display:block;width:100%;height:100%"></span>' +
+        '<span class="hg-ph-logo" style="position:absolute;' + side + ':0;opacity:0;pointer-events:none;background:#FFFCF9"><img alt="" src="' + LOGO_FILLED + '" style="display:block;width:100%;height:100%"></span>' +
         "</span>";
       field.appendChild(ov);
     }
@@ -1399,6 +1399,20 @@
     }
 
     fillProductPhotos(page);
+
+    /* store sections (S3, 2026-10-19): how many products each section has, and how far down the headers pin
+       (just under the sticky chips bar, measured, so it fits a page or a sheet) */
+    page.querySelectorAll(".cat-section").forEach((sec) => {
+      const h = sec.querySelector(".category-name");
+      if (!h) return;
+      const n = String(sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").length);
+      if (n !== "0" && h.getAttribute("data-hgn-count") !== n) h.setAttribute("data-hgn-count", n);
+    });
+    const stickyBar = page.querySelector("#mobileStickyHeader");
+    if (stickyBar) {
+      const v = Math.round((parseFloat(getComputedStyle(stickyBar).top) || 0) + stickyBar.offsetHeight) + "px";
+      if (page.style.getPropertyValue("--hgn-sec-top") !== v) page.style.setProperty("--hgn-sec-top", v);
+    }
   }
 
   /* ---------- running it ---------- */

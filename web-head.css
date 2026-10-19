@@ -1,4 +1,4 @@
-/* hg-version 2026-09-30-2035 */
+/* hg-version 2026-10-19-1631 */
 /* ============================================================
    HYPERGO ARABIC TYPOGRAPHY
    English remains completely untouched
@@ -176,7 +176,7 @@ html:not(.hg-web-done) body::before {
   position: fixed;
   inset: 0;
   z-index: 2147482000;
-  background: #FFFFFF;
+  background: #FFFCF9;
   animation: hgBootOut .25s ease 10s forwards;
 }
 
@@ -241,7 +241,7 @@ html.hg-web-ready:not(.hg-web-done) body::after {
   border-radius: 14px !important;
   padding: 5px 5px 6px !important;
   box-sizing: border-box !important;
-  background: #fff !important;
+  background: #FFFCF9 !important;
   border: 1px solid #ECE9EF !important;
   box-shadow: 0 1px 2px rgba(27, 32, 35, .018) !important;
 }

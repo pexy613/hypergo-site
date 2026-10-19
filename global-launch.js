@@ -1,4 +1,4 @@
-/* hg-version 2026-10-18-1213 */
+/* hg-version 2026-10-19-1631 */
 /* HYPERGO LAUNCH COUNTDOWN - homepage section directly under the header, on the website and in the app.
    Loaded by the Global Custom HTML Head box. The image is launch-countdown.jpg in this repo.
    v2: card look from the reference (lavender card, glass tiles, big date, progress bar, flip on change).
@@ -53,7 +53,7 @@
     var st = document.createElement("style");
     st.id = "hg-launch-style";
     st.textContent =
-      "#hg-launch{box-sizing:border-box;width:100%;padding:14px 16px 8px;background:#fff;}" +
+      "#hg-launch{box-sizing:border-box;width:100%;padding:14px 16px 8px;background:#FFFCF9;}" +
       "@media (min-width:960px){#hg-launch{padding:40px 48px 24px;}}" +
       "#hg-launch *{box-sizing:border-box;}" +
       /* the card */
