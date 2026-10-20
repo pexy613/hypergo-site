@@ -1,7 +1,8 @@
-/* hg-version 2026-10-20-1957 */
+/* hg-version 2026-10-20-2326 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
-   Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
-   every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
+   Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
+   gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
+   every other screen, the desktop header, the Account page and the bottom nav are still drawn by the old code.
    Contents:
    1. KEPT: the main page header (purple header, "Deliver to", cart, search bar, watermark, rotating search text, address
       language) and everything it needs, copied UNCHANGED from global-footer-1.js.
@@ -967,6 +968,10 @@
 
   /* ---------- HOME ---------- */
   let homeSig = "";
+  /* desktop width (website, 2026-10-20): more stores in the Stores near you panel and more categories on Search.
+     Crossing the width redraws those parts. */
+  const WIDE = window.matchMedia("(min-width: 960px)");
+  try { WIDE.addEventListener("change", () => { homeSig = ""; slandSig = ""; schedule(); }); } catch (e) {}
 
   function isHomePath(p) { return /^\/(en|ar)(\/home)?\/?$/.test(p); }
 
@@ -1021,7 +1026,8 @@
   function storePanelRows() {
     const d = panelData;
     if (!d) return "";
-    const list = d.stores.filter((m) => !panelCat || (m.merchant_category_ids || []).indexOf(panelCat) !== -1).slice(0, 4);
+    /* 4 rows on phones, 8 (two columns) on desktop */
+    const list = d.stores.filter((m) => !panelCat || (m.merchant_category_ids || []).indexOf(panelCat) !== -1).slice(0, WIDE.matches ? 8 : 4);
     return list.map((m) => {
       seenStores[m._id || m.id] = m;
       const href = storeHref(m, d.L), img = storeImg(m, "cover") || storeImg(m, "logo");
@@ -1083,7 +1089,13 @@
   function renderHome() {
     const home = document.getElementById("MultiVendorHome");
     const hdr = document.getElementById("MultiVendorHeaderRoot");
-    if (!home || !hdr || hdr.parentElement !== home) return;
+    if (!home) return;
+    /* phones: the header is inside #MultiVendorHome and Home goes right under it. Desktop website (found 2026-10-20):
+       Hyperzod puts the header above, in .v-application__wrap, so Home goes first inside #MultiVendorHome, before its
+       own (hidden) <main>; without this the desktop Home stayed blank. */
+    const inHome = !!hdr && hdr.parentElement === home;
+    const main = home.querySelector(":scope > main");
+    if (!inHome && !(WIDE.matches && main)) return;
     const hd = homeData();
     if (!hd || !Array.isArray(hd.merchant_categories)) return;
 
@@ -1094,7 +1106,8 @@
       box.addEventListener("click", onHomeClick);
       homeSig = "";
     }
-    if (box.previousElementSibling !== hdr) hdr.insertAdjacentElement("afterend", box);
+    if (inHome) { if (box.previousElementSibling !== hdr) hdr.insertAdjacentElement("afterend", box); }
+    else if (box.nextElementSibling !== main) main.insertAdjacentElement("beforebegin", box);
 
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
     const cats = hd.merchant_categories.filter((c) => c && c.status !== false && c.status !== 0)
@@ -1109,7 +1122,7 @@
     const favs = favList(), favIds = {};
     favs.forEach((f) => { favIds[f.id] = true; });
     /* favourites are not in the signature (2026-10-20): a heart tap flips the hearts in place (onHomeClick), so the rows keep their scroll */
-    const sig = [L, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
+    const sig = [L, WIDE.matches, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
     if (sig === homeSig && box.firstChild) return;
     homeSig = sig;
 
@@ -1228,6 +1241,12 @@
 
   /* banner slides by itself every 4 seconds (pauses for 6 seconds after the customer touches it; off with reduce-motion) */
   let slideTimer = 0;
+  /* one slide's width plus the gap between slides (2026-10-20): phones show one slide, desktop two side by side */
+  function slideStep(track) {
+    const first = track.firstElementChild;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    return ((first && first.getBoundingClientRect().width) || track.clientWidth || 1) + gap;
+  }
   function bindSlider(box) {
     const track = box.querySelector(".hgn-slides");
     const dots = box.querySelectorAll(".hgn-dot");
@@ -1242,7 +1261,8 @@
     slideTimer = setInterval(() => {
       if (!track.isConnected) { clearInterval(slideTimer); slideTimer = 0; return; }
       if (document.hidden || Date.now() < pausedUntil) return;
-      const w = track.clientWidth || 1, n = dots.length;
+      /* positions the row can stop at: every slide on phones; on desktop (two showing) one fewer, so it loops back */
+      const w = slideStep(track), per = Math.max(1, Math.round((track.clientWidth + 1) / w)), n = Math.max(1, dots.length - per + 1);
       const cur = Math.round(Math.abs(track.scrollLeft) / w);
       const next = (cur + 1) % n;
       const sign = getComputedStyle(track).direction === "rtl" ? -1 : 1;
@@ -1258,7 +1278,7 @@
       ticking = true;
       requestAnimationFrame(() => {
         ticking = false;
-        const w = track.clientWidth || 1;
+        const w = slideStep(track);
         const i = Math.max(0, Math.min(dots.length - 1, Math.round(Math.abs(track.scrollLeft) / w)));
         dots.forEach((d, k) => d.classList.toggle("is-on", k === i));
       });
@@ -1592,6 +1612,13 @@
     return '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
       '<button type="button" class="hgn-sortopt' + (st.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>";
   }
+  /* category tabs, shared by the store lists and the Search start screen (2026-10-20): the label sits in a <span> so the
+     underline can be as wide as the text + 31 (Talabat, app-new.css) */
+  function tabButtons(cats, cur, t) {
+    const tab = (cid, label) => '<button type="button" role="tab" class="hgn-tab' + (cur === cid ? " is-on" : "") + '" aria-selected="' + (cur === cid) + '" data-act="lcat" data-id="' + esc(cid) + '"><span>' + esc(label) + "</span></button>";
+    return tab("", t.all) + cats.map((c) => tab(String(c.id || c._id), catLabel(c))).join("");
+  }
+  function tabsHtml(cats, cur, t) { return '<div class="hgn-tabs" role="tablist">' + tabButtons(cats, cur, t) + "</div>"; }
   function storeListHtml(st, list, L, t, favIds, hd, prodsOf, withTabs) {
     const T = LTXT[L];
     const have = {};
@@ -1607,12 +1634,7 @@
     if (st.top) shown.sort((a, b) => storeRating(b) - storeRating(a));
     else if (st.sort !== "nearest" || !prodsOf) sortStores(shown, st.sort, L); /* search results keep their order on "Nearest" */
     let html = "";
-    if (withTabs && cats.length > 1) {
-      html += '<div class="hgn-tabs" role="tablist">' +
-        '<button type="button" role="tab" class="hgn-tab' + (st.cat ? "" : " is-on") + '" data-act="lcat" data-id="">' + esc(t.all) + "</button>" +
-        cats.map((c) => { const cid = String(c.id || c._id); return '<button type="button" role="tab" class="hgn-tab' + (st.cat === cid ? " is-on" : "") + '" data-act="lcat" data-id="' + esc(cid) + '">' + esc(catLabel(c)) + "</button>"; }).join("") +
-        "</div>";
-    }
+    if (withTabs && cats.length > 1) html += tabsHtml(cats, st.cat, t);
     if (withTabs) {
       const sortLbl = st.sort === "fastest" ? T.fastest : st.sort === "az" ? T.az : T.sortBy;
       html += '<div class="hgn-filters">' +
@@ -1974,21 +1996,21 @@
       }).join("") + "</div></section>";
   }
 
-  /* ---------- SEARCH START SCREEN (E2, chosen 2026-10-19) ----------
-     Before the customer types: a top row like Home's (back, "Search", bag) above the white search box, then
-     Recent searches as clean rows (E2), Popular searches as lavender pills (E1), then 4 categories with See all (opens all of them in place).
-     The searches are the same ones the website's search screen already keeps (global-footer-2.js builds them as buttons in
-     #hg-search-discovery, which stays hidden in the app); tapping a row presses that button, so the search runs the same way.
-     Hidden while there is text in the search box or search results are showing. */
-  let slandSig = "", slandAll = false;
+  /* ---------- SEARCH START SCREEN (Talabat sizes, approved 2026-10-20; was E2 from 2026-10-19) ----------
+     Before the customer types: one bar (back, search box, bag), category tabs under it (a tab shows that category's
+     stores), then Recent and Popular searches as outlined chips and all categories in one sideways row (8 + See all on
+     desktop). The searches come from global-footer-2.js (window.hgSearch; the buttons in #hg-search-discovery, hidden in
+     the new design, are the fallback). Hidden while there is text in the search box or search results are showing. */
+  let slandSig = "", slandAll = false, slandCat = "", stabsSig = "";
   const STXT2 = {
-    en: { search: "Search", back: "Back", recent: "Recent searches", popular: "Popular searches" },
-    ar: { search: "بحث", back: "رجوع", recent: "عمليات البحث الأخيرة", popular: "عمليات بحث شائعة" }
+    en: { back: "Back", recent: "Recent searches", popular: "Popular searches" },
+    ar: { back: "رجوع", recent: "عمليات البحث الأخيرة", popular: "عمليات بحث شائعة" }
   };
   const SL_ICON = {
     back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    go: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    /* Talabat's icons (2026-10-20): a clock with a turn-back arrow for recent searches, a rising arrow for popular ones */
+    history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>',
+    trend: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>'
   };
   function renderSearchLanding() {
     const de = document.documentElement;
@@ -2009,7 +2031,8 @@
         });
       }
       if (top.parentElement !== hdr || hdr.firstElementChild !== top) hdr.insertAdjacentElement("afterbegin", top);
-      const th = '<button type="button" class="hgn-shead-back" data-act="sback" aria-label="' + esc(s2.back) + '">' + SL_ICON.back + '</button><span class="hgn-shead-title">' + esc(s2.search) + "</span>";
+      /* (2026-10-20) back button only: the "Search" title went with the one-row Talabat bar */
+      const th = '<button type="button" class="hgn-shead-back" data-act="sback" aria-label="' + esc(s2.back) + '">' + SL_ICON.back + "</button>";
       if (top.getAttribute("data-l") !== L) { top.setAttribute("data-l", L); top.innerHTML = th; }
       de.classList.toggle("hgn-shead-on", true); /* toggle (2026-10-20): no class rewrite on every run */
     } else {
@@ -2021,7 +2044,14 @@
     const input = onSearch && root.querySelector("input");
     const typing = !!(input && input.value.trim());
     let box = document.getElementById("hgn-sland");
-    const off = () => { de.classList.toggle("hgn-sland-on", false); if (box) box.remove(); slandSig = ""; };
+    let tabs = document.getElementById("hgn-stabs");
+    const off = () => {
+      de.classList.toggle("hgn-sland-on", false); de.classList.toggle("hgn-scat-on", false);
+      if (box) box.remove();
+      if (tabs) tabs.remove();
+      slandSig = ""; stabsSig = "";
+      if (!onSearch) slandCat = ""; /* a chosen tab is kept while typing or with results, forgotten when Search is left */
+    };
     /* (2026-10-20) stays up while typing until our results (or their loading rows, html.hgn-sres-on) replace it, so the
        screen is never blank in between (Hyperzod's own results box, hidden while this shows, held only an empty or loading
        box for about half a second). It steps aside while typing only when our search failed, so Hyperzod's own results
@@ -2051,20 +2081,56 @@
     }
     if (box.nextElementSibling !== start) start.insertAdjacentElement("beforebegin", box);
     de.classList.toggle("hgn-sland-on", true);
-    const sig = [L, slandAll, recent.join("|"), popular.join("|"), cats.map((c) => c.id || c._id).join(",")].join("#");
+    /* category tabs right under the search bar (Talabat, 2026-10-20): its own row above the favourites and the start screen
+       (the favourites row places itself right above #hgn-sland, so the tabs go above whichever of the two comes first) */
+    if (slandCat && !cats.some((c) => String(c.id || c._id) === slandCat)) slandCat = "";
+    if (cats.length) {
+      if (!tabs) {
+        tabs = document.createElement("div");
+        tabs.id = "hgn-stabs";
+        tabs.className = "hgn-tabs";
+        tabs.setAttribute("role", "tablist");
+        tabs.addEventListener("click", onStabsClick);
+        stabsSig = "";
+      }
+      const fav = document.getElementById("hgn-sfav");
+      const first = fav && fav.nextElementSibling === box ? fav : box;
+      if (tabs.nextElementSibling !== first) first.insertAdjacentElement("beforebegin", tabs);
+      const tsig = [L, slandCat, cats.map((c) => c.id || c._id).join(",")].join("#");
+      if (tsig !== stabsSig) {
+        stabsSig = tsig;
+        tabs.setAttribute("dir", ar ? "rtl" : "ltr");
+        tabs.innerHTML = tabButtons(cats, slandCat, t);
+      }
+    } else if (tabs) { tabs.remove(); stabsSig = ""; }
+    de.classList.toggle("hgn-scat-on", !!slandCat);
+    /* a chosen tab: that category's stores near the customer (the shared store list), instead of the searches */
+    const catList = slandCat ? nearStores(hd).filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === slandCat)) : null;
+    const sig = [L, slandAll, WIDE.matches, recent.join("|"), popular.join("|"), cats.map((c) => c.id || c._id).join(","),
+      slandCat, catList ? catList.map((m) => m._id || m.id).join(",") : ""].join("#");
     if (sig === slandSig) return;
     slandSig = sig;
     box.setAttribute("dir", ar ? "rtl" : "ltr");
-    const rows = (list, icon, cls) => '<div class="hgn-sl-rows">' + list.map((q) =>
-      '<button type="button" class="hgn-sl-row ' + cls + '" data-act="sq" data-q="' + esc(q) + '"><span class="hgn-sl-ic">' + icon + '</span><span class="hgn-sl-q">' + esc(q) + '</span><span class="hgn-sl-go">' + SL_ICON.go + "</span></button>").join("") + "</div>";
+    if (catList) {
+      const favIds = {};
+      favList().forEach((f) => { favIds[f.id] = true; });
+      box.innerHTML = '<div class="hgn-sl-stores">' + (catList.length ? storeListHtml(newListState(), catList, L, t, favIds, hd, null, false)
+        : '<p class="hgn-page-empty">' + esc(LTXT[L].nores) + "</p>") + "</div>";
+      watchProdRows(box);
+      return;
+    }
+    /* recent and popular searches: outlined chips with Talabat's icons (2026-10-20) */
+    const chips = (list, icon, cls) => '<div class="hgn-sl-chips">' + list.map((q) =>
+      '<button type="button" class="hgn-sl-chip ' + cls + '" data-act="sq" data-q="' + esc(q) + '"><span class="hgn-sl-ic">' + icon + '</span><span class="hgn-sl-q">' + esc(q) + "</span></button>").join("") + "</div>";
     let html = "";
-    if (recent.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.recent) + "</h2>" + rows(recent, SL_ICON.clock, "is-recent") + "</section>";
-    if (popular.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.popular) + "</h2>" + '<div class="hgn-sl-pills">' + popular.map((q) =>
-      '<button type="button" class="hgn-sl-pill" data-act="sq" data-q="' + esc(q) + '">' + esc(q) + "</button>").join("") + "</div></section>";
+    if (recent.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.recent) + "</h2>" + chips(recent, SL_ICON.history, "is-recent") + "</section>";
+    if (popular.length) html += '<section class="hgn-sl-sec"><h2 class="hgn-sl-h">' + esc(s2.popular) + "</h2>" + chips(popular, SL_ICON.trend, "is-popular") + "</section>";
     if (cats.length) {
-      const shown = slandAll ? cats : cats.slice(0, 4);
+      /* phones: all of them in one sideways row (Talabat, 2026-10-20); desktop: one row of 8 with See all */
+      const few = WIDE.matches ? 8 : cats.length;
+      const shown = slandAll ? cats : cats.slice(0, few);
       html += '<section class="hgn-sl-sec"><div class="hgn-sl-head"><h2 class="hgn-sl-h">' + esc(t.cats) + "</h2>" +
-        (cats.length > 4 ? '<button type="button" class="hgn-sl-all" data-act="sall">' + esc(slandAll ? t.less : t.seeAll) + "</button>" : "") + "</div>" +
+        (cats.length > few ? '<button type="button" class="hgn-sl-all" data-act="sall">' + esc(slandAll ? t.less : t.seeAll) + "</button>" : "") + "</div>" +
         '<div class="hgn-cat-grid">' + shown.map((c) => {
           const href = catHref(c, L), photo = catPhoto(c), img = photo || c.image;
           return '<a class="hgn-cat' + (photo ? " hgn-cat-photo" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
@@ -2073,6 +2139,15 @@
         }).join("") + "</div></section>";
     }
     box.innerHTML = html;
+  }
+  function onStabsClick(e) {
+    const act = e.target.closest("[data-act=lcat]");
+    if (!act) return;
+    const v = act.getAttribute("data-id") || "";
+    if (v === slandCat) return;
+    slandCat = v; slandSig = ""; stabsSig = "";
+    renderSearchLanding();
+    window.scrollTo(0, 0);
   }
   function onSlandClick(e) {
     const act = e.target.closest("[data-act]");
@@ -2112,7 +2187,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

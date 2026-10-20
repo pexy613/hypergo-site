@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1957 */
+/* hg-version 2026-10-20-2326 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -39,7 +39,7 @@
 (function () {
   if (window.__hgAF) return;
   var NOISE = ".hg-ph," +
-    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
+    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-stabs,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
     "#hg-search-discovery,#hg-search-cart,#hg-cart-btn";
   function relevant(recs) {
     if (!recs || !recs.length) return true;
@@ -190,10 +190,11 @@
       removeIf(strip.style, "transition");
       return;
     }
-    /* Search is its own purple-header page. Do not let the Home scroll-fade logic turn its status strip white. */
+    /* Search has its own one-colour bar (page colour #FFFCF9 since 2026-10-20, was purple). Do not let the Home
+       scroll-fade logic change its status strip. */
     if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page")) {
       setIf(strip.style, "transition", "none");
-      setIf(strip.style, "background-color", "rgb(134,64,252)");
+      setIf(strip.style, "background-color", "rgb(255,252,249)");
       return;
     }
     if (!root || html.classList.contains("native-status-bar-transparent")) {

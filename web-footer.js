@@ -1,4 +1,27 @@
-/* hg-version 2026-10-20-1927 */
+/* hg-version 2026-10-20-2326 */
+/* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
+   category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
+   html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
+   veil below waits for the new Home. A fresh "v" each minute asks GitHub Pages for the newest copy, so pushes show within
+   a minute (same as the app). */
+(function () {
+  try {
+    if (window.__hgWebNewDesign) return;
+    window.__hgWebNewDesign = 1;
+    document.documentElement.classList.add("hg-new-app");
+    var BASE = "https://pexy613.github.io/hypergo-site/";
+    var V = "?v=" + Math.floor(Date.now() / 60000);
+    var l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = BASE + "app-new.css" + V;
+    document.head.appendChild(l);
+    var s = document.createElement("script");
+    s.src = BASE + "app-new.js" + V;
+    s.async = false;
+    document.head.appendChild(s);
+  } catch (e) {}
+})();
+
 (() => {
   "use strict";
   /* (2026-10-20): run-once guard, like the other blocks in this file */
@@ -408,6 +431,8 @@
   function homeReady() {
     if (!isHomeRoute()) return true;
     if (!document.getElementById("MultiVendorHome")) return false;
+    /* (2026-10-20) the new design: ready once its Home is drawn (the old category row and sections are not built any more) */
+    if (root.classList.contains("hg-new-app")) return !!document.getElementById("hgn-home");
     const grid = document.querySelector('#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"]');
     if (grid && !grid.classList.contains("hg-cat-icon-grid")) return false;
     if (document.getElementById("hg-cat-rows")) return true;
@@ -456,6 +481,8 @@
     /* stylesheets finishing and quiet periods don't mutate the DOM - keep re-checking */
     const iv = setInterval(() => {
       if (done) {
+        /* (2026-10-20) the new design draws its own Home: nothing to watch after the veil */
+        if (root.classList.contains("hg-new-app")) { clearInterval(iv); if (mo) mo.disconnect(); return; }
         /* after the veil: if the new home sections still aren't there, stop holding the default list back */
         if (Date.now() - started > NATIVE_CAP_MS || document.getElementById("hg-cat-rows")) {
           if (!document.getElementById("hg-cat-rows") && isHomeRoute()) root.classList.add("hg-native-nearby");

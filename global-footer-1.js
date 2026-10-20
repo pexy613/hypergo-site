@@ -1,11 +1,14 @@
-/* hg-version 2026-10-20-1957 */
+/* hg-version 2026-10-20-2326 */
 (function () {
-  /* NEW APP HOME (2026-10-15): in the app, the main page header and Home are drawn by app-new.js / app-new.css
-     (loaded by app-footer.js). So in the app this file skips its own header and Home code; every other screen,
-     the Account page and the bottom nav work exactly as before. The website is unchanged. */
+  /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
+     (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
+     new design is on, this file skips its own phone header and Home code; the desktop header, every other screen, the
+     Account page and the bottom nav are still drawn here. */
   /* (2026-10-20): this file runs before app-footer.js adds hg-native-app, so the first applyAll() ran the website code in the
      app. window.ReactNativeWebView (set by the phone app before page scripts) makes the check right from the start. */
   const hgIsApp = () => document.documentElement.classList.contains("hg-native-app") || !!window.ReactNativeWebView;
+  /* (2026-10-20): the new design is on: in the app, or on the website (html.hg-new-app, set by the loader in web-footer.js) */
+  const hgNewDesign = () => hgIsApp() || document.documentElement.classList.contains("hg-new-app");
   /* (2026-10-20): one shared phone-width query instead of a new matchMedia() on every call */
   const hgMobileMQ = window.matchMedia("(max-width: 959.98px)");
 
@@ -558,7 +561,7 @@
   document.addEventListener(
     "scroll",
     () => {
-      if (hgIsApp()) return; /* (2026-10-20): app-new.js runs its own copy of this listener in the app */
+      if (hgNewDesign()) return; /* (2026-10-20): app-new.js runs its own copy of this listener with the new design */
       if (wmTicking) return;
       wmTicking = true;
       requestAnimationFrame(() => {
@@ -835,7 +838,7 @@
   /* (2026-10-20): the whole search page is walked once per search screen; after that only the parts that changed are walked
      (passed in as "scope" by the currency observer and the pre-paint account observer). app-new.js's own search parts are skipped. */
   const hgArSearchSeen = new WeakSet();
-  const HG_AR_SEARCH_SKIP = "#hgn-sres,#hgn-sland,#hgn-sfav";
+  const HG_AR_SEARCH_SKIP = "#hgn-sres,#hgn-sland,#hgn-stabs,#hgn-sfav";
   function applyArabicSearchPage(scope) {
     if (!hgIsAr()) return;
     if (!document.getElementById("hg-rtl-style")) {
@@ -1221,7 +1224,7 @@
   const HG_NOISE = ".hg-ph";
   /* (2026-10-20): renderObserver + acctMO also ignore what app-new.js and global-footer-2.js draw themselves, and our header
      cart button, so the files stop waking each other up. The currency observer keeps the short list (prices inside still convert). */
-  const HG_NOISE_EXT = HG_NOISE + ",#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
+  const HG_NOISE_EXT = HG_NOISE + ",#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-stabs,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
     "#hg-search-discovery,#hg-search-cart,#hg-cart-btn";
   function hgInNoise(n, sel) {
     const el = n && (n.nodeType === 1 ? n : n.parentNode);
@@ -2544,7 +2547,7 @@
     let raf = 0, last = 0, tau = 90, wantTrigger = false, closing = false;
 
     function els() {
-      if (hgIsApp()) return null; /* the app's new Home (app-new.js) has no pull-to-refresh yet */
+      if (hgNewDesign()) return null; /* the new Home (app-new.js) has no pull-to-refresh yet */
       const home = document.getElementById("MultiVendorHome");
       if (!home) return null;
       const hdr = document.getElementById("MultiVendorHeaderRoot");
@@ -2657,9 +2660,9 @@
 
     const app = document.getElementById("app");
     if (!app) return;
-    /* (2026-10-20): not in the app - its touchmove listener below is non-passive and made every scroll on every app screen
-       wait for the main thread, while doing nothing there (els() returns null in the app). */
-    if (hgIsApp()) return;
+    /* (2026-10-20): not with the new design - its touchmove listener below is non-passive and made every scroll wait for the
+       main thread, while doing nothing there (els() returns null with the new Home). */
+    if (hgNewDesign()) return;
     app.addEventListener("touchstart", (ev) => {
       st = null;
       if (busy || closing || ev.touches.length !== 1) return;
@@ -2900,7 +2903,7 @@
   window.addEventListener(
     "resize",
     () => {
-      if (hgIsApp()) return; /* (2026-10-20): app's native Home is hidden; applyAll already skips this in the app */
+      if (hgNewDesign()) return; /* (2026-10-20): the native Home is hidden with the new design; applyAll skips this too */
       clearTimeout(hgCatGridResizeTimer);
       hgCatGridResizeTimer = setTimeout(applyHomeCategoryGrid, 120);
     },
@@ -2914,7 +2917,7 @@
   function hgMerchantHref(m,loc){return "/"+loc+"/m/"+encodeURIComponent(m.slug)+"/"+(m._id||m.id);}
   function hgCategoryHref(c,loc){const slug=String(c.name||"").toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06ff]+/g,"-").replace(/^-|-$/g,"")||"category";return "/"+loc+"/m-category/"+encodeURIComponent(slug)+"/"+c.id+"?categoryCollection=true";}
   function applyCategoryRows(){
-    if(hgIsApp())return; /* (2026-10-20): website only; the fetch callback also calls this, so the guard lives here */
+    if(hgNewDesign())return; /* (2026-10-20): old website Home only; the fetch callback also calls this, so the guard lives here */
     try{
       const nearby=document.getElementById("NearbyMerchants"),st=acStore(),S=st&&st.state,hd=S&&S.homeData;if(!nearby||!hd||!Array.isArray(hd.merchant_categories))return;
       const sel=S.Utils&&S.Utils.selectedLocation&&S.Utils.selectedLocation.location;if(!sel||typeof sel.latitude!=="number")return;
@@ -3249,15 +3252,15 @@
 
   function applyAll() {
     ensureExtraStyle();
-    if (!hgIsApp()) applyHyperGoHeader();
+    if (!hgNewDesign()) applyHyperGoHeader();
     applyHyperGoDesktop();
     applyHyperGoNav();
-    /* website only (2026-10-20): app-new.js runs its own identical copy before paint in the app; both ran, with two caches */
-    if (!hgIsApp()) applyLocLang();
-    /* (2026-10-20): website only - both target the native Home (#NearbyMerchants, .scheme-collection-grid), which app-new.css
-       hides in the app (#MultiVendorHome>main.v-main); app-new.js translates the category names it reads itself */
-    if (!hgIsApp()) applyNearbyLogos();
-    if (!hgIsApp()) applyArabicCategories();
+    /* old design only (2026-10-20): app-new.js runs its own identical copy before paint; both ran, with two caches */
+    if (!hgNewDesign()) applyLocLang();
+    /* (2026-10-20): old design only - both target the native Home (#NearbyMerchants, .scheme-collection-grid), which app-new.css
+       hides (#MultiVendorHome>main.v-main); app-new.js translates the category names it reads itself */
+    if (!hgNewDesign()) applyNearbyLogos();
+    if (!hgNewDesign()) applyArabicCategories();
     applyArabicSearchPage();
     applyHyperGoAccount();
     applyHyperGoLanguage();
@@ -3265,8 +3268,8 @@
     syncOrdersNav();
     syncOrdersBack();
     applyProductAddLabel();
-    if (!hgIsApp()) applyCategoryRows();
-    if (!hgIsApp()) applyHomeCategoryGrid();
+    if (!hgNewDesign()) applyCategoryRows();
+    if (!hgNewDesign()) applyHomeCategoryGrid();
     applyMerchantInfoClean();
     applyNoImagePlaceholder();
     applyCheckoutBar();
@@ -3375,7 +3378,7 @@
     syncSearchClass();
     /* home header: style it the moment it is (re)created (e.g. coming Back from Search) so the default white header never flashes */
     const hdrRoot = document.getElementById("MultiVendorHeaderRoot");
-    if (!hgIsApp() && hdrRoot && !hdrRoot.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row")) { applyHyperGoHeader(); applyLocLang(); }
+    if (!hgNewDesign() && hdrRoot && !hdrRoot.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row")) { applyHyperGoHeader(); applyLocLang(); }
     /* bottom nav: restyle the moment it is (re)created so the default nav never shows */
     const nav = document.getElementById("MultiVendorBottomNav");
     if (nav && nav.querySelector(".classic-nav-item:not([data-hg-nav])")) applyHyperGoNav();
