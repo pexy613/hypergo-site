@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-21-0014 */
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
@@ -1109,25 +1109,30 @@
       st.id = "hg-nav-style";
       st.textContent =
         "@media (max-width:959.98px){" +
-        N + "{background:#FFFCF9 !important;color:#6B7280 !important;box-shadow:0 -6px 24px rgba(27,32,35,.07) !important;border-top:1px solid rgba(27,32,35,.06) !important;}" +
+        /* Talabat sizes (2026-10-20): a 1pt line on top (no shadow), 20pt icons 15 under it, 12pt labels (baseline 49 under the line), 53 tall */
+        N + "{background:#FFFCF9 !important;color:#6B7280 !important;box-shadow:none !important;border-top:1px solid #E5E5E5 !important;}" +
         N + " .classic-nav-container{background:#FFFCF9 !important;background-image:none !important;padding-top:0 !important;padding-bottom:0 !important;transform:none !important;}" +
         N + "{transform:none !important;bottom:0 !important;opacity:1 !important;visibility:visible !important;}" +
         N + C + "cart']{display:none !important;}" +
         N + " .classic-footer-btn{color:#6B7280 !important;}" +
         N + " .classic-footer-btn.classic-tab-active{color:#5A29DE !important;}" +
-        N + " .classic-footer-btn .nav-label{color:inherit !important;font-size:9.5px !important;line-height:1.2 !important;position:relative;z-index:1;}" +
-        "html[lang^='ar'] " + N + " .classic-footer-btn .nav-label{overflow:visible !important;height:auto !important;line-height:1.6 !important;font-size:10.5px !important;-webkit-line-clamp:unset !important;display:block !important;}" +
+        N + " .classic-footer-btn .nav-label{color:inherit !important;font-size:calc(var(--hg-fs, 1px) * 12) !important;font-weight:400 !important;line-height:1.2 !important;position:relative;z-index:1;}" +
+        /* active tab: purple icon, dark label (Talabat style, 2026-10-21) */
+        N + " .classic-footer-btn.classic-tab-active .nav-label{font-weight:500 !important;color:#262626 !important;}" +
+        "html[lang^='ar'] " + N + " .classic-footer-btn .nav-label{overflow:visible !important;height:auto !important;line-height:1.6 !important;-webkit-line-clamp:unset !important;display:block !important;}" +
         "html[lang^='ar'] " + N + " .classic-nav-container .classic-footer-btn__content--with-label{padding-top:6px !important;padding-bottom:3px !important;}" +
-        N + " .classic-nav-container .classic-footer-btn__content--with-label{position:relative;min-height:0 !important;padding:8px 12px 5px !important;gap:2px !important;}" +
+        N + " .classic-nav-container .classic-footer-btn__content--with-label{position:relative;min-height:0 !important;padding:14px 12px 0 !important;gap:1px !important;}" +
         N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content object{display:none !important;}" +
-        N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content::before{content:'';display:block;position:relative;z-index:1;width:19px;height:19px;background:currentColor;" +
+        N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content::before{content:'';display:block;position:relative;z-index:1;width:20px;height:20px;background:currentColor;" +
           "-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;}" +
-        N + C + "home'] .classic-footer-btn__content::before{width:15px;height:17px;margin:1px 0;-webkit-mask-image:" + homeMask + ";mask-image:" + homeMask + ";}" +
+        N + C + "home'] .classic-footer-btn__content::before{width:16px;height:18px;margin:1px 0;-webkit-mask-image:" + homeMask + ";mask-image:" + homeMask + ";}" +
         N + C + "reorder'] .classic-footer-btn__content::before{-webkit-mask-image:" + navMask(NAV_ICONS.reorder) + ";mask-image:" + navMask(NAV_ICONS.reorder) + ";}" +
         N + C + "account'] .classic-footer-btn__content::before{-webkit-mask-image:" + navMask(NAV_ICONS.account) + ";mask-image:" + navMask(NAV_ICONS.account) + ";}" +
         /* Orders opened from Account keeps the Account tab lit (not Reorder) */
         "html.hg-orders-acct " + N + C + "reorder'] .classic-footer-btn{color:#6B7280 !important;}" +
         "html.hg-orders-acct " + N + C + "account'] .classic-footer-btn{color:#5A29DE !important;}" +
+        "html.hg-orders-acct " + N + C + "reorder'] .classic-footer-btn .nav-label{color:inherit !important;font-weight:400 !important;}" +
+        "html.hg-orders-acct " + N + C + "account'] .classic-footer-btn .nav-label{color:#262626 !important;font-weight:500 !important;}" +
         N + " .v-btn__overlay, "+N+" .v-btn__underlay{display:none !important;}" +
         N + " .v-badge--dot .v-badge__badge{bottom:calc(100% - 15px) !important;inset-inline-start:calc(50% + 9px) !important;}" +
         "}";

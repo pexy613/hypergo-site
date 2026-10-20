@@ -1,34 +1,37 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-21-0014 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
    (#FFFCF9 off-white page, #341A76 banner, #F4F3F8 image backing, #F2ECFF pill, #EEECEF line, #6B7280 / #5C5C5C greys). */
 
-/* ---------- fonts (files in /fonts, OFL licence files beside them) ---------- */
-@font-face{font-family:"Inter";src:url("https://pexy613.github.io/hypergo-site/fonts/Inter-var.woff") format("woff");font-weight:400 900;font-style:normal;font-display:swap;}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Regular.woff") format("woff");font-weight:400;font-display:swap;}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Medium.woff") format("woff");font-weight:500;font-display:swap;}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-SemiBold.woff") format("woff");font-weight:600;font-display:swap;}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url("https://pexy613.github.io/hypergo-site/fonts/IBMPlexSansArabic-Bold.woff") format("woff");font-weight:700 900;font-display:swap;}
+/* ---------- fonts (2026-10-20): the phone's own font (iPhone: SF Pro / SF Arabic), see --hg-font below; Inter and IBM Plex are no longer loaded ---------- */
 
-/* ---------- BASE SIZES AND COLOURS (2026-10-20) ----------
-   Measured point by point from Nouf's Talabat screenshots (same iPhone, 393pt wide) and approved on the Search screen.
-   Screens use these instead of their own numbers, so the whole app can later be made HyperGo's own here, in one place.
-   Text: Talabat uses the iPhone's own font and we use Inter, so each size and letter spacing gives the same lowercase
-   height and word length as theirs. Arabic letters are never spaced (spacing breaks the joined letters).
+/* ---------- BASE SIZES, COLOURS AND FONT (2026-10-20) ----------
+   Measured point by point from Nouf's Talabat screenshots (same iPhone, 393pt wide). Screens use these instead of their
+   own numbers, so the whole app can later be made HyperGo's own here, in one place.
+   Font: the phone's own (chosen by Nouf 2026-10-20): SF Pro / SF Arabic on iPhone, Roboto on Android, Segoe UI on Windows.
+   Text sizes are Talabat's point sizes, written as calc(var(--hg-fs) * N): --hg-fs is one point (1px), and --hg-ls the
+   extra letter spacing (none). The two exist so a preview on a computer without the iPhone font can stand in another
+   font at the same visual size; the app itself never changes them.
    --hg-sec-gap is 27 so the visible space between sections is 31 (the title's own line spacing adds the rest). */
 html.hg-new-app{
+  --hg-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans Arabic",sans-serif;
+  --hg-fs:1px;--hg-ls:0em;
   --hg-bg:#FFFCF9;--hg-ink:#262626;--hg-muted:#767676;--hg-line:#E5E5E5;--hg-field:#F5F5F5;
   --hg-gutter:16px;
-  --hg-title-size:19px;--hg-title-lh:24px;--hg-title-ls:-.02em;
+  --hg-title-size:calc(var(--hg-fs) * 20);--hg-title-lh:24px;--hg-title-ls:var(--hg-ls);
   --hg-sec-gap:27px;--hg-title-to-chips:15px;--hg-title-to-media:12.5px;
-  --hg-tab-size:14.75px;--hg-tab-ls:-.01em;--hg-tab-h:46px;--hg-tab-min:80px;--hg-tab-line:2px;--hg-tab-divider:2px;
-  --hg-chip-h:34px;--hg-chip-size:13.25px;--hg-chip-ls:-.025em;--hg-chip-gap:8px;--hg-chip-row-gap:14px;
-  --hg-input-size:12.85px;--hg-input-ls:-.012em;
-  --hg-label-size:12.5px;--hg-label-ls:-.01em;
+  --hg-tab-size:calc(var(--hg-fs) * 16);--hg-tab-ls:var(--hg-ls);--hg-tab-h:46px;--hg-tab-min:80px;--hg-tab-line:2px;--hg-tab-divider:2px;
+  --hg-chip-h:34px;--hg-chip-size:calc(var(--hg-fs) * 14);--hg-chip-ls:var(--hg-ls);--hg-chip-gap:8px;--hg-chip-row-gap:14px;
+  --hg-input-size:calc(var(--hg-fs) * 14);--hg-input-ls:var(--hg-ls);
+  --hg-label-size:calc(var(--hg-fs) * 13);--hg-label-ls:var(--hg-ls);
+  --hg-small-size:calc(var(--hg-fs) * 12);
+  --hg-body-size:calc(var(--hg-fs) * 14);--hg-body-lg:calc(var(--hg-fs) * 16);
   --hg-bar-btn:40px;--hg-bar-field:36px;
 }
-html.hg-new-app:is([lang^="ar"],[dir="rtl"]){--hg-title-ls:0;--hg-tab-ls:0;--hg-chip-ls:0;--hg-input-ls:0;--hg-label-ls:0;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]){--hg-ls:0em;} /* Arabic letters are never spaced (spacing breaks the joined letters) */
+/* the whole app (Hyperzod's own screens too) in the phone's font */
+html.hg-new-app body,html.hg-new-app :is(#app,.v-application,.v-overlay-container){font-family:var(--hg-font)!important;}
 
 /* ---------- KEPT (main page header): rule copied unchanged from global-footer.css ---------- */
 @media (max-width:959.98px){
@@ -43,13 +46,10 @@ html.hg-new-app:is([lang^="ar"],[dir="rtl"]){--hg-title-ls:0;--hg-tab-ls:0;--hg-
 
 /* ---------- NEW: shared ---------- */
 html.hg-new-app #hgn-home{
-  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  font-family:var(--hg-font);
   color:#1B2023;
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
-}
-html.hg-new-app #hgn-home[dir="rtl"]{
-  font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;
 }
 html.hg-new-app #hgn-home *{box-sizing:border-box;}
 html.hg-new-app #hgn-home a{color:inherit;text-decoration:none;}
@@ -63,17 +63,19 @@ html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
 /* ---------- HOME ---------- */
 
 /* category grid */
-html.hg-new-app .hgn-cats{padding:18px 14px 0;}
-html.hg-new-app .hgn-cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;}
+/* category tiles (Talabat sizes, 2026-10-20): 84pt squares with 12 corners, 8 apart (4 fill the 361pt width),
+   the first row 28 under the header; the name sits under the tile (our layout), 12pt medium */
+html.hg-new-app .hgn-cats{padding:28px var(--hg-gutter) 0;}
+html.hg-new-app .hgn-cat-grid{display:grid;grid-template-columns:repeat(4,84px);justify-content:space-between;gap:14px 0;}
 html.hg-new-app .hgn-cat{
-  display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;
-  padding:0;margin:0;border:0;background:none;font:inherit;color:#1B2023;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:0;min-width:0;
+  padding:0;margin:0;border:0;background:none;font:inherit;color:var(--hg-ink);cursor:pointer;
 }
 html.hg-new-app .hgn-cat-ring{
   display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
 html.hg-new-app .hgn-cat-name{
-  max-width:100%;font-size:12px;line-height:1.3;font-weight:550;text-align:center;
+  max-width:92px;margin-top:6px;font-size:calc(var(--hg-fs) * 12);line-height:16px;font-weight:500;letter-spacing:var(--hg-ls);text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 /* tiles with our own category photo (their look is set further down, "category icons"; 2026-10-20: overridden values removed here) */
@@ -86,7 +88,7 @@ html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;o
 /* featured stores banner (C1, 2026-10-18): the store's own banner photo fills a 2:1 card, radius 24
    (2026-10-20: the later banner, photo and dots overrides merged into these first rules) */
 html.hg-new-app .hgn-banner{
-  position:relative;margin:20px 16px 0;height:auto;aspect-ratio:2/1;border-radius:24px;overflow:hidden;background:#F4F2FA;
+  position:relative;margin:24px 16px 0;height:auto;aspect-ratio:2/1;border-radius:16px;overflow:hidden;background:#F4F2FA;
   box-shadow:0 10px 24px -14px rgba(27,32,35,.35);
 }
 html.hg-new-app .hgn-slides{
@@ -106,14 +108,15 @@ html.hg-new-app .hgn-shop-go{
 }
 html.hg-new-app .hgn-shop-go svg{width:13px;height:13px;}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-shop-go svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-dots{position:absolute;bottom:12px;inset-inline-end:auto;inset-inline-start:12px;display:flex;gap:4px;pointer-events:none;}
-html.hg-new-app .hgn-dot{width:5px;height:5px;border-radius:3px;background:rgba(27,32,35,.25);transition:width .2s ease,background-color .2s ease;}
-html.hg-new-app .hgn-dot.is-on{width:16px;background:#5A29DE;}
+/* dots (Talabat size, 2026-10-20): 8pt, 8 apart; the shown one is our purple pill */
+html.hg-new-app .hgn-dots{position:absolute;bottom:12px;inset-inline-end:auto;inset-inline-start:12px;display:flex;gap:8px;pointer-events:none;}
+html.hg-new-app .hgn-dot{width:8px;height:8px;border-radius:4px;background:rgba(27,32,35,.25);transition:width .2s ease,background-color .2s ease;}
+html.hg-new-app .hgn-dot.is-on{width:20px;background:#5A29DE;}
 
 /* Stores near you */
-html.hg-new-app .hgn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 16px 0;}
-html.hg-new-app .hgn-h2{margin:0;font-size:20px;line-height:1.2;font-weight:650;letter-spacing:-.03em;color:#1B2023;}
-html.hg-new-app #hgn-home[dir="rtl"] .hgn-h2{letter-spacing:0;}
+/* section title (Talabat, 2026-10-20): 20pt bold on a 24 line; sections 31 apart (see --hg-sec-gap) */
+html.hg-new-app .hgn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:var(--hg-sec-gap) 16px 0;}
+html.hg-new-app .hgn-h2{margin:0;font-size:var(--hg-title-size);line-height:var(--hg-title-lh);font-weight:700;letter-spacing:var(--hg-title-ls);color:var(--hg-ink);}
 html.hg-new-app .hgn-pill{
   flex:0 0 auto;height:32px;padding:0 12px;border-radius:16px;background:#F1EEFC;color:#5A29DE!important;
   font-size:13px;font-weight:600;display:inline-flex;align-items:center;
@@ -140,13 +143,13 @@ html.hg-new-app .hgn-tag{height:24px;padding:0 9px;border-radius:8px;font-size:1
    (the header keeps its own design, only 8px shorter, see app-new.js) */
 html.hg-new-app #hgn-home{background:#FFFCF9;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
 
-/* category tiles: 72px light lavender tile, 24px corners, 4px inset, photo 64px with 20px corners */
-html.hg-new-app .hgn-cat-ring{width:72px;height:72px;border-radius:24px;padding:4px;background:#F4F2FA;box-shadow:none;}
-html.hg-new-app .hgn-cat-ring img{width:64px;height:64px;margin:0;padding:5px;border-radius:20px;object-fit:contain;background:#DFC4F3;}
+/* category tiles: light lavender tile, 4px inset photo (sizes from the Talabat rule at the top of HOME, 2026-10-20) */
+html.hg-new-app .hgn-cat-ring{width:84px;height:84px;border-radius:12px;padding:4px;background:#F4F2FA;box-shadow:none;}
+html.hg-new-app .hgn-cat-ring img{width:76px;height:76px;margin:0;padding:5px;border-radius:9px;object-fit:contain;background:#DFC4F3;}
 /* category icons (chosen 2026-10-19): the icon already has its own lavender background, so it fills the rounded square */
-html.hg-new-app .hgn-cat-photo .hgn-cat-ring{width:72px;height:72px;padding:0;border-radius:20px;background:#F4F0FE;overflow:hidden;}
+html.hg-new-app .hgn-cat-photo .hgn-cat-ring{width:84px;height:84px;padding:0;border-radius:12px;background:#F4F0FE;overflow:hidden;}
 html.hg-new-app .hgn-cat-photo .hgn-cat-ring img{width:100%;height:100%;margin:0;padding:0;border-radius:0;object-fit:cover;background:none;}
-html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;border-radius:20px;}
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:#5A29DE;color:#FFFFFF;padding:0;box-shadow:none;border-radius:12px;}
 
 /* (2026-10-20) banner, dots, section head and pill values merged into their first rules above */
 /* Stores near you */
@@ -157,29 +160,27 @@ html.hg-new-app .hgn-fav svg{width:17px;height:17px;transition:transform .15s ea
 html.hg-new-app .hgn-fav:active svg{transform:scale(.85);}
 html.hg-new-app .hgn-fav.is-on svg path{fill:#5A29DE;stroke:#5A29DE;}
 /* Home titles (E, chosen 2026-10-19): smaller section titles, See all as a purple text link instead of a pill */
-html.hg-new-app #hgn-home .hgn-h2{font-size:17px;letter-spacing:-.02em;}
-html.hg-new-app #hgn-home .hgn-pill{height:auto;padding:0;border-radius:0;background:none;color:#5A29DE;font-size:13px;}
+html.hg-new-app #hgn-home .hgn-pill{height:auto;padding:0;border-radius:0;background:none;color:#5A29DE;font-size:calc(var(--hg-fs) * 14);font-weight:600;}
 html.hg-new-app #hgn-home .hgn-pill::after{content:"\00a0\203A";}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-pill::after{content:"\00a0\2039";}
 /* Stores near you panel (E, chosen 2026-10-19): white panel, filter chips, 4 rows (photo, name, category and time) */
 html.hg-new-app .hgn-sp{margin:12px 16px 0;padding:12px 0 4px;background:#FFFFFF;border-radius:20px;box-shadow:0 0 0 1px #EEEAF6;}
-html.hg-new-app .hgn-sp-chips{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;}
+html.hg-new-app .hgn-sp-chips{display:flex;gap:var(--hg-chip-gap);padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;}
 html.hg-new-app .hgn-sp-chips::-webkit-scrollbar{display:none;}
-html.hg-new-app .hgn-sp-chip{flex:none;height:30px;padding:0 12px;margin:0;border:0;border-radius:15px;background:#F4F2FA;color:#1B2023;font:inherit;font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-sp-chip{flex:none;height:var(--hg-chip-h);padding:0 14px;margin:0;border:0;border-radius:calc(var(--hg-chip-h) / 2);background:#F4F2FA;color:var(--hg-ink);font:inherit;font-size:var(--hg-chip-size);font-weight:500;letter-spacing:var(--hg-chip-ls);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 html.hg-new-app .hgn-sp-chip.is-on{background:#5A29DE;color:#FFFFFF;}
 html.hg-new-app .hgn-sp-row{display:flex;align-items:center;gap:12px;padding:9px 12px;text-decoration:none;color:#1B2023;}
 html.hg-new-app .hgn-sp-row + .hgn-sp-row{border-top:1px solid #F1EEF6;}
 html.hg-new-app .hgn-sp-img{flex:none;width:64px;height:42px;border-radius:10px;overflow:hidden;background:#F4F3F8;}
 html.hg-new-app .hgn-sp-img img{width:100%;height:100%;object-fit:cover;display:block;}
 html.hg-new-app .hgn-sp-txt{min-width:0;display:flex;flex-direction:column;}
-html.hg-new-app .hgn-sp-name{font-size:14px;line-height:1.3;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-html.hg-new-app .hgn-sp-meta{margin-top:2px;font-size:12px;line-height:1.3;color:#6B6F80;}
+html.hg-new-app .hgn-sp-name{font-size:calc(var(--hg-fs) * 14);line-height:20px;font-weight:600;letter-spacing:var(--hg-ls);color:var(--hg-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-sp-meta{margin-top:0;font-size:calc(var(--hg-fs) * 14);line-height:20px;letter-spacing:var(--hg-ls);color:var(--hg-muted);}
 html.hg-new-app .hgn-rate{gap:4px;color:#1B2023;font-weight:600;}
 html.hg-new-app .hgn-rate svg{width:12px;height:12px;}
 
 /* ---------- PAGES: "Stores near you" (See all) and "Favourites" (open on top of Home, see app-new.js) ---------- */
-html.hg-new-app #hgn-page,html.hg-new-app #hgn-sfav{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
-html.hg-new-app #hgn-page[dir="rtl"],html.hg-new-app #hgn-sfav[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-page,html.hg-new-app #hgn-sfav{font-family:var(--hg-font);color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
 html.hg-new-app #hgn-page *,html.hg-new-app #hgn-sfav *{box-sizing:border-box;}
 html.hg-new-app #hgn-page a,html.hg-new-app #hgn-sfav a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-page img,html.hg-new-app #hgn-sfav img{display:block;}
@@ -210,7 +211,7 @@ html.hg-new-app .hgn-tag{background:#F4F2FA;box-shadow:none;color:#4A4E54;}
 
 /* ---------- CHOSEN 2026-10-18 (round 2 previews): banner A2, Stores page B3 + chips, Search favourites D2 ---------- */
 /* banner C1 (2026-10-18): the store's own banner, no shade or text on it; Shop pill bottom end, dots bottom start */
-html.hg-new-app .hgn-shop-c1{position:absolute;bottom:10px;inset-inline-end:10px;height:34px;padding-inline-start:13px;padding-inline-end:4px;gap:7px;font-size:12px;
+html.hg-new-app .hgn-shop-c1{position:absolute;bottom:10px;inset-inline-end:10px;height:34px;padding-inline-start:13px;padding-inline-end:4px;gap:7px;font-size:calc(var(--hg-fs) * 14);
   background:#FFFCF9;color:#2A1468;box-shadow:0 2px 8px rgba(27,32,35,.18);}
 html.hg-new-app .hgn-shop-c1 .hgn-shop-go{width:26px;height:26px;border-radius:13px;}
 /* Stores page: back bar + category chips stay on top */
@@ -226,10 +227,9 @@ html.hg-new-app .hgn-circ-name{width:100%;font-size:11.5px;line-height:1.2;font-
 
 
 /* ---------- STORE LIST LAYOUT (2026-10-18, from Nouf's example): Stores near you page, Favourites page, Search results ---------- */
-html.hg-new-app #hgn-sres{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;margin:0;}
+html.hg-new-app #hgn-sres{font-family:var(--hg-font);color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;margin:0;}
 /* margin 0 (fixed 2026-10-19): the Search page itself is already pulled 16px left and made wider by old Global rules on
    #MultiVendorSearch, so the old -16px here pushed the results off the left edge and past the right side */
-html.hg-new-app #hgn-sres[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
 html.hg-new-app #hgn-sres *{box-sizing:border-box;}
 html.hg-new-app #hgn-sres a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-sres img{display:block;}
@@ -239,8 +239,7 @@ html.hg-new-app .hgn-page-back{width:42px;height:42px;border-radius:21px;backgro
 html.hg-new-app .hgn-page-title{font-size:18px;}
 /* category tabs (Talabat sizes, 2026-10-20): each tab at least 80 wide with 17 each side of the text, a 2pt underline as
    wide as the text + 31, a 2pt line under the row, 48 tall in all. The label is in a <span> (app-new.js) for the underline. */
-html.hg-new-app .hgn-tabs{display:flex;align-items:stretch;height:calc(var(--hg-tab-h) + var(--hg-tab-divider));box-sizing:border-box;margin:0;padding:0;border-bottom:var(--hg-tab-divider) solid var(--hg-line);background:var(--hg-bg);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;font-family:"Inter",system-ui,-apple-system,sans-serif;}
-html.hg-new-app .hgn-tabs[dir="rtl"],html.hg-new-app [dir="rtl"] .hgn-tabs{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app .hgn-tabs{display:flex;align-items:stretch;height:calc(var(--hg-tab-h) + var(--hg-tab-divider));box-sizing:border-box;margin:0;padding:0;border-bottom:var(--hg-tab-divider) solid var(--hg-line);background:var(--hg-bg);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;font-family:var(--hg-font);}
 html.hg-new-app .hgn-tabs::-webkit-scrollbar{display:none;}
 html.hg-new-app .hgn-tab{flex:none;display:flex;justify-content:center;align-items:stretch;min-width:var(--hg-tab-min);height:var(--hg-tab-h);box-sizing:border-box;margin:0;padding:0 1.5px;border:0;background:none;font:inherit;font-size:var(--hg-tab-size);line-height:20px;letter-spacing:var(--hg-tab-ls);font-weight:400;color:var(--hg-muted);white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 html.hg-new-app .hgn-tab > span{position:relative;display:flex;align-items:center;padding:0 15.5px .6px;}
@@ -291,9 +290,8 @@ html.hg-new-app .hgn-sres-loading span{height:76px;border-radius:16px;background
 /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ---------- */
 html.hg-new-app.hgn-cat-on #merchants_by_category > :not(#hgn-catpage){display:none!important;}
 html.hg-new-app.hgn-cat-on body #app #merchants_by_category{background:#FFFCF9;min-height:100vh;}
-html.hg-new-app #hgn-catpage{font-family:"Inter",system-ui,-apple-system,sans-serif;color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+html.hg-new-app #hgn-catpage{font-family:var(--hg-font);color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
   background:#FFFCF9;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
-html.hg-new-app #hgn-catpage[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
 html.hg-new-app #hgn-catpage *{box-sizing:border-box;}
 html.hg-new-app #hgn-catpage a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-catpage img{display:block;}
@@ -343,10 +341,9 @@ html.hg-new-app .hgn-cc-tag{height:24px;padding:0 9px;border-radius:8px;backgrou
    in app-new.js). Every new store rule must use the same :is(#app,.v-overlay-container) start. */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view{
   background:#FFFCF9!important;
-  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  font-family:var(--hg-font);
   -webkit-font-smoothing:antialiased;
 }
-html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
 
 /* cover: full width, square corners, the white sheet below rises over it */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2{background:transparent!important;box-shadow:none!important;}
@@ -568,10 +565,9 @@ html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobi
    the product (no background) on a soft white glow at the end */
 html.hg-new-app .hgn-occ-row{display:flex;gap:12px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
 html.hg-new-app .hgn-occ-row::-webkit-scrollbar{display:none;}
-html.hg-new-app .hgn-occ{position:relative;flex:0 0 210px;height:118px;border-radius:18px;overflow:hidden;scroll-snap-align:start;text-decoration:none;background:radial-gradient(130% 130% at 20% 10%,#8C68F0 0%,#5A29DE 60%,#3F17B5 100%);}
-html.hg-new-app .hgn-occ-t{position:absolute;top:12px;inset-inline-start:14px;max-width:105px;font-size:16px;line-height:1.15;font-weight:700;letter-spacing:-.01em;color:#FFFFFF;z-index:1;}
-html.hg-new-app #hgn-home[dir="rtl"] .hgn-occ-t{letter-spacing:0;}
-html.hg-new-app .hgn-occ-go{position:absolute;bottom:12px;inset-inline-start:14px;padding:4px 9px;border-radius:10px;background:#FFFFFF;color:#5A29DE;font-size:11px;font-weight:700;z-index:1;}
+html.hg-new-app .hgn-occ{position:relative;flex:0 0 210px;height:118px;border-radius:14px;overflow:hidden;scroll-snap-align:start;text-decoration:none;background:radial-gradient(130% 130% at 20% 10%,#8C68F0 0%,#5A29DE 60%,#3F17B5 100%);}
+html.hg-new-app .hgn-occ-t{position:absolute;top:12px;inset-inline-start:14px;max-width:105px;font-size:calc(var(--hg-fs) * 16);line-height:1.2;font-weight:600;letter-spacing:var(--hg-ls);color:#FFFFFF;z-index:1;}
+html.hg-new-app .hgn-occ-go{position:absolute;bottom:12px;inset-inline-start:14px;display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;background:#FFFFFF;color:#5A29DE;font-size:calc(var(--hg-fs) * 14);font-weight:600;letter-spacing:var(--hg-ls);z-index:1;}
 html.hg-new-app .hgn-occ-glow{position:absolute;bottom:-4px;inset-inline-end:-4px;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 65%);}
 html.hg-new-app .hgn-occ-img{position:absolute;bottom:2px;inset-inline-end:2px;width:106px;height:106px;object-fit:contain;}
 
@@ -607,8 +603,7 @@ html.hg-new-app body #app #MultiVendorSearch #hg-search-discovery{display:none!i
 /* (2026-10-20) while our start screen is up (also while typing, until our results arrive), Hyperzod's own results box is
    hidden too: it only held an empty or loading box then. It shows again if our search fails (the start screen steps aside). */
 html.hg-new-app.hgn-sland-on body #app #MultiVendorSearch .scheme-global-search-results{display:none!important;}
-html.hg-new-app #hgn-sland{font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--hg-ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;padding:0 var(--hg-gutter) 24px;}
-html.hg-new-app #hgn-sland[dir="rtl"]{font-family:"IBM Plex Sans Arabic","Noto Sans Arabic",sans-serif;}
+html.hg-new-app #hgn-sland{font-family:var(--hg-font);color:var(--hg-ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;padding:0 var(--hg-gutter) 24px;}
 html.hg-new-app #hgn-sland *{box-sizing:border-box;}
 html.hg-new-app #hgn-sland a{color:inherit;text-decoration:none;}
 /* category tabs right under the search bar (Talabat, 2026-10-20): the shared .hgn-tabs; a tab shows that category's stores */

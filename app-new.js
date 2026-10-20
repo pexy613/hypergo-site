@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-21-0014 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -78,6 +78,8 @@
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
     root.style.setProperty("top", "0px", "important");
+    /* (2026-10-20) Talabat: 23 from the clock to the top of the "Deliver to" letters (was 13) */
+    root.style.setProperty("padding-top", "10px", "important");
 
     /* darker grey search placeholder via the theme's own variable */
     root.style.setProperty("--scheme-header-search-placeholder", "#1F2430");
@@ -142,9 +144,10 @@
         "important"
       );
 
+      /* Talabat sizes (2026-10-20): "Deliver to" 16pt regular, the place 16pt semibold, the address 13pt */
       location.style.setProperty(
         "font-size",
-        "14px",
+        "calc(var(--hg-fs, 1px) * 16)",
         "important"
       );
 
@@ -209,20 +212,21 @@
         sp(locRow, "max-width", "none");
 
         sp(label, "color", "#FFFFFF");
-        sp(label, "font-size", "14px");
+        sp(label, "font-size", "calc(var(--hg-fs, 1px) * 16)");
         sp(label, "font-weight", "400");
         sp(label, "white-space", "nowrap");
         sp(label, "margin-inline-start", "4px");
 
         sp(nameEl, "color", "#FFFFFF");
-        sp(nameEl, "font-size", "14px");
-        sp(nameEl, "font-weight", "700");
+        sp(nameEl, "font-size", "calc(var(--hg-fs, 1px) * 16)");
+        sp(nameEl, "font-weight", "600");
 
         const chevPath = chevron && chevron.querySelector("path");
         sp(chevPath, "stroke", "#FFFFFF");
         sp(chevPath, "fill", "none");
 
         sp(subEl, "color", "#FFFFFF");
+        sp(subEl, "font-size", "calc(var(--hg-fs, 1px) * 13)");
 
       }
 
@@ -278,7 +282,7 @@
 
       field.style.setProperty(
         "border",
-        "1px solid rgba(27,32,35,.10)",
+        "1px solid #E5E5E5",
         "important"
       );
 
@@ -308,12 +312,12 @@
       /* logical sides (2026-10-20): one rule for English and Arabic; the end side keeps the 48px room for the filter
          button (the old physical inline shorthand overrode that rule) */
       fieldInput.style.setProperty("padding-block", "0", "important");
-      fieldInput.style.setProperty("padding-inline-start", "38px", "important");
+      fieldInput.style.setProperty("padding-inline-start", "41px", "important");
       fieldInput.style.setProperty("padding-inline-end", "48px", "important");
 
       fieldInput.style.setProperty(
         "font-size",
-        "14px",
+        "calc(var(--hg-fs, 1px) * 16)",
         "important"
       );
 
@@ -344,8 +348,7 @@
 
 
     /* LEFT SEARCH ICON
-       SVG magnifier, bounding box centred on the middle of the round left end
-       (pill is 36px tall: centre = 18px from the left edge, 17px inside the 1px border). */
+       Talabat's magnifier (2026-10-20): 15pt with a thin line, 15 inside the box; the text starts 10 after it. */
 
     if (
       field &&
@@ -355,12 +358,12 @@
       const icon = document.createElement("span");
       icon.className = "hg-search-icon";
       icon.style.cssText =
-        "position:absolute;inset-inline-start:8px;top:50%;width:18px;height:18px;" + /* logical (2026-10-20): mirrors in Arabic */
+        "position:absolute;inset-inline-start:15px;top:50%;width:16px;height:16px;" + /* logical (2026-10-20): mirrors in Arabic */
         "transform:translateY(-50%);z-index:20;pointer-events:none;display:block;";
       icon.innerHTML =
-        "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 16 16' style='display:block'>" +
-        "<circle cx='6.9' cy='6.9' r='4.9' fill='none' stroke-width='1.8' style='stroke:#2A2F38'/>" +
-        "<path d='M10.6 10.6L14 14' stroke-width='1.8' stroke-linecap='round' style='stroke:#2A2F38'/></svg>";
+        "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' style='display:block'>" +
+        "<circle cx='6.5' cy='6.35' r='5.17' fill='none' stroke-width='1.5' style='stroke:#2A2F38'/>" +
+        "<path d='M10.25 10.1L15 14.8' stroke-width='1.5' stroke-linecap='round' style='stroke:#2A2F38'/></svg>";
       field.appendChild(icon);
 
     }
@@ -368,7 +371,7 @@
 
     /* ROTATING PLACEHOLDER: "Search Items" -> categories */
 
-    ensureRotatingPlaceholder(field, { left: 38, size: 14, weight: 400 });
+    ensureRotatingPlaceholder(field, { left: 41, size: 16, weight: 400 });
 
   }
 
@@ -741,7 +744,7 @@
         "position:absolute;" + (ar ? "direction:rtl;right:" + cfg.left + "px;left:auto;" : "left:" + cfg.left + "px;") +
         "top:0;bottom:0;display:flex;align-items:center;" +
         "pointer-events:none;white-space:nowrap;z-index:20;color:#1F2430;line-height:1;font-family:inherit;" +
-        "font-size:" + cfg.size + "px;font-weight:" + cfg.weight + ";";
+        "font-size:calc(var(--hg-fs, 1px) * " + cfg.size + ");font-weight:" + cfg.weight + ";letter-spacing:var(--hg-ls, 0);";
       field.appendChild(ov);
     }
 
@@ -797,7 +800,7 @@
       const st = document.createElement("style");
       st.id = "hg-cart-style";
       st.textContent =
-        "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 7px);width:38px;height:38px;border-radius:50%;" +
+        "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 16px);width:40px;height:40px;border-radius:50%;" + /* 40 (Talabat) and level with "Deliver to", 2026-10-20 */
         "background:rgba(255,255,255,.18) !important;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" +
         "cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}" +
         "#hg-cart-btn:active{background:rgba(255,255,255,.3) !important;}" +
