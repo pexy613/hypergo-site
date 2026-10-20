@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-0014 */
+/* hg-version 2026-10-21-0057 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -78,8 +78,9 @@
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
     root.style.setProperty("top", "0px", "important");
-    /* (2026-10-20) Talabat: 23 from the clock to the top of the "Deliver to" letters (was 13) */
-    root.style.setProperty("padding-top", "10px", "important");
+    /* (2026-10-21) the bar is as tall as Talabat's (172 with the clock) even with our address line:
+       4 on top, the two text lines in a 42 row, the search box 8 under them and 21 above the bottom edge */
+    root.style.setProperty("padding-top", "4px", "important");
 
     /* darker grey search placeholder via the theme's own variable */
     root.style.setProperty("--scheme-header-search-placeholder", "#1F2430");
@@ -106,7 +107,11 @@
 
     /* SEARCH AREA — extra bottom space so the purple continues below search */
 
-    searchRow.style.setProperty("padding", "10px 16px 22px", "important"); /* 2026-10-18: 8px shorter header (was 30px) */
+    searchRow.style.setProperty("padding", "8px 16px 21px", "important"); /* 2026-10-21: Talabat's 21 under the search box (was 10 / 22) */
+    if (toolbarContent) { /* 2026-10-21: 42 tall (was Hyperzod's 50), set at once (its 0.2s height animation would make the bar shrink on load) */
+      toolbarContent.style.setProperty("height", "42px", "important");
+      toolbarContent.style.setProperty("transition", "none", "important");
+    }
 
 
     /* FILTER: Hyperzod's own filter button, restyled as a tiny icon at the end of the search pill (see hg-extra-style) */
@@ -800,10 +805,10 @@
       const st = document.createElement("style");
       st.id = "hg-cart-style";
       st.textContent =
-        "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 16px);width:40px;height:40px;border-radius:50%;" + /* 40 (Talabat) and level with "Deliver to", 2026-10-20 */
-        "background:rgba(255,255,255,.18) !important;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" +
+        "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 7px);width:40px;height:40px;border-radius:50%;" + /* 40 (Talabat), centred on the two text lines (2026-10-21) */
+        "background:#FFFFFF !important;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" + /* white circle (2026-10-21) */
         "cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}" +
-        "#hg-cart-btn:active{background:rgba(255,255,255,.3) !important;}" +
+        "#hg-cart-btn:active{background:#F2F2F2 !important;}" +
         "html[lang^='ar'] #hg-cart-btn{right:auto;left:16px;}" +
         "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;clip-path:inset(0 0 24px 0 round 0 0 0 20px);}" +
         /* badge on the inline end corner (2026-10-20, was right): mirrors in Arabic */
@@ -1033,7 +1038,7 @@
     const list = d.stores.filter((m) => !panelCat || (m.merchant_category_ids || []).indexOf(panelCat) !== -1).slice(0, WIDE.matches ? 8 : 4);
     return list.map((m) => {
       seenStores[m._id || m.id] = m;
-      const href = storeHref(m, d.L), img = storeImg(m, "cover") || storeImg(m, "logo");
+      const href = storeHref(m, d.L), img = storeImg(m, "logo") || storeImg(m, "cover"); /* the logo first (2026-10-21) */
       const c = d.catMap[(m.merchant_category_ids || [])[0]];
       const meta = [c ? catLabel(c) : "", storeTime(m)].filter(Boolean).join(" · ");
       return '<a class="hgn-sp-row" href="' + esc(href) + '" data-href="' + esc(href) + '">' +

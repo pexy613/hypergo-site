@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-0026 */
+/* hg-version 2026-10-21-0057 */
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
@@ -1121,7 +1121,7 @@
         N + " .classic-footer-btn.classic-tab-active .nav-label{font-weight:500 !important;color:#262626 !important;}" +
         "html[lang^='ar'] " + N + " .classic-footer-btn .nav-label{overflow:visible !important;height:auto !important;line-height:1.6 !important;-webkit-line-clamp:unset !important;display:block !important;}" +
         "html[lang^='ar'] " + N + " .classic-nav-container .classic-footer-btn__content--with-label{padding-top:6px !important;padding-bottom:3px !important;}" +
-        N + " .classic-nav-container .classic-footer-btn__content--with-label{position:relative;min-height:0 !important;padding:14px 12px 0 !important;gap:1px !important;}" +
+        N + " .classic-nav-container .classic-footer-btn__content--with-label{position:relative;min-height:0 !important;padding:14px 12px 1px !important;gap:3px !important;}" + /* 53 tall with the line, label baseline 49 under it (Talabat, 2026-10-21; was 50) */
         N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content object{display:none !important;}" +
         N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content::before{content:'';display:block;position:relative;z-index:1;width:20px;height:20px;background:currentColor;" +
           "-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;}" +
