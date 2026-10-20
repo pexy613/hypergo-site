@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1953 */
+/* hg-version 2026-10-20-1957 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -265,7 +265,7 @@
      again). Off the search screen, once run() has already done its clean-up, nothing is scheduled: run() would only
      repeat that clean-up. The 1-second safety check below is described at the end of this file. */
   /* (2026-10-20): the new app's own screens and the header cart (app-new.js / global-footer-1.js) added: run() reads nothing inside them */
-  const GF2_NOISE="#hg-launch,.hg-ph,#hg-search-discovery,#hg-search-cart,"+
+  const GF2_NOISE=".hg-ph,#hg-search-discovery,#hg-search-cart,"+
     "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav,#hg-cart-btn";
   /* (2026-10-20): true when the search screen is on show without its discovery box yet (website). The observer then
      builds it right away, before the browser paints, instead of 80ms later, so the sections no longer pop in. */

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1953 */
+/* hg-version 2026-10-20-1957 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -38,7 +38,7 @@
      (html.hgn-page-open) is not a tab, so its back button can be swiped. */
 (function () {
   if (window.__hgAF) return;
-  var NOISE = "#hg-launch,.hg-ph," +
+  var NOISE = ".hg-ph," +
     "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
     "#hg-search-discovery,#hg-search-cart,#hg-cart-btn";
   function relevant(recs) {

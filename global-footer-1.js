@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1953 */
+/* hg-version 2026-10-20-1957 */
 (function () {
   /* NEW APP HOME (2026-10-15): in the app, the main page header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js). So in the app this file skips its own header and Home code; every other screen,
@@ -1212,13 +1212,13 @@
 
 
   /* ================= OUR OWN NOISE (observer trim, 2026-10-08) =================
-     Changes inside these never matter to our whole-page observers: the launch countdown (#hg-launch, ticks every second)
-     and the rotating search placeholder (.hg-ph, swaps its word every few seconds). (The temporary test panels were removed 2026-10-20.)
+     Changes inside these never matter to our whole-page observers: the rotating search placeholder (.hg-ph, swaps its word
+     every few seconds). (The launch countdown and the temporary test panels were removed 2026-10-20.)
      A batch of changes is "relevant" if any one change is outside them. Adding one of them counts as noise (only our own code
      adds them); removing one stays relevant (the app may have thrown it away and it has to be rebuilt).
      classMode (acctMO only): a class change counts as noise when it only ADDED hg- classes (our own markers); any removed
      class, or any added non-hg class, stays relevant (e.g. the app's own re-render wiping our classes). */
-  const HG_NOISE = "#hg-launch,.hg-ph";
+  const HG_NOISE = ".hg-ph";
   /* (2026-10-20): renderObserver + acctMO also ignore what app-new.js and global-footer-2.js draw themselves, and our header
      cart button, so the files stop waking each other up. The currency observer keeps the short list (prices inside still convert). */
   const HG_NOISE_EXT = HG_NOISE + ",#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
