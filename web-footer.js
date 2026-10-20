@@ -1,6 +1,9 @@
-/* hg-version 2026-10-18-1222 */
+/* hg-version 2026-10-20-1927 */
 (() => {
   "use strict";
+  /* (2026-10-20): run-once guard, like the other blocks in this file */
+  if (window.__hgWebTranslate) return;
+  window.__hgWebTranslate = true;
 
   const AR = new Map([
     ["Everything Bahrain Loves, All in One Place", "كل اللي تحبه في البحرين، في مكان واحد."],
@@ -40,77 +43,23 @@
     ["Party", "حفلات وبالونات"]
   ]);
 
-  const CATEGORY_ALIASES = {
-    "food": "food",
-    "مطاعم": "food",
+  /* (2026-10-20): "Home" is also an ordinary link label, so it is translated only inside the home category row and the
+     home sections; elsewhere it was turning into "مستلزمات المنزل". The other words are translated everywhere, as before. */
+  const SCOPED = new Set(["Home"]);
+  const SCOPE_SEL = "#ProductCategories,#hg-cat-rows";
 
-    "retail": "retail",
-    "retail trade": "retail",
-    "تسوق": "retail",
-
-    "flowers": "flowers",
-    "ورد": "flowers",
-
-    "beauty": "beauty",
-    "تجميل": "beauty",
-
-    "electronics": "electronics",
-    "إلكترونيات": "electronics",
-
-    "perfumes": "perfumes",
-    "عطور": "perfumes",
-
-    "fashion": "fashion",
-    "أزياء": "fashion",
-
-    "pharmacy": "pharmacy",
-    "pharmacies": "pharmacy",
-    "صيدليات": "pharmacy",
-
-    "nutrition": "nutrition",
-    "تغذية": "nutrition",
-
-    "pets": "pets",
-    "حيوانات أليفة": "pets",
-
-    "grocery": "grocery",
-    "groceries": "grocery",
-    "supermarket": "grocery",
-    "supermarkets": "grocery",
-    "سوبرماركت": "grocery",
-
-    "home goods": "home-goods",
-    "home": "home-goods",
-    "مستلزمات المنزل": "home-goods",
-    "للمنزل": "home-goods",
-
-    "sports": "sports",
-    "رياضة": "sports",
-
-    "toys": "toys",
-    "ألعاب": "toys",
-
-    "gift shop": "gift-shop",
-    "gifts": "gift-shop",
-    "هدايا": "gift-shop",
-
-    "baby care": "baby-care",
-    "مستلزمات الأطفال": "baby-care",
-
-    "balloons/party stores": "party",
-    "party": "party",
-    "حفلات وبالونات": "party"
-  };
+  /* (2026-10-20): the category-image marking (CATEGORY_ALIASES, findCategorySection, closestCategoryCard,
+     markCategoryImages) is removed. It ran on every page change, scanning every element's text on pages without
+     #ProductCategories, and its data-hg-category-* marks were read by no CSS or JS. The category photos block at the end
+     of this file matches the tiles by their alt text. */
 
   const originals = new Map();
 
   function normalize(value) {
     return String(value || "").replace(/\s+/g, " ").trim();
   }
-
-  function keyForLabel(text) {
-    return CATEGORY_ALIASES[normalize(text).toLowerCase()] || null;
-  }
+  /* (2026-10-20): shared with the category photos block below, which writes its Arabic label directly */
+  window.__hgWebAr = (text) => AR.get(normalize(text)) || null;
 
   function isArabic() {
     return (document.documentElement.lang || "").toLowerCase().startsWith("ar");
@@ -143,6 +92,7 @@
 
     const translation = AR.get(originalText);
     if (!translation) return;
+    if (SCOPED.has(originalText) && !(node.parentElement && node.parentElement.closest(SCOPE_SEL))) return;
 
     if (!originals.has(node)) originals.set(node, node.nodeValue);
 
@@ -172,125 +122,61 @@
   }
 
   /* =========================================================
-     FIND THE REAL CATEGORIES SECTION
-     ========================================================= */
-
-  function findCategorySection() {
-    const native=document.getElementById("ProductCategories");
-    if(native)return native;
-    const all = document.querySelectorAll("h1,h2,h3,h4,h5,p,span,div");
-
-    for (const el of all) {
-      const text = normalize(el.textContent);
-
-      if (text !== "Browse Categories" && text !== "تصفح الأقسام") continue;
-
-      let current = el;
-
-      for (let i = 0; i < 7 && current; i++) {
-        const imgs = current.querySelectorAll("img").length;
-
-        let matches = 0;
-        for (const candidate of current.querySelectorAll("span,p,a,div,h3,h4,h5")) {
-          if (keyForLabel(candidate.textContent)) matches++;
-        }
-
-        if (imgs >= 4 && matches >= 4) {
-          current.dataset.hgCategoriesSection = "1";
-          return current;
-        }
-
-        current = current.parentElement;
-      }
-    }
-
-    return null;
-  }
-
-  function closestCategoryCard(labelEl, section) {
-    let current = labelEl.parentElement;
-
-    for (let i = 0; i < 6 && current && current !== section; i++) {
-      const imgs = current.querySelectorAll("img");
-
-      if (imgs.length === 1) {
-        return { card: current, img: imgs[0] };
-      }
-
-      if (imgs.length > 4) return null;
-
-      current = current.parentElement;
-    }
-
-    return null;
-  }
-
-  function markCategoryImages() {
-    const section = findCategorySection();
-    if (!section) return;
-
-    const marked=new Set();
-
-    const possibleLabels = section.querySelectorAll("span,p,a,div,h3,h4,h5");
-
-    for (const labelEl of possibleLabels) {
-      if (labelEl.children.length > 2) continue;
-
-      const key = keyForLabel(labelEl.textContent);
-      if (!key) continue;
-
-      const result = closestCategoryCard(labelEl, section);
-      if (!result?.img) continue;
-
-      marked.add(result.img);
-      if(result.img.dataset.hgCategoryKey!==key)result.img.dataset.hgCategoryKey = key;
-      result.img.dataset.hgCategoryImage = "1";
-
-      if (result.img.parentElement) {
-        result.img.parentElement.dataset.hgCategoryImageWrapper = "1";
-      }
-    }
-    section.querySelectorAll('img[data-hg-category-key]').forEach(img=>{
-      if(marked.has(img))return;
-      delete img.dataset.hgCategoryKey;
-      delete img.dataset.hgCategoryImage;
-      if(img.parentElement)delete img.parentElement.dataset.hgCategoryImageWrapper;
-    });
-  }
-
-  /* =========================================================
      SYNC
      ========================================================= */
 
-  function sync() {
-    for(const node of originals.keys())if(!node.isConnected)originals.delete(node);
-    markCategoryImages();
+  function cleanup() {
+    for (const node of originals.keys()) if (!node.isConnected) originals.delete(node);
+  }
 
+  function fullSync() {
+    cleanup();
     if (isArabic()) translateTree(document.body);
     else restoreEnglish();
   }
 
+  /* (2026-10-20): a page change no longer walks the whole page. Only the nodes the change added, or the text it changed,
+     are translated; the whole page is walked at start and when the language (lang/dir) changes. */
+  const pending = new Set();
+  let fullPending = false;
   let scheduled = false;
+
+  function flush() {
+    scheduled = false;
+    const all = fullPending, nodes = Array.from(pending);
+    fullPending = false;
+    pending.clear();
+    if (all) { fullSync(); return; }
+    cleanup();
+    if (!isArabic()) { restoreEnglish(); return; }
+    for (const n of nodes) {
+      if (!n.isConnected) continue;
+      if (n.nodeType === Node.TEXT_NODE) translateNode(n);
+      else if (n.nodeType === Node.ELEMENT_NODE) translateTree(n);
+    }
+  }
 
   function scheduleSync() {
     if (scheduled) return;
-
     scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
-      sync();
-    });
+    requestAnimationFrame(flush);
   }
 
   function start() {
-    sync();
+    fullSync();
 
-    new MutationObserver(scheduleSync).observe(document.documentElement, {
+    new MutationObserver(() => { fullPending = true; scheduleSync(); }).observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["lang", "dir"]
     });
 
-    new MutationObserver(scheduleSync).observe(document.body, {
+    new MutationObserver((recs) => {
+      for (const r of recs) {
+        if (r.type === "characterData") pending.add(r.target);
+        else for (const n of r.addedNodes) pending.add(n);
+      }
+      scheduleSync();
+    }).observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true
@@ -349,16 +235,20 @@
   function update(grid) {
     const host = grid.parentElement;
     if (!host) return;
+    /* (2026-10-20): the buttons only show at 960px and up, so below that nothing is measured (no forced layout on phones
+       on every page change). Crossing 960px fires resize, which runs this again. Values are written only when they change. */
+    if (!window.matchMedia("(min-width:960px)").matches) return;
     const btns = host.querySelectorAll(":scope > .hg-catnav-btn");
     if (btns.length !== 2) return;
     const e = edges(grid);
     host.classList.toggle("hg-catnav-on", e.max > 2);
-    const mid = grid.offsetTop + grid.offsetHeight / 2;
+    const top = (grid.offsetTop + grid.offsetHeight / 2) + "px";
     btns.forEach((b) => {
-      b.style.top = mid + "px";
+      if (b.style.top !== top) b.style.top = top;
       const end = b.dataset.dir === "left" ? e.atLeft : e.atRight;
       b.classList.toggle("is-end", end);
-      b.setAttribute("aria-disabled", end ? "true" : "false");
+      const aria = end ? "true" : "false";
+      if (b.getAttribute("aria-disabled") !== aria) b.setAttribute("aria-disabled", aria);
     });
   }
 
@@ -489,7 +379,8 @@
   let mo = null;
 
   function isHomeRoute() {
-    return /^\/(en|ar)?\/?$/.test(location.pathname) || !!document.getElementById("MultiVendorHome");
+    /* (2026-10-20): /en/home and /ar/home are the home page too (same test as app-new.js isHomePath) */
+    return /^\/(en|ar)?(\/home)?\/?$/.test(location.pathname) || !!document.getElementById("MultiVendorHome");
   }
 
   function globalCssReady() {
@@ -604,6 +495,9 @@
    a title before it finds two products, that product is left alone. */
 (() => {
   "use strict";
+  /* (2026-10-20): run-once guard, like the other blocks in this file */
+  if (window.__hgStoreSections) return;
+  window.__hgStoreSections = true;
   function styledRow(row) {
     return row.matches(".product-horizontal-cards,.special-listing-inner>.tw-grid") || !!row.closest(".scheme-product-recommendation-section,.product-horizontal-cards");
   }
@@ -650,9 +544,15 @@
     (document.head || document.documentElement).appendChild(st);
   }
 
+  /* (2026-10-20): during pass 2 the product count and the section-title test of each element are remembered, so
+     products that share the same ancestors no longer repeat the same searches. Pass 2 only adds hg-sp-row/-cell/-img/
+     -clip/-arrow classes, which neither test reads, so the answers cannot change during the pass. */
+  let countMemo = null, titleMemo = null;
   function countProducts(el) {
-    let n = 0;
-    return el.querySelectorAll(".product-name").length;
+    if (countMemo && countMemo.has(el)) return countMemo.get(el);
+    const n = el.querySelectorAll(".product-name").length;
+    if (countMemo) countMemo.set(el, n);
+    return n;
   }
 
   /* the product a name belongs to: the closest element around the name that also holds the "+" button */
@@ -678,7 +578,10 @@
 
   /* a section title: a heading that is not inside a product (product names and prices are headings too) */
   function hasTitle(el) {
-    return Array.prototype.some.call(el.querySelectorAll("h1,h2,h3,h4"), (h) => !h.closest(".hg-sp-txt"));
+    if (titleMemo && titleMemo.has(el)) return titleMemo.get(el);
+    const v = Array.prototype.some.call(el.querySelectorAll("h1,h2,h3,h4"), (h) => !h.closest(".hg-sp-txt"));
+    if (titleMemo) titleMemo.set(el, v);
+    return v;
   }
 
   function apply() {
@@ -695,7 +598,9 @@
       found.push([name, prod]);
     });
     /* pass 2: lay out the rows */
-    found.forEach(([name, prod]) => {
+    countMemo = new Map(); titleMemo = new Map();
+    const doneRows = new Set();
+    try { found.forEach(([name, prod]) => {
       if (name.closest(".hg-sp-cell") || name.closest(".scheme-product-recommendation-section")) return;
       /* walk up from the product until an element holds two or more products: that is the row; the step below it is the cell.
          Stop if the walk reaches a section title: the product's own section ends there, so it is never a row. */
@@ -709,6 +614,9 @@
       if (!row.classList.contains("hg-sp-row")) row.classList.add("hg-sp-row");
       if (!cell.classList.contains("hg-sp-cell")) cell.classList.add("hg-sp-cell");
       markImage(cell);
+      /* (2026-10-20): the section, clipping and arrow work below depends only on the row: once per row per pass */
+      if (doneRows.has(row)) return;
+      doneRows.add(row);
       /* section = the closest ancestor of the row that also holds a section title */
       let section = row.parentElement;
       while (section && section !== page && !hasTitle(section)) section = section.parentElement;
@@ -726,7 +634,7 @@
         if (!b.querySelector("svg,i,.v-icon")) return;
         b.classList.add("hg-sp-arrow");
       });
-    });
+    }); } finally { countMemo = null; titleMemo = null; }
   }
 
   let queued = false;
@@ -778,6 +686,7 @@
     "home goods": ["home-goods", "Home Goods"], "home": ["home-goods", "Home Goods"], "مستلزمات المنزل": ["home-goods", "Home Goods"]
   };
   const STYLE_ID = "hg-catph-style";
+  function isAr() { return (document.documentElement.lang || "").toLowerCase().startsWith("ar"); }
   function addStyle() {
     if (document.getElementById(STYLE_ID)) return;
     const st = document.createElement("style");
@@ -811,7 +720,10 @@
         name.className = "hg-catph-name";
         card.appendChild(name);
       }
-      if (name.getAttribute("data-en") !== hit[1]) { name.setAttribute("data-en", hit[1]); name.textContent = hit[1]; }
+      /* (2026-10-20): in Arabic the label is written in Arabic right away (same words the translation block used), instead of
+         English first and translated a frame later */
+      const label = (isAr() && typeof window.__hgWebAr === "function" && window.__hgWebAr(hit[1])) || hit[1];
+      if (name.getAttribute("data-en") !== hit[1] || name.textContent !== label) { name.setAttribute("data-en", hit[1]); name.textContent = label; }
     });
   }
   let queued = false;
@@ -829,6 +741,8 @@
         return;
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
+    /* (2026-10-20): the label's language follows a language switch */
+    new MutationObserver(queue).observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir"] });
   } catch (e) {}
   queue();
 })();

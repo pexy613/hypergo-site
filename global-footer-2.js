@@ -1,4 +1,4 @@
-/* hg-version 2026-10-15-1646 */
+/* hg-version 2026-10-20-1927 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -22,6 +22,17 @@
     q=String(q||"").trim();if(q.length<2)return;
     const a=recent().filter(x=>x.toLowerCase()!==q.toLowerCase());a.unshift(q);try{localStorage.setItem("hg-search-recent",JSON.stringify(a.slice(0,6)));}catch(e){}
   }
+  /* (2026-10-20): popular words moved here (same lists as before) so the new app can read them through window.hgSearch */
+  const POPS_EN=["Burgers","Pizza","Coffee","Pharmacy","Flowers","Electronics","Perfume","Nutrition","Supermarket","Pet supplies"];
+  const POPS_AR=["برغر","بيتزا","قهوة","صيدلية","ورد","إلكترونيات","عطور","تغذية","سوبرماركت","مستلزمات الحيوانات"];
+  function isNewApp(){return document.documentElement.classList.contains("hg-new-app");}
+  /* (2026-10-20) contract for the new app's start screen (app-new.js): recent and popular searches, and running one
+     exactly like a tap on a discovery chip (remember it, then type it into Hyperzod's search box) */
+  window.hgSearch={
+    recent:()=>recent(),
+    popular:(ar)=>(ar?POPS_AR:POPS_EN).slice(),
+    run:(q)=>{remember(q);setNativeSearch(q);}
+  };
   function ensureCart(root){
     const hdr=root.querySelector(".scheme-global-search-mobile-header");if(!hdr)return;
     let b=document.getElementById("hg-search-cart");if(!b){b=document.createElement("button");b.id="hg-search-cart";b.type="button";b.innerHTML=CART+'<span class="hg-sc-badge"></span>';hdr.appendChild(b);b.onclick=()=>{
@@ -40,19 +51,18 @@
     const input=searchInput(root),q=input?input.value.trim():"";
     let box=document.getElementById("hg-search-discovery");
     /* Keep the same scroll containers and tiles while typing/clearing a query.
-       v99 (app): the discovery sections stay on screen while typing, until the loading state or results replace them,
-       so the page no longer flashes blank. */
-    if(q){
-      const app=document.documentElement.classList.contains("hg-native-app");
-      const replaced=root.classList.contains("hg-loading")||root.classList.contains("hg-has-results");
-      if(box)box.hidden=!app||replaced;
-      return;
-    }
+       v99 (app) kept them on screen while typing; removed 2026-10-20 (see below). */
+    /* (2026-10-20): the new app draws its own start screen from window.hgSearch, so the box is never built there;
+       one built before html.hg-new-app was set stays hidden. */
+    if(isNewApp()){if(box&&!box.hidden)box.hidden=true;return;}
+    /* (2026-10-20): hidden while there is a query (website unchanged). The old app branch that kept it on screen while
+       typing is removed: it showed the old chips and brand tiles over the new app's start screen. */
+    if(q){if(box&&!box.hidden)box.hidden=true;return;}
     const native=root.querySelector(".recent-searches");if(!native)return;
     if(!box){box=document.createElement("div");box.id="hg-search-discovery";native.insertAdjacentElement("afterend",box);}
     box.hidden=false;
     const ar=(document.documentElement.lang||"").startsWith("ar"),loc=ar?"ar":"en",rec=recent(),merchants=(Array.isArray(window.__hgSearchMerchants)?window.__hgSearchMerchants:[]).filter(m=>img(m)&&m.slug&&(m._id||m.id)).slice(0,12);
-    const pops=ar?["برغر","بيتزا","قهوة","صيدلية","ورد","إلكترونيات","عطور","تغذية","سوبرماركت","مستلزمات الحيوانات"]:["Burgers","Pizza","Coffee","Pharmacy","Flowers","Electronics","Perfume","Nutrition","Supermarket","Pet supplies"];
+    const pops=ar?POPS_AR:POPS_EN;
     /* Polling may detect newly loaded merchants, but must not replace a tile every 350ms.
        Compare source data, not innerHTML: other existing scripts translate visible text. */
     const sig=JSON.stringify([V,loc,rec,merchants.map(m=>[m._id||m.id,m.slug,m.name,img(m)])]);
@@ -93,6 +103,9 @@
       group.querySelectorAll("a,button,.v-btn").forEach(el=>{
         const t=(el.textContent||"").trim();
         if(/^(view all|عرض الكل)$/i.test(t)&&!el.classList.contains("hg-search-view-all"))el.classList.add("hg-search-view-all");
+        /* (2026-10-20): tag its parent, which global-footer.css used to find with [class*="tw-uppercase"]:has(>.hg-search-view-all) */
+        const p=el.classList.contains("hg-search-view-all")&&el.parentElement;
+        if(p&&p!==group&&(p.getAttribute("class")||"").indexOf("tw-uppercase")!==-1&&!p.classList.contains("hg-search-view-all-wrap"))p.classList.add("hg-search-view-all-wrap");
       });
     });
   }
@@ -106,24 +119,12 @@
     if(header){const h=header.getBoundingClientRect().height;if(h>40)html.style.setProperty("--hg-search-header-height",h+"px");}
     const sh=strip?strip.getBoundingClientRect().height:0;
     html.style.setProperty("--hg-search-status-height",sh+"px");
-    /* v99: while pinned, "left:0" is measured from whatever box contains the header. In the app that box is the search
-       canvas, which sits 16px off-screen (gutter fix), so the header landed 16px left with a white gap on the right.
-       Measure where it actually is and shift it back so its left edge is the screen edge. Converges in one pass. */
-    /* v100: only while the field is really focused. Measuring during the submit/keyboard-close transition read
-       positions mid-move and pushed the header down (white strip) and then up (cropped) before it settled. */
-    const focusedInput=root&&root.contains(document.activeElement)&&document.activeElement.tagName==="INPUT";
-    if(header&&focusedInput&&html.classList.contains("hg-search-input-active")&&getComputedStyle(header).position==="fixed"){
-      const r=header.getBoundingClientRect(),cur=parseFloat(html.style.getPropertyValue("--hg-search-fixed-shift"))||0,curV=parseFloat(html.style.getPropertyValue("--hg-search-fixed-vshift"))||0;
-      if(Math.abs(r.left)>0.5)html.style.setProperty("--hg-search-fixed-shift",(cur-r.left)+"px");
-      /* same for the vertical position: the header must sit right under the status strip */
-      if(Math.abs(r.top-sh)>0.5)html.style.setProperty("--hg-search-fixed-vshift",(curV+(sh-r.top))+"px");
-    }
+    /* (2026-10-20): the v99/v100 left/top shift measurement (--hg-search-fixed-shift / -vshift) is removed. Only the
+       app rule in global-footer.css read those values, and since v101 the header is never pinned in the app. */
   }
   function unpinSearchHeader(){
     const html=document.documentElement;
     if(html.classList.contains("hg-search-input-active"))html.classList.remove("hg-search-input-active");
-    html.style.removeProperty("--hg-search-fixed-shift");
-    html.style.removeProperty("--hg-search-fixed-vshift");
   }
   /* v101 (app): the native app resizes its web view when the keyboard opens (panel readings: viewport height 852 -> 472,
      offset 0, scroll 0), so the sticky header already stays on screen by itself. Pinning it and resetting the page scroll
@@ -222,9 +223,23 @@
     const loading=!hasResults&&!!q&&!!root.querySelector(".v-skeleton-loader,[class*='hz-skeleton']");
     if(root.classList.contains("hg-has-results")!==hasResults)root.classList.toggle("hg-has-results",hasResults);
     if(root.classList.contains("hg-loading")!==loading)root.classList.toggle("hg-loading",loading);
-    ensureCart(root);ensureDiscovery(root);tagResults(root);
-    try{tagResultsText(root);}catch(e){}
-    if(document.documentElement.classList.contains("hg-search-input-active"))measureSearchHeader(root);
+    /* (2026-10-20): each part runs on its own, so an error in one can no longer stop the others (or the field
+       listeners below from being bound). Tagging is skipped while Hyperzod's results box is display:none (the new
+       app shows its own results there); the 1-second check below catches up as soon as it is shown again. */
+    part(()=>ensureCart(root));part(()=>ensureDiscovery(root));
+    tagSkipped=resultsHidden(root);
+    if(!tagSkipped){part(()=>tagResults(root));part(()=>tagResultsText(root));}
+    if(document.documentElement.classList.contains("hg-search-input-active"))part(()=>measureSearchHeader(root));
+    part(()=>bindInput(input));
+    part(()=>relabelTabs(root));
+  }
+  function part(fn){try{fn();}catch(e){}}
+  let tagSkipped=false;
+  function resultsHidden(root){
+    const w=root.querySelector(".scheme-global-search-results");
+    return !!w&&getComputedStyle(w).display==="none";
+  }
+  function bindInput(input){
     if(input&&!bound.has(input)){
       bound.add(input);
       input.addEventListener("focus",()=>{const current=document.getElementById('MultiVendorSearch');if(current){setSearchFocus(current,true);keepSearchVisible(current);}});
@@ -234,6 +249,8 @@
       input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.hgAutoSearch&&!e.isComposing){clearTimeout(autoSearchTimer);if(document.getElementById('MultiVendorSearch'))remember(input.value);}});
       input.addEventListener("blur",()=>{if(document.getElementById('MultiVendorSearch'))remember(input.value);if(!input.isConnected){unpinSearchHeader();return;}setTimeout(()=>{if(document.activeElement!==input)setSearchFocus(document.getElementById('MultiVendorSearch'),false);},120);});
     }
+  }
+  function relabelTabs(root){
     /* Only replace the label text; preserve Vuetify's content, slider and ripple nodes. */
     root.querySelectorAll(".v-tab").forEach(t=>{
       const walker=document.createTreeWalker(t,NodeFilter.SHOW_TEXT);let node;
@@ -246,8 +263,19 @@
   /* observer trim (2026-10-08): changes inside our countdown, rotating placeholder, temporary panels, and our own search
      cart button and discovery box no longer wake this up (run() itself writes inside the last two, which used to wake it
      again). Off the search screen, once run() has already done its clean-up, nothing is scheduled: run() would only
-     repeat that clean-up. The 1-second safety run below is unchanged. */
-  const GF2_NOISE="#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda,#hg-search-discovery,#hg-search-cart";
+     repeat that clean-up. The 1-second safety check below is described at the end of this file. */
+  /* (2026-10-20): the new app's own screens and the header cart (app-new.js / global-footer-1.js) added: run() reads nothing inside them */
+  const GF2_NOISE="#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda,#hg-search-discovery,#hg-search-cart,"+
+    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav,#hg-cart-btn,#hg-temp-back";
+  /* (2026-10-20): true when the search screen is on show without its discovery box yet (website). The observer then
+     builds it right away, before the browser paints, instead of 80ms later, so the sections no longer pop in. */
+  function needsDiscovery(){
+    if(isNewApp()||document.getElementById("hg-search-discovery"))return false;
+    const r=document.getElementById("MultiVendorSearch");
+    if(!r||!r.querySelector(".recent-searches"))return false;
+    const i=searchInput(r);
+    return !(i&&i.value.trim());
+  }
   function gf2Relevant(recs){
     if(!recs||!recs.length)return true;
     for(let i=0;i<recs.length;i++){
@@ -268,8 +296,21 @@
       if(!cur||cur!==openedRoot||!(ae&&ae.tagName==="INPUT"&&cur.contains(ae)))unpinSearchHeader();
     }
     if(gf2Idle&&!document.getElementById("MultiVendorSearch")&&!document.documentElement.classList.contains("hg-search-input-active"))return;
+    if(needsDiscovery()){clearTimeout(searchRunTimer);run();return;}
     clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);
   }).observe(document.body,{childList:true,subtree:true});
   /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
-  setInterval(run,1000);
+  /* (2026-10-20): the 1-second safety check no longer repeats the whole run() (tagging every result and walking all
+     its text) on an unchanged screen. It keeps the cart badge and discovery box current (store list or recent searches
+     can change without any DOM change) and the tab label, and does a full run() only when something a mutation would
+     not show has changed: the query state, a screen or field not handled yet, tagging skipped while results were
+     hidden, or the website's pinned header. Off the search screen it is the same cheap clean-up as before. */
+  setInterval(()=>{
+    const root=document.getElementById("MultiVendorSearch");
+    if(!root){run();return;}
+    const input=searchInput(root),q=input?input.value.trim():"";
+    if(root.classList.contains("hg-has-query")!==!!q||openedRoot!==root||(input&&!bound.has(input))||
+      (tagSkipped&&!resultsHidden(root))||document.documentElement.classList.contains("hg-search-input-active")){run();return;}
+    part(()=>ensureCart(root));part(()=>ensureDiscovery(root));part(()=>relabelTabs(root));
+  },1000);
 })();

@@ -1,9 +1,13 @@
-/* hg-version 2026-10-19-1631 */
+/* hg-version 2026-10-20-1927 */
 (function () {
   /* NEW APP HOME (2026-10-15): in the app, the main page header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js). So in the app this file skips its own header and Home code; every other screen,
      the Account page and the bottom nav work exactly as before. The website is unchanged. */
-  const hgIsApp = () => document.documentElement.classList.contains("hg-native-app");
+  /* (2026-10-20): this file runs before app-footer.js adds hg-native-app, so the first applyAll() ran the website code in the
+     app. window.ReactNativeWebView (set by the phone app before page scripts) makes the check right from the start. */
+  const hgIsApp = () => document.documentElement.classList.contains("hg-native-app") || !!window.ReactNativeWebView;
+  /* (2026-10-20): one shared phone-width query instead of a new matchMedia() on every call */
+  const hgMobileMQ = window.matchMedia("(max-width: 959.98px)");
 
   /* SHAPES — HyperGo arrow icon */
   const LOGO_D = "M0.1 0.1 L0.0 143.6 L0.5 144.4 L221.2 144.2 L222.0 144.6 L222.1 145.8 L221.8 147.0 L221.2 147.8 L220.8 149.9 L220.2 150.6 L219.9 152.4 L219.1 153.6 L218.9 155.0 L218.2 156.0 L217.9 157.5 L217.1 158.9 L216.9 160.0 L216.1 161.2 L215.9 162.4 L215.1 163.5 L214.8 165.0 L214.2 165.6 L213.9 166.9 L213.1 168.0 L212.9 169.0 L212.0 170.5 L211.9 171.2 L211.5 171.6 L210.9 173.2 L210.0 174.6 L209.9 175.2 L209.5 175.6 L208.8 177.4 L208.4 177.8 L207.9 179.1 L207.2 179.9 L205.6 183.1 L205.1 183.6 L204.9 184.5 L204.1 185.5 L203.9 186.2 L203.2 187.0 L202.8 188.1 L202.2 188.6 L202.0 189.4 L201.1 190.5 L200.9 191.2 L198.0 195.5 L197.8 196.1 L197.1 196.8 L197.0 197.2 L196.0 198.5 L194.8 200.6 L193.1 202.6 L193.0 203.1 L191.1 205.5 L190.8 206.2 L183.0 216.2 L177.9 222.2 L174.0 226.5 L165.8 234.9 L159.6 240.6 L153.4 246.0 L146.1 251.8 L141.5 255.0 L140.4 256.0 L138.5 257.1 L137.9 257.8 L133.2 260.9 L130.8 262.4 L130.2 262.9 L129.5 263.1 L128.4 264.0 L127.9 264.1 L127.0 264.9 L126.5 265.0 L125.4 265.9 L124.6 266.1 L124.1 266.6 L123.0 267.1 L122.2 267.8 L121.0 268.2 L120.2 268.9 L119.2 269.2 L118.2 270.0 L117.6 270.1 L117.1 270.6 L115.6 271.2 L115.2 271.6 L113.8 272.2 L113.2 272.8 L111.9 273.2 L111.4 273.8 L110.5 274.0 L109.4 274.8 L108.5 275.0 L107.4 275.8 L105.8 276.4 L105.1 276.9 L104.1 277.1 L103.0 277.9 L102.0 278.1 L101.1 278.8 L99.9 279.1 L98.6 279.9 L97.9 280.0 L96.1 281.0 L95.2 281.1 L92.0 282.8 L90.5 283.1 L89.2 283.9 L88.0 284.1 L87.0 284.8 L85.5 285.1 L84.2 285.9 L82.8 286.1 L81.4 286.9 L80.0 287.1 L79.0 287.8 L77.1 288.1 L76.0 288.8 L74.6 289.0 L72.2 290.0 L71.5 290.0 L69.0 291.0 L67.9 291.1 L66.2 291.9 L64.5 292.1 L63.1 292.8 L61.0 293.1 L59.1 293.9 L57.6 294.0 L55.0 294.9 L53.1 295.1 L50.9 295.9 L48.6 296.1 L46.1 296.9 L43.8 297.1 L41.2 297.9 L38.5 298.1 L35.6 298.9 L32.5 299.1 L29.2 299.9 L24.5 300.2 L21.4 300.9 L16.5 301.1 L10.5 301.9 L2.0 302.1 L0.2 302.4 L0.0 303.0 L0.0 455.5 L0.4 455.9 L9.8 455.6 L19.0 455.0 L26.8 454.8 L33.1 454.0 L38.4 453.8 L43.4 453.0 L47.5 452.8 L51.9 452.0 L55.5 451.8 L59.2 451.0 L62.4 450.8 L65.6 450.0 L68.0 449.9 L71.8 449.0 L74.4 448.8 L77.0 448.0 L79.5 447.8 L82.1 447.0 L84.5 446.8 L87.0 446.0 L89.1 445.8 L91.9 444.9 L93.5 444.8 L95.6 444.0 L98.0 443.6 L99.5 443.0 L101.4 442.8 L102.9 442.1 L105.2 441.8 L107.0 441.0 L108.9 440.8 L110.6 440.0 L112.2 439.8 L113.9 439.0 L115.2 438.9 L116.9 438.1 L118.8 437.8 L120.9 436.9 L122.1 436.8 L123.6 436.0 L124.9 435.8 L126.1 435.1 L128.2 434.6 L129.0 434.1 L131.0 433.6 L132.1 433.0 L133.4 432.8 L134.8 432.0 L136.1 431.8 L137.5 431.0 L139.0 430.6 L140.0 430.0 L141.2 429.8 L142.5 429.0 L144.0 428.6 L145.0 428.0 L146.1 427.8 L149.6 426.0 L150.8 425.8 L152.0 425.0 L153.2 424.6 L153.9 424.1 L155.2 423.8 L156.6 422.9 L157.1 422.9 L158.8 421.9 L159.1 421.9 L160.9 420.9 L161.2 420.9 L164.0 419.5 L164.6 419.0 L166.0 418.5 L166.9 417.9 L167.2 417.9 L170.2 416.1 L171.5 415.6 L172.2 415.0 L173.4 414.6 L173.9 414.1 L175.2 413.6 L175.8 413.1 L177.1 412.5 L177.6 412.0 L178.5 411.8 L179.6 410.9 L180.2 410.8 L180.8 410.2 L182.1 409.6 L182.6 409.1 L183.4 408.9 L184.5 408.0 L185.2 407.8 L186.1 407.0 L187.0 406.6 L187.5 406.1 L191.5 403.8 L192.4 403.0 L193.2 402.6 L199.5 398.1 L200.1 397.9 L208.4 391.8 L219.4 382.8 L228.1 374.8 L236.1 366.8 L243.6 358.8 L250.9 350.4 L252.0 348.8 L254.4 346.0 L254.9 345.1 L255.5 344.6 L256.0 345.0 L256.1 345.4 L256.0 441.4 L256.5 442.4 L394.4 442.5 L394.9 441.8 L394.8 0.1Z";
@@ -63,6 +67,15 @@
 
     /* mobile layout only (search row hidden on desktop) — desktop is handled by applyHyperGoDesktop */
     if (getComputedStyle(searchRow).display === "none") return;
+
+    /* (2026-10-20): skip the ~60 style writes below when the header is unchanged since the last full run: same elements,
+       same number of inner elements, same address text, and our inline styles still in place. Any re-render re-runs it. */
+    const hdrSig = [root, header, toolbar, toolbarContent, searchRow, search, control, field, fieldInput, filter, location, logo];
+    const hdrSigTxt = root.getElementsByTagName("*").length + "|" + (location ? location.textContent : "") + "|" + hgIsAr();
+    if (
+      hdrLast && hdrLastTxt === hdrSigTxt && hdrSig.every((el, i) => el === hdrLast[i]) &&
+      root.style.getPropertyValue("background-color") && (!field || field.style.getPropertyValue("border-radius"))
+    ) { hgSyncPhOpacity(field); hgStartCartTimer(); return; }
 
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
@@ -188,9 +201,7 @@
         let label = locRow.querySelector(".hg-deliver-label");
 
         if (!label) {
-          label = document.createElement("span");
-          label.className = "hg-deliver-label";
-          label.textContent = hgIsAr() ? "\u0627\u0644\u062A\u0648\u0635\u064A\u0644 \u0625\u0644\u0649" : "Deliver to";
+          label = hgMakeDeliverLabel();
           locRow.insertBefore(label, nameEl);
         }
 
@@ -368,11 +379,33 @@
 
     ensureRotatingPlaceholder(field, { left: 38, size: 14, weight: 400 });
 
+    /* (2026-10-20): remember what was styled (measured after our own label/icon/overlay/cart were added) */
+    hdrLast = [root, header, toolbar, toolbarContent, searchRow, search, control, field, fieldInput, filter, location, logo];
+    hdrLastTxt = root.getElementsByTagName("*").length + "|" + (location ? location.textContent : "") + "|" + hgIsAr();
+  }
+  let hdrLast = null, hdrLastTxt = "";
+
+
+  /* (2026-10-20): the one thing a full header run also kept in sync: the rotating text hides while the search field has a value */
+  function hgSyncPhOpacity(field) {
+    const ov = field && field.querySelector(".hg-ph"), inp = field && field.querySelector("input");
+    if (!ov || !inp) return;
+    const o = inp.value ? "0" : "1";
+    if (ov.style.opacity !== o) ov.style.opacity = o;
+    if (!phTimer) phTimer = setInterval(phTick, PH_INTERVAL);
   }
 
+  /* (2026-10-20): one builder for the "Deliver to" label (was written twice, mobile + desktop) */
+  function hgMakeDeliverLabel() {
+    const label = document.createElement("span");
+    label.className = "hg-deliver-label";
+    label.textContent = hgIsAr() ? "التوصيل إلى" : "Deliver to";
+    return label;
+  }
 
   /* DESKTOP HEADER (width >= 960) — tested in Console, same approach:
      inline !important styles on the fixed #AppBar, re-applied by the observer */
+  let deskLast = null, deskLastTxt = "";
   function applyHyperGoDesktop() {
     try {
       if (!window.matchMedia("(min-width: 960px)").matches) return;
@@ -380,6 +413,14 @@
       const P = "#8640FC", W = "#FFFFFF", G = "#1F2430", IC = "#2A2F38";
       const bar = document.querySelector("#AppBar");
       if (!bar) return;
+
+      /* (2026-10-20): skip restyling every element of the bar when nothing in it changed since the last full run */
+      const deskLoc = bar.querySelector("#CurrentLocationBtn");
+      const deskTxt = bar.getElementsByTagName("*").length + "|" + (deskLoc ? deskLoc.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length + "|" + hgIsAr();
+      if (deskLast === bar && deskLastTxt === deskTxt && bar.style.getPropertyValue("background-color")) {
+        hgSyncPhOpacity(bar.querySelector(".d-md-flex .v-field"));
+        return;
+      }
 
       const s = (el, k, v) => el.style.setProperty(k, v, "important");
 
@@ -415,9 +456,7 @@
       if (loc && !loc.querySelector(".hg-deliver-label")) {
         const nameEl = loc.querySelector("span.text");
         if (nameEl) {
-          const lab = document.createElement("span");
-          lab.className = "hg-deliver-label";
-          lab.textContent = hgIsAr() ? "\u0627\u0644\u062A\u0648\u0635\u064A\u0644 \u0625\u0644\u0649" : "Deliver to";
+          const lab = hgMakeDeliverLabel();
           lab.style.cssText =
             "color:#fff;font-size:14px;font-weight:400;white-space:nowrap;margin-inline-start:4px;margin-inline-end:4px";
           nameEl.parentNode.insertBefore(lab, nameEl);
@@ -483,6 +522,11 @@
       const img = bar.querySelector("#Logo img");
       if (img)
         s(img, "filter", "brightness(0) invert(1)");   /* plain white icon on the purple bar: no glow, no purple-on-purple */
+
+      /* (2026-10-20): remember what was styled (measured after our label/placeholder were added) */
+      const deskLoc2 = bar.querySelector("#CurrentLocationBtn");
+      deskLast = bar;
+      deskLastTxt = bar.getElementsByTagName("*").length + "|" + (deskLoc2 ? deskLoc2.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length + "|" + hgIsAr();
     } catch (e) {}
   }
 
@@ -505,7 +549,7 @@
   }
 
   function updateWatermark(root) {
-    if (!root || !window.matchMedia("(max-width: 959.98px)").matches) return;
+    if (!root || !hgMobileMQ.matches) return;
     const scrolled = Math.max(0, -root.getBoundingClientRect().top);
     root.style.setProperty("--hg-wm-op", String(Math.min(1, scrolled / 50) * 0.55));
   }
@@ -514,6 +558,7 @@
   document.addEventListener(
     "scroll",
     () => {
+      if (hgIsApp()) return; /* (2026-10-20): app-new.js runs its own copy of this listener in the app */
       if (wmTicking) return;
       wmTicking = true;
       requestAnimationFrame(() => {
@@ -531,6 +576,7 @@
      then the next word fades in. The native placeholder is made transparent (theme variable),
      and this overlay sits exactly where the placeholder text was. English only. */
 
+  /* (2026-10-20): the only Arabic check in this file (7 copies merged; Arabic = lang "ar..." or dir "rtl") */
   function hgIsAr() {
     const de = document.documentElement;
     return (de.lang || "").toLowerCase().indexOf("ar") === 0 || de.dir === "rtl";
@@ -547,9 +593,7 @@
   const locBusy = {};
   let locTries = 0, locLastTry = 0, mapsKey = null, mapsKeyTry = 0;
 
-  function locStore() {
-    try { return document.querySelector("#app").__vue_app__.config.globalProperties.$store; } catch (e) { return null; }
-  }
+  /* (2026-10-20): locStore() merged into acStore() (identical) */
   function locKeyOf(la, ln) { return la.toFixed(3) + "," + ln.toFixed(3); }
   function findLL(o, d) {
     if (!o || typeof o !== "object" || d > 4) return null;
@@ -567,7 +611,7 @@
   }
   function locCoords() {
     const out = [], seen = {};
-    const st = locStore();
+    const st = acStore();
     if (!st) return out;
     const add = (o) => {
       const ll = findLL(o, 0);
@@ -588,7 +632,7 @@
     if (Date.now() - mapsKeyTry < 30000) return null;
     mapsKeyTry = Date.now();
     try {
-      const m = JSON.stringify(locStore().state).match(/AIza[0-9A-Za-z_-]{20,}/);
+      const m = JSON.stringify(acStore().state).match(/AIza[0-9A-Za-z_-]{20,}/);
       if (m) mapsKey = m[0];
     } catch (e) {}
     return mapsKey;
@@ -682,14 +726,15 @@
      Vue's component data (Vue production hides instances, same walk-the-vnode-tree trick as findHome() below) and
      swapped into the <img> by hand. Scoped to #NearbyMerchants only - the merchant's own shop page is untouched and
      keeps showing their cover banner as normal. */
-  function findVueComponentByName(name) {
+  /* (2026-10-20): one Vue-tree walker (was written twice: here and in pull-to-refresh's findHome) */
+  function findVueComponent(test, maxDepth) {
     const app = document.getElementById("app");
     const seen = new Set();
     let hit = null;
     function walk(inst, d) {
-      if (!inst || hit || seen.has(inst) || d > 120) return;
+      if (!inst || hit || seen.has(inst) || d > maxDepth) return;
       seen.add(inst);
-      if (inst.type && inst.type.name === name) { hit = inst; return; }
+      if (test(inst)) { hit = inst; return; }
       walkVN(inst.subTree, d + 1);
     }
     function walkVN(vn, d) {
@@ -700,6 +745,9 @@
     }
     if (app && app._vnode) walkVN(app._vnode, 0);
     return hit;
+  }
+  function findVueComponentByName(name) {
+    return findVueComponent((inst) => inst.type && inst.type.name === name, 120);
   }
   function getMerchantLogoUrl(item, proxy) {
     const L = item && item.images && item.images.logo;
@@ -714,7 +762,7 @@
     if (typeof L === "string") return L;
     return L.image_url || L.url || L.src || null;
   }
-  const nearbyMQ = window.matchMedia("(max-width: 959.98px)");
+  const nearbyMQ = hgMobileMQ;
   function applyNearbyLogos() {
     if (!nearbyMQ.matches) return;
     const root = document.getElementById("NearbyMerchants");
@@ -784,7 +832,11 @@
   }
 
   /* search page: category names in the "shop by category" list + back arrow pointing the right way in Arabic */
-  function applyArabicSearchPage() {
+  /* (2026-10-20): the whole search page is walked once per search screen; after that only the parts that changed are walked
+     (passed in as "scope" by the currency observer and the pre-paint account observer). app-new.js's own search parts are skipped. */
+  const hgArSearchSeen = new WeakSet();
+  const HG_AR_SEARCH_SKIP = "#hgn-sres,#hgn-sland,#hgn-sfav";
+  function applyArabicSearchPage(scope) {
     if (!hgIsAr()) return;
     if (!document.getElementById("hg-rtl-style")) {
       const st = document.createElement("style");
@@ -794,13 +846,21 @@
     }
     const root = document.getElementById("MultiVendorSearch");
     if (!root) return;
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let start = root;
+    if (scope) {
+      if (scope === root || root.contains(scope)) start = scope;
+      else if (!(scope.contains && scope.contains(root))) return;
+    } else {
+      if (hgArSearchSeen.has(root)) return;
+      hgArSearchSeen.add(root);
+    }
+    const w = document.createTreeWalker(start, NodeFilter.SHOW_TEXT);
     const hits = [];
     while (w.nextNode()) {
       const n = w.currentNode;
       const p = n.parentNode;
       if (!n.nodeValue || !p || /^(SCRIPT|STYLE|INPUT|TEXTAREA)$/.test(p.nodeName)) continue;
-      if (arCat(n.nodeValue)) hits.push(n);
+      if (arCat(n.nodeValue) && !(p.closest && p.closest(HG_AR_SEARCH_SKIP))) hits.push(n);
     }
     hits.forEach((n) => {
       const t = arCat(n.nodeValue);
@@ -822,6 +882,7 @@
   const PH_INTERVAL = 4000;
   let phIndex = 0;
   let phTimer = null;
+  const phSaved = {};
 
   function phCategories() {
     const ar = hgIsAr();
@@ -842,7 +903,9 @@
         });
       }
       if (names.length) {
-        try { localStorage.setItem(key, JSON.stringify(names)); } catch (e) {}
+        /* (2026-10-20): only write when the list changed (this ran every 4s) */
+        const s = JSON.stringify(names);
+        if (phSaved[key] !== s) { try { localStorage.setItem(key, s); phSaved[key] = s; } catch (e) {} }
       }
     }
     if (!names.length) {
@@ -902,6 +965,8 @@
 
   function phTick() {
     if (document.hidden) return;
+    /* (2026-10-20): stop when no rotating text is on the page; ensureRotatingPlaceholder / hgSyncPhOpacity start it again */
+    if (!document.querySelector(".hg-ph")) { clearInterval(phTimer); phTimer = null; return; }
     const words = phWords();
     if (words.length < 2) return;
     phIndex = (phIndex + 1) % words.length;
@@ -1083,9 +1148,18 @@
     });
   }
 
+  /* (2026-10-20): the 1s badge timer stops while our cart button is not on the page and starts again with it.
+     Only the timer this file started is stopped (app-new.js shares the window._hgCartTimer slot). */
+  let hgCartTimer = null;
+  function hgStartCartTimer() {
+    if (!window._hgCartTimer) { hgCartTimer = window._hgCartTimer = setInterval(syncCartBadge, 1000); syncCartBadge(); }
+  }
   function syncCartBadge() {
     const btn = document.getElementById("hg-cart-btn");
-    if (!btn) return;
+    if (!btn) {
+      if (hgCartTimer && window._hgCartTimer === hgCartTimer) { clearInterval(hgCartTimer); window._hgCartTimer = hgCartTimer = null; }
+      return;
+    }
     const badge = btn.querySelector(".hg-cart-badge");
     const nb = document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .v-badge__badge");
     const on = !!nb && nb.style.display !== "none";
@@ -1133,7 +1207,7 @@
     }
     if (btn.parentNode !== root) root.appendChild(btn);
     syncCartBadge();
-    if (!window._hgCartTimer) window._hgCartTimer = setInterval(syncCartBadge, 1000);
+    hgStartCartTimer();
   }
 
 
@@ -1145,6 +1219,10 @@
      classMode (acctMO only): a class change counts as noise when it only ADDED hg- classes (our own markers); any removed
      class, or any added non-hg class, stays relevant (e.g. the app's own re-render wiping our classes). */
   const HG_NOISE = "#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda";
+  /* (2026-10-20): renderObserver + acctMO also ignore what app-new.js and global-footer-2.js draw themselves, and our header
+     cart button, so the files stop waking each other up. The currency observer keeps the short list (prices inside still convert). */
+  const HG_NOISE_EXT = HG_NOISE + ",#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
+    "#hg-search-discovery,#hg-search-cart,#hg-cart-btn,#hg-temp-back";
   function hgInNoise(n, sel) {
     const el = n && (n.nodeType === 1 ? n : n.parentNode);
     return !!(el && el.nodeType === 1 && el.closest && el.closest(sel || HG_NOISE));
@@ -1196,8 +1274,7 @@
 
   function applyCurrency(root) {
     if (!document.body) return;
-    const de = document.documentElement;
-    const isAr = (de.lang || "").toLowerCase().indexOf("ar") === 0 || de.dir === "rtl";
+    const isAr = hgIsAr();
     /* English: "BHD 2.000"   Arabic: "2.000 د.ب." (number first, Arabic dinar sign, RLM keeps the final dot in place) */
     const T = isAr ? "\u062F.\u0628.\u200f" : "BHD";
     const NB = "\u00a0";
@@ -1298,13 +1375,17 @@
     curFull = false;
     curRoots.clear();
     curKey = curLangKey();
-    if (full) applyCurrency();
+    /* (2026-10-20): the spelling fixes and the Arabic search-page category names now run here, on the changed parts only
+       (they used to re-read or re-walk the whole page / whole search screen on every applyAll) */
+    if (full) { applyCurrency(); fixTypos(document.body); applyArabicSearchPage(document.body); }
     else {
       const set = new Set(roots);
       roots.forEach((el) => {
         if (!el.isConnected) return;
         for (let p = el.parentNode; p; p = p.parentNode) if (set.has(p)) return;
         applyCurrency(el);
+        fixTypos(el);
+        applyArabicSearchPage(el);
       });
     }
     if (curMO) curMO.takeRecords();
@@ -1357,8 +1438,7 @@
     st.id = "hg-acct-style";
     st.textContent =
       "@media (max-width:959.98px){" +
-      /* v75: restored, matching v57 exactly - see the big note above applyAll() for why the whole JS status-bar
-         mechanism (v57-v74) was removed and replaced with the plain CSS this file used before v57 ever existed. */
+      /* v75: plain CSS status-bar colour (the old JS status-bar code was removed) */
       "html.hg-acct-page .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#8640FC !important;}" +
       /* page + header */
       "#app .scheme-profile-page.scheme-profile-page{padding-top:calc(60px + var(--native-status-bar-height,0px)) !important;background:#FFFCF9;}" +
@@ -1508,7 +1588,7 @@
     if (hero.getAttribute("data-key") !== key) {
       hero.setAttribute("data-key", key);
       hero.className = logged ? "hg-user" : "hg-guest";
-      const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const esc = hgEsc; /* (2026-10-20): was a second copy of hgEsc */
       const wm = '<span class="hg-wm"></span>';
       if (logged) {
         hero.innerHTML =
@@ -1793,9 +1873,9 @@
   function applyHyperGoForms() {
     const mobile = window.matchMedia("(max-width: 959.98px)").matches;
     const ed = [...document.querySelectorAll(".scheme-address-editor")].find(isVisible);
-    document.documentElement.classList.toggle("hg-addr-editor", !!(mobile && ed && isVisible(ed)));
+    document.documentElement.classList.toggle("hg-addr-editor", !!(mobile && ed)); /* (2026-10-20): ed is already visible, no second measure */
     if (mobile && (ed || document.querySelector(".scheme-edit-profile-panel"))) ensureFormsStyle();
-    fixTypos(document.body);
+    /* (2026-10-20): fixTypos(document.body) moved to the currency observer (changed parts only) */
     fixArabicForms();
   }
 
@@ -1804,11 +1884,7 @@
     if (document.getElementById("hg-extra-style")) return;
     const st = document.createElement("style");
     st.id = "hg-extra-style";
-    const HG_ZOOM = 1; /* v80: was 0.88 (about 12% smaller than native) - shrinking the whole app down also shrinks
-       every gap and margin right along with it, which is very likely the literal cause of Adam's "everything
-       feels cramped/too zoomed in" complaint: content packs in tighter as a direct side effect of the shrink,
-       even though each element is individually smaller. Restored to 1 (full native size) as the first, highest-
-       leverage move before touching individual paddings/gaps one by one. */
+    /* (2026-10-20): HG_ZOOM (fixed at 1 since v80) and its two zoom:1 rules removed - they did nothing */
     const S = "html body [data-color-scheme] #MultiVendorSearch ";
     const TUNE_IC = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1'/%3E%3Ccircle cx='15' cy='6' r='2'/%3E%3Ccircle cx='9' cy='12' r='2'/%3E%3Ccircle cx='17' cy='18' r='2'/%3E%3C/svg%3E\")";
     const SEARCH_IC = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E\")";
@@ -1833,9 +1909,6 @@
       "#app .scheme-mobile-page-header .back-btn svg{display:none !important;}" +
       "html[lang^='ar'] #hg-orders-back::before,html[lang^='ar'] #app .scheme-mobile-page-header .back-btn::before{transform:scaleX(-1);}" +
       "#app .scheme-mobile-page-header__surface:has(>#hg-orders-back){position:relative !important;}" +
-      /* APP-WIDE SIZE: page content is scaled down (HG_ZOOM) so text/icons/spacing feel like a normal-sized app. Header, bottom nav and status strip keep their size. */
-      "#app .v-main:not(#MultiVendorSearch){zoom:" + HG_ZOOM + ";}" +
-      "#app .scheme-profile-page>.v-container{zoom:" + HG_ZOOM + ";}" +
       /* Home: no over-scroll above the header; own pull-to-refresh below it */
       "#MultiVendorHome{overscroll-behavior-y:none;}" +
       "#hg-ptr{position:absolute;left:0;right:0;height:0;overflow:hidden;display:none;pointer-events:none;z-index:0;opacity:0;}" +
@@ -1988,8 +2061,6 @@
       /* app: Hyperzod pads fullscreen dialogs for the status bar, which left a white strip above the photo. Photo goes to the very top,
          under the status bar, with the back button floating on it */
       "html body .v-overlay.v-overlay .v-overlay__content>.v-card.product-popup:first-child{padding-top:0 !important;}" +
-      /* discount badge: darker tone of our "Ultimate orange" #FF4000 (#D93600 keeps white text at 4.7:1), small rounded rectangle */
-      "html body .product-discount-badge{background:#D93600 !important;color:#fff !important;font-size:12px !important;font-weight:700 !important;line-height:1.2 !important;border-radius:6px !important;padding:4px 7px !important;letter-spacing:.02em;opacity:1 !important;z-index:3;}" +
       /* v75: restored, matching v57 exactly */
       "html:has(.v-overlay--active .product-popup) .native-status-bar-bg,html:has(.v-overlay--active .product-popup) .native-under-sheet-status-cover{background-color:transparent !important;}" +
       "html body .v-card.product-popup .product-image-slider,html body .v-card.product-popup .product-image-slider .v-card{background:#FFFCF9 !important;}" +
@@ -2010,6 +2081,8 @@
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content{width:100%;justify-content:space-between !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content,html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content *{color:#fff !important;font-size:15px !important;font-weight:600 !important;}" +
       "}" +
+      /* discount badge (2026-10-20: one rule for all widths; was the same rule twice, phone and desktop): darker tone of our "Ultimate orange" #FF4000 (#D93600 keeps white text at 4.7:1), small rounded rectangle */
+      "html body .product-discount-badge{background:#D93600 !important;color:#fff !important;font-size:12px !important;font-weight:700 !important;line-height:1.2 !important;border-radius:6px !important;padding:4px 7px !important;letter-spacing:.02em;opacity:1 !important;z-index:3;}" +
       /* STORE PAGE (mobile/app): 200px cover with rounded bottom (like our header), info on white below it (62px logo, 20px name,
          category, purple distance pill), round white floating buttons, categories bar right under the info and Recommended
          Products as one sideways row UNDER the bar (visual order via flex, DOM untouched), 14px tabs (#5C5C5C, active purple),
@@ -2144,7 +2217,6 @@
       ".scheme-merchant-product-grid-card .product-image .v-responsive__sizer{padding-bottom:0 !important;}" +
       ".scheme-merchant-product-grid-card .product-image img{object-fit:cover !important;}" +
       ".scheme-merchant-product-grid-card .grid-add-control{z-index:2;}" +
-      "@media (min-width:960px){}" +
       /* PRODUCT TILES in the "list" layout some stores use (Amjad, Le Cadeau...) and in Recommended: same square tile as the grid.
          (the photo box is found by its class, not position: its first child is a hidden loader)
          v78: de-scoped from ".scheme-merchant-page" for the same reason as the grid-card block above - this card
@@ -2170,7 +2242,6 @@
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .product-description{display:none !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price{margin-top:6px !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price *{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
-      "@media (min-width:960px){}" +
       /* IN-STORE PRODUCT LIST (mobile, stores set to Hyperzod's "list" layout - the common case): compact single-column
          rows instead of a 2-up grid of big square tiles - bigger photo left (fixed size), name/description/price on the
          right with a tight photo-to-text gap and clear breathing room between the description and price. Only
@@ -2310,8 +2381,6 @@
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter>div{padding-left:0 !important;padding-right:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section{margin-top:44px !important;margin-bottom:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-heading,.scheme-merchant-page:not(.merchant-mobile-view) h3.category-name{font-size:26px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:22px !important;padding-bottom:0 !important;}" +
-      /* v77: same fix as the mobile version above - full width+height pin so the circle can't stretch. */
-      "html body .product-discount-badge{background:#D93600 !important;color:#fff !important;font-size:12px !important;font-weight:700 !important;line-height:1.2 !important;border-radius:6px !important;padding:4px 7px !important;letter-spacing:.02em;opacity:1 !important;z-index:3;}" +
       "#merchants_by_category .v-container{max-width:1248px !important;}" +
       "#merchants_by_category .v-container .tw-flex.tw-mb-4:has(>h1){background:#8640FC;border-radius:20px;padding:22px 28px;margin-bottom:8px !important;}" +
       "#merchants_by_category .v-container h1{color:#fff !important;font-size:26px !important;font-weight:700 !important;line-height:1.2 !important;text-transform:capitalize !important;-webkit-font-smoothing:antialiased;}" +
@@ -2346,31 +2415,30 @@
       "}";
     document.head.appendChild(st);
 
-    /* v88 HOME BASE — screenshot-tuned spacing, category labels and white canvas */
-    ["hg-home-v81","hg-home-v82","hg-home-v83","hg-home-v84","hg-home-v85","hg-home-v86","hg-home-v87"].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.remove();
-    });
+    /* v88 HOME BASE — screenshot-tuned spacing, category labels and white canvas
+       (2026-10-20): website only - the Home selectors start with :where(html:not(.hg-new-app)), which adds no specificity, so the
+       website is unchanged and the app's new Home (app-new.css) no longer has to beat them. The page canvas colour
+       (body/#app on Home) stays for both, so the app's background does not change. The v81-v87 clean-up loop was removed. */
     if (!document.getElementById("hg-home-v88")) {
+      const H = ":where(html:not(.hg-new-app)) ";
       const home = document.createElement("style");
       home.id = "hg-home-v88";
       home.textContent =
-        "body:has(#MultiVendorHome),#app:has(#MultiVendorHome),#MultiVendorHome,#MultiVendorHome .page-builder-section-surface,#ProductCategories{background:#FFFCF9 !important;}" +
+        "body:has(#MultiVendorHome),#app:has(#MultiVendorHome)," + H + "#MultiVendorHome," + H + "#MultiVendorHome .page-builder-section-surface," + H + "#ProductCategories{background:#FFFCF9 !important;}" +
         "@media (max-width:959.98px){" +
-        "#MultiVendorHome{background:#FFFCF9 !important;color:#1B2023 !important;}" +
-        "#MultiVendorHome .page-builder-section-surface{margin-bottom:32px !important;}" +
-        "#ProductCategories{margin:6px 0 24px !important;padding-top:2px !important;}" +
-        "#ProductCategories>.tw-px-4{padding-left:16px !important;padding-right:16px !important;padding-bottom:0 !important;}" +
-        "#ProductCategories .tw-grid{gap:9px 10px !important;}" +
-        "#ProductCategories .tw-aspect-square{border-radius:11px !important;background:transparent !important;box-shadow:none !important;overflow:hidden !important;}" +
-        "#ProductCategories .tw-h-10{display:block !important;height:auto !important;min-height:0 !important;margin-top:5px !important;font-size:11px !important;line-height:13px !important;font-weight:650 !important;color:#1B2023 !important;text-align:center !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}" +
-        "#MultiVendorHome .v-divider{border-color:#EAE7EE !important;}" +
+        H + "#MultiVendorHome{background:#FFFCF9 !important;color:#1B2023 !important;}" +
+        H + "#MultiVendorHome .page-builder-section-surface{margin-bottom:32px !important;}" +
+        H + "#ProductCategories{margin:6px 0 24px !important;padding-top:2px !important;}" +
+        H + "#ProductCategories>.tw-px-4{padding-left:16px !important;padding-right:16px !important;padding-bottom:0 !important;}" +
+        H + "#ProductCategories .tw-grid{gap:9px 10px !important;}" +
+        H + "#ProductCategories .tw-aspect-square{border-radius:11px !important;background:transparent !important;box-shadow:none !important;overflow:hidden !important;}" +
+        H + "#ProductCategories .tw-h-10{display:block !important;height:auto !important;min-height:0 !important;margin-top:5px !important;font-size:11px !important;line-height:13px !important;font-weight:650 !important;color:#1B2023 !important;text-align:center !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}" +
+        H + "#MultiVendorHome .v-divider{border-color:#EAE7EE !important;}" +
         "}";
       document.head.appendChild(home);
     }
   }
 
-  /* search page (English): friendlier section title */
   /* purple status strip + purple bar on the search page (mobile/app) */
   /* v94: Hyperzod rebuilds #MultiVendorSearch when a query is submitted. For a few frames the element is gone, which used
      to drop html.hg-search-page -> the app's status strip lost its purple and got it back (visible flicker). The flag now
@@ -2378,8 +2446,8 @@
   let hgSearchSeenAt = 0;
   function syncSearchClass() {
     const el = document.getElementById("MultiVendorSearch");
-    const mobile = window.matchMedia("(max-width: 959.98px)").matches;
-    let on = !!el && isVisible(el) && mobile;
+    const mobile = hgMobileMQ.matches;
+    let on = !!el && mobile && isVisible(el); /* (2026-10-20): width checked first, so desktop never measures */
     const cl = document.documentElement.classList;
     if (on) hgSearchSeenAt = Date.now();
     else if (mobile && cl.contains("hg-search-page") && Date.now() - hgSearchSeenAt < 600 &&
@@ -2387,14 +2455,24 @@
     if (cl.contains("hg-search-page") !== on) cl.toggle("hg-search-page", on);
   }
 
-  function applySearchPage() {
-    syncSearchClass();
+  /* search page (English): friendlier section title.
+     (2026-10-20): the text is changed in place (Vue keeps its own text node), and it also runs from the pre-paint account
+     observer when the search screen is (re)built, so "Categories" no longer flashes first when going Back to Search. */
+  function hgSearchHeading() {
     const root = document.getElementById("MultiVendorSearch");
     if (!root || hgIsAr()) return;
     const h = root.querySelector(".recent-searches>div:has(+ .tw-grid)>div") || root.querySelector(".recent-searches>div:has(+ .tw-grid)");
     if (h && h.children.length === 0 && /^\s*(shop by categor(y|ies)|categories)\s*$/i.test(h.textContent) && h.textContent.trim() !== "Shop by category") {
-      h.textContent = "Shop by category";
+      const texts = Array.prototype.filter.call(h.childNodes, (n) => n.nodeType === 3);
+      const main = texts.find((n) => n.nodeValue.trim()) || texts[0];
+      if (!main) { h.textContent = "Shop by category"; return; }
+      texts.forEach((n) => { if (n !== main && n.nodeValue) n.nodeValue = ""; });
+      main.nodeValue = "Shop by category";
     }
+  }
+  function applySearchPage() {
+    syncSearchClass();
+    hgSearchHeading();
   }
 
   /* MY ORDERS opened from Account has no back button (Hyperzod treats it as a root tab) -> add one */
@@ -2458,7 +2536,6 @@
      (following the finger, smoothed); at the end the home content reloads IN PLACE (no page reload) while the logo drifts
      back and forth on a faint line; then everything eases away. Deliberately soft and slow. */
   (function initPullToRefresh() {
-    const isAr = () => /^ar/i.test(document.documentElement.lang || "");
     const FINGER = 230;      /* px of finger travel until the refresh starts (a deliberate pull, not a nudge) */
     const GAP = 30;          /* px the content is pushed down to make room for the goo */
     const MIN_LOAD = 700;    /* ms the loading state is shown at least, so it never flashes by */
@@ -2495,10 +2572,10 @@
     }
     function paint(e, s, p) {
       ensureInd(e);
-      /* Vuetify puts a .2s transition on v-main: keep only the opacity fade, movement is smoothed here. CSS zoom scales translate, so undo it. */
+      /* Vuetify puts a .2s transition on v-main: keep only the opacity fade, movement is smoothed here.
+         (2026-10-20): the per-frame zoom read is gone; no zoom is set on v-main any more (HG_ZOOM removed). */
       e.main.style.transition = "opacity .5s ease";
-      const z = parseFloat(getComputedStyle(e.main).zoom) || 1;
-      e.main.style.transform = s > 0.1 ? "translate3d(0," + (s / z).toFixed(2) + "px,0)" : "";
+      e.main.style.transform = s > 0.1 ? "translate3d(0," + s.toFixed(2) + "px,0)" : "";
       ind.style.height = Math.max(0, s).toFixed(2) + "px";
       ind.style.opacity = String(Math.max(0, Math.min(1, (s - 8) / 20)));
       /* a small piece of goo: grows and stretches a little as you pull; while loading the CSS animation moves the three drops */
@@ -2535,28 +2612,13 @@
     }
     function findHome() {
       /* Vue (production) hides component instances; reach the home component through the mounted vnode tree */
-      const a = document.getElementById("app");
-      const seen = new Set();
-      let hit = null;
+      const isHome = (inst) => inst.type && inst.type.methods && inst.type.methods.getHomeData;
       const home = document.getElementById("MultiVendorHome");
       let c = home && home.__vueParentComponent;
       for (let i = 0; c && i < 10; i++, c = c.parent) {
-        if (c.type && c.type.methods && c.type.methods.getHomeData) return c;
+        if (isHome(c)) return c;
       }
-      function walk(inst, d) {
-        if (!inst || hit || seen.has(inst) || d > 90) return;
-        seen.add(inst);
-        if (inst.type && inst.type.methods && inst.type.methods.getHomeData) { hit = inst; return; }
-        walkVN(inst.subTree, d + 1);
-      }
-      function walkVN(vn, d) {
-        if (!vn || hit) return;
-        if (vn.component) walk(vn.component, d);
-        if (vn.suspense) walkVN(vn.suspense.activeBranch, d + 1);
-        if (Array.isArray(vn.children)) vn.children.forEach((ch) => walkVN(ch, d + 1));
-      }
-      if (a && a._vnode) walkVN(a._vnode, 0);
-      return hit;
+      return findVueComponent(isHome, 90); /* (2026-10-20): shared walker */
     }
     function doRefresh(e) {
       busy = true; closing = false;
@@ -2595,6 +2657,9 @@
 
     const app = document.getElementById("app");
     if (!app) return;
+    /* (2026-10-20): not in the app - its touchmove listener below is non-passive and made every scroll on every app screen
+       wait for the main thread, while doing nothing there (els() returns null in the app). */
+    if (hgIsApp()) return;
     app.addEventListener("touchstart", (ev) => {
       st = null;
       if (busy || closing || ev.touches.length !== 1) return;
@@ -2630,7 +2695,6 @@
   /* HOME: one horizontal row per merchant category (Talabat-style), replacing the long "Nearby Merchants" list.
      Data comes from Hyperzod's own home data in the store (state.homeData: merchants + merchant_categories),
      so no extra API calls. Rows follow the category sort order; empty categories are skipped. */
-  let hgCatSig = "";
   function hgCatStyle() {
     const current = document.getElementById("hg-cat-style");
     if (current && current.dataset.v === "93") return;
@@ -2686,7 +2750,8 @@
       "#hg-cat-rows .hg-brand-img{width:68px;height:68px;border-radius:14px;background-color:#FFFCF9;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid #ECEAEF;box-shadow:0 1px 2px rgba(27,32,35,.018);}" +
       "#hg-cat-rows .hg-brand-name{font-size:10px;font-weight:650;line-height:1.2;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
       "#hg-cat-rows .hg-cat-block{position:relative;margin:0 0 31px;padding:0 0 2px;}" +
-      "#hg-cat-rows .hg-cat-block:before{content:'';position:absolute;left:0;top:-10px;width:3px;height:30px;border-radius:0 4px 4px 0;background:#5A29DE;opacity:.82;}" +
+      /* (2026-10-20): RTL - accent bar on the start side (was left:0 in Arabic too); same look in English */
+      "#hg-cat-rows .hg-cat-block:before{content:'';position:absolute;inset-inline-start:0;top:-10px;width:3px;height:30px;border-radius:0;border-start-end-radius:4px;border-end-end-radius:4px;background:#5A29DE;opacity:.82;}" +
       "#hg-cat-rows .hg-cat-block + .hg-cat-block{border-top:1px solid #F2F0F3;padding-top:24px;}" +
       "#hg-cat-rows .hg-cat-block + .hg-cat-block:before{top:14px;}" +
       "#hg-cat-rows .hg-logo-rail{display:flex;gap:12px;overflow-x:auto;padding:1px 16px 3px 18px;scroll-snap-type:x mandatory;scroll-padding-inline:18px;scrollbar-width:none;}" +
@@ -2769,7 +2834,8 @@
   }
   function hgEsc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   /* all merchants for the selected location, from the same API the category pages use (paged, 20 per page) */
-  const hgCat = { key: "", list: null, busy: false };
+  const hgCat = { key: "", list: null, busy: false, failAt: 0 };
+  const HG_CAT_RETRY = 30000; /* (2026-10-20): wait 30s after a failed fetch (it used to retry back-to-back with no limit) */
   function hgCatFetch(key, loc, locale) {
     hgCat.busy = true;
     const H = { "content-type": "application/json", accept: "application/json", "x-tenant": location.host, "x-client-device": "web" };
@@ -2783,7 +2849,8 @@
       all = all.concat(list);
       if (list.length && p < 15) return page(p + 1);
     });
-    page(1).then(() => { hgCat.key = key; hgCat.list = all; }, () => {}).then(() => { hgCat.busy = false; applyCategoryRows(); });
+    page(1).then(() => { hgCat.key = key; hgCat.list = all; return true; }, () => { hgCat.failAt = Date.now(); return false; })
+      .then((ok) => { hgCat.busy = false; if (ok) applyCategoryRows(); });
   }
   function hgKm(m) {
     const t = String(m.user_to_merchant_distance || "");
@@ -2809,7 +2876,7 @@
       '[class*="tw-grid-cols-8"][class*="xs:tw-grid-cols-4"][class*="lg:tw-grid-cols-13"]'
     );
     if (!grid) return;
-    grid.classList.add("hg-cat-icon-grid");
+    if (!grid.classList.contains("hg-cat-icon-grid")) grid.classList.add("hg-cat-icon-grid");
     const kids = Array.from(grid.children);
     const isDesktop = window.innerWidth >= 960;
     kids.forEach((el, i) => {
@@ -2833,6 +2900,7 @@
   window.addEventListener(
     "resize",
     () => {
+      if (hgIsApp()) return; /* (2026-10-20): app's native Home is hidden; applyAll already skips this in the app */
       clearTimeout(hgCatGridResizeTimer);
       hgCatGridResizeTimer = setTimeout(applyHomeCategoryGrid, 120);
     },
@@ -2846,15 +2914,16 @@
   function hgMerchantHref(m,loc){return "/"+loc+"/m/"+encodeURIComponent(m.slug)+"/"+(m._id||m.id);}
   function hgCategoryHref(c,loc){const slug=String(c.name||"").toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06ff]+/g,"-").replace(/^-|-$/g,"")||"category";return "/"+loc+"/m-category/"+encodeURIComponent(slug)+"/"+c.id+"?categoryCollection=true";}
   function applyCategoryRows(){
+    if(hgIsApp())return; /* (2026-10-20): website only; the fetch callback also calls this, so the guard lives here */
     try{
       const nearby=document.getElementById("NearbyMerchants"),st=acStore(),S=st&&st.state,hd=S&&S.homeData;if(!nearby||!hd||!Array.isArray(hd.merchant_categories))return;
       const sel=S.Utils&&S.Utils.selectedLocation&&S.Utils.selectedLocation.location;if(!sel||typeof sel.latitude!=="number")return;
-      const ar=(document.documentElement.lang||"").startsWith("ar"),loc=ar?"ar":"en",key=sel.latitude.toFixed(5)+","+sel.longitude.toFixed(5)+"|"+loc;
-      if(hgCat.key!==key){if(!hgCat.busy)hgCatFetch(key,[sel.latitude,sel.longitude],loc);return;}
+      const ar=hgIsAr(),loc=ar?"ar":"en",key=sel.latitude.toFixed(5)+","+sel.longitude.toFixed(5)+"|"+loc;
+      if(hgCat.key!==key){if(!hgCat.busy&&Date.now()-hgCat.failAt>HG_CAT_RETRY)hgCatFetch(key,[sel.latitude,sel.longitude],loc);return;}
       const merchants=(hgCat.list||[]).slice().sort((a,b)=>{const x=hgKm(a),y=hgKm(b);return(x==null?1e9:x)-(y==null?1e9:y);});window.__hgSearchMerchants=merchants;
       const MAIN=["6a9beeebdda6795f8c065933","6a9bee55dda6795f8c065932","6a9beef4dda6795f8c065934","6a9bee60288fb9d9e903a7e2","6a9bef06288fb9d9e903a7e3"],allCats=hd.merchant_categories,cats=MAIN.map(id=>allCats.find(c=>c.id===id)).filter(Boolean);
       const sig=key+"|"+merchants.length+"|"+cats.map(c=>c.id).join(",")+"|v92";let box=document.getElementById("hg-cat-rows");
-      if(box&&box.dataset.sig===sig&&box.nextElementSibling===nearby){nearby.classList.add("hg-cat-hidden");hgHideRec();return;}hgCatStyle();
+      if(box&&box.dataset.sig===sig&&box.nextElementSibling===nearby){if(!nearby.classList.contains("hg-cat-hidden"))nearby.classList.add("hg-cat-hidden");hgHideRec();return;}hgCatStyle();
       const catMap={};allCats.forEach(c=>{catMap[c.id]=c.name;});const inCat=c=>merchants.filter(m=>(m.merchant_category_ids||[]).includes(c.id));const allLink=c=>'<a class="hg-all" href="'+hgCategoryHref(c,loc)+'">'+(ar?"&#1593;&#1585;&#1590; &#1575;&#1604;&#1603;&#1604;":"See all")+"</a>";
       const heroLogos=merchants.filter(m=>hgImg(m,"logo")).slice(0,3);let html='<section class="hg-hero"><div class="hg-hero-copy"><div class="hg-hero-k">'+(ar?"&#1607;&#1575;&#1610;&#1576;&#1585;&#1602;&#1608; &#1575;&#1604;&#1576;&#1581;&#1585;&#1610;&#1606;":"HYPERGO BAHRAIN")+'</div><div class="hg-hero-h">'+(ar?"&#1603;&#1604; &#1605;&#1575; &#1578;&#1581;&#1578;&#1575;&#1580;&#1607;&#1548; &#1601;&#1610; &#1605;&#1603;&#1575;&#1606; &#1608;&#1575;&#1581;&#1583;":"Bahrain, all in one place.")+'</div><div class="hg-hero-p">'+(ar?"&#1571;&#1603;&#1604;&#1548; &#1608;&#1585;&#1583;&#1548; &#1573;&#1604;&#1603;&#1578;&#1585;&#1608;&#1606;&#1610;&#1575;&#1578;&#1548; &#1589;&#1610;&#1583;&#1604;&#1610;&#1575;&#1578; &#1608;&#1571;&#1603;&#1579;&#1585;.":"Food, flowers, tech, pharmacy and more.")+'</div></div>';
       if(cats.length)html+='<div class="hg-hero-links">'+cats.slice(0,4).map(c=>'<a class="hg-hero-link" href="'+hgCategoryHref(c,loc)+'">'+hgEsc(c.name)+"</a>").join("")+"</div>";
@@ -2969,8 +3038,12 @@
     const realImg = Array.prototype.find.call(box.querySelectorAll("img"), (i) => !i.classList.contains("hg-noimg-fallback"));
     if (realImg) return true;
     const bgCandidates = box.querySelectorAll(".v-img__img, [style*='background-image']");
+    /* (2026-10-20): read the inline style first (no style recalculation); the computed style is read only for a
+       non-<img> .v-img__img without an inline background, which is the one case the inline value cannot answer */
     for (let i = 0; i < bgCandidates.length; i++) {
-      const bg = getComputedStyle(bgCandidates[i]).backgroundImage;
+      const c = bgCandidates[i];
+      let bg = c.style.backgroundImage;
+      if ((!bg || bg === "none") && c.tagName !== "IMG" && c.classList.contains("v-img__img")) bg = getComputedStyle(c).backgroundImage;
       if (bg && bg !== "none") return true;
     }
     return false;
@@ -3003,21 +3076,28 @@
      that, though: the live cart total is already kept in localStorage under the "vuex" key (Cart.cart[0]),
      written there by Hyperzod itself and rehydrated on page load - confirmed live, with and without a
      reload - so reading it is just a plain localStorage read, no interception needed. */
+  /* (2026-10-20): parsed once (was twice), and not parsed again while the stored text is unchanged */
+  let hgCartRaw = null, hgCartVal = null;
   function hgReadCart() {
     try {
       const raw = localStorage.getItem("vuex");
       if (!raw) return null;
-      const cart = JSON.parse(raw).Cart && JSON.parse(raw).Cart.cart;
+      if (raw === hgCartRaw) return hgCartVal;
+      hgCartRaw = raw;
+      hgCartVal = null;
+      const v = JSON.parse(raw);
+      const cart = v.Cart && v.Cart.cart;
       const c = Array.isArray(cart) ? cart[0] : cart;
       if (!c || typeof c.total_amount !== "number") return null;
-      return { total: c.total_amount, count: c.total_items || 0, discount: c.discount_amount || 0 };
+      hgCartVal = { total: c.total_amount, count: c.total_items || 0, discount: c.discount_amount || 0 };
+      return hgCartVal;
     } catch (e) {
       return null;
     }
   }
 
   function hgFmtMoney(num) {
-    const isAr = (document.documentElement.lang || "").toLowerCase().indexOf("ar") === 0 || document.documentElement.dir === "rtl";
+    const isAr = hgIsAr();
     const T = isAr ? "د.ب.‏" : "BHD";
     const NB = " ";
     const n = Number(num).toLocaleString("en-US", {useGrouping:false, minimumFractionDigits:2, maximumFractionDigits:3});
@@ -3034,7 +3114,7 @@
   function applyCheckoutBar() {
     const btn = document.querySelector(".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill");
     if (!btn) return;
-    btn.classList.add("hg-checkout-bar");
+    if (!btn.classList.contains("hg-checkout-bar")) btn.classList.add("hg-checkout-bar");
     let bar = btn.querySelector(".hg-co-bar");
     if (!bar) {
       bar = document.createElement("span");
@@ -3047,7 +3127,7 @@
     }
     const cart = hgReadCart();
     const count = cart ? cart.count : (parseInt((btn.querySelector(".v-btn__content")?.textContent || "").replace(/\D+/g, ""), 10) || 0);
-    const isAr = (document.documentElement.lang || "").toLowerCase().indexOf("ar") === 0;
+    const isAr = hgIsAr();
     const write=(el,value)=>{if(el.textContent!==value)el.textContent=value;};
     write(bar.querySelector(".hg-co-badge"), String(count));
     write(bar.querySelector(".hg-co-label"), isAr ? "الدفع" : "Checkout");
@@ -3067,34 +3147,13 @@
     }
   }
 
-  /* v75: Adam asked, correctly, why not just go back to a version that didn't have this problem and diff it
-     against what changed. Did exactly that - pulled every archived version and grepped for when JS started
-     touching the status bar at all. v1-v56 (the whole run before this feature existed) had ZERO JS controlling
-     this element - just six plain CSS rules below (":has()" / class selectors, one per page state), each setting
-     the color once via the stylesheet and leaving it alone. v57 introduced the first JS "safety net"
-     (applyStatusBarColor) for one narrow, specific bug: a stale purple color sometimes stuck around after
-     navigating category -> merchant on the real native app. That's a one-time-per-navigation staleness, not a
-     continuous flicker. Everything from v61 through v74 escalated that narrow safety net - faster reaction,
-     unconditional polling, a per-frame RAF loop, removing the scrim exclusion, forcing transition:none, a
-     dedicated per-element guard observer - chasing a flicker that, per Adam, wasn't there before this machinery
-     existed ("we literally had it perfectly down").
-     Rather than adding a 5th layer on top of a JS mechanism that has been fighting something for 4 versions
-     straight without winning, this removes that JS mechanism entirely and goes back to the pure-CSS approach
-     v1-v56 used - the six rules restored below, matching v57's exact selectors (including its scrim exclusion
-     where v57 had it). With no JS writing to this element at all anymore, there is nothing left on our side for
-     anything native to be fighting - whatever shows up now is either correct on its own (CSS is genuinely
-     reactive via :has()) or it's the native side's own unmodified behavior, with no interference from us either
-     way. The trade-off: the one narrow bug v57 was built for (a stale color surviving one specific navigation)
-     could return. That's a far smaller, rarer problem than an ongoing flicker, and it's a known, well-understood
-     bug if it does resurface - worth that trade to stop guessing at a mechanism that hasn't worked in 4 tries. */
-
-  /* v76: Adam confirmed the status bar is fixed. The v70 diagnostic readout (small green-on-black box, bottom-
-     left) did its job - it was explicitly temporary, so it's removed now rather than left running in production. */
+  /* (2026-10-20): the long v75/v76 notes about the removed JS status-bar code were deleted; the status bar is plain CSS
+     (the "v75: restored" rules in the style blocks above). */
 
   // Customer presentation integrates with existing Hyperzod controls; it never owns cart/auth/payment state.
   let customerLabelId = 0, customerKeyboardBound = false;
   function applyCustomerExperience() {
-    const ar=(document.documentElement.lang||'').startsWith('ar');
+    const ar=hgIsAr();
     const attr=(el,key,value)=>{if(el&&el.getAttribute(key)!==value)el.setAttribute(key,value);};
     const label=(el,en,arabic)=>{if(el&&!el.textContent.trim()&&!el.getAttribute('aria-labelledby'))attr(el,'aria-label',ar?arabic:en);};
     const publicTitles={'about-us':['About Us','من نحن'],'contact-us':['Contact Us','تواصل معنا'],'privacy-policy':['Privacy Policy','سياسة الخصوصية'],'terms-and-conditions':['Terms and Conditions','الشروط والأحكام']};
@@ -3172,10 +3231,11 @@
     document.querySelectorAll('#MultiVendorSearch #SearchedMerchantAverageTimeAndDistance>span').forEach(span=>{
       const tail=span.lastChild;if(tail?.nodeType!==3)return;
       const empty=/^\s*(km|كم)\s*$/.test(tail.nodeValue);
-      span.classList.toggle('hg-missing-distance',empty);
-      if(empty)tail.nodeValue='';
       // Keep the hidden separator hidden until Vue supplies a numeric distance again.
-      else if(!tail.nodeValue.trim())span.classList.add('hg-missing-distance');
+      // (2026-10-20): decide once and touch the class only when it changes (it was removed and re-added on every run)
+      const miss=empty||!tail.nodeValue.trim();
+      if(empty)tail.nodeValue='';
+      if(span.classList.contains('hg-missing-distance')!==miss)span.classList.toggle('hg-missing-distance',miss);
     });
     if(!customerKeyboardBound){
       customerKeyboardBound=true;
@@ -3192,9 +3252,12 @@
     if (!hgIsApp()) applyHyperGoHeader();
     applyHyperGoDesktop();
     applyHyperGoNav();
-    applyLocLang();
-    applyNearbyLogos();
-    applyArabicCategories();
+    /* website only (2026-10-20): app-new.js runs its own identical copy before paint in the app; both ran, with two caches */
+    if (!hgIsApp()) applyLocLang();
+    /* (2026-10-20): website only - both target the native Home (#NearbyMerchants, .scheme-collection-grid), which app-new.css
+       hides in the app (#MultiVendorHome>main.v-main); app-new.js translates the category names it reads itself */
+    if (!hgIsApp()) applyNearbyLogos();
+    if (!hgIsApp()) applyArabicCategories();
     applyArabicSearchPage();
     applyHyperGoAccount();
     applyHyperGoLanguage();
@@ -3216,6 +3279,7 @@
   let renderObserver = null;
   applyAll();
   applyCurrency();
+  fixTypos(document.body); /* (2026-10-20): first full pass (later passes run on changed parts, in curFlush) */
 
 
   let renderTimer = null;
@@ -3291,7 +3355,7 @@
      restart applyAll; everything else works exactly as before (same 60ms wait). */
   renderObserver = new MutationObserver((recs) => {
 
-    if (!hgMutRelevant(recs)) return;
+    if (!hgMutRelevant(recs, HG_NOISE_EXT)) return; /* (2026-10-20): extended noise list */
 
     clearTimeout(renderTimer);
 
@@ -3312,10 +3376,6 @@
   renderObserver.observe(document.documentElement, {attributes:true,attributeFilter:["lang","dir"]});
   /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
-  /* v75: the popstate listener that used to live here called applyStatusBarColor(), which no longer exists (see
-     the big note above applyAll() - the whole JS status-bar mechanism was removed, back to the plain CSS rules
-     this file used before v57). Nothing needs to run on popstate for this anymore, since the CSS ":has()"/class
-     rules are reactive on their own without any JS asking them to re-check. */
 
   /* LANGUAGE SWITCH VEIL: Hyperzod tears the app down and rebuilds it in the new language (blank flash, a few seconds
      on slow phones). Cover that with a calm loading screen and lift it once the new language has rendered and settled. */
@@ -3366,16 +3426,20 @@
 
   /* ACCOUNT PAGE, instant: runs before the browser paints, so the default Hyperzod layout never flashes
      when the account page is (re)opened, e.g. after pressing Back from a sub-page. */
-  const acctMQ = window.matchMedia("(max-width: 959.98px)");
+  const acctMQ = hgMobileMQ;
   let acctRuns = 0, acctWin = 0;
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the acctMO observer) */ if (window.__hgObsT) window.__hgObsT.begin("acctMO"); /* TEMP-DIAGNOSTIC-END */
-  /* observer trim (2026-10-08): skips batches that only touched our countdown, placeholder or temporary panels, or that only
-     added our own hg- classes. It still has to watch the app's own class changes on every page: the header, bottom nav,
-     search and address-editor parts below are global, not just the Account page. */
-  const acctMO = new MutationObserver((records, observer) => {
+  /* (2026-10-20): the work below measures the page (isVisible = computed style + layout). It used to run on EVERY mutation batch,
+     so Vuetify's class changes while typing or animating forced a layout each time. Now: the first relevant batch of a frame
+     runs it straight away (same timing as before), later batches in that frame are merged into one requestAnimationFrame run,
+     which still happens before that frame is painted. */
+  let acctRaf = 0, acctPending = false;
+  function acctFrame() {
+    acctRaf = 0;
+    if (acctPending) { acctPending = false; acctRun(); }
+  }
+  function acctRun() {
     try {
     if (!acctMQ.matches) return;
-    if (!hgMutRelevant(records, HG_NOISE, true)) return;
     syncSearchClass();
     /* home header: style it the moment it is (re)created (e.g. coming Back from Search) so the default white header never flashes */
     const hdrRoot = document.getElementById("MultiVendorHeaderRoot");
@@ -3385,6 +3449,13 @@
     if (nav && nav.querySelector(".classic-nav-item:not([data-hg-nav])")) applyHyperGoNav();
     if (langNeedsFix()) applyHyperGoLanguage();
     if (document.documentElement.classList.contains("hg-orders-acct")) syncOrdersBack();
+    /* (2026-10-20): pre-paint search fixes when the search screen is (re)built (English heading, Arabic category names) */
+    const sr = document.querySelector("#MultiVendorSearch .recent-searches");
+    if (sr && !sr.hasAttribute("data-hg-done") && sr.querySelector(".tw-grid > *")) {
+      sr.setAttribute("data-hg-done", "1");
+      hgSearchHeading();
+      applyArabicSearchPage(sr);
+    }
     const ed = [...document.querySelectorAll(".scheme-address-editor")].find(isVisible);
     const epp = document.querySelector(".scheme-edit-profile-panel");
     if (ed || epp) {
@@ -3394,7 +3465,7 @@
          isVisible(). Two detectors racing to set the same class from two different signals (one visibility-aware,
          one not) is exactly how you get a class - and therefore the status bar color - flapping true/false in
          quick succession even while sitting still on an unrelated page. Matching the same isVisible() guard here. */
-      document.documentElement.classList.toggle("hg-addr-editor", !!(ed && isVisible(ed)));
+      document.documentElement.classList.toggle("hg-addr-editor", !!ed); /* (2026-10-20): ed is already visible, no second measure */
       fixTypos(ed || epp);
       fixArabicForms();
     } else if (document.documentElement.classList.contains("hg-addr-editor")) {
@@ -3415,6 +3486,19 @@
     if (now - acctWin > 1000) { acctWin = now; acctRuns = 0; }
     if (++acctRuns > 60) return;
     applyHyperGoAccount();
+    } finally { acctMO.takeRecords(); } /* drops the records of our own writes, as before */
+  }
+  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the acctMO observer) */ if (window.__hgObsT) window.__hgObsT.begin("acctMO"); /* TEMP-DIAGNOSTIC-END */
+  /* observer trim (2026-10-08): skips batches that only touched our countdown, placeholder or temporary panels, or that only
+     added our own hg- classes. It still has to watch the app's own class changes on every page: the header, bottom nav,
+     search and address-editor parts below are global, not just the Account page. */
+  const acctMO = new MutationObserver((records, observer) => {
+    try {
+    if (!acctMQ.matches) return;
+    if (!hgMutRelevant(records, HG_NOISE_EXT, true)) return; /* (2026-10-20): extended noise list */
+    if (acctRaf) { acctPending = true; return; }
+    acctRun();
+    acctRaf = requestAnimationFrame(acctFrame);
     } finally { observer.takeRecords(); }
   });
   acctMO.observe(document.body, {

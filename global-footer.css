@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-1643 */
+/* hg-version 2026-10-20-1927 */
 /* 2026-10-19: every store rule starts with :is(#app,.v-overlay-container) instead of #app (same strength). In the phone app a store tapped on a category page, banner, Featured stores, the cart or a notification opens as a sheet outside #app, under body > .v-overlay-container; rules scoped to #app missed it, so those stores lost the product-row and Recommended-row layout. The website never opens stores as a sheet, so it is unchanged. */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
@@ -27,24 +27,22 @@ html body #app #MultiVendorSearch .mobile-search-input .v-field__append-inner>di
 #hg-search-cart svg{width:18px;height:18px;}
 #hg-search-cart .hg-sc-badge{display:none;position:absolute;right:-3px;top:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#FF4000;color:#fff;font-size:10px;font-weight:800;line-height:17px;text-align:center;}
 #hg-search-cart.has-items .hg-sc-badge{display:block;}
-html body #app #MultiVendorSearch .recent-searches{padding:6px 0 18px!important;}
-html body #app #MultiVendorSearch .recent-searches>div:has(+ .tw-grid),html body #app #MultiVendorSearch .recent-searches .recent-search-heading{margin:20px 0 13px!important;padding:0 16px!important;font-size:18px!important;font-weight:760!important;}
-html body #app #MultiVendorSearch .recent-searches .tw-grid{grid-template-rows:repeat(2,auto)!important;grid-auto-columns:68px!important;gap:14px 4px!important;padding:2px 18px 8px!important;overflow-x:auto!important;overflow-y:hidden!important;touch-action:auto!important;-webkit-overflow-scrolling:touch!important;}
+html body #app #MultiVendorSearch .recent-searches>div:has(+ .tw-grid),html body #app #MultiVendorSearch .recent-searches .recent-search-heading{margin:22px 0 14px!important;padding:0 16px!important;font-size:18px!important;font-weight:760!important;}
+html body #app #MultiVendorSearch .recent-searches .tw-grid{grid-template-rows:repeat(2,auto)!important;grid-auto-columns:68px!important;gap:14px 4px!important;padding:2px 16px 8px!important;overflow-x:auto!important;overflow-y:hidden!important;touch-action:auto!important;overscroll-behavior:auto!important;-webkit-overflow-scrolling:touch!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid>div{width:68px!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid .category-img{width:58px!important;height:58px!important;flex-basis:58px!important;border-radius:50%!important;box-shadow:0 1px 6px rgba(60,30,140,.12)!important;border:0!important;overflow:hidden!important;}
 html body #app #MultiVendorSearch .recent-searches .tw-grid>div>div:last-child{width:68px!important;font-size:11.5px!important;font-weight:500!important;margin-top:5px!important;}
-#hg-search-discovery{padding:0 0 34px;background:#FFFCF9;color:#1B2023;}
+/* (2026-10-20): declarations that the v97 !important rules below always override were removed from these base rules */
+#hg-search-discovery{padding:0 0 24px;background:#FFFCF9;color:#1B2023;}
 #hg-search-discovery *{box-sizing:border-box;}
-#hg-search-discovery .hg-sd-sec{margin:22px 0 30px;}
-#hg-search-discovery .hg-sd-head{display:flex;align-items:end;justify-content:space-between;padding:0;margin-bottom:12px;}
+#hg-search-discovery .hg-sd-head{display:flex;align-items:end;justify-content:space-between;}
 #hg-search-discovery .hg-sd-title{font-size:17px;font-weight:720;line-height:1.2;letter-spacing:-.012em;}
 #hg-search-discovery .hg-sd-sub{font-size:11.5px;color:#817B88;margin-top:3px;}
-#hg-search-discovery .hg-sd-chips{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:0 0 4px;scrollbar-width:none;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;}
+#hg-search-discovery .hg-sd-chips{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 #hg-search-discovery .hg-sd-chips::-webkit-scrollbar,#hg-search-discovery .hg-sd-brands::-webkit-scrollbar{display:none;}
 #hg-search-discovery .hg-sd-chip{flex:0 0 auto;border:1px solid #E7E3EA;background:#FFFCF9;border-radius:11px;padding:8px 11px;font-size:12px;font-weight:620;color:#302C35;box-shadow:0 1px 2px rgba(27,32,35,.03);}
-#hg-search-discovery .hg-sd-chip.pop{background:#FFFCF9;border-color:#DDD7E8;color:#4E4658;}
-#hg-search-discovery .hg-sd-brands{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:1px 0 4px;scroll-snap-type:x proximity;scroll-padding-inline:0;scrollbar-width:none;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;}
-#hg-search-discovery .hg-sd-brand{flex:0 0 72px;width:72px;text-align:center;text-decoration:none;color:inherit;scroll-snap-align:start;touch-action:pan-x pan-y;-webkit-user-drag:none;}
+#hg-search-discovery .hg-sd-brands{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+#hg-search-discovery .hg-sd-brand{flex:0 0 72px;width:72px;text-align:center;text-decoration:none;color:inherit;scroll-snap-align:start;}
 #hg-search-discovery .hg-sd-brand-img{width:72px;height:72px;border:1px solid #E9E6EC;border-radius:14px;background-color:#FFFCF9;background-position:center;background-size:contain;background-repeat:no-repeat;}
 #hg-search-discovery .hg-sd-brand-name{font-size:10.5px;font-weight:620;line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html body #app #MultiVendorSearch .v-tabs{min-height:48px!important;height:48px!important;margin:12px 16px 0!important;width:auto!important;border-bottom:1px solid #ECE9EF!important;}
@@ -82,8 +80,6 @@ html body #app #MultiVendorSearch .merchant-card:has(.product-card-horizontal) [
 
 /* v97: use the Search container width and one 16px gutter; allow native gestures on both axes. */
 html body #app #MultiVendorSearch .recent-searches{width:100%!important;max-width:100%!important;margin-inline:0!important;padding:2px 0 6px!important;}
-html body #app #MultiVendorSearch .recent-searches>div:has(+ .tw-grid),html body #app #MultiVendorSearch .recent-searches .recent-search-heading{padding-left:16px!important;padding-right:16px!important;margin-top:22px!important;margin-bottom:14px!important;}
-html body #app #MultiVendorSearch .recent-searches .tw-grid{padding-left:16px!important;padding-right:16px!important;touch-action:auto!important;overscroll-behavior:auto!important;}
 #hg-search-discovery{width:100%!important;max-width:100%!important;margin-inline:0!important;padding-bottom:24px!important;}
 #hg-search-discovery .hg-sd-sec{margin:14px 0 24px!important;}
 #hg-search-discovery .hg-sd-head{padding:0 16px!important;margin-bottom:11px!important;}
@@ -94,7 +90,6 @@ html body #app #MultiVendorSearch .recent-searches .tw-grid{padding-left:16px!im
 #hg-search-discovery .hg-sd-popular .hg-sd-chip.pop{display:inline-flex!important;align-items:center!important;gap:6px!important;border-color:#E5E2E8!important;border-radius:999px!important;padding:7px 11px!important;background:#FFFCF9!important;color:#302C35!important;font-size:11.5px!important;}
 #hg-search-discovery .hg-sd-popular .hg-sd-chip.pop:before{content:'↗';font-size:12px;font-weight:700;color:#5A29DE;}
 html body #app #MultiVendorSearch.hg-has-query .recent-searches{display:none!important;}
-html body #app #MultiVendorSearch.hg-has-query .v-tabs{width:auto!important;margin:8px 16px 0!important;}
 html body #app #MultiVendorSearch.hg-has-query .v-window,html body #app #MultiVendorSearch.hg-has-query .v-window-item{margin-top:0!important;padding-top:0!important;}
 
 /* v97: search results are merchant rows + compact horizontal product cards, never giant grey panels. */
@@ -451,117 +446,8 @@ html[lang^='ar'] .scheme-merchant-search-page.scheme-merchant-search-page :is(.p
    rounded corners cut off the logo's edges). The Home logo tiles (.hg-logo-img, .hg-brand-img in global-footer-1.js) now use
    background-size:contain: the whole logo always shows, in its own shape, whatever the logo file looks like. */
 
-/* v101 — iOS receives both the legacy horizontal-card rules and the newer two-column grid.
-   Fully reset grid-category cards to vertical tiles so those systems cannot combine. */
-@media (max-width:959.98px){
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .special-listing-inner>.tw-grid{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    align-items:start!important;
-    gap:28px 12px!important;
-    width:100%!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card,
-html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    height:auto!important;
-    min-height:0!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card>.v-card{
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:stretch!important;
-    gap:0!important;
-    padding:0!important;
-    border:0!important;
-    border-radius:0!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    overflow:visible!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame{
-    position:relative!important;
-    flex:none!important;
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    height:auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    aspect-ratio:1/1!important;
-    padding-bottom:0!important;
-    margin:0!important;
-    border:0!important;
-    border-radius:14px!important;
-    background:#F7F7F8!important;
-    overflow:hidden!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame>.product-image{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    border-radius:14px!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive,
-html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame img{
-    width:100%!important;
-    height:100%!important;
-    object-fit:cover!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-image-frame .v-responsive__sizer{
-    padding-bottom:0!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .v-card-text{
-    display:flex!important;
-    flex:none!important;
-    flex-direction:column!important;
-    justify-content:flex-start!important;
-    width:100%!important;
-    min-width:0!important;
-    height:auto!important;
-    min-height:0!important;
-    padding:8px 0 0!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-name{
-    min-height:36.96px!important;
-    margin:0!important;
-    font-size:14px!important;
-    font-weight:500!important;
-    line-height:1.32!important;
-    display:-webkit-box!important;
-    -webkit-box-orient:vertical!important;
-    -webkit-line-clamp:2!important;
-    overflow:hidden!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .product-description{
-    display:none!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price{
-    margin-top:10px!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price,
-html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .price *{
-    font-size:14px!important;
-    font-weight:500!important;
-    line-height:1.25!important;
-  }
-  html body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
-    position:absolute!important;
-    right:8px!important;
-    left:auto!important;
-    bottom:8px!important;
-    transform:none!important;
-    z-index:2!important;
-  }
-  html[dir='rtl'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control,
-html[lang^='ar'] body #app .scheme-merchant-search-page.scheme-merchant-search-page .scheme-merchant-product-grid-card .grid-add-control{
-    right:auto!important;
-    left:8px!important;
-  }
-}
+/* (2026-10-20): the v101 layer was removed. Every declaration in it was repeated with the same selector and media by
+   the v102 layer below, which wins, so it had no effect anywhere. */
 
 /* v102 — restore the approved in-shop mobile layout: one horizontal product row per line. */
 @media (max-width:959.98px){
@@ -1010,18 +896,10 @@ html body #app #MultiVendorSearch{
   }
 }
 
-/* v105 — direct fallback for Hyperzod shells that do not expose a .v-main ancestor to Search. */
+/* v105 — direct fallback for Hyperzod shells that do not expose a .v-main ancestor to Search.
+   (2026-10-20): its #MultiVendorSearch rule was removed: the search canvas rule further down sets the same properties
+   and wins; the zero side padding still comes from the v104 rule above. */
 @media (max-width:959.98px){
-  html body #app #MultiVendorSearch{
-    width:100vw!important;
-    max-width:100vw!important;
-    margin-left:-24px!important;
-    margin-right:-24px!important;
-    padding-left:0!important;
-    padding-right:0!important;
-    border-left:0!important;
-    border-right:0!important;
-  }
   html body #app #MultiVendorSearch .scheme-global-search-mobile-header,
   html body #app #MultiVendorSearch .recent-searches,
   html body #app #MultiVendorSearch #hg-search-discovery{
@@ -1034,15 +912,7 @@ html body #app #MultiVendorSearch{
   }
 }
 
-/* v106 — match Hyperzod's 16 CSS-pixel mobile gutter and keep both viewport edges aligned. */
-@media (max-width:959.98px){
-  html body #app #MultiVendorSearch{
-    width:100vw!important;
-    max-width:100vw!important;
-    margin-left:-16px!important;
-    margin-right:0!important;
-  }
-}
+/* v106 (removed 2026-10-20): its width / margins were all set again by the search canvas rule below, which wins. */
 
 /* Global-only Search finish: the live iOS screenshot showed two 16px route
    insets affecting the right edge. Keep the existing -16px left correction,
@@ -1461,12 +1331,8 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
    Results: the earlier rules needed .merchant-card AND .hg-search-product-group on the same element; the app's
    result groups only carry .hg-search-product-group, so they rendered in Hyperzod's default look. */
 @media (max-width:959.98px){
-  html.hg-search-input-active body #app #MultiVendorSearch{
-    padding-top:var(--hg-search-header-height,76px)!important;
-  }
-  html.hg-search-input-active body #app #MultiVendorSearch .scheme-global-search-mobile-header{
-    top:var(--hg-search-status-height,var(--native-status-bar-height,0px))!important;
-  }
+  /* (2026-10-20): the pinned-header padding-top / top rules that stood here were exact copies of the ones in the
+     "Global-only Search finish" block above, and were removed. */
   /* header never changes size between the empty, typing and results states */
   html body #app #MultiVendorSearch .scheme-global-search-mobile-header{
     min-height:76px!important;
@@ -1610,8 +1476,10 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
     margin-bottom:0!important;
   }
 
-  /* "View all": brand purple, sentence case, sits under the rail */
-  html body #app #MultiVendorSearch.hg-has-query .hg-search-product-group [class*="tw-uppercase"]:has(>.hg-search-view-all),
+  /* "View all": brand purple, sentence case, sits under the rail.
+     (2026-10-20): its parent is tagged .hg-search-view-all-wrap by global-footer-2.js, instead of being found with
+     [class*="tw-uppercase"]:has(>.hg-search-view-all); the class is doubled to keep the same strength. */
+  html body #app #MultiVendorSearch.hg-has-query .hg-search-product-group .hg-search-view-all-wrap.hg-search-view-all-wrap,
   html body #app #MultiVendorSearch.hg-has-query .hg-search-product-group .hg-search-view-all{
     text-transform:none!important;
     color:#5A29DE!important;
@@ -1619,7 +1487,7 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
     font-weight:700!important;
     letter-spacing:0!important;
   }
-  html body #app #MultiVendorSearch.hg-has-query .hg-search-product-group [class*="tw-uppercase"]:has(>.hg-search-view-all){
+  html body #app #MultiVendorSearch.hg-has-query .hg-search-product-group .hg-search-view-all-wrap.hg-search-view-all-wrap{
     margin:10px 0 0!important;
     padding:0!important;
   }
@@ -1649,22 +1517,14 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
    loading placeholders shaped like the result groups. */
 @keyframes hgSkPulse{from{opacity:.55}to{opacity:1}}
 @media (max-width:959.98px){
-  /* pinned header: shift measured by global-footer-2.js (0 when the containing box is the viewport) */
-  html.hg-native-app.hg-search-input-active body #app #MultiVendorSearch .scheme-global-search-mobile-header{
-    left:var(--hg-search-fixed-shift,0px)!important;
-    top:calc(var(--hg-search-status-height,var(--native-status-bar-height,0px)) + var(--hg-search-fixed-vshift,0px))!important;
-    right:auto!important;
-    width:100vw!important;
-  }
+  /* (2026-10-20): the pinned-header shift rule was removed: since v101 global-footer-2.js never pins the header in the app */
   /* Hyperzod's loading line inside the text field */
   html.hg-native-app body #app #MultiVendorSearch .mobile-search-input .v-field__loader,
   html.hg-native-app body #app #MultiVendorSearch .mobile-search-input .v-progress-linear{
     display:none!important;
   }
-  /* while typing, the native category grid stays until loading or results replace it */
-  html.hg-native-app body #app #MultiVendorSearch.hg-has-query:not(.hg-loading):not(.hg-has-results) .recent-searches{
-    display:block!important;
-  }
+  /* (2026-10-20): "while typing, the native category grid stays" was removed: it showed Hyperzod's old grid over the new
+     app's own start screen */
   /* loading: hide the generic skeleton, show a placeholder shaped like a result group (title, meta, row of 136px tiles) */
   html.hg-native-app body #app #MultiVendorSearch.hg-loading .v-skeleton-loader,
   html.hg-native-app body #app #MultiVendorSearch.hg-loading [class*="hz-skeleton"]{
@@ -1723,14 +1583,16 @@ html body #app :is(.slider-inner-container,.hg-feature-rail,.hg-logo-rail,.hg-sd
   }
 }
 
-/* v105 — APP SEARCH, ARABIC: the search canvas sits where it does in English.
+/* v105 — SEARCH, ARABIC: the search canvas sits where it does in English.
    The canvas is one screen + 32px wide and pulled 16px past the left edge with margin-left:-16px, so it overhangs both
    edges by 16px (the 16px side padding inside it then lines the header up with the screen). In right-to-left pages a
    block whose width and both margins are set ignores margin-left, so the canvas was anchored to the right edge instead:
    16px short on the right (white strip) and 48px past the left (bag button and rows cut off). Pulling it 16px past the
-   right edge with margin-right does the same job in right-to-left, so both edges overhang by 16px again. */
+   right edge with margin-right does the same job in right-to-left, so both edges overhang by 16px again.
+   (2026-10-20) now on the website too (it was app-only, html.hg-native-app), where Arabic search had the same cut-off.
+   Tested: the app keeps exactly the same layout; a start/end-margin version was tried and moved the whole Arabic app 16px. */
 @media (max-width:959.98px){
-  html.hg-native-app:is([dir="rtl"],[lang^="ar"]) body #app #MultiVendorSearch{
+  html:is([dir="rtl"],[lang^="ar"]) body #app #MultiVendorSearch{
     margin-right:-16px!important; /* !important: beats the margin-right:0!important rule of the search canvas above */
   }
 }

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-19-2043 */
+/* hg-version 2026-10-20-1927 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -71,7 +71,8 @@
     if (!root || !searchRow) return;
 
     /* mobile layout only (search row hidden on desktop) — desktop is handled by applyHyperGoDesktop */
-    if (getComputedStyle(searchRow).display === "none") return;
+    /* media query (2026-10-20): same 960px breakpoint that hides the row, without a style recalc on every run */
+    if (!window.matchMedia("(max-width: 959.98px)").matches) return;
 
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
@@ -303,11 +304,11 @@
         "important"
       );
 
-      fieldInput.style.setProperty(
-        "padding",
-        hgIsAr() ? "0 38px 0 12px" : "0 12px 0 38px",
-        "important"
-      );
+      /* logical sides (2026-10-20): one rule for English and Arabic; the end side keeps the 48px room for the filter
+         button (the old physical inline shorthand overrode that rule) */
+      fieldInput.style.setProperty("padding-block", "0", "important");
+      fieldInput.style.setProperty("padding-inline-start", "38px", "important");
+      fieldInput.style.setProperty("padding-inline-end", "48px", "important");
 
       fieldInput.style.setProperty(
         "font-size",
@@ -353,7 +354,7 @@
       const icon = document.createElement("span");
       icon.className = "hg-search-icon";
       icon.style.cssText =
-        "position:absolute;left:8px;top:50%;width:18px;height:18px;" +
+        "position:absolute;inset-inline-start:8px;top:50%;width:18px;height:18px;" + /* logical (2026-10-20): mirrors in Arabic */
         "transform:translateY(-50%);z-index:20;pointer-events:none;display:block;";
       icon.innerHTML =
         "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 16 16' style='display:block'>" +
@@ -363,15 +364,6 @@
 
     }
 
-
-    /* Arabic: mirror the icon to the right */
-    const hgIcon = field && field.querySelector(".hg-search-icon");
-    if (hgIcon) {
-      if (hgIsAr()) {
-        hgIcon.style.left = "auto";
-        hgIcon.style.right = "8px";
-      }
-    }
 
     /* ROTATING PLACEHOLDER: "Search Items" -> categories */
 
@@ -394,7 +386,8 @@
         'clip-path:inset(0 0 24px 0 round 0 0 20px 0);}';
       document.head.appendChild(st);
     }
-    updateWatermark(root);
+    /* once per header (2026-10-20): measuring on every run forced a layout; the scroll listener below keeps it up to date */
+    if (!root._hgnWm) { root._hgnWm = true; updateWatermark(root); }
   }
 
   function updateWatermark(root) {
@@ -708,7 +701,7 @@
 
     /* hide the native placeholder on every engine (double-ID selector beats the theme's rules,
        including the ones an older iOS WebView applies instead of the scoped theme rule) */
-    inp.classList.add("hg-ph-input");
+    inp.classList.toggle("hg-ph-input", true); /* toggle (2026-10-20): add() rewrote the class attribute on every run */
     if (!document.getElementById("hg-ph-style")) {
       const ph = document.createElement("style");
       ph.id = "hg-ph-style";
@@ -735,16 +728,17 @@
         '<span class="hg-ph-word" style="display:inline-block"></span>' +
         '<span class="hg-ph-logo" style="position:absolute;' + side + ':0;opacity:0;pointer-events:none;background:#FFFCF9"><img alt="" src="' + LOGO_FILLED + '" style="display:block;width:100%;height:100%"></span>' +
         "</span>";
+      /* set once, when created (2026-10-20): rewriting cssText on every run restyled the overlay each time */
+      ov.style.cssText =
+        "position:absolute;" + (ar ? "direction:rtl;right:" + cfg.left + "px;left:auto;" : "left:" + cfg.left + "px;") +
+        "top:0;bottom:0;display:flex;align-items:center;" +
+        "pointer-events:none;white-space:nowrap;z-index:20;color:#1F2430;line-height:1;font-family:inherit;" +
+        "font-size:" + cfg.size + "px;font-weight:" + cfg.weight + ";";
       field.appendChild(ov);
     }
 
     const logoH = cfg.size;
     const logoW = Math.round(logoH * 395 / 456);
-    ov.style.cssText =
-      "position:absolute;" + (ar ? "direction:rtl;right:" + cfg.left + "px;left:auto;" : "left:" + cfg.left + "px;") +
-      "top:0;bottom:0;display:flex;align-items:center;" +
-      "pointer-events:none;white-space:nowrap;z-index:20;color:#1F2430;line-height:1;font-family:inherit;" +
-      "font-size:" + cfg.size + "px;font-weight:" + cfg.weight + ";";
     const logo = ov.querySelector(".hg-ph-logo");
     logo.style.width = logoW + "px";
     logo.style.height = logoH + "px";
@@ -774,30 +768,8 @@
     if (!phTimer) phTimer = setInterval(phTick, PH_INTERVAL);
   }
 
-  const NAV_FILES = { "9713d0c5": "home", "3c6f1202": "reorder", "1e78c063": "cart", "6257d1d1": "account" };
-  const NAV_LABELS = {
-    home: "home", reorder: "reorder", cart: "cart", account: "account",
-    "\u0645\u0633\u0643\u0646": "home", "\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629": "home",
-    "\u0625\u0639\u0627\u062F\u0629 \u062A\u0631\u062A\u064A\u0628": "reorder",
-    "\u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u0637\u0644\u0628": "reorder",
-    "\u0639\u0631\u0628\u0629 \u0627\u0644\u062A\u0633\u0648\u0642": "cart",
-    "\u0627\u0644\u062D\u0633\u0627\u0628": "account"
-  };
-  const NAV_ORDER = ["home", "reorder", "cart", "account"];
-  /* Arabic tab names (Hyperzod's own translation calls Home "\u0645\u0633\u0643\u0646" = "dwelling") */
-  const NAV_AR = { home: "\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629", reorder: "\u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u0637\u0644\u0628", account: "\u0627\u0644\u062D\u0633\u0627\u0628" };
-
-  function navKey(item, idx, total) {
-    const obj = item.querySelector("object");
-    const data = obj ? (obj.getAttribute("data") || "") : "";
-    for (const k in NAV_FILES) if (data.indexOf(k) !== -1) return NAV_FILES[k];
-    const lab = item.querySelector(".nav-label");
-    const t = lab ? lab.textContent.trim().toLowerCase() : "";
-    if (NAV_LABELS[t]) return NAV_LABELS[t];
-    /* icons/labels not resolvable (e.g. right after switching language): fall back to position */
-    return total === 4 ? NAV_ORDER[idx] : "";
-  }
-
+  /* the bottom tabs' data-hg-nav tags (read below) come from global-footer-1.js applyHyperGoNav, which runs in the app
+     (removed the copy here 2026-10-20) */
   function syncCartBadge() {
     const btn = document.getElementById("hg-cart-btn");
     if (!btn) return;
@@ -823,10 +795,11 @@
         "#hg-cart-btn:active{background:rgba(255,255,255,.3) !important;}" +
         "html[lang^='ar'] #hg-cart-btn{right:auto;left:16px;}" +
         "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;clip-path:inset(0 0 24px 0 round 0 0 0 20px);}" +
-        "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;right:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;background:#FF3B4E;" +
+        /* badge on the inline end corner (2026-10-20, was right): mirrors in Arabic */
+        "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;inset-inline-end:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;background:#FF3B4E;" +
         "border:2px solid #8640FC;display:none;}" +
         "#hg-cart-btn .hg-cart-badge.on{display:block;}" +
-        "#hg-cart-btn .hg-cart-badge.num{top:-3px;right:-3px;width:auto;min-width:17px;height:17px;padding:0 3px;border-radius:9px;text-align:center;" +
+        "#hg-cart-btn .hg-cart-badge.num{top:-3px;inset-inline-end:-3px;width:auto;min-width:17px;height:17px;padding:0 3px;border-radius:9px;text-align:center;" +
         "font-size:10px !important;line-height:13px !important;font-weight:700 !important;color:#fff !important;}";
       document.head.appendChild(st);
     }
@@ -850,43 +823,8 @@
     syncCartBadge();
     if (!window._hgCartTimer) window._hgCartTimer = setInterval(syncCartBadge, 1000);
   }
-  /* header CSS that lived in global-footer-1.js (hg-extra-style, "home header: native filter button"), copied unchanged */
-  function ensureHeaderExtraStyle() {
-    if (document.getElementById("hgn-header-style")) return;
-    const st = document.createElement("style");
-    st.id = "hgn-header-style";
-    const TUNE_IC = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1'/%3E%3Ccircle cx='15' cy='6' r='2'/%3E%3Ccircle cx='9' cy='12' r='2'/%3E%3Ccircle cx='17' cy='18' r='2'/%3E%3C/svg%3E\")";
-    st.textContent =
-      "@media (max-width:959.98px){" +
-      /* home header: native filter button, minimal - just a small icon at the end of the search pill */
-      "#app .home-mobile-search-row #MobileSearchFilterBtn{display:inline-flex !important;position:absolute !important;inset-inline-end:16px;top:10px;width:42px !important;min-width:0 !important;height:36px !important;margin:0 !important;padding:0 !important;background:transparent !important;border:0 !important;box-shadow:none !important;border-radius:0 18px 18px 0 !important;color:#5A29DE !important;z-index:4;-webkit-tap-highlight-color:transparent;}" +
-      "html[dir='rtl'] #app .home-mobile-search-row #MobileSearchFilterBtn,html[lang^='ar'] #app .home-mobile-search-row #MobileSearchFilterBtn{border-radius:18px 0 0 18px !important;}" +
-      "#app .home-mobile-search-row #MobileSearchFilterBtn::before{content:'';position:absolute;inset-inline-start:0;top:9px;bottom:9px;width:1px;background:rgba(27,32,35,.14);}" +
-      "#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__overlay,#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__underlay{display:none !important;}" +
-      "#app .home-mobile-search-row #MobileSearchFilterBtn svg{display:none !important;}" +
-      "#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__content::after{content:'';display:block;width:18px;height:18px;background:#5A29DE;-webkit-mask:" + TUNE_IC + " center/contain no-repeat;mask:" + TUNE_IC + " center/contain no-repeat;}" +
-      "#app .home-mobile-search-input .v-field__input{padding-inline-end:48px !important;}" +
-      "}";
-    document.head.appendChild(st);
-  }
-
-  /* the header's cart button reads and taps the native Cart tab, found by the data-hg-nav tag below.
-     Copied unchanged from applyHyperGoNav() in global-footer-1.js (only the tagging part; the nav's look is still drawn by global-footer-1.js). */
-  function tagNativeNav() {
-    const nav = document.querySelector("#MultiVendorBottomNav");
-    if (!nav) return;
-    const navItems = nav.querySelectorAll(".classic-nav-item");
-    navItems.forEach((item, idx) => {
-      const k = navKey(item, idx, navItems.length);
-      item.setAttribute("data-hg-nav", k || "other");
-      if (hgIsAr() && NAV_AR[k]) {
-        /* edit the existing text node in place so Vue can still patch it */
-        const lab = item.querySelector(".nav-label");
-        const tn = lab && Array.prototype.find.call(lab.childNodes, (n) => n.nodeType === 3);
-        if (tn && tn.nodeValue.trim() !== NAV_AR[k]) tn.nodeValue = NAV_AR[k];
-      }
-    });
-  }
+  /* (2026-10-20) removed ensureHeaderExtraStyle and tagNativeNav: global-footer-1.js injects the same filter-button rules
+     (hg-extra-style, checked identical) and tags the bottom tabs (applyHyperGoNav) in the app */
   /* ================= END OF KEPT CODE ================= */
 
 
@@ -896,9 +834,13 @@
     try { return document.querySelector("#app").__vue_app__.config.globalProperties; } catch (e) { return null; }
   }
   function lang() { return hgIsAr() ? "ar" : "en"; }
-  function currentPath() {
+  /* the router's current route (one helper since 2026-10-20; it was written out in 4 places) */
+  function curRoute() {
     const g = vueGlobals();
-    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    return (g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value) || null;
+  }
+  function currentPath() {
+    const r = curRoute();
     return r ? r.path : location.pathname;
   }
   function go(path) {
@@ -915,15 +857,14 @@
   }
 
   const TXT = {
-    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", stores: "Stores near you", shop: "Shop now", featured: "Featured stores", occ: "Shop by occasion", week: "This week on HyperGo", all: "All", freeDel: "Free delivery", delFee: " delivery",
+    en: { back: "Back", near: "Stores near you", nofavs: "No favourites yet. Tap the heart on a store to save it here.", favRow: "Favourites", top: "Top rated", free: "Free delivery", favs: "Your favourites", fav: "Save to favourites", unfav: "Remove from favourites", cats: "Categories", seeAll: "See all", less: "Show less", shop: "Shop now", featured: "Featured stores", occ: "Shop by occasion", all: "All"
     },
-    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", stores: "متاجر قريبة منك", shop: "تسوق الآن", featured: "متاجر مميزة", occ: "تسوّق حسب المناسبة", week: "هذا الأسبوع على هايبرجو", all: "الكل", freeDel: "توصيل مجاني", delFee: "توصيل ",
+    ar: { back: "رجوع", near: "متاجر قريبة منك", nofavs: "لا توجد مفضلة بعد. اضغط على القلب في أي متجر لحفظه هنا.", favRow: "المفضلة", top: "الأعلى تقييمًا", free: "توصيل مجاني", favs: "مفضلتك", fav: "أضف إلى المفضلة", unfav: "إزالة من المفضلة", cats: "الفئات", seeAll: "عرض الكل", less: "عرض أقل", shop: "تسوق الآن", featured: "متاجر مميزة", occ: "تسوّق حسب المناسبة", all: "الكل"
     }
   };
 
   /* HyperGo arrow (brand mark), same shape as the logo files */
   const MARK = '<svg viewBox="0 0 394.75 456.09" aria-hidden="true"><path fill="currentColor" d="M394.75,0v442.61h-138.8v-98.54c-8.03,10.28-16.78,19.94-26.15,29.12-28.07,27.3-62.4,48-102.99,62.01-37.53,12.96-79.8,19.94-126.8,20.89v-153.67c38.82-1.43,74.88-10.52,108.06-27.06,36.39-18.22,65.6-43.61,87.59-76.26,11.52-17.02,20.42-35.24,26.73-54.6H0V0h394.75Z"/></svg>';
-  const LESS_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const GO_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   /* ---------- data (Hyperzod's own store, nothing invented) ---------- */
   /* Home category tiles (chosen 2026-10-19): the HyperGo category icons made in Higgsfield (the ones uploaded in Hyperzod),
@@ -1018,7 +959,7 @@
   }
 
   /* ---------- HOME ---------- */
-  let catsOpen = false, homeSig = "";
+  let homeSig = "";
 
   function isHomePath(p) { return /^\/(en|ar)(\/home)?\/?$/.test(p); }
 
@@ -1061,10 +1002,9 @@
       ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
-  function storeRow(title, list, L, catMap, t, favIds, seeAll, extraFn) {
+  function storeRow(title, list, L, catMap, t, favIds, extraFn) {
     if (!list.length) return "";
-    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2>" +
-      (seeAll ? '<a class="hgn-pill" href="' + esc(seeAll) + '" data-href="' + esc(seeAll) + '">' + esc(t.seeAll) + "</a>" : "") + "</div>" +
+    return '<section class="hgn-stores"><div class="hgn-head"><h2 class="hgn-h2">' + esc(title) + "</h2></div>" +
       '<div class="hgn-store-row">' + list.map((m) => storeCard(m, L, catMap, t, favIds, extraFn ? extraFn(m) : "")).join("") + "</div></section>";
   }
   /* Stores near you panel (E, chosen 2026-10-19): one white panel, filter chips (All + the most common categories among the
@@ -1100,10 +1040,19 @@
       '<div class="hgn-sp-rows">' + storePanelRows() + "</div></div></section>";
   }
   /* the stores a page or row needs: every store on Home (nearest first, the banner stores included once) and the favourites */
+  /* cached per Home data and Featured collection state (2026-10-20): it was rebuilt and re-sorted on every run */
+  let homeMemo = { hd: null, sig: "", out: [] };
   function homeStores(hd) {
+    const sig = [(hd.merchants || []).length, featColl.key, featColl.list.length].join("|");
+    if (homeMemo.hd === hd && homeMemo.sig === sig) {
+      if (!featColl.key && !featColl.busy) featuredStores(hd); /* still starts the Featured collection load */
+      return homeMemo.out;
+    }
     const out = [], seen = {};
     (hd.merchants || []).concat(featuredStores(hd)).forEach((m) => { const id = m && (m._id || m.id); if (id && !seen[id]) { seen[id] = true; out.push(m); } });
-    return out.sort((a, b) => storeDist(a) - storeDist(b));
+    out.sort((a, b) => storeDist(a) - storeDist(b));
+    homeMemo = { hd: hd, sig: [(hd.merchants || []).length, featColl.key, featColl.list.length].join("|"), out: out };
+    return out;
   }
   function favStoresOf(hd) {
     const byId = {};
@@ -1152,12 +1101,12 @@
       .sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
     const favs = favList(), favIds = {};
     favs.forEach((f) => { favIds[f.id] = true; });
-    const sig = [L, catsOpen, favs.map((f) => f.id).join(","), cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
+    /* favourites are not in the signature (2026-10-20): a heart tap flips the hearts in place (onHomeClick), so the rows keep their scroll */
+    const sig = [L, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
     if (sig === homeSig && box.firstChild) return;
     homeSig = sig;
 
-    const catMap = {};
-    hd.merchant_categories.forEach((c) => { catMap[c.id || c._id] = c; });
+    const catMap = catMapOf(hd);
 
     let html = "";
 
@@ -1218,7 +1167,7 @@
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
     /* shown as one white panel with category filters (E, chosen 2026-10-19), not a sideways row; See all opens the full list */
-    html += storePanel(t.stores, stores, L, catMap, t, "/" + L + "/home?hgn=stores");
+    html += storePanel(t.near, stores, L, catMap, t, "/" + L + "/home?hgn=stores");
 
     /* Your favourites row is not shown on Home (2026-10-18): the hearts still save, and the saved stores show in
        Account (Favourites) and on the Search page */
@@ -1226,11 +1175,11 @@
     /* Top rated: Hyperzod's store rating, best first, only stores that have a rating */
     const all = (hd.merchants || []).concat(feat.filter((m) => !(hd.merchants || []).some((x) => idOf(x) === idOf(m))));
     const rated = all.filter((m) => storeRating(m) > 0).sort((a, b) => storeRating(b) - storeRating(a)).slice(0, 10);
-    html += storeRow(t.top, rated, L, catMap, t, favIds, "", (m) => '<span class="hgn-tag hgn-rate">' + STAR + storeRating(m).toFixed(1) + "</span>");
+    html += storeRow(t.top, rated, L, catMap, t, favIds, (m) => '<span class="hgn-tag hgn-rate">' + STAR + storeRating(m).toFixed(1) + "</span>");
 
     /* Free delivery: stores whose delivery fee is 0 (Hyperzod's own delivery data) */
     const free = all.filter((m) => storeFee(m) === 0).sort((a, b) => storeDist(a) - storeDist(b)).slice(0, 10);
-    html += storeRow(t.free, free, L, catMap, t, favIds, "");
+    html += storeRow(t.free, free, L, catMap, t, favIds);
 
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML = html;
@@ -1243,8 +1192,16 @@
       e.preventDefault();
       e.stopPropagation();
       const id = act.getAttribute("data-id");
-      favToggle(seenStores[id] || favList().find((f) => f.id === id) && { _id: id, name: (favList().find((f) => f.id === id) || {}).name });
-      homeSig = ""; pageSig = ""; searchFavSig = ""; sresSig = "";
+      const saved = favList().find((f) => f.id === id);
+      favToggle(seenStores[id] || (saved && { _id: id, name: saved.name }));
+      /* in place (2026-10-20): every heart of this store flips, so open lists keep their scroll and photos; the views
+         that list the favourites themselves (Favourites page, Search favourites row) redraw because their store list changed */
+      const on = favList().some((f) => f.id === id), tt = TXT[lang()];
+      document.querySelectorAll('[data-act="fav"][data-id="' + cssEsc(id) + '"]').forEach((b) => {
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-pressed", String(on));
+        b.setAttribute("aria-label", on ? tt.unfav : tt.fav);
+      });
       tick();
       return;
     }
@@ -1254,11 +1211,6 @@
       const box = act.closest(".hgn-sp");
       box.querySelectorAll(".hgn-sp-chip").forEach((b) => b.classList.toggle("is-on", b === act));
       box.querySelector(".hgn-sp-rows").innerHTML = storePanelRows();
-      return;
-    }
-    if (act && act.getAttribute("data-act") === "cats") {
-      catsOpen = !catsOpen;
-      renderHome();
       return;
     }
     const a = e.target.closest("[data-href]");
@@ -1334,17 +1286,23 @@
   }
   function storeListEntry(id) {
     const S = storeState();
-    const lists = [(S && S.homeData && S.homeData.merchants) || [], window.__hgSearchMerchants || []];
+    /* (2026-10-20): also our own lists (nearby stores, search results, Featured collection), so a store opened from Search or a
+       category page gets its time and fee; window.__hgSearchMerchants is only filled on the website */
+    const lists = [(S && S.homeData && S.homeData.merchants) || [], nearAll.list, (sres && sres.list) || [], featColl.list,
+      Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : []];
     for (let i = 0; i < lists.length; i++) {
       const m = lists[i].find((x) => (x._id || x.id) === id);
       if (m) return m;
     }
     return null;
   }
-  function money(n) {
-    const v = Number(n).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 3 });
-    return hgIsAr() ? v + " د.ب" : "BHD " + v;
+  /* prices (2026-10-20, money3 merged in): written exactly the way global-footer-1.js's currency pass writes them (no-break
+     space; Arabic "د.ب." + RLM), so that pass no longer rewrites our text a moment later. three: always 3 decimals (BHD 4.200) */
+  function money(n, three) {
+    const v = three ? Number(n).toFixed(3) : Number(n).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 3 });
+    return hgIsAr() ? v + "\u00a0\u062F.\u0628.\u200f" : "BHD\u00a0" + v;
   }
+  function cssEsc(s) { return window.CSS && CSS.escape ? CSS.escape(s) : s; }
   /* all products Hyperzod has loaded for this store, by id */
   function productPhotos() {
     const S = storeState(), out = {};
@@ -1363,6 +1321,7 @@
     } catch (e) {}
     return out;
   }
+  const noPhoto = new WeakMap(); /* photo box -> { id, t }: no photo found at time t (2026-10-20) */
   function fillProductPhotos(page) {
     const boxes = page.querySelectorAll(".pro-card-h-img");
     if (!boxes.length) return;
@@ -1375,9 +1334,12 @@
       const mine = box.querySelector("img.hgn-thumb");
       if (real) { if (mine) mine.remove(); return; }
       if (mine && mine.getAttribute("data-pid") === id) return;
+      /* (2026-10-20): a product without a photo used to re-read all of Hyperzod's product data on every run; now every 3s */
+      const np = noPhoto.get(box);
+      if (np && np.id === id && Date.now() - np.t < 3000) return;
       if (!photos) photos = productPhotos();
       const u = photos[id];
-      if (!u) { if (mine) mine.remove(); return; }
+      if (!u) { if (mine) mine.remove(); noPhoto.set(box, { id: id, t: Date.now() }); return; }
       const host = box.querySelector(".v-responsive") || box;
       const img = mine || document.createElement("img");
       img.className = "hgn-thumb";
@@ -1500,11 +1462,6 @@
     heart: '<svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>',
     back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>'
   };
-  /* prices with 3 decimals, like Bahrain's own prices (BHD 4.200) */
-  function money3(n) {
-    const v = Number(n).toFixed(3);
-    return hgIsAr() ? v + " د.ب" : "BHD " + v;
-  }
   function nameOf(o) {
     const tr = o && Array.isArray(o.language_translation) && o.language_translation.find((x) => x && x.key === "name" && x.locale === lang());
     return (tr && tr.value) || (o && o.name) || "";
@@ -1515,7 +1472,7 @@
   }
   function prodPrice(p) {
     const v = p && (p.product_pricing ? p.product_pricing.price_display : p.price_display);
-    return typeof v === "number" ? money3(v) : "";
+    return typeof v === "number" ? money(v, true) : "";
   }
   /* products of a store from its Hyperzod menu (page 1), with photo, featured first; loaded once per store */
   const menuCache = {};
@@ -1553,7 +1510,7 @@
   /* a store's product row arrived: put it into every list showing that store */
   function fillProducts(id) {
     const c = menuCache[id];
-    document.querySelectorAll('.hgn-sb-prods[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]').forEach((row) => {
+    document.querySelectorAll('.hgn-sb-prods[data-id="' + cssEsc(id) + '"]').forEach((row) => {
       const m = seenStores[id];
       if (!m || !c || !c.list) return;
       if (!c.list.length) { row.remove(); return; }
@@ -1578,7 +1535,7 @@
     if (tm) meta.push("<bdi>" + esc(tm) + "</bdi>");
     const fee = storeFee(m);
     if (fee === 0) meta.push(esc(T.free));
-    else if (fee) meta.push("<bdi>" + esc(L === "ar" ? T.fee + money3(fee) : money3(fee) + T.fee) + "</bdi>");
+    else if (fee) meta.push("<bdi>" + esc(L === "ar" ? T.fee + money(fee, true) : money(fee, true) + T.fee) + "</bdi>");
     const on = !!favIds[id];
     /* products load only when the store comes near the screen (watchProdRows), never all stores at once:
        a page of 80+ stores would otherwise ask Hyperzod for 80+ menus in one go */
@@ -1596,6 +1553,9 @@
   }
   let prodObs = null;
   function watchProdRows(root) {
+    /* (2026-10-20): rows from the previous draw are gone; stop watching them (they never come on screen, so the observer
+       kept them forever). Only one list view is open at a time. */
+    if (prodObs) prodObs.disconnect();
     const rows = root.querySelectorAll(".hgn-sb-prods[data-wait]");
     if (!rows.length) return;
     if (!("IntersectionObserver" in window)) { rows.forEach((r, i) => { if (i < 6) { r.removeAttribute("data-wait"); storeProducts(r.getAttribute("data-id")); } }); return; }
@@ -1614,6 +1574,17 @@
   }
   /* tabs + filter buttons + the list, for one view (its own state object) */
   function newListState() { return { cat: "", sort: "nearest", free: false, open: false, top: false, menu: false }; }
+  /* sort + sort menu shared by the lists and the category page (2026-10-20, each was written out twice) */
+  function deliveryMins(m) { const n = parseInt(m.delivery_data && m.delivery_data.time, 10); return isNaN(n) ? 1e9 : n; }
+  function sortStores(list, sort, L) {
+    if (sort === "fastest") list.sort((a, b) => deliveryMins(a) - deliveryMins(b) || storeDist(a) - storeDist(b));
+    else if (sort === "az") list.sort((a, b) => (nameOf(a) || a.name || "").localeCompare(nameOf(b) || b.name || "", L));
+    else list.sort((a, b) => storeDist(a) - storeDist(b));
+  }
+  function sortMenuHtml(st, T) {
+    return '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
+      '<button type="button" class="hgn-sortopt' + (st.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>";
+  }
   function storeListHtml(st, list, L, t, favIds, hd, prodsOf, withTabs) {
     const T = LTXT[L];
     const have = {};
@@ -1626,11 +1597,8 @@
     if (st.free) shown = shown.filter((m) => storeFee(m) === 0);
     if (st.open) shown = shown.filter((m) => m.is_open !== false);
     if (st.top) shown = shown.filter((m) => storeRating(m) > 0);
-    const tnum = (m) => { const n = parseInt(m.delivery_data && m.delivery_data.time, 10); return isNaN(n) ? 1e9 : n; };
     if (st.top) shown.sort((a, b) => storeRating(b) - storeRating(a));
-    else if (st.sort === "fastest") shown.sort((a, b) => tnum(a) - tnum(b) || storeDist(a) - storeDist(b));
-    else if (st.sort === "az") shown.sort((a, b) => (nameOf(a) || a.name || "").localeCompare(nameOf(b) || b.name || "", L));
-    else if (!prodsOf) shown.sort((a, b) => storeDist(a) - storeDist(b));
+    else if (st.sort !== "nearest" || !prodsOf) sortStores(shown, st.sort, L); /* search results keep their order on "Nearest" */
     let html = "";
     if (withTabs && cats.length > 1) {
       html += '<div class="hgn-tabs" role="tablist">' +
@@ -1646,10 +1614,7 @@
         '<button type="button" class="hgn-flt' + (st.open ? " is-on" : "") + '" data-act="lflt" data-id="open">' + esc(T.open) + "</button>" +
         '<button type="button" class="hgn-flt' + (st.top ? " is-on" : "") + '" data-act="lflt" data-id="top">' + esc(T.top) + "</button>" +
         "</div>";
-      if (st.menu) {
-        html += '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
-          '<button type="button" class="hgn-sortopt' + (st.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>";
-      }
+      if (st.menu) html += sortMenuHtml(st, T);
     }
     html += shown.length ? '<div class="hgn-sblist">' + shown.map((m) => storeBlock(m, L, t, favIds, prodsOf ? prodsOf(m) : undefined)).join("") + "</div>"
       : '<p class="hgn-page-empty">' + esc(st.top ? T.norated : (list.length ? T.none : T.nores)) + "</p>";
@@ -1666,13 +1631,14 @@
   }
   /* every store near the customer: Hyperzod's nearby list for the chosen address (the same call Hyperzod's category
      pages use, 20 per page), plus the Home stores. Loaded once per address and language. */
-  const nearAll = { key: "", list: [], busy: false };
+  const nearAll = { key: "", list: [], busy: false, failKey: "", failAt: 0 };
   function loadNearAll() {
     const S = storeState();
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
-    if (!sel || typeof sel.latitude !== "number") return;
+    if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number") return;
     const L = lang(), key = sel.latitude.toFixed(5) + "," + sel.longitude.toFixed(5) + "|" + L;
     if (nearAll.key === key || nearAll.busy) return;
+    if (nearAll.failKey === key && Date.now() - nearAll.failAt < 30000) return; /* failed: try again after 30s (2026-10-20) */
     nearAll.busy = true;
     const H = { "content-type": "application/json", accept: "application/json", "x-tenant": location.host, "x-client-device": "web" };
     let all = [];
@@ -1685,16 +1651,25 @@
       all = all.concat(list);
       if (list.length && p < 15) return page(p + 1);
     });
-    page(1).then(() => { nearAll.list = all; }, () => {}).then(() => { nearAll.key = key; nearAll.busy = false; pageSig = ""; catSig = ""; schedule(); });
+    /* (2026-10-20): the key is only stored on success, so a failed load is retried and Hyperzod's own category list stays meanwhile */
+    page(1).then(() => { nearAll.list = all; nearAll.key = key; }, () => { nearAll.failKey = key; nearAll.failAt = Date.now(); })
+      .then(() => { nearAll.busy = false; pageSig = ""; catSig = ""; schedule(); });
   }
+  /* cached until one of its source lists changes (2026-10-20): up to 300 stores were merged and sorted on every run */
+  const NO_LIST = [];
+  let nearMemo = { near: null, sm: null, home: null, out: [] };
   function nearStores(hd) {
     loadNearAll();
+    const sm = Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : NO_LIST, home = homeStores(hd);
+    if (nearMemo.near === nearAll.list && nearMemo.sm === sm && nearMemo.home === home) return nearMemo.out;
     const out = [], seen = {};
-    nearAll.list.concat(Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : [], homeStores(hd)).forEach((m) => {
+    nearAll.list.concat(sm, home).forEach((m) => {
       const id = m && (m._id || m.id);
       if (id && !seen[id] && m.slug) { seen[id] = true; out.push(m); }
     });
-    return out.sort((a, b) => storeDist(a) - storeDist(b));
+    out.sort((a, b) => storeDist(a) - storeDist(b));
+    nearMemo = { near: nearAll.list, sm: sm, home: home, out: out };
+    return out;
   }
 
   /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ----------
@@ -1707,13 +1682,11 @@
   };
   const CICON = {
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
-    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
     sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>'
   };
   let catSig = "", catSt = newListState(), catWas = "";
   function catRoute() {
-    const g = vueGlobals();
-    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    const r = curRoute();
     return r && r.name === "merchant-category" && r.params && r.params.id ? r : null;
   }
   function storeKm(m) {
@@ -1723,7 +1696,7 @@
     const mt = storeDist(m);
     return mt > 0 && mt < 1e8 ? (mt / 1000).toFixed(1) + (lang() === "ar" ? " كم" : " km") : "";
   }
-  function catCard(m, L, catMap, cat) {
+  function catCard(m, L, catMap) {
     const id = m._id || m.id;
     seenStores[id] = m;
     const href = storeHref(m, L), cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
@@ -1737,7 +1710,7 @@
       (tm ? '<span class="hgn-cc-time">' + CICON.clock + "<bdi>" + esc(tm) + "</bdi></span>" : "") +
       (closed ? '<span class="hgn-cc-closed">' + esc(C.closed) + "</span>" : "") + "</span>" +
       '<span class="hgn-cc-row"><span class="hgn-cc-name">' + esc(nameOf(m) || m.name) + "</span>" +
-      (km ? '<span class="hgn-cc-dist">' + CICON.pin + "<bdi>" + esc(km) + "</bdi></span>" : "") + "</span>" +
+      (km ? '<span class="hgn-cc-dist">' + sIcon("pin") + /* same pin as the store info card */ "<bdi>" + esc(km) + "</bdi></span>" : "") + "</span>" +
       (tags.length ? '<span class="hgn-cc-tags">' + tags.map((x) => '<span class="hgn-cc-tag">' + esc(x) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
@@ -1746,7 +1719,7 @@
     const root = document.getElementById("merchants_by_category");
     const de = document.documentElement;
     let box = document.getElementById("hgn-catpage");
-    const off = () => { de.classList.remove("hgn-cat-on"); if (box) box.remove(); catSig = ""; };
+    const off = () => { de.classList.toggle("hgn-cat-on", false); if (box) box.remove(); catSig = ""; }; /* toggle (2026-10-20): no class rewrite when already off */
     if (!r || !root) { off(); return; }
     const hd = homeData();
     if (!hd) { off(); return; }
@@ -1758,7 +1731,7 @@
     const catMap = catMapOf(hd);
     const cat = catMap[cid] || (hd.merchant_categories || []).find((c) => String(c.id || c._id) === cid);
     const list = all.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === cid));
-    de.classList.add("hgn-cat-on");
+    de.classList.toggle("hgn-cat-on", true);
     if (!box) {
       box = document.createElement("div");
       box.id = "hgn-catpage";
@@ -1772,10 +1745,7 @@
     let shown = list.slice();
     if (catSt.free) shown = shown.filter((m) => storeFee(m) === 0);
     if (catSt.open) shown = shown.filter((m) => m.is_open !== false && m.is_accepting_orders !== false);
-    const tnum = (m) => { const n = parseInt(m.delivery_data && m.delivery_data.time, 10); return isNaN(n) ? 1e9 : n; };
-    if (catSt.sort === "fastest") shown.sort((a, b) => tnum(a) - tnum(b) || storeDist(a) - storeDist(b));
-    else if (catSt.sort === "az") shown.sort((a, b) => (nameOf(a) || a.name || "").localeCompare(nameOf(b) || b.name || "", L));
-    else shown.sort((a, b) => storeDist(a) - storeDist(b));
+    sortStores(shown, catSt.sort, L);
     const sortLbl = catSt.sort === "fastest" ? T.fastest : catSt.sort === "az" ? T.az : T.nearest;
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML =
@@ -1786,9 +1756,8 @@
       '<button type="button" class="hgn-cp-pill is-dark" data-act="lsort" aria-expanded="' + catSt.menu + '">' + CICON.sliders + "<span>" + esc(C.sort + sortLbl) + "</span></button>" +
       '<button type="button" class="hgn-cp-pill' + (catSt.open ? " is-on" : "") + '" data-act="lflt" data-id="open">' + esc(T.open) + "</button>" +
       '<button type="button" class="hgn-cp-pill' + (catSt.free ? " is-on" : "") + '" data-act="lflt" data-id="free">' + esc(T.free) + "</button></div>" +
-      (catSt.menu ? '<div class="hgn-sortmenu">' + [["nearest", T.nearest], ["fastest", T.fastest], ["az", T.az]].map((o) =>
-        '<button type="button" class="hgn-sortopt' + (catSt.sort === o[0] ? " is-on" : "") + '" data-act="lsortopt" data-id="' + o[0] + '"><span>' + esc(o[1]) + '</span><span class="hgn-rad"></span></button>').join("") + "</div>" : "") +
-      (shown.length ? '<div class="hgn-cp-list">' + shown.map((m) => catCard(m, L, catMap, cat)).join("") + "</div>"
+      (catSt.menu ? sortMenuHtml(catSt, T) : "") +
+      (shown.length ? '<div class="hgn-cp-list">' + shown.map((m) => catCard(m, L, catMap)).join("") + "</div>"
         : '<p class="hgn-page-empty">' + esc(list.length ? T.none : T.nores) + "</p>");
   }
   const BACK_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
@@ -1809,24 +1778,24 @@
      Back goes to where the customer came from. */
   let pageSig = "", pageWas = "", pageSt = newListState();
   function pageQuery() {
-    const g = vueGlobals();
-    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    const r = curRoute();
     const q = r && r.query && r.query.hgn;
     return isHomePath(currentPath()) && (q === "stores" || q === "favs") ? q : "";
   }
   function renderPage() {
     const q = pageQuery();
     let pg = document.getElementById("hgn-page");
-    document.documentElement.classList.toggle("hgn-page-open", !!q);
     if (q !== pageWas) { pageWas = q; pageSt = newListState(); }
+    const hd = q ? homeData() : null;
+    /* scroll lock only once the page can be drawn (2026-10-20): it was set before the Home data check, freezing the screen with no page */
+    document.documentElement.classList.toggle("hgn-page-open", !!(q && hd));
     if (!q) { if (pg) pg.remove(); pageSig = ""; return; }
-    const hd = homeData();
     if (!hd) return;
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
     const list = q === "favs" ? favStoresOf(hd) : nearStores(hd);
     const favIds = {};
     favList().forEach((f) => { favIds[f.id] = true; });
-    const sig = [q, L, JSON.stringify(pageSt), list.map((m) => m._id || m.id).join(","), Object.keys(favIds).join(",")].join("|");
+    const sig = [q, L, JSON.stringify(pageSt), list.map((m) => m._id || m.id).join(",")].join("|"); /* no favourites (2026-10-20): hearts flip in place */
     if (!pg) {
       pg = document.createElement("div");
       pg.id = "hgn-page";
@@ -1866,8 +1835,11 @@
      Hyperzod's own results stay. */
   let sres = { key: "", busy: false, list: null, prods: {}, failed: false }, sresSig = "", sresSt = newListState(), sresQ = "";
   function searchQuery() {
-    const g = vueGlobals();
-    const r = g && g.$router && g.$router.currentRoute && g.$router.currentRoute.value;
+    const r = curRoute();
+    /* just emptied (2026-10-20): the address keeps the old word for ~450ms until global-footer-2.js takes it out; while the
+       focused box is empty there is no search, so the results step aside at once */
+    const inp = document.querySelector("#MultiVendorSearch input");
+    if (inp && document.activeElement === inp && !inp.value.trim()) return "";
     /* Hyperzod writes the search into the address bar itself (history.replaceState), so the router's query stays
        empty when the customer types or taps a suggestion; read the address bar first (found 2026-10-19) */
     let q = new URLSearchParams(location.search).get("q");
@@ -1898,18 +1870,18 @@
     const wrap = document.querySelector("#MultiVendorSearch .scheme-global-search-results");
     let box = document.getElementById("hgn-sres");
     const de = document.documentElement;
-    const off = () => { de.classList.remove("hgn-sres-on"); if (box) box.remove(); sresSig = ""; };
+    const off = () => { de.classList.toggle("hgn-sres-on", false); if (box) box.remove(); sresSig = ""; }; /* toggle (2026-10-20) */
     if (!q || !wrap) { off(); return; }
     const g = vueGlobals(), S = g && g.$store && g.$store.state;
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
     const hd = homeData();
-    if (!sel || typeof sel.latitude !== "number" || !hd) { off(); return; }
+    if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number" || !hd) { off(); return; }
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
     if (q !== sresQ) { sresQ = q; sresSt = newListState(); }
     const key = [q, L, sel.latitude.toFixed(5), sel.longitude.toFixed(5)].join("|");
     if (sres.key !== key) loadSearch(key, q, sel, L);
     if (sres.failed) { off(); return; }
-    de.classList.add("hgn-sres-on");
+    de.classList.toggle("hgn-sres-on", true);
     if (!box) {
       box = document.createElement("div");
       box.id = "hgn-sres";
@@ -1919,7 +1891,7 @@
     if (box.nextElementSibling !== wrap) wrap.insertAdjacentElement("beforebegin", box);
     const favIds = {};
     favList().forEach((f) => { favIds[f.id] = true; });
-    const sig = [key, sres.busy, JSON.stringify(sresSt), Object.keys(favIds).join(","), sres.list ? sres.list.length : -1].join("|");
+    const sig = [key, sres.busy, JSON.stringify(sresSt), sres.list ? sres.list.length : -1].join("|"); /* no favourites (2026-10-20): hearts flip in place */
     if (sig === sresSig) return;
     sresSig = sig;
     box.setAttribute("dir", ar ? "rtl" : "ltr");
@@ -1960,24 +1932,25 @@
     if (row.previousElementSibling !== orders) orders.insertAdjacentElement("afterend", row);
   }
 
-  /* Favourites row at the top of the Search page (only while the start screen shows, not with search results) */
+  /* Favourites row at the top of the Search page (only while the start screen shows, not with search results)
+     (2026-10-20): it sits right above our start screen (#hgn-sland) and runs after it. Both used to claim the spot above
+     Hyperzod's start screen, so they swapped places on every run, which re-ran everything about 25 times a second; it also
+     stayed up while typing and with results, because Hyperzod keeps its start screen in the page then. */
   let searchFavSig = "";
   function renderSearchFav() {
-    const start = /^\/(en|ar)\/search\/?$/.test(currentPath()) && document.querySelector("#MultiVendorSearch .scheme-global-search-recent");
+    const land = document.documentElement.classList.contains("hgn-sland-on") && document.getElementById("hgn-sland");
     let box = document.getElementById("hgn-sfav");
     const hd = homeData();
-    const list = start && hd ? favStoresOf(hd) : [];
+    const list = land && hd ? favStoresOf(hd) : [];
     if (!list.length) { if (box) box.remove(); searchFavSig = ""; return; }
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
-    const favIds = {};
-    favList().forEach((f) => { favIds[f.id] = true; });
     if (!box) {
       box = document.createElement("div");
       box.id = "hgn-sfav";
       box.addEventListener("click", onHomeClick);
       searchFavSig = "";
     }
-    if (box.nextElementSibling !== start) start.insertAdjacentElement("beforebegin", box);
+    if (box.nextElementSibling !== land) land.insertAdjacentElement("beforebegin", box);
     const sig = [L, list.map((m) => m._id || m.id).join(",")].join("|");
     if (sig === searchFavSig) return;
     searchFavSig = sig;
@@ -2008,7 +1981,6 @@
   const SL_ICON = {
     back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     go: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
   function renderSearchLanding() {
@@ -2032,9 +2004,9 @@
       if (top.parentElement !== hdr || hdr.firstElementChild !== top) hdr.insertAdjacentElement("afterbegin", top);
       const th = '<button type="button" class="hgn-shead-back" data-act="sback" aria-label="' + esc(s2.back) + '">' + SL_ICON.back + '</button><span class="hgn-shead-title">' + esc(s2.search) + "</span>";
       if (top.getAttribute("data-l") !== L) { top.setAttribute("data-l", L); top.innerHTML = th; }
-      de.classList.add("hgn-shead-on");
+      de.classList.toggle("hgn-shead-on", true); /* toggle (2026-10-20): no class rewrite on every run */
     } else {
-      de.classList.remove("hgn-shead-on");
+      de.classList.toggle("hgn-shead-on", false);
       if (top) top.remove();
     }
     /* start screen body */
@@ -2042,15 +2014,28 @@
     const input = onSearch && root.querySelector("input");
     const typing = !!(input && input.value.trim());
     let box = document.getElementById("hgn-sland");
-    const off = () => { de.classList.remove("hgn-sland-on"); if (box) box.remove(); slandSig = ""; };
+    const off = () => { de.classList.toggle("hgn-sland-on", false); if (box) box.remove(); slandSig = ""; };
+    /* (2026-10-20) stays up while typing until our results (or their loading rows, html.hgn-sres-on) replace it, so the
+       screen is never blank in between (Hyperzod's own results box, hidden while this shows, held only an empty or loading
+       box for about half a second). It steps aside while typing only when our search failed, so Hyperzod's own results
+       show instead. Hyperzod's old start screen is hidden by app-new.css whatever happens here. */
+    if (!start || de.classList.contains("hgn-sres-on") || (typing && sres.failed)) { off(); return; }
+    /* recent and popular searches (2026-10-20): from global-footer-2.js (window.hgSearch); the buttons in
+       #hg-search-discovery are read only when hgSearch is missing. They need no Home data; only the categories do. */
+    const hs = window.hgSearch;
+    const words = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim()) : []);
+    let recent = [], popular = [];
+    if (hs && typeof hs.recent === "function" && typeof hs.popular === "function") {
+      try { recent = words(hs.recent()).slice(0, 3); popular = words(hs.popular(ar)).slice(0, 6); } catch (e) {}
+    } else {
+      const disc = document.getElementById("hg-search-discovery");
+      const qs = (sel) => disc ? [...disc.querySelectorAll(sel)].map((b) => b.getAttribute("data-q")).filter(Boolean) : [];
+      recent = qs(".hg-sd-chip:not(.pop)").slice(0, 3);
+      popular = qs(".hg-sd-chip.pop").slice(0, 6);
+    }
     const hd = homeData();
-    if (!start || typing || de.classList.contains("hgn-sres-on") || !hd) { off(); return; }
-    const disc = document.getElementById("hg-search-discovery");
-    const qs = (sel) => disc ? [...disc.querySelectorAll(sel)].map((b) => b.getAttribute("data-q")).filter(Boolean) : [];
-    const recent = qs(".hg-sd-chip:not(.pop)").slice(0, 3);
-    const popular = qs(".hg-sd-chip.pop").slice(0, 6);
-    const cats = (hd.merchant_categories || []).filter((c) => c && c.status !== false && c.status !== 0)
-      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    const cats = hd ? (hd.merchant_categories || []).filter((c) => c && c.status !== false && c.status !== 0)
+      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) : [];
     if (!box) {
       box = document.createElement("div");
       box.id = "hgn-sland";
@@ -2058,7 +2043,7 @@
       slandSig = "";
     }
     if (box.nextElementSibling !== start) start.insertAdjacentElement("beforebegin", box);
-    de.classList.add("hgn-sland-on");
+    de.classList.toggle("hgn-sland-on", true);
     const sig = [L, slandAll, recent.join("|"), popular.join("|"), cats.map((c) => c.id || c._id).join(",")].join("#");
     if (sig === slandSig) return;
     slandSig = sig;
@@ -2087,6 +2072,9 @@
     if (act && act.getAttribute("data-act") === "sall") { slandAll = !slandAll; slandSig = ""; renderSearchLanding(); return; }
     if (act && act.getAttribute("data-act") === "sq") {
       const q = act.getAttribute("data-q");
+      /* (2026-10-20) global-footer-2.js runs it (remembers it, types it into Hyperzod's box); the old button is the fallback */
+      const hs = window.hgSearch;
+      if (hs && typeof hs.run === "function") { try { hs.run(q); } catch (e) {} return; }
       const disc = document.getElementById("hg-search-discovery");
       const b = disc && [...disc.querySelectorAll("[data-q]")].find((x) => x.getAttribute("data-q") === q);
       if (b) b.click();
@@ -2098,8 +2086,9 @@
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
-    hookRouter, renderPage, renderAccountFav, renderSearchFav, renderSearchResults, renderSearchLanding, renderCategoryPage,
-    ensureHeaderExtraStyle, tagNativeNav, applyHyperGoHeader, applyLocLang,
+    /* renderSearchFav after renderSearchLanding (2026-10-20): it sits above the start screen it draws */
+    hookRouter, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
+    applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); },
     renderStore
   ];
@@ -2115,7 +2104,8 @@
     timer = setTimeout(() => { timer = null; tick(); }, 40);
   }
 
-  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
+  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-shead,#hg-cart-btn,#hg-search-cart,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
@@ -2125,6 +2115,7 @@
     return false;
   }
 
+  let syncFrame = false;
   function start() {
     tick();
     new MutationObserver((recs) => {
@@ -2133,7 +2124,16 @@
       const hdr = document.getElementById("MultiVendorHeaderRoot");
       const bareHeader = hdr && !hdr.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row");
       const bareHome = document.getElementById("MultiVendorHome") && !document.getElementById("hgn-home") && isHomePath(currentPath());
-      if (bareHeader || bareHome) { tick(); return; }
+      /* (2026-10-20) a new Search screen too (e.g. Back from a store): its header and start screen were drawn 40ms late */
+      const sr = document.getElementById("MultiVendorSearch");
+      const bareSearch = sr && !sr.querySelector("#hgn-shead") && /^\/(en|ar)\/search\/?$/.test(currentPath());
+      /* at most once per frame (2026-10-20): while Home's data is still loading these stay true, and every change ran a full tick */
+      if ((bareHeader || bareHome || bareSearch) && !syncFrame) {
+        syncFrame = true;
+        requestAnimationFrame(() => { syncFrame = false; });
+        tick();
+        return;
+      }
       schedule();
     }).observe(document.body, { childList: true, subtree: true });
     setInterval(schedule, 1500);
