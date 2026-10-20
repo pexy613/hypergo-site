@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-0014 */
+/* hg-version 2026-10-21-0026 */
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
@@ -1125,7 +1125,8 @@
         N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content object{display:none !important;}" +
         N + " .classic-nav-item[data-hg-nav]:not([data-hg-nav='other']) .classic-footer-btn__content::before{content:'';display:block;position:relative;z-index:1;width:20px;height:20px;background:currentColor;" +
           "-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;}" +
-        N + C + "home'] .classic-footer-btn__content::before{width:16px;height:18px;margin:1px 0;-webkit-mask-image:" + homeMask + ";mask-image:" + homeMask + ";}" +
+        /* [data-hg-nav] again so this ties with the 20x20 rule above and wins by order (without it the home icon stayed 20x20 + 2 margin and sat 1pt lower) */
+        N + C + "home'][data-hg-nav] .classic-footer-btn__content::before{width:16px;height:18px;margin:1px 0;-webkit-mask-image:" + homeMask + ";mask-image:" + homeMask + ";}" +
         N + C + "reorder'] .classic-footer-btn__content::before{-webkit-mask-image:" + navMask(NAV_ICONS.reorder) + ";mask-image:" + navMask(NAV_ICONS.reorder) + ";}" +
         N + C + "account'] .classic-footer-btn__content::before{-webkit-mask-image:" + navMask(NAV_ICONS.account) + ";mask-image:" + navMask(NAV_ICONS.account) + ";}" +
         /* Orders opened from Account keeps the Account tab lit (not Reorder) */
