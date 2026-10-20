@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1927 */
+/* hg-version 2026-10-20-1953 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app (every customer). global-footer-1.js skips its own header and Home code in the app;
    every other screen, the Account page and the bottom nav are still drawn by the old code until each is rebuilt.
@@ -390,16 +390,23 @@
     if (!root._hgnWm) { root._hgnWm = true; updateWatermark(root); }
   }
 
+  const WM_MQ = window.matchMedia("(max-width: 959.98px)"); /* one query, not a new one on every frame (2026-10-20) */
   function updateWatermark(root) {
-    if (!root || !window.matchMedia("(max-width: 959.98px)").matches) return;
+    if (!root || !WM_MQ.matches) return;
     const scrolled = Math.max(0, -root.getBoundingClientRect().top);
     root.style.setProperty("--hg-wm-op", String(Math.min(1, scrolled / 50) * 0.55));
   }
 
   let wmTicking = false;
+  /* our sideways rows (banner sliding by itself every 4s, category, store, product and filter rows) never move the header:
+     their scroll events are skipped (2026-10-20); the header only moves when the page itself scrolls. Shared with app-footer.js. */
+  const SIDEWAYS = "#hgn-home,.hgn-slides,.hgn-store-row,.hgn-sp-chips,.hgn-circles,.hgn-tabs,.hgn-filters,.hgn-sb-prods,.hgn-cp-pills,.hgn-occ-row";
+  window.__hgnSideways = SIDEWAYS;
   document.addEventListener(
     "scroll",
-    () => {
+    (ev) => {
+      const t = ev.target;
+      if (t && t.nodeType === 1 && t.closest(SIDEWAYS)) return;
       if (wmTicking) return;
       wmTicking = true;
       requestAnimationFrame(() => {
@@ -2105,7 +2112,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-shead,#hg-cart-btn,#hg-search-cart,#hg-temp-perf,#hg-temp-diag,#hg-temp-back,#eruda,#hg-launch";
+  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-shead,#hg-cart-btn,#hg-search-cart,#hg-launch";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

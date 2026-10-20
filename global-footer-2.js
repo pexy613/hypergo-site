@@ -1,12 +1,16 @@
-/* hg-version 2026-10-20-1927 */
+/* hg-version 2026-10-20-1953 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
   const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const img=m=>{const x=m&&m.images,l=x&&x.logo&&(x.logo.image_url||x.logo.image_thumb_url),c=x&&x.cover&&(x.cover.image_url||x.cover.image_thumb_url);return l||c||"";};
   const href=(m,loc)=>"/"+loc+"/m/"+encodeURIComponent(m.slug)+"/"+(m._id||m.id);
+  /* (2026-10-20): Hyperzod's whole saved store ("vuex") is parsed only when its text changed; the cart badge check runs
+     every second and parsing the whole store each time was the biggest cost left on the search screen */
+  let cartRaw=null,cartVal=null;
   function cartData(){
-    try{const x=JSON.parse(localStorage.getItem("vuex")||"{}"),a=x.Cart&&x.Cart.cart,c=Array.isArray(a)?a[0]:a;return c||null;}catch(e){return null;}
+    try{const raw=localStorage.getItem("vuex")||"{}";if(raw===cartRaw)return cartVal;cartRaw=raw;cartVal=null;
+      const x=JSON.parse(raw),a=x.Cart&&x.Cart.cart,c=Array.isArray(a)?a[0]:a;cartVal=c||null;return cartVal;}catch(e){return null;}
   }
   function searchInput(root){return root.querySelector(".mobile-search-input input")||root.querySelector("input")||document.querySelector("#AppBar .web-main-search input");}
   function setNativeSearch(q){
@@ -177,9 +181,6 @@
   function liveSearch(input){
     if(typeof clearTimeout==="function")clearTimeout(autoSearchTimer);
     const query=String(input.value||"").trim();
-    /* TEMP-DIAGNOSTIC-START (hgperf hook: no live search for the secret words hgperf / hgnoswipe / hgnosentry or their first letters) */
-    {const ql=query.toLowerCase();if(ql.length>=3&&("hgperf".indexOf(ql)===0||"hgnoswipe".indexOf(ql)===0||"hgnosentry".indexOf(ql)===0))return;}
-    /* TEMP-DIAGNOSTIC-END */
     if(query.length===1||composing.has(input))return;
     autoSearchTimer=setTimeout(()=>{
       if(!document.getElementById('MultiVendorSearch')||(input.isConnected===false||(document.contains&&!document.contains(input)))||String(input.value||"").trim()!==query)return;
@@ -259,14 +260,13 @@
   }
   run();
   let searchRunTimer;
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the gf2 observer) */ if (window.__hgObsT) window.__hgObsT.begin("gf2 observer"); /* TEMP-DIAGNOSTIC-END */
   /* observer trim (2026-10-08): changes inside our countdown, rotating placeholder, temporary panels, and our own search
      cart button and discovery box no longer wake this up (run() itself writes inside the last two, which used to wake it
      again). Off the search screen, once run() has already done its clean-up, nothing is scheduled: run() would only
      repeat that clean-up. The 1-second safety check below is described at the end of this file. */
   /* (2026-10-20): the new app's own screens and the header cart (app-new.js / global-footer-1.js) added: run() reads nothing inside them */
-  const GF2_NOISE="#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda,#hg-search-discovery,#hg-search-cart,"+
-    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav,#hg-cart-btn,#hg-temp-back";
+  const GF2_NOISE="#hg-launch,.hg-ph,#hg-search-discovery,#hg-search-cart,"+
+    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav,#hg-cart-btn";
   /* (2026-10-20): true when the search screen is on show without its discovery box yet (website). The observer then
      builds it right away, before the browser paints, instead of 80ms later, so the sections no longer pop in. */
   function needsDiscovery(){
@@ -299,7 +299,6 @@
     if(needsDiscovery()){clearTimeout(searchRunTimer);run();return;}
     clearTimeout(searchRunTimer);searchRunTimer=setTimeout(run,80);
   }).observe(document.body,{childList:true,subtree:true});
-  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
   /* (2026-10-20): the 1-second safety check no longer repeats the whole run() (tagging every result and walking all
      its text) on an unchanged screen. It keeps the cart badge and discovery box current (store list or recent searches
      can change without any DOM change) and the tab label, and does a full run() only when something a mutation would

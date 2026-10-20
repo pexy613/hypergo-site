@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1927 */
+/* hg-version 2026-10-20-1953 */
 (function () {
   /* NEW APP HOME (2026-10-15): in the app, the main page header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js). So in the app this file skips its own header and Home code; every other screen,
@@ -1212,17 +1212,17 @@
 
 
   /* ================= OUR OWN NOISE (observer trim, 2026-10-08) =================
-     Changes inside these never matter to our whole-page observers: the launch countdown (#hg-launch, ticks every second),
-     the rotating search placeholder (.hg-ph, swaps its word every few seconds) and the temporary panels (hgperf, hgdiag, Eruda).
+     Changes inside these never matter to our whole-page observers: the launch countdown (#hg-launch, ticks every second)
+     and the rotating search placeholder (.hg-ph, swaps its word every few seconds). (The temporary test panels were removed 2026-10-20.)
      A batch of changes is "relevant" if any one change is outside them. Adding one of them counts as noise (only our own code
      adds them); removing one stays relevant (the app may have thrown it away and it has to be rebuilt).
      classMode (acctMO only): a class change counts as noise when it only ADDED hg- classes (our own markers); any removed
      class, or any added non-hg class, stays relevant (e.g. the app's own re-render wiping our classes). */
-  const HG_NOISE = "#hg-launch,.hg-ph,#hg-temp-perf,#hg-temp-diag,#eruda";
+  const HG_NOISE = "#hg-launch,.hg-ph";
   /* (2026-10-20): renderObserver + acctMO also ignore what app-new.js and global-footer-2.js draw themselves, and our header
      cart button, so the files stop waking each other up. The currency observer keeps the short list (prices inside still convert). */
   const HG_NOISE_EXT = HG_NOISE + ",#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
-    "#hg-search-discovery,#hg-search-cart,#hg-cart-btn,#hg-temp-back";
+    "#hg-search-discovery,#hg-search-cart,#hg-cart-btn";
   function hgInNoise(n, sel) {
     const el = n && (n.nodeType === 1 ? n : n.parentNode);
     return !!(el && el.nodeType === 1 && el.closest && el.closest(sel || HG_NOISE));
@@ -3284,73 +3284,6 @@
 
   let renderTimer = null;
 
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: shared in-memory timing object for our six whole-page observers)
-     Created here because this file runs before app-footer.js. Holds only: an on/off flag and a recorder function
-     (both set by hgperf in app-footer.js, app only), the observer being run, and two fixed-size slots per observer.
-     begin(name) / end() swap window.MutationObserver for a wrapper only for the few lines that create one of our
-     observers. While hgperf is off (always on the website) the wrapped callback only checks T.on and calls through.
-     While on, run() times the callback and, only for the duration of that synchronous call, swaps window.setTimeout /
-     window.requestAnimationFrame so the function the callback schedules is timed when (and if) it actually runs. */
-  (function () {
-    try {
-      if (window.__hgObsT) return;
-      var W = window, MO = W.MutationObserver;
-      var T = { on: false, rec: null, cur: null, st: null, raf: null, copies: {}, lastFn: {}, lastW: {} };
-      function now() { return performance.now(); }
-      function dwrap(k, fn) {
-        if (T.lastFn[k] === fn) return T.lastW[k];
-        var w = function () {
-          var t0 = now();
-          try { return fn.apply(this, arguments); }
-          finally { try { if (T.rec) T.rec(k, 1, now() - t0); } catch (e) {} }
-        };
-        T.lastFn[k] = fn; T.lastW[k] = w;
-        return w;
-      }
-      function stSwap(fn, d) {
-        var st = T.st;
-        try { if (T.cur && typeof fn === "function") fn = dwrap(T.cur, fn); } catch (e) {}
-        if (arguments.length <= 2) return st.call(W, fn, d);
-        var a = Array.prototype.slice.call(arguments); a[0] = fn;
-        return st.apply(W, a);
-      }
-      function rafSwap(fn) {
-        var raf = T.raf;
-        try { if (T.cur && typeof fn === "function") fn = dwrap(T.cur, fn); } catch (e) {}
-        return raf.call(W, fn);
-      }
-      T.run = function (k, cb, self, args) {
-        if (T.cur) return cb.apply(self, args);
-        var st = W.setTimeout, raf = W.requestAnimationFrame, t0;
-        T.cur = k; T.st = st; T.raf = raf;
-        try { W.setTimeout = stSwap; if (raf) W.requestAnimationFrame = rafSwap; } catch (e) {}
-        t0 = now();
-        try { return cb.apply(self, args); }
-        finally {
-          var d = now() - t0;
-          try { W.setTimeout = st; if (raf) W.requestAnimationFrame = raf; } catch (e) {}
-          T.cur = null;
-          try { if (T.rec) T.rec(k, 0, d); } catch (e) {}
-        }
-      };
-      T.begin = function (k) {
-        try {
-          if (!MO || typeof Reflect === "undefined") return;
-          var Wr = function MutationObserver(cb) {
-            try { T.copies[k] = (T.copies[k] || 0) + 1; } catch (e) {}
-            var c = typeof cb === "function" ? function () { return T.on ? T.run(k, cb, this, arguments) : cb.apply(this, arguments); } : cb;
-            return Reflect.construct(MO, [c], new.target || MO);
-          };
-          Wr.prototype = MO.prototype;
-          W.MutationObserver = Wr;
-        } catch (e) { try { W.MutationObserver = MO; } catch (e2) {} }
-      };
-      T.end = function () { try { if (MO) W.MutationObserver = MO; } catch (e) {} };
-      W.__hgObsT = T;
-    } catch (e) {}
-  })();
-  /* TEMP-DIAGNOSTIC-END */
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the renderObserver/applyAll observer) */ if (window.__hgObsT) window.__hgObsT.begin("renderObserver/applyAll"); /* TEMP-DIAGNOSTIC-END */
   /* observer trim (2026-10-08): changes inside our own countdown, rotating placeholder and temporary panels no longer
      restart applyAll; everything else works exactly as before (same 60ms wait). */
   renderObserver = new MutationObserver((recs) => {
@@ -3374,7 +3307,6 @@
     }
   );
   renderObserver.observe(document.documentElement, {attributes:true,attributeFilter:["lang","dir"]});
-  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
 
   /* LANGUAGE SWITCH VEIL: Hyperzod tears the app down and rebuilds it in the new language (blank flash, a few seconds
@@ -3488,7 +3420,6 @@
     applyHyperGoAccount();
     } finally { acctMO.takeRecords(); } /* drops the records of our own writes, as before */
   }
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the acctMO observer) */ if (window.__hgObsT) window.__hgObsT.begin("acctMO"); /* TEMP-DIAGNOSTIC-END */
   /* observer trim (2026-10-08): skips batches that only touched our countdown, placeholder or temporary panels, or that only
      added our own hg- classes. It still has to watch the app's own class changes on every page: the header, bottom nav,
      search and address-editor parts below are global, not just the Account page. */
@@ -3508,15 +3439,12 @@
     attributeFilter: ["class"],
     attributeOldValue: true
   });
-  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
-  /* TEMP-DIAGNOSTIC-START (hgperf hook: times the currency observer) */ if (window.__hgObsT) window.__hgObsT.begin("currency"); /* TEMP-DIAGNOSTIC-END */
   curMO = new MutationObserver(scheduleCurrency);
   curMO.observe(document.body, {
     childList: true,
     characterData: true,
     subtree: true
   });
-  /* TEMP-DIAGNOSTIC-START (hgperf hook) */ if (window.__hgObsT) window.__hgObsT.end(); /* TEMP-DIAGNOSTIC-END */
 
 })();
