@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-21-1300 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -192,7 +192,10 @@
     }
     /* Search has its own one-colour bar (page colour #FFFCF9 since 2026-10-20, was purple). Do not let the Home
        scroll-fade logic change its status strip. */
-    if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page")) {
+    /* (2026-10-21) our category page (html.hgn-cat-on) has an off-white header, so the strip is off-white too (was purple:
+       Home's header, still loaded under it, made the strip purple). Same for our Stores near you / Favourites pages
+       (html.hgn-page-open): their bar is off-white too, and they open over Home. */
+    if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page") || html.classList.contains("hgn-cat-on") || html.classList.contains("hgn-page-open")) {
       setIf(strip.style, "transition", "none");
       setIf(strip.style, "background-color", "rgb(255,252,249)");
       return;
@@ -237,6 +240,9 @@
 
   document.addEventListener("scroll", onScroll, { capture: true, passive: true });
   new MutationObserver((recs) => { if (relevant(recs)) { needHit = true; schedule(); } }).observe(document.body, { childList: true, subtree: true });
+  /* (2026-10-21) a page class on <html> (hgn-cat-on, hg-search-page...) can arrive after the page's own content, and our own
+     drawn pages are left out of the observer above, so the strip also re-checks when those classes change */
+  new MutationObserver(() => { needHit = true; schedule(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   schedule();
 })();
 

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-1202 */
+/* hg-version 2026-10-21-1300 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1480,6 +1480,26 @@
       const n = String(sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").length);
       if (n !== "0" && h.getAttribute("data-hgn-count") !== n) h.setAttribute("data-hgn-count", n);
     });
+
+    page.querySelectorAll(".cat-section .product-price, .scheme-product-recommendation-section .product-price").forEach(splitPrice);
+  }
+  /* (2026-10-21) Talabat prices on the store page: "BHD" regular, the amount bold. Hyperzod writes the price as one text
+     node; that node is kept (emptied) and the label and amount are added after it, so when Hyperzod writes a new price
+     into its node again, the next run sees digits there and splits it afresh. The label has its own span so the currency
+     pass in global-footer-1.js sees "BHD" next to a number and leaves it alone. */
+  const PRICE_EN = /^\s*(?:BHD|BD)[\s\u00a0]*([\d.,]+)\s*$/, PRICE_AR = /^\s*([\d.,\u0660-\u0669]+)[\s\u00a0\u200f]*\u062F\.\s?\u0628\.?[\u200e\u200f]*\s*$/;
+  function splitPrice(el) {
+    const raw = Array.prototype.find.call(el.childNodes, (n) => n.nodeType === 3 && /\d/.test(n.nodeValue));
+    if (!raw) return;
+    el.querySelectorAll(":scope > .hgn-cur, :scope > b.hgn-amt").forEach((x) => x.remove());
+    if (el.children.length) return; /* an old (struck) price or other parts: leave Hyperzod's text as it is */
+    const ar = hgIsAr(), m = (ar ? PRICE_AR : PRICE_EN).exec(raw.nodeValue);
+    if (!m) return;
+    const cur = document.createElement("span"), amt = document.createElement("b");
+    cur.className = "hgn-cur"; amt.className = "hgn-amt";
+    cur.textContent = ar ? CUR_AR : CUR_EN; amt.textContent = m[1];
+    raw.nodeValue = "";
+    if (ar) el.append(amt, cur); else el.append(cur, amt);
   }
 
   /* ---------- running it ---------- */

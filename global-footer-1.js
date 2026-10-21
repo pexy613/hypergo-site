@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-1202 */
+/* hg-version 2026-10-21-1300 */
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
@@ -1456,10 +1456,11 @@
       "#app .scheme-profile-page .scheme-mobile-page-header{background:#8640FC !important;box-shadow:none !important;}" +
       "#app .scheme-profile-page:not(.hg-acct-root) .scheme-mobile-page-header{border-radius:0 0 22px 22px;box-shadow:0 6px 18px rgba(90,41,222,.18) !important;}" +
       "#app .scheme-profile-page .scheme-mobile-page-header__surface{background:transparent !important;box-shadow:none !important;}" +
-      "#app .scheme-profile-page .scheme-mobile-page-header__title{color:#fff !important;mix-blend-mode:normal !important;transform:none !important;font-size:17px !important;font-weight:700 !important;padding-inline:56px !important;}" +
+      "#app .scheme-profile-page .scheme-mobile-page-header__title{color:#fff !important;mix-blend-mode:normal !important;transform:none !important;font-size:16px !important;font-weight:600 !important;padding-inline:56px !important;}" +
       "#app .scheme-profile-page .scheme-mobile-page-header .back-btn svg path{fill:#fff !important;stroke:#fff !important;}" +
       "html[lang^='ar'] #app .scheme-profile-page .scheme-mobile-page-header .back-btn svg{transform:scaleX(-1);}" +
       /* hero: left-aligned greeting (no avatar), smaller type */
+      /* (2026-10-21) account sub-page titles (Orders, addresses, language...) 16 semibold like Talabat's headers (were 17 bold) */
       /* (Talabat account, 2026-10-21) name 18 bold, rows 52 tall, 20pt icons, labels 14 semibold, values 14 grey */
       "#hg-acct-hero{position:relative;overflow:hidden;background:#8640FC;border-radius:0 0 26px 26px;padding:12px 20px 22px;margin-top:-1px;color:#fff;font-family:inherit;}" +
       "#hg-acct-hero .hg-wm{position:absolute;inset-inline-end:-22px;bottom:-40px;width:150px;height:150px;background-position:center;background-repeat:no-repeat;background-size:contain;opacity:.3;pointer-events:none;}" +
@@ -1681,14 +1682,16 @@
     });
   }
 
-  /* LANGUAGE PAGE (mobile/app): card-style options, proper title, native language names */
+  /* LANGUAGE PAGE (mobile/app): card-style options, proper title, native language names.
+     Talabat sizes (2026-10-21): 16 at the sides (was 4), 16 under the bar (28 here: the page sits 12 up under it), 52 tall rows with their 2pt border (were 68),
+     labels 14 semibold (were 15) */
   function ensureLanguageStyle() {
     if (document.getElementById("hg-lang-style")) return;
     const st = document.createElement("style");
     st.id = "hg-lang-style";
     st.textContent =
       "@media (max-width:959.98px){" +
-      "#app .scheme-profile-page #Languages{margin:0 !important;padding:22px 4px 0 !important;}" +
+      "#app .scheme-profile-page #Languages{margin:0 !important;padding:28px 16px 0 !important;}" +
       "#app #Languages .v-card{background:transparent !important;box-shadow:none !important;}" +
       "#app #Languages .v-card-text{padding:0 !important;}" +
       "#app #Languages ul.languages{margin:0 !important;padding:0 !important;}" +
@@ -1696,8 +1699,8 @@
       "#app #Languages .v-card-actions{display:none !important;}" +
       "#app #Languages li.language{background:#FFFCF9;border:2px solid #EFEAFB;border-radius:16px;margin:0 0 12px !important;padding:0 !important;box-shadow:0 2px 10px rgba(60,30,140,.06);}" +
       "#app #Languages li.language:has(input:checked){border-color:#5A29DE;background:#F8F5FF;}" +
-      "#app #Languages li.language label{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:64px;padding:0 18px;cursor:pointer;}" +
-      "#app #Languages li.language .name{font-size:15px !important;font-weight:600;color:#262A33;}" +
+      "#app #Languages li.language label{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:0 16px;cursor:pointer;}" +
+      "#app #Languages li.language .name{font-size:14px !important;font-weight:600;color:#262626;}" +
       "#app #Languages input.radio{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;border:2px solid #C9C2DD;background:#FFFCF9;margin:0;flex:none;position:relative;}" +
       "#app #Languages input.radio:checked{border-color:#5A29DE;background:#5A29DE;}" +
       "#app #Languages input.radio:checked::after{content:'';position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#FFFCF9;}" +

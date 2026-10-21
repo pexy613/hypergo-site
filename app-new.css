@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-1202 */
+/* hg-version 2026-10-21-1300 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -188,14 +188,15 @@ html.hg-new-app #hgn-page img,html.hg-new-app #hgn-sfav img{display:block;}
 html.hg-new-app.hgn-page-open body{overflow:hidden!important;}
 html.hg-new-app #hgn-page{position:fixed;inset:0;z-index:10050;background:#FFFCF9;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));}
-html.hg-new-app .hgn-page-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:#FFFCF9;
-  padding:calc(var(--native-status-bar-height,0px) + 10px) 16px 12px;box-shadow:0 1px 0 #EEECEF;}
-html.hg-new-app .hgn-page-back{flex:none;border:0;margin:0;padding:0;color:#1B2023;
+/* page bar (Talabat header, 2026-10-21; the two copies of these rules merged): 56 tall, 40 round back button with a 1pt
+   line and a 16 arrow, title 16 semibold */
+html.hg-new-app .hgn-page-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;background:#FFFCF9;
+  padding:calc(var(--native-status-bar-height,0px) + 8px) 16px 8px;box-shadow:0 1px 0 var(--hg-line);}
+html.hg-new-app .hgn-page-back{flex:none;width:40px;height:40px;border:0;border-radius:20px;margin:0;padding:0;background:#FFFCF9;box-shadow:inset 0 0 0 1px var(--hg-line);color:var(--hg-ink);
   display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-html.hg-new-app .hgn-page-back svg{width:20px;height:20px;}
+html.hg-new-app .hgn-page-back svg{width:16px;height:16px;}
 html.hg-new-app #hgn-page[dir="rtl"] .hgn-page-back svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-page-title{margin:0;line-height:1.2;font-weight:650;letter-spacing:-.03em;color:#1B2023;}
-html.hg-new-app #hgn-page[dir="rtl"] .hgn-page-title{letter-spacing:0;}
+html.hg-new-app .hgn-page-title{margin:0;font-size:calc(var(--hg-fs) * 16);line-height:20px;font-weight:600;letter-spacing:var(--hg-ls);color:var(--hg-ink);}
 html.hg-new-app .hgn-page-empty{margin:40px 24px 0;font-size:14px;line-height:1.5;color:#6B7280;text-align:center;}
 /* Favourites row on the Search page */
 html.hg-new-app #hgn-sfav{margin:0;} /* 0, not -16px: the Search page is already pulled 16px left (see #hgn-sres) */
@@ -235,9 +236,6 @@ html.hg-new-app #hgn-sres *{box-sizing:border-box;}
 html.hg-new-app #hgn-sres a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-sres img{display:block;}
 html.hg-new-app.hgn-sres-on #MultiVendorSearch .scheme-global-search-results{display:none!important;}
-/* page bar: round back button with a thin outline */
-html.hg-new-app .hgn-page-back{width:42px;height:42px;border-radius:21px;background:#FFFCF9;box-shadow:inset 0 0 0 1px #E6E3EF;}
-html.hg-new-app .hgn-page-title{font-size:18px;}
 /* category tabs (Talabat sizes, 2026-10-20): each tab at least 80 wide with 17 each side of the text, a 2pt underline as
    wide as the text + 31, a 2pt line under the row, 48 tall in all. The label is in a <span> (app-new.js) for the underline. */
 html.hg-new-app .hgn-tabs{display:flex;align-items:stretch;height:calc(var(--hg-tab-h) + var(--hg-tab-divider));box-sizing:border-box;margin:0;padding:0;border-bottom:var(--hg-tab-divider) solid var(--hg-line);background:var(--hg-bg);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;font-family:var(--hg-font);}
@@ -494,8 +492,10 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 }
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price,
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .price *{
-  font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:600!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
+  font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
 }
+/* the amount (b.hgn-amt, app-new.js splitPrice) bold, the "BHD" label regular (Talabat, 2026-10-21) */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view :is(.cat-section .product-price,.scheme-product-recommendation-section .price) b.hgn-amt{font-weight:700!important;}
 
 /* product rows: no card box, hairline between rows, photo on the end side */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section{padding-top:36px!important;}
@@ -525,7 +525,7 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   margin-top:2px!important;font-size:calc(var(--hg-fs) * 14)!important;line-height:16px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-muted)!important;
 }
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-price{
-  font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:600!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
+  font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
 }
 
 /* View cart bar: floating purple pill above the home bar */
