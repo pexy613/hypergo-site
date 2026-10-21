@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-0057 */
+/* hg-version 2026-10-21-1202 */
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
@@ -1460,12 +1460,13 @@
       "#app .scheme-profile-page .scheme-mobile-page-header .back-btn svg path{fill:#fff !important;stroke:#fff !important;}" +
       "html[lang^='ar'] #app .scheme-profile-page .scheme-mobile-page-header .back-btn svg{transform:scaleX(-1);}" +
       /* hero: left-aligned greeting (no avatar), smaller type */
+      /* (Talabat account, 2026-10-21) name 18 bold, rows 52 tall, 20pt icons, labels 14 semibold, values 14 grey */
       "#hg-acct-hero{position:relative;overflow:hidden;background:#8640FC;border-radius:0 0 26px 26px;padding:12px 20px 22px;margin-top:-1px;color:#fff;font-family:inherit;}" +
       "#hg-acct-hero .hg-wm{position:absolute;inset-inline-end:-22px;bottom:-40px;width:150px;height:150px;background-position:center;background-repeat:no-repeat;background-size:contain;opacity:.3;pointer-events:none;}" +
       "#hg-acct-hero .hg-row{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}" +
       "#hg-acct-hero .hg-txt{min-width:0;flex:1;}" +
       "#hg-acct-hero .hg-hi{font-size:12px;line-height:1.3;opacity:.86;}" +
-      "#hg-acct-hero .hg-name{font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}" +
+      "#hg-acct-hero .hg-name{font-size:18px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}" +
       "#hg-acct-hero .hg-sub{font-size:12px;line-height:1.4;opacity:.88;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}" +
       "#hg-acct-hero.hg-guest .hg-name{font-size:19px;white-space:normal;}" +
       "#hg-acct-hero.hg-guest .hg-sub{white-space:normal;max-width:290px;margin-top:5px;}" +
@@ -1481,7 +1482,7 @@
       "#app .hg-acct-root .hg-l-act{order:9;}#app .hg-acct-root .hg-g-act{order:10;}#app .hg-acct-root .hg-l-pref{order:19;}#app .hg-acct-root .hg-g-pref{order:20;}#app .hg-acct-root .hg-l-out{order:29;}#app .hg-acct-root .hg-g-out{order:30;}" +
       "#app .hg-acct-root .hg-acct-label{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A849C;font-weight:600;line-height:1.2;margin:18px 0 2px;}" +
       "#app .hg-acct-root .hg-acct-sep{height:14px;}" +
-      "#app .hg-acct-root .scheme-profile-nav-item{background:transparent !important;border:0 !important;border-bottom:1px solid #F0EBFA !important;border-radius:0 !important;margin:0 !important;padding:0 !important;min-height:50px;box-shadow:none !important;overflow:visible;}" +
+      "#app .hg-acct-root .scheme-profile-nav-item{background:transparent !important;border:0 !important;border-bottom:1px solid #F0EBFA !important;border-radius:0 !important;margin:0 !important;padding:0 !important;min-height:52px;box-shadow:none !important;overflow:visible;}" +
       "#app .hg-acct-root .scheme-profile-nav-item.hg-last{border-bottom:0 !important;}" +
       "#app .scheme-profile-page .user-details{display:none !important;}" +
       /* logged in: native header becomes a white identity block (fixed) - replaced by our hero */
@@ -1494,15 +1495,15 @@
       "#app .hg-acct-root .scheme-profile-nav-item:active{background:#FAF8FF !important;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .v-list-item__prepend>div:not(.v-list-item__spacer){width:24px;height:24px;border-radius:0;background:transparent;display:flex;align-items:center;justify-content:center;margin-inline-end:14px !important;flex:none;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .v-list-item__spacer{display:none !important;width:0 !important;}" +
-      "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon{width:18px !important;height:18px !important;margin:0 !important;display:block;}" +
-      "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon svg{width:18px;height:18px;display:block;}" +
+      "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon{width:20px !important;height:20px !important;margin:0 !important;display:block;}" +
+      "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon svg{width:20px;height:20px;display:block;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon svg [stroke]:not([stroke='none']){stroke:#5A29DE !important;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .scheme-profile-icon svg [fill]:not([fill='none']){fill:#5A29DE !important;}" +
-      "#app .hg-acct-root .scheme-profile-nav-item .v-list-item-title{font-size:14px !important;font-weight:500 !important;line-height:1.3 !important;color:#262A33 !important;text-transform:none !important;}" +
+      "#app .hg-acct-root .scheme-profile-nav-item .v-list-item-title{font-size:14px !important;font-weight:600 !important;line-height:20px !important;color:#262626 !important;text-transform:none !important;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .v-list-item__append{display:flex;align-items:center;gap:8px;}" +
       "#app .hg-acct-root .scheme-profile-nav-item .v-list-item__append .v-icon{color:#CFC9DF !important;font-size:16px !important;width:16px !important;height:16px !important;}" +
       "html[lang^='ar'] #app .hg-acct-root .scheme-profile-nav-item .v-list-item__append .v-icon{transform:scaleX(-1);}" +
-      "#app .hg-acct-root .hg-acct-val{font-size:12px;font-weight:500;color:#8A849C;}" +
+      "#app .hg-acct-root .hg-acct-val{font-size:14px;font-weight:400;color:#767676;}" +
       "#app .hg-acct-root .scheme-profile-nav-item.hg-danger .v-list-item-title{color:#E5384F !important;}" +
       "#app .hg-acct-root .scheme-profile-nav-item.hg-danger .scheme-profile-icon svg [stroke]:not([stroke='none']){stroke:#E5384F !important;}" +
       "#app .hg-acct-root .scheme-profile-nav-item.hg-danger .scheme-profile-icon svg [fill]:not([fill='none']){fill:#E5384F !important;}" +
@@ -2055,6 +2056,7 @@
       "#merchants_by_category .merchant-card .merchant-card-info+div{font-size:12.5px !important;line-height:1.35 !important;color:#8A849C !important;}" +
       "}" +
       "}" +
+      /* (2026-10-21) Talabat item sheet sizes: 128x52 stepper (16 semibold number), 52 tall Add button with 16 semibold text, 16 close icon; store page round buttons get a 1pt line instead of a shadow */
       /* PRODUCT PAGE (bottom sheet .product-popup, mobile/app) - Talabat-style: no header bar, white top, image first,
          floating 40px white round back button, plain 20px title + 14px grey description, no top price (the Add button
          shows the live total incl. options/add-ons), 50px outlined stepper + 50px purple "Add item" pill. */
@@ -2065,7 +2067,7 @@
       "html body .v-card.product-popup>.v-card-title>.v-btn{pointer-events:auto;position:absolute !important;top:calc(var(--native-status-bar-height,0px) + 12px) !important;left:16px !important;right:auto !important;transform:none !important;margin:0 !important;width:40px !important;height:40px !important;min-width:40px !important;min-height:40px !important;border-radius:50% !important;background:#FFFCF9 !important;border:1px solid #E5E5E5 !important;box-shadow:none !important;}" +
       "html[lang^='ar'] body .v-card.product-popup>.v-card-title>.v-btn{left:auto !important;right:16px !important;}" +
       "html body .v-card.product-popup>.v-card-title>.v-btn .v-btn__overlay,html body .v-card.product-popup>.v-card-title>.v-btn .v-btn__underlay{opacity:0 !important;}" +
-      "html body .v-card.product-popup>.v-card-title>.v-btn .v-icon{color:#1B2023 !important;font-size:18px !important;}" +
+      "html body .v-card.product-popup>.v-card-title>.v-btn .v-icon{color:#1B2023 !important;font-size:16px !important;}" +
       "html body .v-card.product-popup>.v-card-text{padding-top:0 !important;background:#FFFCF9 !important;}" +
       /* app: Hyperzod pads fullscreen dialogs for the status bar, which left a white strip above the photo. Photo goes to the very top,
          under the status bar, with the back button floating on it */
@@ -2080,15 +2082,15 @@
       "html body .v-card.product-popup #ProductDescription .mmupi-feat{display:block !important;margin:0 !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app{padding:12px 16px 24px 20px !important;gap:20px !important;border-top:1px solid #F2F2F2;background:#FFFCF9 !important;}" +
       "html[lang^='ar'] body .v-card.product-popup #add_to_cart_hide_from_mobile_app{padding:12px 20px 24px 16px !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child{width:127px !important;height:50px !important;border-radius:999px !important;border:1px solid #E5E5E5 !important;background:#FFFCF9 !important;overflow:hidden;justify-content:space-between !important;padding:0 6px !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn{height:48px !important;border-radius:0 !important;background:transparent !important;}" +
+      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child{width:128px !important;height:52px !important;border-radius:999px !important;border:1px solid #E5E5E5 !important;background:#FFFCF9 !important;overflow:hidden;justify-content:space-between !important;padding:0 6px !important;}" +
+      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn{height:50px !important;border-radius:0 !important;background:transparent !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn .v-btn__overlay{opacity:0 !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn:first-child *{color:#9E9E9E !important;fill:#9E9E9E !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn:last-child *{color:#5A29DE !important;fill:#5A29DE !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child input{font-size:17px !important;font-weight:600 !important;color:#1B2023 !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn{height:50px !important;border-radius:999px !important;background:#5A29DE !important;box-shadow:none !important;padding:0 22px !important;letter-spacing:0 !important;text-transform:none !important;-webkit-font-smoothing:antialiased;}" +
+      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child input{font-size:16px !important;font-weight:600 !important;color:#1B2023 !important;}" +
+      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn{height:52px !important;border-radius:999px !important;background:#5A29DE !important;box-shadow:none !important;padding:0 22px !important;letter-spacing:0 !important;text-transform:none !important;-webkit-font-smoothing:antialiased;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content{width:100%;justify-content:space-between !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content,html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content *{color:#fff !important;font-size:15px !important;font-weight:600 !important;}" +
+      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content,html body .v-card.product-popup #add_to_cart_hide_from_mobile_app .tw-flex-1 .v-btn .v-btn__content *{color:#fff !important;font-size:16px !important;font-weight:600 !important;}" +
       "}" +
       /* discount badge (2026-10-20: one rule for all widths; was the same rule twice, phone and desktop): darker tone of our "Ultimate orange" #FF4000 (#D93600 keeps white text at 4.7:1), small rounded rectangle */
       "html body .product-discount-badge{background:#D93600 !important;color:#fff !important;font-size:12px !important;font-weight:700 !important;line-height:1.2 !important;border-radius:6px !important;padding:4px 7px !important;letter-spacing:.02em;opacity:1 !important;z-index:3;}" +
@@ -2109,7 +2111,7 @@
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .header-content .v-card-text>div>div>div:last-child{font-size:14px !important;font-weight:400 !important;color:#767676 !important;margin-top:4px;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4 span{font-weight:500 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div>div::before{content:none !important;display:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{background:#FFFCF9 !important;color:#1B2023 !important;box-shadow:0 2px 8px rgba(0,0,0,.14) !important;backdrop-filter:none !important;}" +
+      ".scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{background:#FFFCF9 !important;color:#1B2023 !important;box-shadow:0 0 0 1px #E5E5E5 !important;backdrop-filter:none !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading,.scheme-merchant-page.merchant-mobile-view h3.category-name{font-size:22px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:18px !important;padding-bottom:0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{border-bottom:1px solid #E5E5E5 !important;}" +
       /* v77: the circle was stretching into an oval on some stores - width/min-width were pinned to 30px but

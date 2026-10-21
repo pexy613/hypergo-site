@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-1927 */
+/* hg-version 2026-10-21-1212 */
 /* 2026-10-19: every store rule starts with :is(#app,.v-overlay-container) instead of #app (same strength). In the phone app a store tapped on a category page, banner, Featured stores, the cart or a notification opens as a sheet outside #app, under body > .v-overlay-container; rules scoped to #app missed it, so those stores lost the product-row and Recommended-row layout. The website never opens stores as a sheet, so it is unchanged. */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
@@ -1190,14 +1190,25 @@ html body #app #checkout #OrderPlaceButton{
   background:#5A29DE!important;color:#fff!important;font-size:14px!important;font-weight:700!important;
   letter-spacing:0!important;text-transform:none!important;box-shadow:0 7px 18px rgba(90,41,222,.18)!important;
 }
-html body #app #checkout .mobile-place-order-btn{
-  min-height:54px!important;border-radius:13px!important;background:#5A29DE!important;
-  color:#fff!important;font-weight:700!important;box-shadow:0 7px 18px rgba(90,41,222,.18)!important;
+/* (2026-10-21) the label too: Hyperzod's colour scheme colours ".bg-button_normal .v-btn__content" dark purple (!important) for its
+   white buttons, so on our purple ones "Start Shopping" (Orders) read dark purple on purple */
+html body #app #custom-scroll-orders .rate-order-btn :is(.v-btn__content,.v-btn__content *),
+html body #app #addresses .add-address-btn :is(.v-btn__content,.v-btn__content *),
+html body #app #checkout .add-address-btn :is(.v-btn__content,.v-btn__content *),
+html body #app #Languages .submit-btn :is(.v-btn__content,.v-btn__content *),
+html body #app #checkout #OrderPlaceButton :is(.v-btn__content,.v-btn__content *){color:#fff!important;}
+/* (2026-10-21) the phone's Place order bar (.place-order) sits outside #checkout, so with "#checkout" in front these never
+   reached it and the button stayed Hyperzod's white one (its colour scheme paints .bg-button_normal white with a dark
+   label); Talabat size: 52 tall, 12 corners, 16 semibold white text */
+html body #app :is(#checkout,.place-order) .mobile-place-order-btn{
+  min-height:52px!important;height:52px!important;border-radius:12px!important;background:#5A29DE!important;
+  color:#fff!important;font-weight:600!important;box-shadow:0 7px 18px rgba(90,41,222,.18)!important;
 }
-html body #app #checkout .mobile-place-order-btn:disabled{
+html body #app :is(#checkout,.place-order) .mobile-place-order-btn :is(.v-btn__content,.v-btn__content *){color:#fff!important;font-size:16px!important;font-weight:600!important;text-transform:none!important;}
+html body #app :is(#checkout,.place-order) .mobile-place-order-btn:disabled{
   opacity:1!important;background:#E6E1EC!important;color:#676171!important;box-shadow:none!important;
 }
-html body #app #checkout .mobile-place-order-btn:disabled :is(.v-btn__content,.tw-text-white){color:#676171!important;}
+html body #app :is(#checkout,.place-order) .mobile-place-order-btn:disabled :is(.v-btn__content,.v-btn__content *){color:#676171!important;}
 html body #app :is(#custom-scroll-orders,#addresses,#Languages,#checkout) :is(.rate-order-btn,.add-address-btn,.submit-btn,#OrderPlaceButton):disabled{
   background:#D6D0E3!important;color:#676171!important;box-shadow:none!important;
 }
@@ -1218,12 +1229,23 @@ html body .scheme-cart-panel .cart-qty-button .counter-input{color:#341A76!impor
 html body .scheme-cart-panel .v-navigation-drawer__append>.scheme-side-panel__surface{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(27,32,35,.07);}
 html body .scheme-cart-panel .scheme-cart-checkout-action{min-height:54px!important;padding:8px 14px!important;border-radius:14px!important;background:#5A29DE!important;color:#fff!important;box-shadow:0 8px 18px rgba(90,41,222,.2)!important;}
 html body .scheme-cart-panel .scheme-cart-checkout-action :is(.scheme-cart-checkout-summary,.scheme-cart-checkout-label,.v-btn__content){color:#fff!important;}
-html body #app #checkout :is(#AddressCard,#payment-card,#OrderScheduling){border:1px solid #EAE4F5!important;border-radius:16px!important;box-shadow:none!important;}
-html body #app #checkout :is(#AddressCard,#payment-card,#OrderScheduling) :is(h2,h3){font-size:13px!important;line-height:20px!important;font-weight:700!important;letter-spacing:.02em!important;}
-html body #app #checkout #cartItems .cart-item .product-name{font-size:14px!important;line-height:19px!important;font-weight:600!important;}
-html body #app #checkout #cartItems .cart-item .product-price{font-size:13px!important;line-height:18px!important;}
-html body #app #checkout #summary{border:1px solid #EAE4F5!important;border-radius:14px!important;}
+/* (Talabat cart and checkout, 2026-10-21) cards: 1pt #E5E5E5, 12 corners; card titles 16 semibold (no capitals);
+   item name and price 16 semibold; delivery choices 14 medium */
+html body #app #checkout :is(#AddressCard,#payment-card,#OrderScheduling){border:1px solid #E5E5E5!important;border-radius:12px!important;box-shadow:none!important;}
+html body #app #checkout :is(#AddressCard,#payment-card,#OrderScheduling) :is(h2,h3),
+html body #app #checkout :is(#CartCard,#mbOrderTypeSelect) h2,
+html body #app #checkout #summary .tw-uppercase{font-size:16px!important;line-height:20px!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important;color:#262626!important;}
+html body #app #checkout #deliveryTime h5,html body #app #checkout #mbOrderTypeSelect h5{font-size:14px!important;font-weight:500!important;}
+html body #app #checkout #cartItems .cart-item .product-name{font-size:16px!important;line-height:20px!important;font-weight:600!important;}
+html body #app #checkout #cartItems .cart-item .product-price{font-size:16px!important;line-height:20px!important;font-weight:600!important;}
+html body #app #checkout #summary{border:1px solid #E5E5E5!important;border-radius:12px!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer{background:#FFFCF9!important;border-top:1px solid #EAE4F5!important;box-shadow:0 -8px 24px rgba(27,32,35,.08)!important;}
+/* Location picker (Talabat sizes, 2026-10-21): header title 16 semibold; section title 18 bold; names 14 semibold; address
+   and helper lines 14 grey on 20 lines */
+html body #mobileLocationSearch .tw-text-\[16px\]{font-size:16px!important;font-weight:600!important;color:#262626!important;}
+html body #mobileLocationSearch h3{font-size:18px!important;line-height:24px!important;font-weight:700!important;color:#262626!important;}
+html body #mobileLocationSearch :is(.tw-text-xs,.tw-text-\[12px\]){font-size:14px!important;line-height:20px!important;font-weight:400!important;color:#767676!important;}
+html body #mobileLocationSearch .tw-font-medium.tw-text-\[14px\],html body #mobileLocationSearch .tw-font-medium.tw-leading-\[14px\]{font-weight:600!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer>.v-container{max-width:1200px!important;padding:10px 20px!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer>.v-container>.tw-flex{color:#5F5B68!important;gap:14px;font-size:14px!important;}
 html body #app #ProceedToCheckoutBottomFixedContainer .cart-panel-btn{width:44px!important;height:44px!important;min-width:44px!important;margin-inline-end:8px;background:#F2ECFF!important;color:#5A29DE!important;border-radius:12px!important;}
@@ -1630,17 +1652,17 @@ html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,
 }
 html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block){
   display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  flex:0 0 33px!important;width:33px!important;min-width:33px!important;max-width:33px!important;
-  height:33px!important;min-height:33px!important;max-height:33px!important;
-  padding:0!important;margin:0!important;border:1px solid #EEE9F6!important;border-radius:50%!important;
-  background:#FFFCF9!important;box-shadow:0 2px 6px rgba(34,18,78,.08)!important;
+  flex:0 0 40px!important;width:40px!important;min-width:40px!important;max-width:40px!important; /* Talabat: 40 round, soft shadow (2026-10-21; was 33) */
+  height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:0!important;margin:0!important;border:1px solid #E5E5E5!important;border-radius:50%!important;
+  background:#FFFCF9!important;box-shadow:0 2px 8px rgba(0,0,0,.12)!important;
   font-size:0!important;line-height:0!important;
 }
 html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) .v-btn__content{
   font-size:0!important;line-height:0!important;
 }
 html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) svg{
-  width:15px!important;height:15px!important;margin:0!important;
+  width:16px!important;height:16px!important;margin:0!important;
 }
 html body :is(#app,.v-overlay-container) .scheme-merchant-page :is(.cat-section,.scheme-product-recommendation-section) .add-btn:not(.v-btn--block) svg *{
   stroke:#5A29DE!important;

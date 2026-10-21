@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-0057 */
+/* hg-version 2026-10-21-1202 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1333,9 +1333,19 @@
   }
   /* prices (2026-10-20, money3 merged in): written exactly the way global-footer-1.js's currency pass writes them (no-break
      space; Arabic "د.ب." + RLM), so that pass no longer rewrites our text a moment later. three: always 3 decimals (BHD 4.200) */
+  const CUR_EN = "BHD\u00a0", CUR_AR = "\u00a0\u062F.\u0628.\u200f";
+  function moneyVal(n, three) {
+    return three ? Number(n).toFixed(3) : Number(n).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 3 });
+  }
   function money(n, three) {
-    const v = three ? Number(n).toFixed(3) : Number(n).toLocaleString("en-US", { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 3 });
-    return hgIsAr() ? v + "\u00a0\u062F.\u0628.\u200f" : "BHD\u00a0" + v;
+    const v = moneyVal(n, three);
+    return hgIsAr() ? v + CUR_AR : CUR_EN + v;
+  }
+  /* (2026-10-21) Talabat prices: the label regular, the amount in <b> (semibold). The label sits in its own span so the
+     currency pass in global-footer-1.js sees "BHD" next to a number and leaves it as it is. */
+  function moneyHtml(n, three) {
+    const v = moneyVal(n, three);
+    return hgIsAr() ? "<b>" + v + "</b><span class=\"hgn-cur\">" + CUR_AR + "</span>" : "<span class=\"hgn-cur\">" + CUR_EN + "</span><b>" + v + "</b>";
   }
   function cssEsc(s) { return window.CSS && CSS.escape ? CSS.escape(s) : s; }
   /* all products Hyperzod has loaded for this store, by id */
@@ -1505,9 +1515,9 @@
     const im = p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]);
     return (im && (im.thumb_url || im.file_url)) || "";
   }
-  function prodPrice(p) {
+  function prodPrice(p) { /* (2026-10-21) html: "BHD" + <b>amount</b> */
     const v = p && (p.product_pricing ? p.product_pricing.price_display : p.price_display);
-    return typeof v === "number" ? money(v, true) : "";
+    return typeof v === "number" ? moneyHtml(v, true) : "";
   }
   /* products of a store from its Hyperzod menu (page 1), with photo, featured first; loaded once per store */
   const menuCache = {};
@@ -1540,7 +1550,7 @@
     return list.map((p) => '<a class="hgn-sb-p" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
       '<span class="hgn-sb-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"></span>' +
       '<span class="hgn-sb-pn">' + esc(nameOf(p)) + "</span>" +
-      '<span class="hgn-sb-pp">' + esc(prodPrice(p)) + "</span></a>").join("");
+      '<span class="hgn-sb-pp">' + prodPrice(p) + "</span></a>").join("");
   }
   /* a store's product row arrived: put it into every list showing that store */
   function fillProducts(id) {
