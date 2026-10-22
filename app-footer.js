@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1655 */
+/* hg-version 2026-10-22-1727 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -147,17 +147,39 @@
      store's (/en/m/<store>/<id>, same pattern hgMerchantHref builds in global-footer-1.js). */
   /* (2026-10-20): the point test (elementFromPoint) and the strip height are measured only after page changes, not on
      every scroll frame. Scrolling does not change which screen sits under the strip; page changes do. */
-  let needHit = true, hitStore = false, stripH = 47;
-  function storeOnScreen(strip) {
-    if (/^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(location.pathname)) return true;
-    if (!needHit) return hitStore;
+  let needHit = true, hitStore = false, hitCat = false, stripH = 47, leaveT0 = 0;
+  /* what sits just under the strip: a store page, or our category page (#hgn-catpage) */
+  function readHit() {
+    if (!needHit) return;
     needHit = false;
     try {
       const y = Math.round(stripH + 4);
       const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
       hitStore = !!(el && el.closest && el.closest(".scheme-merchant-page"));
-    } catch (e) { hitStore = false; }
+      hitCat = !!(el && el.closest && el.closest("#hgn-catpage"));
+    } catch (e) { hitStore = false; hitCat = false; }
+  }
+  function storeOnScreen(strip) {
+    if (/^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(location.pathname)) return true;
+    readHit();
     return hitStore;
+  }
+  /* (2026-10-22) WHITE STRIP AFTER BACK TO HOME, cause found with the hgstrip panel (Nouf's recording): going back from a
+     category page, html.hgn-cat-on stays on for about half a second (app-new.js keeps our category page while Hyperzod
+     still shows the old page), but Home's purple header is already under the strip from about 0.2s. The strip followed
+     the class, so it stayed off-white over Home's purple header (panel: /en/home, under .v-toolbar__content, html
+     hgn-cat-on, strip rgb(255,252,249), until +558ms). Now, once the address is no longer a category page, the class
+     only counts while our category page really is under the strip; this is checked every frame until the class goes
+     (at most 2 seconds). */
+  function catOnScreen(html) {
+    if (!html.classList.contains("hgn-cat-on")) { leaveT0 = 0; return false; }
+    if (/^\/(en|ar)\/m-category\//.test(location.pathname)) { leaveT0 = 0; return true; }
+    const now = Date.now();
+    if (!leaveT0) leaveT0 = now;
+    needHit = true;
+    readHit();
+    if (now - leaveT0 < 2000) schedule();
+    return hitCat;
   }
 
   function updateStrip() {
@@ -195,7 +217,7 @@
     /* (2026-10-21) our category page (html.hgn-cat-on) has an off-white header, so the strip is off-white too (was purple:
        Home's header, still loaded under it, made the strip purple). Same for our Stores near you / Favourites pages
        (html.hgn-page-open): their bar is off-white too, and they open over Home. */
-    if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page") || html.classList.contains("hgn-cat-on") || html.classList.contains("hgn-page-open")) {
+    if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page") || catOnScreen(html) || html.classList.contains("hgn-page-open")) {
       setIf(strip.style, "transition", "none");
       setIf(strip.style, "background-color", "rgb(255,252,249)");
       return;
