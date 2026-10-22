@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1625 */
+/* hg-version 2026-10-22-1705 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2258,9 +2258,45 @@
     return false;
   }
 
+  /* KEYBOARD WITH THE SEARCH PAGE (2026-10-22): tapping Home's search bar opens the Search page with the keyboard up.
+     The phone only opens the keyboard for a field that is focused during the tap itself, and the Search page's field
+     does not exist yet at that moment. So, during the tap, an invisible field (outside <body>, so no page watcher
+     reacts to it) takes the focus and opens the keyboard; as soon as the Search page's field is on screen the focus
+     moves to it and the invisible field is removed. Hyperzod's own tap still opens the Search page as before. If the
+     page has not appeared after 4 seconds, or something else takes the focus, the invisible field is simply removed. */
+  function keyboardHandoff() {
+    document.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest || !t.closest(".home-mobile-search-input")) return;
+      const old = document.getElementById("hg-kb-proxy");
+      if (old) old.remove();
+      const p = document.createElement("input");
+      p.id = "hg-kb-proxy";
+      p.type = "text";
+      p.tabIndex = -1;
+      p.setAttribute("aria-hidden", "true");
+      p.style.cssText = "position:fixed;left:16px;top:0;width:1px;height:36px;opacity:0;font-size:16px;border:0;padding:0;margin:0;" +
+        "pointer-events:none;caret-color:transparent;z-index:-1;";
+      document.documentElement.appendChild(p);
+      try { p.focus({ preventScroll: true }); } catch (e) { p.focus(); }
+      const t0 = Date.now();
+      (function hand() {
+        const f = document.getElementById("mobileSearchInput");
+        if (f && f.getClientRects().length && /^\/(en|ar)\/search\/?$/.test(currentPath())) {
+          try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); }
+          p.remove();
+          return;
+        }
+        if (Date.now() - t0 > 4000 || document.activeElement !== p) { p.remove(); return; }
+        setTimeout(hand, 30);
+      })();
+    }, true);
+  }
+
   let syncFrame = false;
   function start() {
     tick();
+    keyboardHandoff();
     new MutationObserver((recs) => {
       if (!relevant(recs)) return;
       /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */
