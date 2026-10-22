@@ -1,0 +1,520 @@
+/* hg-version 2026-10-22-1448 */
+/* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
+(function () {
+  try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
+/* TEAM PASSWORD SCREEN (2026-10-22): the app isn't open to the public yet, so on opening it asks for one team password.
+   After the right password that phone stays unlocked (localStorage "hg-team-ok"). Changing PASS_HASH below locks every
+   phone again. Once unlocked this block adds nothing to the page. Only a hash of the password is in this file
+   (fnv() below), and it is checked without capitals or spaces at the ends. App only: this file loads only in the app. */
+(function () {
+  var PASS_HASH = "3d948b6f";
+  var KEY = "hg-team-ok";
+  function fnv(s) {
+    var x = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; }
+    return x.toString(16);
+  }
+  function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  if (window.__hgTeamLock || read() === PASS_HASH) return;
+  window.__hgTeamLock = 1;
+  var html = document.documentElement;
+  var ar = /^\/ar(\/|$)/.test(location.pathname) || html.getAttribute("lang") === "ar" || html.getAttribute("dir") === "rtl";
+  var T = ar ? {
+    title: "هايبرجو قيد التجهيز",
+    text: "نعمل على التطبيق حاليًا. أدخل كلمة مرور الفريق للمتابعة.",
+    ph: "كلمة المرور",
+    btn: "دخول",
+    err: "كلمة المرور غير صحيحة"
+  } : {
+    title: "HyperGo is getting ready",
+    text: "We’re still working on the app. Enter the team password to continue.",
+    ph: "Password",
+    btn: "Enter",
+    err: "Wrong password"
+  };
+  /* design-system values: page #FFFCF9, text #262626 / #767676, form field #F6F4FB with 14 corners and a 1.5pt
+     border that turns #5A29DE when focused (#E5384F on a wrong password), purple #5A29DE 52 tall button, 16 gutters */
+  var css =
+    "html.hg-team-locked,html.hg-team-locked body{overflow:hidden!important;}" +
+    "#hg-team-lock{position:fixed;inset:0;z-index:2147483647;background:#FFFCF9;display:flex;flex-direction:column;justify-content:center;" +
+      "padding:calc(var(--native-status-bar-height,0px) + 24px) 16px calc(24px + env(safe-area-inset-bottom,0px));box-sizing:border-box;" +
+      "font-family:inherit;color:#262626;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}" +
+    "#hg-team-lock *{box-sizing:border-box;font-family:inherit;letter-spacing:0;}" +
+    "#hg-team-lock form{width:100%;max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}" +
+    "#hg-team-lock h1{margin:0;font-size:20px;line-height:24px;font-weight:700;color:#262626;}" +
+    "#hg-team-lock p{margin:0 0 12px;font-size:14px;line-height:20px;font-weight:400;color:#767676;}" +
+    "#hg-team-lock input{width:100%;height:52px;margin:0;padding:0 16px;border:1.5px solid transparent;border-radius:14px;background:#F6F4FB;" +
+      "font-size:16px;color:#262626;text-align:center;outline:none;-webkit-appearance:none;appearance:none;}" +
+    "#hg-team-lock input:focus{border-color:#5A29DE;}" +
+    "#hg-team-lock.hg-bad input{border-color:#E5384F;}" +
+    "#hg-team-lock button{width:100%;height:52px;margin:0;border:0;border-radius:26px;background:#5A29DE;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}" +
+    "#hg-team-lock .hg-team-err{min-height:20px;margin:0;font-size:14px;line-height:20px;color:#E5384F;}";
+  function build() {
+    if (document.getElementById("hg-team-lock")) return;
+    var st = document.createElement("style");
+    st.id = "hg-team-lock-style";
+    st.textContent = css;
+    (document.head || html).appendChild(st);
+    var box = document.createElement("div");
+    box.id = "hg-team-lock";
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    box.setAttribute("lang", ar ? "ar" : "en");
+    var form = document.createElement("form");
+    form.setAttribute("autocomplete", "off");
+    var h = document.createElement("h1"); h.textContent = T.title;
+    var p = document.createElement("p"); p.textContent = T.text;
+    var input = document.createElement("input");
+    input.type = "password"; input.placeholder = T.ph; input.setAttribute("aria-label", T.ph);
+    input.setAttribute("autocomplete", "off"); input.setAttribute("autocapitalize", "off"); input.setAttribute("enterkeyhint", "go");
+    var btn = document.createElement("button"); btn.type = "submit"; btn.textContent = T.btn;
+    var err = document.createElement("div"); err.className = "hg-team-err"; err.setAttribute("role", "alert");
+    form.appendChild(h); form.appendChild(p); form.appendChild(input); form.appendChild(btn); form.appendChild(err);
+    box.appendChild(form);
+    html.classList.add("hg-team-locked");
+    (document.body || html).appendChild(box);
+    input.addEventListener("input", function () { box.classList.remove("hg-bad"); err.textContent = ""; });
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (fnv(String(input.value || "").trim().toLowerCase()) === PASS_HASH) {
+        try { localStorage.setItem(KEY, PASS_HASH); } catch (e) {}
+        try { input.blur(); } catch (e) {}
+        box.remove(); st.remove();
+        html.classList.remove("hg-team-locked");
+      } else {
+        box.classList.add("hg-bad");
+        err.textContent = T.err;
+        input.value = "";
+      }
+    });
+  }
+  if (document.body) build();
+  else document.addEventListener("DOMContentLoaded", build);
+})();
+
+/* NEW APP HOME (2026-10-15): loads app-new.css and app-new.js, which draw the main page header and the new Home in the app.
+   global-footer-1.js skips its own header and Home code in the app; every other screen, the Account page and the bottom nav
+   stay as they are. */
+(function () {
+  /* run-once guard (2026-10-20): a second run of this file would add a second app-new.css link */
+  if (window.__hgAFLoader) return;
+  window.__hgAFLoader = 1;
+  try {
+    var BASE = "https://pexy613.github.io/hypergo-site/";
+    /* GitHub Pages tells phones to keep these files for 10 minutes, so the app could keep showing an older copy after a
+       push. A fresh "v" each minute makes the app ask for the newest app-new.css / app-new.js. */
+    var V = "?v=" + Math.floor(Date.now() / 60000);
+    var l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = BASE + "app-new.css" + V;
+    document.head.appendChild(l);
+    var s = document.createElement("script");
+    s.src = BASE + "app-new.js" + V;
+    s.async = false;
+    document.head.appendChild(s);
+  } catch (e) {}
+})();
+
+
+/* SHARED HELPERS (2026-10-20): one copy, used by the status strip, the tab swipe and the edge swipe-back below
+   (each block had its own copy before).
+   - relevant(): false when a batch of page changes happened only inside our own drawn or temporary elements (NOISE),
+     so they do not wake the strip. NOISE also lists the app-new.js screens.
+   - isAr(): Arabic / right-to-left page.
+   - tabOf(): "home" / "reorder" / "account" when one of the 3 main tabs is open, else "". Home also matches /en/home
+     (the address app-new.js uses, same as its isHomePath). The Stores / Favourites page app-new.js opens over Home
+     (html.hgn-page-open) is not a tab, so its back button can be swiped. */
+(function () {
+  if (window.__hgAF) return;
+  var NOISE = ".hg-ph," +
+    "#hgn-home,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sland,#hgn-stabs,#hgn-sfav,#hgn-shead,#hgn-sinfo,.hgn-acct-fav," +
+    "#hg-search-discovery,#hg-search-cart,#hg-cart-btn";
+  function relevant(recs) {
+    if (!recs || !recs.length) return true;
+    for (var i = 0; i < recs.length; i++) {
+      var r = recs[i], t = r.target, el = t && (t.nodeType === 1 ? t : t.parentNode);
+      if (el && el.nodeType === 1 && el.closest && el.closest(NOISE)) continue;
+      if (r.type !== "childList" || r.removedNodes.length) return true;
+      var a = r.addedNodes;
+      for (var j = 0; j < a.length; j++) if (!(a[j].nodeType === 1 && a[j].matches && a[j].matches(NOISE))) return true;
+    }
+    return false;
+  }
+  function isAr() {
+    var h = document.documentElement;
+    return h.getAttribute("dir") === "rtl" || /^ar/i.test(h.getAttribute("lang") || "");
+  }
+  function tabOf() {
+    var p = location.pathname, h = document.documentElement;
+    if (/^\/(en|ar)\/profile\/orders\/?$/.test(p)) return h.classList.contains("hg-orders-acct") ? "" : "reorder";
+    if (/^\/(en|ar)\/profile\/?$/.test(p)) return "account";
+    if (/^\/((en|ar)(\/home)?\/?)?$/.test(p) && !h.classList.contains("hgn-page-open")) return "home";
+    return "";
+  }
+  window.__hgAF = { relevant: relevant, isAr: isAr, tabOf: tabOf };
+})();
+
+(function () {
+  /* run-once guard (2026-10-20) */
+  if (window.__hgAFBg) return;
+  window.__hgAFBg = 1;
+
+  /* the purple is only written again when it is not already there (same colour, same 60ms wait as before). */
+  let bgNorm = "";
+  function setBg(el) {
+    const st = el.style;
+    if (bgNorm && st.getPropertyValue("background-color") === bgNorm && st.getPropertyPriority("background-color") === "important") return;
+    st.setProperty("background-color", "#5A29DE", "important");
+    bgNorm = st.getPropertyValue("background-color");
+  }
+
+  function applyAppBackground() {
+
+    setBg(document.documentElement);
+
+    setBg(document.body);
+
+  }
+
+  applyAppBackground();
+
+  let bgTimer = null;
+
+  /* (2026-10-20): watches only the style of <html> and <body>, the one thing that can undo the purple. Before, it woke on
+     every element added or removed anywhere on the page, which can never change that style. */
+  const bgMO = new MutationObserver(() => {
+
+    clearTimeout(bgTimer);
+
+    bgTimer = setTimeout(applyAppBackground, 60);
+
+  });
+  bgMO.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+  bgMO.observe(document.body, { attributes: true, attributeFilter: ["style"] });
+
+})();
+
+/* STATUS BAR STRIP: purple at the top of Home, fades to white as the header scrolls away.
+   While the header is still passing underneath, the strip is see-through (so the header shows through as it turns white);
+   the moment the header has scrolled past, it snaps to solid white so the clock stays readable over the page content.
+   Reuses the app's own strip element (.native-status-bar-bg) - only its background colour is driven here. */
+(function () {
+  /* run-once guard (2026-10-20) */
+  if (window.__hgAFStrip) return;
+  window.__hgAFStrip = 1;
+  const PURPLE = [134, 64, 252];   /* #8640FC */
+  const WHITE = [255, 255, 255];
+  const FADE = 56;                 /* px of scrolling over which the colour fades (starts on the first pixel, Talabat-style) */
+  const A_HEADER = 0.55;           /* strip opacity (white) while the header is still underneath */
+  const A_PAGE = 1;                /* strip opacity (white) once only page content is underneath */
+  const SNAP = 12;                 /* px over which it goes from see-through to solid once the header has left the strip */
+  let ticking = false;
+
+  /* observer trim (2026-10-08): changes inside our own drawn and temporary elements do not schedule a re-measure
+     (shared relevant() / NOISE list at the top of this file, 2026-10-20), and the strip's colour is only written when it
+     actually differs from what is already set. */
+  const relevant = window.__hgAF.relevant;
+  const lastSet = {};
+  function setIf(st, prop, val) {
+    const l = lastSet[prop];
+    if (l && l.raw === val && st.getPropertyValue(prop) === l.norm && st.getPropertyPriority(prop) === "important") return;
+    st.setProperty(prop, val, "important");
+    lastSet[prop] = { raw: val, norm: st.getPropertyValue(prop) };
+  }
+  function removeIf(st, prop) {
+    if (st.getPropertyValue(prop)) st.removeProperty(prop);
+  }
+
+  function mix(t) {
+    return PURPLE.map((p, i) => Math.round(WHITE[i] + (p - WHITE[i]) * t));
+  }
+
+  /* the store page is what sits under the strip right now (old screens can stay loaded hidden behind it).
+     The address is checked first: when a store is opened from a category, the category page stays loaded until the
+     store's items arrive, so the store page isn't on screen yet in the page itself, but the address already is the
+     store's (/en/m/<store>/<id>, same pattern hgMerchantHref builds in global-footer-1.js). */
+  /* (2026-10-20): the point test (elementFromPoint) and the strip height are measured only after page changes, not on
+     every scroll frame. Scrolling does not change which screen sits under the strip; page changes do. */
+  let needHit = true, hitStore = false, stripH = 47;
+  function storeOnScreen(strip) {
+    if (/^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(location.pathname)) return true;
+    if (!needHit) return hitStore;
+    needHit = false;
+    try {
+      const y = Math.round(stripH + 4);
+      const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
+      hitStore = !!(el && el.closest && el.closest(".scheme-merchant-page"));
+    } catch (e) { hitStore = false; }
+    return hitStore;
+  }
+
+  function updateStrip() {
+    ticking = false;
+    const strip = document.querySelector(".native-status-bar-bg");
+    if (!strip) return;
+    if (needHit) stripH = strip.getBoundingClientRect().height || 47;
+    const html = document.documentElement;
+    /* STORE PAGE: the strip is see-through so the store banner shows behind the clock (design intent of the
+       global-footer-1.js rule "cover sits under the phone status bar"). That rule is plain CSS, so any purple strip
+       rule from a screen that is still loaded (category page #merchants_by_category, Search, Home header) beat it.
+       Set here directly, so the store page always wins. Hyperzod's own scrolled "scrim" state is left alone. */
+    if (storeOnScreen(strip)) {
+      if (/scrim/.test(strip.className)) {
+        removeIf(strip.style, "background-color");
+        removeIf(strip.style, "transition");
+      } else {
+        setIf(strip.style, "transition", "none");
+        setIf(strip.style, "background-color", "transparent");
+      }
+      return;
+    }
+    const root = document.getElementById("MultiVendorHeaderRoot");
+    const modal = document.querySelector(".v-overlay--active > .v-overlay__scrim");
+    /* (2026-10-20): a pop-up / sheet with a scrim, or Hyperzod's own scrim state, is checked before Search. Before, the
+       Search purple was written first as an inline !important, which beat the scrim and the product pop-up's
+       transparent strip rule (global-footer-1.js) while a pop-up was open on Search. */
+    if (modal || /scrim/.test(strip.className)) {
+      removeIf(strip.style, "background-color");
+      removeIf(strip.style, "transition");
+      return;
+    }
+    /* Search has its own one-colour bar (page colour #FFFCF9 since 2026-10-20, was purple). Do not let the Home
+       scroll-fade logic change its status strip. */
+    /* (2026-10-21) our category page (html.hgn-cat-on) has an off-white header, so the strip is off-white too (was purple:
+       Home's header, still loaded under it, made the strip purple). Same for our Stores near you / Favourites pages
+       (html.hgn-page-open): their bar is off-white too, and they open over Home. */
+    if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page") || html.classList.contains("hgn-cat-on") || html.classList.contains("hgn-page-open")) {
+      setIf(strip.style, "transition", "none");
+      setIf(strip.style, "background-color", "rgb(255,252,249)");
+      return;
+    }
+    if (!root || html.classList.contains("native-status-bar-transparent")) {
+      removeIf(strip.style, "background-color");
+      removeIf(strip.style, "transition");
+      return;
+    }
+    const box = root.getBoundingClientRect();
+    /* how far the header has scrolled up (0 at rest) -> fade starts at the first pixel of scrolling */
+    const scrolled = Math.max(0, -box.top);
+    const t = 1 - Math.min(1, scrolled / FADE);
+    /* 0 while the header still covers the strip area, 1 once it has left it */
+    const sh = stripH;
+    const gone = Math.min(1, Math.max(0, (sh + SNAP - box.bottom) / SNAP));
+    const aWhite = A_HEADER + (A_PAGE - A_HEADER) * gone;
+    const a = 1 - (1 - aWhite) * (1 - t);   /* opaque purple at rest, aWhite once fully faded */
+    const c = mix(t);
+    setIf(strip.style, "transition", "none");   /* follow the finger exactly, no lag */
+    setIf(strip.style, "background-color", "rgba(" + c.join(",") + "," + a.toFixed(3) + ")");
+  }
+
+  function schedule() {
+    if (!ticking) { ticking = true; requestAnimationFrame(updateStrip); }
+  }
+
+  /* (2026-10-20): sideways scrolls (Home banner sliding by itself every 4s, category rows) are skipped: only a change of
+     scrollTop can move the header under the strip. The page itself (document) always counts. */
+  const lastTop = new WeakMap();
+  function onScroll(ev) {
+    const t = ev.target;
+    /* app-new.js's own sideways rows (window.__hgnSideways) are skipped without reading any size (2026-10-20) */
+    if (t && t.nodeType === 1 && window.__hgnSideways && t.closest(window.__hgnSideways)) return;
+    if (t && t.nodeType === 1) {
+      const y = t.scrollTop;
+      if (lastTop.get(t) === y) return;
+      lastTop.set(t, y);
+    }
+    schedule();
+  }
+
+  document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+  new MutationObserver((recs) => { if (relevant(recs)) { needHit = true; schedule(); } }).observe(document.body, { childList: true, subtree: true });
+  /* (2026-10-21) a page class on <html> (hgn-cat-on, hg-search-page...) can arrive after the page's own content, and our own
+     drawn pages are left out of the observer above, so the strip also re-checks when those classes change */
+  new MutationObserver(() => { needHit = true; schedule(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  schedule();
+})();
+
+
+/* TAB SWIPE (app): swipe left/right on Home, Reorder or Account to go to the next/previous bottom tab.
+   A tab tap in Hyperzod is a click on the tab's own button in #MultiVendorBottomNav (global-footer-1.js tags each tab
+   with data-hg-nav = home / reorder / account / cart). The swipe clicks that same button, so the tab highlight, the page
+   and everything else behave exactly as after a tap. Order: Home, Reorder, Account. English: swipe left = next tab.
+   Arabic (tabs run right to left): swipe right = next tab. Past the first or last tab nothing happens.
+   Ignored: swipes starting within 24px of either screen edge (kept for going back), on any row that scrolls sideways,
+   in a field / with the keyboard open, while a pop-up or sheet is open, and on any screen that is not one of the 3 tabs. */
+(function () {
+  /* run-once guard (2026-10-20) */
+  if (window.__hgAFTabSwipe) return;
+  window.__hgAFTabSwipe = 1;
+  var ORDER = ["home", "reorder", "account"];
+  var EDGE = 24, MIN_DX = 70, FAST_DX = 35, FAST_V = 0.45, LOCK = 10;
+  var st = null;
+
+  /* (2026-10-20): shared helpers (top of this file); Home now also matches /en/home */
+  var isAr = window.__hgAF.isAr;
+  function currentTab() {
+    var k = window.__hgAF.tabOf();
+    return k === "home" && !document.getElementById("MultiVendorHome") ? "" : k;
+  }
+  function scrollsSideways(el) {
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      if (el.classList && (el.classList.contains("swiper") || el.classList.contains("v-slide-group__container") || el.classList.contains("v-window") || el.classList.contains("v-carousel"))) return true;
+      if (el.scrollWidth > el.clientWidth + 1) {
+        var ox = getComputedStyle(el).overflowX;
+        if (ox === "auto" || ox === "scroll") return true;
+      }
+    }
+    return false;
+  }
+  function blocked(target) {
+    var a = document.activeElement;
+    if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.isContentEditable)) return true;
+    if (document.querySelector(".v-overlay--active")) return true;
+    if (target && target.closest && target.closest("#MultiVendorBottomNav,input,textarea,[contenteditable='true']")) return true;
+    return false;
+  }
+
+  document.addEventListener("touchstart", function (ev) {
+    st = null;
+    if (ev.touches.length !== 1) return;
+    var t = ev.touches[0], w = window.innerWidth;
+    if (t.clientX < EDGE || t.clientX > w - EDGE) return;
+    if (!currentTab() || blocked(ev.target)) return;
+    /* (2026-10-20): the sideways-row check (it reads sizes and styles of every parent) moved to the moment the swipe
+       turns out to be horizontal, once per swipe, instead of on every touch */
+    st = { x: t.clientX, y: t.clientY, t: Date.now(), dir: "", el: ev.target };
+  }, { passive: true, capture: true });
+
+  document.addEventListener("touchmove", function (ev) {
+    if (!st) return;
+    if (ev.touches.length !== 1) { st = null; return; }
+    var t = ev.touches[0], dx = t.clientX - st.x, dy = t.clientY - st.y;
+    if (!st.dir) {
+      if (Math.abs(dx) < LOCK && Math.abs(dy) < LOCK) return;
+      st.dir = Math.abs(dx) > Math.abs(dy) * 1.5 ? "h" : "v";
+      if (st.dir === "v") st = null;   /* vertical scroll: leave it alone */
+      else if (scrollsSideways(st.el)) st = null;   /* a row that scrolls sideways: leave it alone */
+    }
+  }, { passive: true, capture: true });
+
+  function end(ev) {
+    var s = st; st = null;
+    if (!s || s.dir !== "h") return;
+    var t = ev.changedTouches && ev.changedTouches[0];
+    if (!t) return;
+    var dx = t.clientX - s.x, dy = t.clientY - s.y, adx = Math.abs(dx), dt = Math.max(1, Date.now() - s.t);
+    if (adx < Math.abs(dy) * 2) return;
+    if (!(adx >= MIN_DX || (adx >= FAST_DX && adx / dt >= FAST_V))) return;
+    var cur = currentTab();
+    if (!cur || blocked(null)) return;
+    var forward = isAr() ? dx > 0 : dx < 0;
+    var i = ORDER.indexOf(cur) + (forward ? 1 : -1);
+    if (i < 0 || i >= ORDER.length) return;
+    var item = document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='" + ORDER[i] + "']");
+    var btn = item && (item.querySelector("button, .classic-footer-btn") || item);
+    if (btn) btn.click();
+  }
+  document.addEventListener("touchend", end, { passive: true, capture: true });
+  document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
+})();
+
+
+/* EDGE SWIPE-BACK (app): a swipe that starts at the screen edge (left in English, right in Arabic) and is long or fast
+   enough presses the page's own back arrow the moment it is released - the same element a tap would hit,
+   so the destination, history and state are exactly the arrow's. No back arrow on screen (Home, Reorder, Account) = nothing.
+   Back arrows found on screen, in this order:
+   - #hg-orders-back: My Orders opened from Account (our button, global-footer-1.js syncOrdersBack: router.back()).
+   - .scheme-mobile-page-header .back-btn: Hyperzod's header arrow (category pages, Account sub-pages, and any other
+     page with the standard header).
+   - the arrow inside the search field (#MultiVendorSearch .mobile-search-input .v-field__prepend-inner).
+   - the store page's round back button (.merchant-floating-actions .merchant-floating-btn): the one standing apart from
+     the filter and search buttons, which sit together.
+   Not active while a pop-up or sheet is open (.v-overlay--active). The tab swipe ignores touches within 24px of the
+   edges, so the two never overlap. One back per swipe, then 900ms lock. */
+(function () {
+  /* run-once guard (2026-10-20) */
+  if (window.__hgAFSwipeBack) return;
+  window.__hgAFSwipeBack = 1;
+  var EDGE = 24, MIN_DX = 90, FAST_DX = 45, FAST_V = 0.5, LOCK_MS = 900;
+  var st = null, lockUntil = 0;
+
+  var isAr = window.__hgAF.isAr;   /* (2026-10-20): shared helper, top of this file */
+  function onScreen(el) {
+    if (!el || !el.getClientRects().length) return false;
+    var r = el.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return false;
+    var cs = getComputedStyle(el);
+    return cs.visibility !== "hidden" && cs.display !== "none" && parseFloat(cs.opacity || "1") > 0.05;
+  }
+  function storeBack() {
+    var btns = Array.prototype.filter.call(document.querySelectorAll(".merchant-floating-actions .merchant-floating-btn"), onScreen);
+    if (btns.length < 2) return btns[0] || null;
+    var best = null, bestGap = -1;
+    btns.forEach(function (b) {
+      var r = b.getBoundingClientRect(), gap = Infinity;
+      btns.forEach(function (o) {
+        if (o === b) return;
+        var q = o.getBoundingClientRect();
+        gap = Math.min(gap, Math.max(q.left - r.right, r.left - q.right, 0));
+      });
+      if (gap > bestGap) { bestGap = gap; best = b; }
+    });
+    return best;
+  }
+  function findBack() {
+    var el = document.getElementById("hg-orders-back");
+    if (onScreen(el)) return el;
+    var list = document.querySelectorAll(".scheme-mobile-page-header .back-btn");
+    for (var i = 0; i < list.length; i++) if (onScreen(list[i])) return list[i];
+    /* (2026-10-20): app-new.js draws its own back buttons on Search, the category page and the Stores / Favourites page,
+       and app-new.css hides Hyperzod's arrows there, so the swipe found nothing on those screens */
+    var mine = document.querySelectorAll("#hgn-shead .hgn-shead-back, #hgn-catpage [data-act=back], #hgn-page .hgn-page-back");
+    for (var k = 0; k < mine.length; k++) if (onScreen(mine[k])) return mine[k];
+    var pre = document.querySelector("#MultiVendorSearch .mobile-search-input .v-field__prepend-inner");
+    if (onScreen(pre)) return pre.querySelector("button, .v-icon, i") || pre;
+    return storeBack();
+  }
+  /* (2026-10-20): shared tab test; Home also matches /en/home, and the Stores / Favourites page over Home is not a tab */
+  function mainTab() { return !!window.__hgAF.tabOf(); }
+  function blocked() {
+    return !!document.querySelector(".v-overlay--active") || Date.now() < lockUntil;
+  }
+
+  /* 2026-10-07: back runs the moment the swipe is released. The old version first slid #app off the screen over a white
+     cover (180ms) and only then pressed the arrow, and kept #app off-screen until the address changed (+60ms) - that was
+     the blank white gap in the recording. Removed: the page no longer moves; only the app's own back transition shows. */
+  function pressBack(btn) {
+    lockUntil = Date.now() + LOCK_MS;
+    try { btn.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window })); } catch (e) {}
+  }
+
+  document.addEventListener("touchstart", function (ev) {
+    st = null;
+    if (ev.touches.length !== 1 || blocked() || mainTab()) return;
+    var t = ev.touches[0], w = window.innerWidth;
+    var atEdge = isAr() ? t.clientX > w - EDGE : t.clientX < EDGE;
+    if (!atEdge) return;
+    st = { x: t.clientX, y: t.clientY, t: Date.now() };
+  }, { passive: true, capture: true });
+
+  document.addEventListener("touchend", function (ev) {
+    var s = st; st = null;
+    if (!s) return;
+    var t = ev.changedTouches && ev.changedTouches[0];
+    if (!t) return;
+    var dx = (t.clientX - s.x) * (isAr() ? -1 : 1), dy = Math.abs(t.clientY - s.y);
+    var dt = Math.max(1, Date.now() - s.t);
+    if (dx <= 0 || dx < dy * 1.5) return;
+    if (!(dx >= MIN_DX || (dx >= FAST_DX && dx / dt >= FAST_V))) return;
+    if (blocked() || mainTab()) return;
+    var btn = findBack();
+    if (btn) pressBack(btn);
+  }, { passive: true, capture: true });
+  document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
+})();
+
+
+
+
+
