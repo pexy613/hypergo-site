@@ -1,8 +1,10 @@
-/* hg-version 2026-10-22-1555 */
+/* hg-version 2026-10-22-1610 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
-   for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for good
-   (localStorage "hg-team-ok"). Changing PASS_HASH locks everyone again. Once unlocked this block adds nothing to the page.
+   for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
+   (localStorage "hg-team-ok" = hash:time; 2026-10-22, was for good). After that it locks again, on the next opening or
+   when the app or tab comes back to the front. Changing PASS_HASH locks everyone again. While unlocked this block adds
+   nothing to the page.
    Only a hash of the password is here (fnv()), checked without capitals or spaces at the ends. It runs first in this
    file (Global footer) so it is in place before Hyperzod draws the page. Picture and logo: coming-soon/ in this repo.
    (Moved here from app-footer.js, where it was app only.) */
@@ -10,6 +12,7 @@
   var PASS_HASH = "3d948b6f";
   var KEY = "hg-team-ok";
   var HOLD_MS = 3000;
+  var DAY_MS = 24 * 60 * 60 * 1000;
   var BASE = "https://pexy613.github.io/hypergo-site/coming-soon/";
   function fnv(s) {
     var x = 0x811c9dc5;
@@ -17,7 +20,12 @@
     return x.toString(16);
   }
   function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
-  if (window.__hgTeamLock || read() === PASS_HASH) return;
+  /* unlocked = the right hash and a time less than 24 hours ago (an old value without a time counts as locked) */
+  function unlocked() {
+    var p = String(read() || "").split(":"), t = Number(p[1]), now = Date.now();
+    return p[0] === PASS_HASH && t > 0 && now - t < DAY_MS && t <= now + 60000;
+  }
+  if (window.__hgTeamLock) return;
   window.__hgTeamLock = 1;
   var html = document.documentElement;
   /* language: the address first (/en/..., /ar/...), then the customer's saved choice; Hyperzod's page starts with lang="ar"
@@ -182,7 +190,7 @@
     sheet.addEventListener("submit", function (ev) {
       ev.preventDefault();
       if (fnv(String(input.value || "").trim().toLowerCase()) === PASS_HASH) {
-        try { localStorage.setItem(KEY, PASS_HASH); } catch (e) {}
+        try { localStorage.setItem(KEY, PASS_HASH + ":" + Date.now()); } catch (e) {}
         try { input.blur(); } catch (e) {}
         langWatch.disconnect();
         root.remove(); st.remove();
@@ -192,8 +200,15 @@
       }
     });
   }
-  if (document.body) build();
-  else document.addEventListener("DOMContentLoaded", build);
+  /* on opening, and again whenever the app or tab comes back to the front (a phone can keep the app open for days) */
+  function check(again) {
+    if (unlocked()) return;
+    if (again) { var l = (html.getAttribute("lang") || "").slice(0, 2); if (l === "ar" || l === "en") ar = l === "ar"; }
+    build();
+  }
+  if (document.body) check(false);
+  else document.addEventListener("DOMContentLoaded", function () { check(false); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) check(true); });
 })();
 
 (function () {
