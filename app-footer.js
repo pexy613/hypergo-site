@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1727 */
+/* hg-version 2026-10-22-1748 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -148,6 +148,7 @@
   /* (2026-10-20): the point test (elementFromPoint) and the strip height are measured only after page changes, not on
      every scroll frame. Scrolling does not change which screen sits under the strip; page changes do. */
   let needHit = true, hitStore = false, hitCat = false, stripH = 47, leaveT0 = 0;
+  const SD = window.__hgStripDbg = { n: 0, t: 0, br: "-", hit: "-", y: 0, cat: "-", age: "-" }; /* TEMP-DIAGNOSTIC */ /* read-only readings for the hgstrip panel */
   /* what sits just under the strip: a store page, or our category page (#hgn-catpage) */
   function readHit() {
     if (!needHit) return;
@@ -157,6 +158,7 @@
       const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
       hitStore = !!(el && el.closest && el.closest(".scheme-merchant-page"));
       hitCat = !!(el && el.closest && el.closest("#hgn-catpage"));
+      SD.hit = el ? ((el.id ? "#" + el.id : "") + "." + String(el.className && el.className.baseVal !== undefined ? el.className.baseVal : el.className).slice(0, 24)) : "none"; SD.y = y; /* TEMP-DIAGNOSTIC */
     } catch (e) { hitStore = false; hitCat = false; }
   }
   function storeOnScreen(strip) {
@@ -179,11 +181,13 @@
     needHit = true;
     readHit();
     if (now - leaveT0 < 2000) schedule();
+    SD.cat = hitCat; SD.age = now - leaveT0; /* TEMP-DIAGNOSTIC */
     return hitCat;
   }
 
   function updateStrip() {
     ticking = false;
+    SD.n++; SD.t = performance.now(); SD.br = "start"; /* TEMP-DIAGNOSTIC */
     const strip = document.querySelector(".native-status-bar-bg");
     if (!strip) return;
     if (needHit) stripH = strip.getBoundingClientRect().height || 47;
@@ -200,6 +204,7 @@
         setIf(strip.style, "transition", "none");
         setIf(strip.style, "background-color", "transparent");
       }
+      SD.br = "store"; /* TEMP-DIAGNOSTIC */
       return;
     }
     const root = document.getElementById("MultiVendorHeaderRoot");
@@ -210,6 +215,7 @@
     if (modal || /scrim/.test(strip.className)) {
       removeIf(strip.style, "background-color");
       removeIf(strip.style, "transition");
+      SD.br = "pop-up"; /* TEMP-DIAGNOSTIC */
       return;
     }
     /* Search has its own one-colour bar (page colour #FFFCF9 since 2026-10-20, was purple). Do not let the Home
@@ -220,11 +226,13 @@
     if (document.getElementById("MultiVendorSearch") || html.classList.contains("hg-search-page") || catOnScreen(html) || html.classList.contains("hgn-page-open")) {
       setIf(strip.style, "transition", "none");
       setIf(strip.style, "background-color", "rgb(255,252,249)");
+      SD.br = "off-white"; /* TEMP-DIAGNOSTIC */
       return;
     }
     if (!root || html.classList.contains("native-status-bar-transparent")) {
       removeIf(strip.style, "background-color");
       removeIf(strip.style, "transition");
+      SD.br = "no header"; /* TEMP-DIAGNOSTIC */
       return;
     }
     const box = root.getBoundingClientRect();
@@ -239,6 +247,7 @@
     const c = mix(t);
     setIf(strip.style, "transition", "none");   /* follow the finger exactly, no lag */
     setIf(strip.style, "background-color", "rgba(" + c.join(",") + "," + a.toFixed(3) + ")");
+    SD.br = "home"; /* TEMP-DIAGNOSTIC */
   }
 
   function schedule() {
@@ -483,13 +492,15 @@
       mvs: mvs ? (mvs.getClientRects().length ? "shown" : "hidden") : "no",
       root: rect(root),
       home: document.getElementById("hgn-home") ? "yes" : "no",
+      code: (function (q) { return q ? q.br + " #" + q.n + " " + r(performance.now() - q.t) + "ms ago, hit " + q.hit + " y" + q.y + ", cat " + q.cat + ", leave " + q.age : "none"; })(window.__hgStripDbg),
+      codeKey: (function (q) { return q ? q.br + " hit " + q.hit + " cat " + q.cat : "none"; })(window.__hgStripDbg),
       scroll: r(window.scrollY) + " / " + (document.getElementById("MultiVendorHome") ? r(document.getElementById("MultiVendorHome").scrollTop) : "-")
     };
   }
   function tick() {
     var d = read();
     var key = d.path + " | strip " + d.strip + " (inline " + d.inl + ", class " + d.scls + ") | html " + d.cls + " | under " + d.under +
-      " | search " + d.mvs + " | header " + d.root + " | home " + d.home;
+      " | search " + d.mvs + " | header " + d.root + " | home " + d.home + " | code " + d.codeKey;
     if (key !== last) {
       last = key;
       log.unshift((tBack ? "+" + r(performance.now() - tBack) + "ms " : "") + key); /* newest first */
@@ -506,6 +517,7 @@
       "html " + d.cls + "\n" +
       "under strip " + d.under + "   store " + d.store + "   pop-up " + d.modal + "   search page " + d.mvs + "\n" +
       "home header " + d.root + "   our home " + d.home + "   scroll " + d.scroll + "\n" +
+      "strip code: " + d.code + "\n" +
       "--- changes, newest first ---\n" + log.join("\n");
   }
   function show(v) {
