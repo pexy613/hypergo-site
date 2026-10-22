@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1642 */
+/* hg-version 2026-10-22-1655 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -501,11 +501,33 @@
     }
   }
   window.addEventListener("popstate", function () { tBack = performance.now(); });
-  document.addEventListener("input", function (ev) {
-    var t = ev.target;
-    if (!t || typeof t.value !== "string" || t.value.trim().toLowerCase() !== WORD) return;
-    var v = !on; put(v); show(v);
-  }, true);
-  if (get()) show(true);
+  /* (2026-10-22-1655) the word is now found in more ways, because on the phone the plain input check did nothing:
+     any key or typing event, the field that has focus (checked every half second), any search field, and the search
+     word the live search puts in the page address (?q=hgstrip). Letters only and any case count ("Hg strip" too).
+     Any of these switches it on. Only typing the word again in the focused field switches it off, so going back to a
+     search page that still holds the word never hides it. Each switch waits until the word is gone before the next. */
+  var armOn = true, armOff = false;
+  function has(v) { return typeof v === "string" && v.toLowerCase().replace(/[^a-z]/g, "").indexOf(WORD) !== -1; }
+  function typed() { var a = document.activeElement; return !!(a && has(a.value)); }
+  function elsewhere() {
+    var q = "";
+    try { q = decodeURIComponent(location.search + " " + location.hash); } catch (e) { q = location.search; }
+    if (has(q)) return true;
+    var f = document.querySelectorAll("#MultiVendorSearch input, input[type=search]");
+    for (var i = 0; i < f.length; i++) if (has(f[i].value)) return true;
+    return false;
+  }
+  function check() {
+    var t = typed(), any = t || elsewhere();
+    if (!any) armOn = true;
+    if (!t) armOff = true;
+    if (!on && any && armOn) { armOn = false; armOff = !t; put(true); show(true); }
+    else if (on && t && armOff) { armOff = false; armOn = false; put(false); show(false); }
+  }
+  ["input", "keyup", "change", "compositionend"].forEach(function (t) {
+    document.addEventListener(t, function () { setTimeout(check, 0); }, true);
+  });
+  setInterval(check, 500);
+  if (get()) { show(true); armOff = !typed(); }
 })();
 /* TEMP-DIAGNOSTIC-END */
