@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1805 */
+/* hg-version 2026-10-22-1819 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -526,6 +526,17 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 }
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .rec-item-title h4{
   font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:600!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;margin:0!important;
+}
+/* (2026-10-22) long product names end with dots after 2 lines. global-footer.css still gave the names the old two-line
+   heights (36.96 in Recommended, 41.6 in the menu rows), taller than our two lines (16 and 20 line height), so the top
+   of a third line showed, cut off, under the dots. Now the name box is exactly two lines tall. */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section .product-name{
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
+  min-height:32px!important;max-height:32px!important;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-name{
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
+  min-height:0!important;max-height:40px!important;
 }
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-description{
   margin-top:2px!important;font-size:calc(var(--hg-fs) * 14)!important;line-height:16px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-muted)!important;
