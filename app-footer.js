@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1555 */
+/* hg-version 2026-10-22-1642 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
@@ -425,7 +425,87 @@
   document.addEventListener("touchcancel", function () { st = null; }, { passive: true, capture: true });
 })();
 
-
-
-
-
+/* TEMP-DIAGNOSTIC-START (2026-10-22): white top strip after going back to Home. Read-only: it changes nothing on the page.
+   Switch on/off: type hgstrip in the search box. A dark box at the bottom then shows live numbers for the top strip and,
+   below them, the last changes with the time since the last back press. Its box hangs on <html>, outside <body>, so the
+   strip's own page watcher (body only) never sees it. Remove this whole block once the cause is found. */
+(function () {
+  if (window.__hgDiagStrip) return;
+  window.__hgDiagStrip = 1;
+  var FLAG = "hg-diag-strip", WORD = "hgstrip";
+  var on = false, box = null, log = [], last = "", tBack = 0, iv = 0;
+  function get() { try { return localStorage.getItem(FLAG) === "1"; } catch (e) { return false; } }
+  function put(v) { try { if (v) localStorage.setItem(FLAG, "1"); else localStorage.removeItem(FLAG); } catch (e) {} }
+  function r(n) { return Math.round(n); }
+  function rect(el) { if (!el) return "none"; var b = el.getBoundingClientRect(); return "top " + r(b.top) + " bottom " + r(b.bottom) + " h " + r(b.height) + " " + getComputedStyle(el).display; }
+  function read() {
+    var html = document.documentElement, strip = document.querySelector(".native-status-bar-bg");
+    var cs = strip ? getComputedStyle(strip) : null;
+    var hv = getComputedStyle(html);
+    var sh = strip ? strip.getBoundingClientRect().height || 47 : 47;
+    var hit = document.elementFromPoint(Math.round(innerWidth / 2), Math.round(sh + 4));
+    var root = document.getElementById("MultiVendorHeaderRoot"), mvs = document.getElementById("MultiVendorSearch");
+    var cls = Array.prototype.filter.call(html.classList, function (c) { return /native|hgn-|hg-search|hg-acct|locked|hero|overlay/.test(c); }).join(" ");
+    return {
+      path: location.pathname.replace(/\/[0-9a-f]{24}/g, "/:id"),
+      strip: cs ? cs.backgroundColor : "none",
+      inl: strip ? (strip.style.backgroundColor || "-") : "-",
+      scls: strip ? strip.className.replace("native-status-bar-bg", "").trim() || "-" : "-",
+      srect: rect(strip),
+      vh: hv.getPropertyValue("--native-status-bar-height").trim() || "-",
+      fill: hv.getPropertyValue("--native-status-bar-fill").trim() || "-",
+      cls: cls || "-",
+      under: hit ? ((hit.id ? "#" + hit.id : "") + "." + String(hit.className && hit.className.baseVal !== undefined ? hit.className.baseVal : hit.className).slice(0, 40)) : "none",
+      store: !!(hit && hit.closest && hit.closest(".scheme-merchant-page")),
+      modal: !!document.querySelector(".v-overlay--active > .v-overlay__scrim"),
+      mvs: mvs ? (mvs.getClientRects().length ? "shown" : "hidden") : "no",
+      root: rect(root),
+      home: document.getElementById("hgn-home") ? "yes" : "no",
+      scroll: r(window.scrollY) + " / " + (document.getElementById("MultiVendorHome") ? r(document.getElementById("MultiVendorHome").scrollTop) : "-")
+    };
+  }
+  function tick() {
+    var d = read();
+    var key = d.path + " | strip " + d.strip + " (inline " + d.inl + ", class " + d.scls + ") | html " + d.cls + " | under " + d.under +
+      " | search " + d.mvs + " | header " + d.root + " | home " + d.home;
+    if (key !== last) {
+      last = key;
+      log.unshift((tBack ? "+" + r(performance.now() - tBack) + "ms " : "") + key); /* newest first */
+      if (log.length > 8) log.pop();
+    }
+  }
+  function draw() {
+    if (!box) return;
+    var d = read();
+    box.textContent = "STRIP DIAGNOSTIC (type hgstrip again to hide)\n" +
+      "page " + d.path + "   back pressed " + (tBack ? r((performance.now() - tBack) / 100) / 10 + "s ago" : "-") + "\n" +
+      "strip colour " + d.strip + "   inline " + d.inl + "   class " + d.scls + "\n" +
+      "strip box " + d.srect + "   --native-status-bar-height " + d.vh + "   --native-status-bar-fill " + d.fill + "\n" +
+      "html " + d.cls + "\n" +
+      "under strip " + d.under + "   store " + d.store + "   pop-up " + d.modal + "   search page " + d.mvs + "\n" +
+      "home header " + d.root + "   our home " + d.home + "   scroll " + d.scroll + "\n" +
+      "--- changes, newest first ---\n" + log.join("\n");
+  }
+  function show(v) {
+    on = v;
+    if (v && !box) {
+      box = document.createElement("div");
+      box.id = "hg-diag-strip";
+      box.style.cssText = "position:fixed;left:6px;right:6px;bottom:calc(64px + env(safe-area-inset-bottom,0px));max-height:52vh;overflow:hidden;" +
+        "z-index:2147483646;background:rgba(0,0,0,.86);color:#fff;font:10px/1.35 ui-monospace,Menlo,monospace;padding:6px 8px;border-radius:8px;" +
+        "white-space:pre-wrap;word-break:break-all;pointer-events:none;direction:ltr;text-align:left;";
+      document.documentElement.appendChild(box);
+      iv = setInterval(function () { tick(); draw(); }, 16);
+    } else if (!v && box) {
+      clearInterval(iv); box.remove(); box = null; log = []; last = "";
+    }
+  }
+  window.addEventListener("popstate", function () { tBack = performance.now(); });
+  document.addEventListener("input", function (ev) {
+    var t = ev.target;
+    if (!t || typeof t.value !== "string" || t.value.trim().toLowerCase() !== WORD) return;
+    var v = !on; put(v); show(v);
+  }, true);
+  if (get()) show(true);
+})();
+/* TEMP-DIAGNOSTIC-END */
