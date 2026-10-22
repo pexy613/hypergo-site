@@ -1,7 +1,96 @@
-/* hg-version 2026-10-21-1300 */
+/* hg-version 2026-10-22-1448 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
+/* TEAM PASSWORD SCREEN (2026-10-22): the app isn't open to the public yet, so on opening it asks for one team password.
+   After the right password that phone stays unlocked (localStorage "hg-team-ok"). Changing PASS_HASH below locks every
+   phone again. Once unlocked this block adds nothing to the page. Only a hash of the password is in this file
+   (fnv() below), and it is checked without capitals or spaces at the ends. App only: this file loads only in the app. */
+(function () {
+  var PASS_HASH = "3d948b6f";
+  var KEY = "hg-team-ok";
+  function fnv(s) {
+    var x = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; }
+    return x.toString(16);
+  }
+  function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  if (window.__hgTeamLock || read() === PASS_HASH) return;
+  window.__hgTeamLock = 1;
+  var html = document.documentElement;
+  var ar = /^\/ar(\/|$)/.test(location.pathname) || html.getAttribute("lang") === "ar" || html.getAttribute("dir") === "rtl";
+  var T = ar ? {
+    title: "هايبرجو قيد التجهيز",
+    text: "نعمل على التطبيق حاليًا. أدخل كلمة مرور الفريق للمتابعة.",
+    ph: "كلمة المرور",
+    btn: "دخول",
+    err: "كلمة المرور غير صحيحة"
+  } : {
+    title: "HyperGo is getting ready",
+    text: "We’re still working on the app. Enter the team password to continue.",
+    ph: "Password",
+    btn: "Enter",
+    err: "Wrong password"
+  };
+  /* design-system values: page #FFFCF9, text #262626 / #767676, form field #F6F4FB with 14 corners and a 1.5pt
+     border that turns #5A29DE when focused (#E5384F on a wrong password), purple #5A29DE 52 tall button, 16 gutters */
+  var css =
+    "html.hg-team-locked,html.hg-team-locked body{overflow:hidden!important;}" +
+    "#hg-team-lock{position:fixed;inset:0;z-index:2147483647;background:#FFFCF9;display:flex;flex-direction:column;justify-content:center;" +
+      "padding:calc(var(--native-status-bar-height,0px) + 24px) 16px calc(24px + env(safe-area-inset-bottom,0px));box-sizing:border-box;" +
+      "font-family:inherit;color:#262626;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}" +
+    "#hg-team-lock *{box-sizing:border-box;font-family:inherit;letter-spacing:0;}" +
+    "#hg-team-lock form{width:100%;max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}" +
+    "#hg-team-lock h1{margin:0;font-size:20px;line-height:24px;font-weight:700;color:#262626;}" +
+    "#hg-team-lock p{margin:0 0 12px;font-size:14px;line-height:20px;font-weight:400;color:#767676;}" +
+    "#hg-team-lock input{width:100%;height:52px;margin:0;padding:0 16px;border:1.5px solid transparent;border-radius:14px;background:#F6F4FB;" +
+      "font-size:16px;color:#262626;text-align:center;outline:none;-webkit-appearance:none;appearance:none;}" +
+    "#hg-team-lock input:focus{border-color:#5A29DE;}" +
+    "#hg-team-lock.hg-bad input{border-color:#E5384F;}" +
+    "#hg-team-lock button{width:100%;height:52px;margin:0;border:0;border-radius:26px;background:#5A29DE;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}" +
+    "#hg-team-lock .hg-team-err{min-height:20px;margin:0;font-size:14px;line-height:20px;color:#E5384F;}";
+  function build() {
+    if (document.getElementById("hg-team-lock")) return;
+    var st = document.createElement("style");
+    st.id = "hg-team-lock-style";
+    st.textContent = css;
+    (document.head || html).appendChild(st);
+    var box = document.createElement("div");
+    box.id = "hg-team-lock";
+    box.setAttribute("dir", ar ? "rtl" : "ltr");
+    box.setAttribute("lang", ar ? "ar" : "en");
+    var form = document.createElement("form");
+    form.setAttribute("autocomplete", "off");
+    var h = document.createElement("h1"); h.textContent = T.title;
+    var p = document.createElement("p"); p.textContent = T.text;
+    var input = document.createElement("input");
+    input.type = "password"; input.placeholder = T.ph; input.setAttribute("aria-label", T.ph);
+    input.setAttribute("autocomplete", "off"); input.setAttribute("autocapitalize", "off"); input.setAttribute("enterkeyhint", "go");
+    var btn = document.createElement("button"); btn.type = "submit"; btn.textContent = T.btn;
+    var err = document.createElement("div"); err.className = "hg-team-err"; err.setAttribute("role", "alert");
+    form.appendChild(h); form.appendChild(p); form.appendChild(input); form.appendChild(btn); form.appendChild(err);
+    box.appendChild(form);
+    html.classList.add("hg-team-locked");
+    (document.body || html).appendChild(box);
+    input.addEventListener("input", function () { box.classList.remove("hg-bad"); err.textContent = ""; });
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (fnv(String(input.value || "").trim().toLowerCase()) === PASS_HASH) {
+        try { localStorage.setItem(KEY, PASS_HASH); } catch (e) {}
+        try { input.blur(); } catch (e) {}
+        box.remove(); st.remove();
+        html.classList.remove("hg-team-locked");
+      } else {
+        box.classList.add("hg-bad");
+        err.textContent = T.err;
+        input.value = "";
+      }
+    });
+  }
+  if (document.body) build();
+  else document.addEventListener("DOMContentLoaded", build);
 })();
 
 /* NEW APP HOME (2026-10-15): loads app-new.css and app-new.js, which draw the main page header and the new Home in the app.
