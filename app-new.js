@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1705 */
+/* hg-version 2026-10-22-1805 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1701,14 +1701,18 @@
   }
   /* every store near the customer: Hyperzod's nearby list for the chosen address (the same call Hyperzod's category
      pages use, 20 per page), plus the Home stores. Loaded once per address and language. */
-  const nearAll = { key: "", list: [], busy: false, failKey: "", failAt: 0 };
+  const nearAll = { key: "", list: [], busy: false, failKey: "", failAt: 0, fails: 0 };
+  /* (2026-10-22) gave up on this address: 3 loads in a row failed (then waits 30s before trying again) */
+  function nearGaveUp(key) { return nearAll.failKey === key && nearAll.fails >= 3 && Date.now() - nearAll.failAt < 30000; }
   function loadNearAll() {
     const S = storeState();
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
     if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number") return;
     const L = lang(), key = sel.latitude.toFixed(5) + "," + sel.longitude.toFixed(5) + "|" + L;
     if (nearAll.key === key || nearAll.busy) return;
-    if (nearAll.failKey === key && Date.now() - nearAll.failAt < 30000) return; /* failed: try again after 30s (2026-10-20) */
+    /* failed: try again after 2s, up to 3 times, then after 30s (2026-10-22; was always 30s, and Hyperzod's old category
+       list showed for those 30s) */
+    if (nearAll.failKey === key && Date.now() - nearAll.failAt < (nearAll.fails >= 3 ? 30000 : 2000)) return;
     nearAll.busy = true;
     const H = { "content-type": "application/json", accept: "application/json", "x-tenant": location.host, "x-client-device": "web" };
     let all = [];
@@ -1720,9 +1724,10 @@
       const list = Array.isArray(d) ? d : (d && Array.isArray(d.data) ? d.data : []);
       all = all.concat(list);
       if (list.length && p < 15) return page(p + 1);
-    });
+    }).catch((e) => { if (p === 1) throw e; }); /* (2026-10-22) a later page failing keeps the stores already loaded */
     /* (2026-10-20): the key is only stored on success, so a failed load is retried and Hyperzod's own category list stays meanwhile */
-    page(1).then(() => { nearAll.list = all; nearAll.key = key; }, () => { nearAll.failKey = key; nearAll.failAt = Date.now(); })
+    page(1).then(() => { nearAll.list = all; nearAll.key = key; nearAll.fails = 0; nearAll.failKey = ""; },
+      () => { nearAll.fails = nearAll.failKey === key ? nearAll.fails + 1 : 1; nearAll.failKey = key; nearAll.failAt = Date.now(); })
       .then(() => { nearAll.busy = false; pageSig = ""; catSig = ""; schedule(); });
   }
   /* cached until one of its source lists changes (2026-10-20): up to 300 stores were merged and sorted on every run */
@@ -1755,7 +1760,12 @@
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
     sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>'
   };
-  let catSig = "", catSt = newListState(), catWas = "";
+  let catSig = "", catSt = newListState(), catWas = "", catPath = "", catT0 = 0;
+  function nearKey() {
+    const S = storeState();
+    const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
+    return sel && typeof sel.latitude === "number" && typeof sel.longitude === "number" ? sel.latitude.toFixed(5) + "," + sel.longitude.toFixed(5) + "|" + lang() : "";
+  }
   function catRoute() {
     const r = curRoute();
     return r && r.name === "merchant-category" && r.params && r.params.id ? r : null;
@@ -1790,7 +1800,13 @@
     const root = document.getElementById("merchants_by_category");
     const de = document.documentElement;
     let box = document.getElementById("hgn-catpage");
-    const off = () => { de.classList.toggle("hgn-cat-on", false); if (box) box.remove(); catSig = ""; }; /* toggle (2026-10-20): no class rewrite when already off */
+    const off = () => { de.classList.toggle("hgn-cat-on", false); de.classList.toggle("hgn-cat-native", false); if (box) box.remove(); catSig = ""; }; /* toggle (2026-10-20): no class rewrite when already off */
+    /* (2026-10-22) Hyperzod's own (old) list: only when our list really can't be made (see app-new.css, CATEGORY PAGE) */
+    const native = () => { off(); de.classList.toggle("hgn-cat-native", true); };
+    const wait = () => {
+      place();
+      if (catSig !== "loading") { catSig = "loading"; box.innerHTML = '<div class="hgn-sres-loading hgn-cp-wait"><span></span><span></span><span></span><span></span></div>'; }
+    };
     const place = () => {
       de.classList.toggle("hgn-cat-on", true);
       if (!box) {
@@ -1805,17 +1821,22 @@
        changed; our page stays until it leaves, so Hyperzod's old list never shows in between */
     if (!r && root && box && root.getClientRects().length) return;
     if (!r || !root) { off(); return; }
+    /* OLD DESIGN SHOWING SOMETIMES (2026-10-22, found in the code): Hyperzod's old list showed whenever our list could not
+       be drawn at once: Home's data not loaded yet or the address not known yet (e.g. a category opened soon after the
+       app starts), or one failed load of the nearby stores (then for 30 seconds). Now the grey loading rows show while
+       any of these is still on its way (up to 8 seconds), with quick retries, and the old list only after that. */
+    if (catPath !== location.pathname) { catPath = location.pathname; catT0 = Date.now(); }
+    const late = Date.now() - catT0 > 8000;
     const hd = homeData();
-    if (!hd) { off(); return; }
+    if (!hd) { if (late) native(); else wait(); return; }
     const cid = String(r.params.id);
     if (cid !== catWas) { catWas = cid; catSt = newListState(); }
     const all = nearStores(hd);
     /* nearby stores still loading (2026-10-22): grey loading rows (as on Search) instead of Hyperzod's old list. Not
        loading at all (no address, or the load failed): Hyperzod's own list stays */
     if (!nearAll.key) {
-      if (!nearAll.busy) { off(); return; }
-      place();
-      if (catSig !== "loading") { catSig = "loading"; box.innerHTML = '<div class="hgn-sres-loading hgn-cp-wait"><span></span><span></span><span></span><span></span></div>'; }
+      const k = nearKey();
+      if (nearAll.busy || (!late && !(k && nearGaveUp(k)))) wait(); else native();
       return;
     }
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L], T = LTXT[L], C = CTXT[L];
@@ -1823,6 +1844,7 @@
     const cat = catMap[cid] || (hd.merchant_categories || []).find((c) => String(c.id || c._id) === cid);
     const list = all.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === cid));
     place();
+    de.classList.toggle("hgn-cat-native", false);
     const sig = [cid, L, JSON.stringify(catSt), list.map((m) => m._id || m.id).join(",")].join("|");
     if (sig === catSig) return;
     catSig = sig;
@@ -2306,8 +2328,11 @@
       /* (2026-10-20) a new Search screen too (e.g. Back from a store): its header and start screen were drawn 40ms late */
       const sr = document.getElementById("MultiVendorSearch");
       const bareSearch = sr && !sr.querySelector("#hgn-shead") && /^\/(en|ar)\/search\/?$/.test(currentPath());
+      /* (2026-10-22) a new category page too: ours was drawn up to 40ms after Hyperzod's old list had shown */
+      const mbc = document.getElementById("merchants_by_category");
+      const bareCat = mbc && !mbc.querySelector("#hgn-catpage") && !document.documentElement.classList.contains("hgn-cat-native") && !!catRoute();
       /* at most once per frame (2026-10-20): while Home's data is still loading these stay true, and every change ran a full tick */
-      if ((bareHeader || bareHome || bareSearch) && !syncFrame) {
+      if ((bareHeader || bareHome || bareSearch || bareCat) && !syncFrame) {
         syncFrame = true;
         requestAnimationFrame(() => { syncFrame = false; });
         tick();
