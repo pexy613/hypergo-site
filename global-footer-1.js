@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1610 */
+/* hg-version 2026-10-22-1615 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -127,7 +127,7 @@
     var root = el("div"); root.id = "hg-cs";
     /* picture with the logo on it (the logo is the hidden 3-second press) */
     var hero = el("div", "hg-cs-hero");
-    var pic = el("img", "hg-cs-pic"); pic.src = BASE + "hero.jpg"; pic.alt = ""; pic.setAttribute("aria-hidden", "true"); pic.draggable = false;
+    var pic = el("img", "hg-cs-pic"); pic.src = BASE + "hero.jpg?v=2"; /* ?v= : bump when the picture changes (v2 2026-10-22: 1600x2000, was 800x1000) */ pic.alt = ""; pic.setAttribute("aria-hidden", "true"); pic.draggable = false;
     var brand = el("div", "hg-cs-brand");
     var logo = el("img"); logo.src = BASE + "logo-white.svg"; logo.alt = ""; logo.draggable = false;
     brand.appendChild(logo); brand.appendChild(el("span", "", "HyperGo"));
