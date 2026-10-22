@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1805 */
+/* hg-version 2026-10-22-2039 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -91,7 +91,8 @@
        inner layers transparent, so there is no seam) */
 
     root.style.setProperty("background-color", "#8640FC", "important");
-    root.style.setProperty("background-image", "none", "important");
+    /* (2026-10-22, appetite accents) a soft gloss: the top stays #8640FC (the status bar strip colour), deeper at the bottom */
+    root.style.setProperty("background-image", "linear-gradient(180deg,#8640FC 0%,#8640FC 40%,#7432EE 100%)", "important");
     root.style.setProperty("border-radius", "0 0 26px 26px", "important");
     root.style.setProperty("box-shadow", "none", "important");
 
@@ -409,7 +410,7 @@
   let wmTicking = false;
   /* our sideways rows (banner sliding by itself every 4s, category, store, product and filter rows) never move the header:
      their scroll events are skipped (2026-10-20); the header only moves when the page itself scrolls. Shared with app-footer.js. */
-  const SIDEWAYS = "#hgn-home,.hgn-slides,.hgn-store-row,.hgn-sp-chips,.hgn-circles,.hgn-tabs,.hgn-filters,.hgn-sb-prods,.hgn-cp-pills,.hgn-occ-row";
+  const SIDEWAYS = "#hgn-home,.hgn-slides,.hgn-store-row,.hgn-sp-chips,.hgn-circles,.hgn-tabs,.hgn-filters,.hgn-sb-prods,.hgn-cp-pills,.hgn-occ-row,.hgn-joy-row,.hgn-mib-row";
   window.__hgnSideways = SIDEWAYS;
   document.addEventListener(
     "scroll",
@@ -806,17 +807,19 @@
       st.id = "hg-cart-style";
       st.textContent =
         "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 7px);width:40px;height:40px;border-radius:50%;" + /* 40 (Talabat), centred on the two text lines (2026-10-21) */
-        "background:#FFFFFF !important;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" + /* white circle (2026-10-21) */
+        "background:linear-gradient(180deg,#FFFFFF,#F1ECFF) !important;box-shadow:0 4px 10px rgba(54,25,133,.25),inset 0 -2px 0 rgba(90,41,222,.08);" + /* glossy white circle (2026-10-22) */
+        "border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" +
         "cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}" +
         "#hg-cart-btn:active{background:#F2F2F2 !important;}" +
         "html[lang^='ar'] #hg-cart-btn{right:auto;left:16px;}" +
         "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;clip-path:inset(0 0 24px 0 round 0 0 0 20px);}" +
         /* badge on the inline end corner (2026-10-20, was right): mirrors in Arabic */
-        "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;inset-inline-end:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;background:#FF3B4E;" +
+        "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;inset-inline-end:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;" +
+        "background:radial-gradient(circle at 35% 30%,#EFFFEC 0%,#ACE4AA 55%,#7CC878 100%);" + /* green pearl (2026-10-22, was red) */
         "border:2px solid #8640FC;display:none;}" +
         "#hg-cart-btn .hg-cart-badge.on{display:block;}" +
         "#hg-cart-btn .hg-cart-badge.num{top:-3px;inset-inline-end:-3px;width:auto;min-width:17px;height:17px;padding:0 3px;border-radius:9px;text-align:center;" +
-        "font-size:10px !important;line-height:13px !important;font-weight:700 !important;color:#fff !important;}";
+        "font-size:10px !important;line-height:13px !important;font-weight:800 !important;color:#1B2023 !important;}";
       document.head.appendChild(st);
     }
 
@@ -896,14 +899,16 @@
     "6a9befd6fbfc7198220f95d3": "baby-care", "6a9bf0d4288fb9d9e903a7e9": "gifts", "6a9bf205dda6795f8c065937": "toys",
     "6a9bf4e4dda6795f8c065939": "sports", "6a9bef89288fb9d9e903a7e6": "home-goods"
   };
-  /* Shop by occasion cards (O4, chosen 2026-10-19): title in English and Arabic, the Hyperzod category each one opens,
-     and its picture: the product from that category's icon without a background, in the repo's occasion-cutouts folder */
-  const OCC_IMG_BASE = "https://pexy613.github.io/hypergo-site/occasion-cutouts/";
+  /* Shop by occasion cards: title in English and Arabic and the Hyperzod category each one opens.
+     (2026-10-22) Pictures: the stores' own photos (Nouf's Merchants folder: Arham Gift, Golden Petals, Supplemento,
+     Rocky and Eva), cropped with the product in the middle, in the repo's occasion-photos folder. The category
+     pictures are only used on the category tiles (Nouf, 2026-10-22); the old occasion-cutouts folder is no longer used. */
+  const OCC_IMG_BASE = "https://pexy613.github.io/hypergo-site/occasion-photos/";
   const OCCASIONS = [
-    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9", img: "gifts" },
-    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932", img: "flowers" },
-    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7", img: "nutrition" },
-    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2", img: "party-stores" }
+    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9", img: "birthday" },
+    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932", img: "get-well-soon" },
+    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7", img: "gym-day" },
+    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2", img: "party-night" }
   ];
   function catPhoto(c) {
     const slug = CAT_PHOTOS[c && (c.id || c._id)];
@@ -972,6 +977,279 @@
     (hd.featured_merchants || []).forEach(add);
     (hd.merchants || []).forEach((m) => { if (m.is_featured || m.is_sponsored) add(m); });
     return out;
+  }
+
+  /* ---------- APPETITE ACCENTS (2026-10-22, from "HyperGo Appetite Accents", chosen by Nouf) ----------
+     Two display fonts for a few words only: Plus Jakarta Sans 800 and Instrument Serif italic (Google Fonts, loaded once).
+     In Arabic both fall back to the phone's own font (see app-new.css), so no Arabic word is ever drawn in a Latin font.
+     Every part below shows only what Hyperzod's own data says; a part with nothing true to show is left out. */
+  function ensureAccentFonts() {
+    if (document.getElementById("hgn-accent-fonts")) return;
+    const l = document.createElement("link");
+    l.id = "hgn-accent-fonts";
+    l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Plus+Jakarta+Sans:wght@700;800&display=swap";
+    (document.head || document.documentElement).appendChild(l);
+  }
+  const ATXT = {
+    en: { joysA: "Little", joysB: "joys", joysSub: "Gifts and flowers from shops near you", joysFree: "Gifts and flowers, delivered free",
+      mibA: "Made in", mibB: "Bahrain", mibEye: "NEW ON HYPERGO", isNew: "New",
+      mibSub: (n) => "<b>" + n + "</b> local shop" + (n === 1 ? "" : "s") + " joined in the last 2 weeks",
+      age: (d) => d <= 0 ? "Joined today" : d === 1 ? "Joined yesterday" : "Joined " + d + " days ago",
+      your: "Your order", from: "Your order from ", more: (n) => "+" + n + " more",
+      st: { 1: "Order placed", 2: "Being prepared", 3: "Ready, waiting for the rider", 4: "On the way to you" },
+      pst: { 3: "Ready for pickup", 4: "Collected" }, route: ["Shop", "On the way", "Your door"] },
+    ar: { joysA: "أفراح", joysB: "صغيرة", joysSub: "هدايا وورد من محلات قريبة منك", joysFree: "هدايا وورد، والتوصيل مجاني",
+      mibA: "صُنع في", mibB: "البحرين", mibEye: "جديد على هايبرجو", isNew: "جديد",
+      mibSub: (n) => "محلات محلية جديدة خلال آخر أسبوعين: <b>" + n + "</b>",
+      age: (d) => d <= 0 ? "انضم اليوم" : d === 1 ? "انضم أمس" : d === 2 ? "انضم قبل يومين" : "انضم قبل " + d + (d <= 10 ? " أيام" : " يومًا"),
+      your: "طلبك", from: "طلبك من ", more: (n) => "+" + n + " " + (n === 1 ? "طلب آخر" : "طلبات أخرى"),
+      st: { 1: "تم استلام الطلب", 2: "قيد التحضير", 3: "جاهز، بانتظار المندوب", 4: "في الطريق إليك" },
+      pst: { 3: "جاهز للاستلام", 4: "تم الاستلام" }, route: ["المتجر", "في الطريق", "بابك"] }
+  };
+
+  /* Campaign banners (design A, chosen 2026-10-22): mixed into the banner carousel, one of ours then one shop banner.
+     Each one opens its store and shows only while that store is in the customer's nearby list and taking orders.
+     Photos: the stores' own photos (Nouf's Merchants folder), cropped to each frame, in the repo's campaigns folder.
+     The "This weekend only, free delivery" banner is NOT here on purpose (not true yet). */
+  const CAMP_BASE = "https://pexy613.github.io/hypergo-site/campaigns/";
+  const CAMPAIGNS = [
+    { id: "6a92c1dce473eb7393060782", kind: "k1", img: "make-their-day",
+      en: { a: "Make their", b: "day.", cta: "Shop flowers" }, ar: { a: "اصنع", b: "يومهم.", cta: "تسوّق الورد" } },
+    { id: "6a89808c7a915655e2058cb3", kind: "k2", img: "made-in-bahrain",
+      en: { eye: "LOCAL FLORISTS", a: "Made in", b: "Bahrain." }, ar: { eye: "محلات ورد محلية", a: "صُنع في", b: "البحرين." } },
+    { id: "6a801c8b4873cca9ba0a9c43", kind: "k3", img: "gym-day",
+      en: { eye: "SUPPLEMENTS", a: "Gym day,", b: "sorted.", cta: "Shop now" }, ar: { eye: "مكملات غذائية", a: "يوم الجيم،", b: "جاهز.", cta: "تسوّق الآن" } },
+    { id: "6a957cd366d1657db70e7742", kind: "k4", img: "party",
+      en: { eye: "GIFT SHOPS", a: "Bring the", b: "party", c: " home." }, ar: { eye: "محلات الهدايا", a: "خلّ", b: "الحفلة", c: " في البيت." } }
+  ];
+  function campaignsFor(hd) {
+    const byId = {};
+    nearStores(hd).forEach((m) => { byId[m._id || m.id] = m; });
+    return CAMPAIGNS.map((c) => ({ c: c, m: byId[c.id] })).filter((x) => x.m && x.m.slug && x.m.is_accepting_orders !== false);
+  }
+  function campSlide(c, m, L) {
+    const T = c[L], href = storeHref(m, L);
+    seenStores[m._id || m.id] = m;
+    const img = '<img src="' + esc(CAMP_BASE + c.img + ".webp") + '" alt="" decoding="async">';
+    const eye = T.eye ? '<span class="hgn-k-eye">' + esc(T.eye) + "</span>" : "";
+    const cta = T.cta ? '<span class="hgn-k-cta">' + esc(T.cta) + "</span>" : "";
+    let h = "", pic = "", extra = "";
+    if (c.kind === "k1") {
+      h = esc(T.a) + '<br><span class="hgn-serif hgn-k1-b">' + esc(T.b) + "</span>";
+      pic = '<span class="hgn-k-pic hgn-k1-pic">' + img + '<span class="hgn-k1-gloss" aria-hidden="true"></span></span>';
+    } else if (c.kind === "k2") {
+      h = esc(T.a) + '<br><span class="hgn-k2-b">' + esc(T.b) + "</span>";
+      pic = '<span class="hgn-k-pic hgn-k2-pic">' + img + "</span>";
+    } else if (c.kind === "k3") {
+      h = esc(T.a) + '<br><span class="hgn-k3-b">' + esc(T.b) + "</span>";
+      pic = '<span class="hgn-k-pic hgn-k3-pic">' + img + "</span>";
+      extra = '<span class="hgn-k3-fade" aria-hidden="true"></span>';
+    } else {
+      h = esc(T.a) + '<br><span class="hgn-k4-b">' + esc(T.b) + "</span>" + esc(T.c);
+      pic = '<span class="hgn-k-pic hgn-k4-pic">' + img + "</span>";
+      extra = '<span class="hgn-k4-c hgn-k4-c1" aria-hidden="true"></span><span class="hgn-k4-c hgn-k4-c2" aria-hidden="true"></span><span class="hgn-k4-c hgn-k4-c3" aria-hidden="true"></span>';
+    }
+    const label = [T.eye, T.a + " " + T.b + (T.c || ""), m.name].filter(Boolean).join(", ");
+    return '<a class="hgn-slide hgn-camp hgn-' + c.kind + '" href="' + esc(href) + '" data-href="' + esc(href) + '" aria-label="' + esc(label) + '">' +
+      (c.kind === "k3" ? pic + extra : extra) +
+      '<span class="hgn-k-txt">' + eye + '<span class="hgn-k-h hgn-jak">' + h + "</span>" + cta + "</span>" +
+      (c.kind === "k3" ? "" : pic) + "</a>";
+  }
+
+  /* New shops: the date a store joined Hyperzod is inside its id (the first 8 characters are its creation time).
+     "New" = joined in the last 14 days (chosen by Nouf 2026-10-22). The store called "HyperGo" itself is left out. */
+  const NEW_DAYS = 14;
+  function joinedAt(m) {
+    const id = String((m && (m._id || m.id)) || "");
+    return /^[0-9a-f]{24}$/i.test(id) ? parseInt(id.slice(0, 8), 16) * 1000 : 0;
+  }
+  let newMemo = { src: null, at: 0, out: [] };
+  function newStores(hd) {
+    const src = nearStores(hd), now = Date.now();
+    if (newMemo.src === src && now - newMemo.at < 60000) return newMemo.out;
+    const out = src.filter((m) => {
+      const t = joinedAt(m);
+      return t && t <= now + 864e5 && now - t <= NEW_DAYS * 864e5 && !/^\s*hypergo\s*$/i.test(m.name || "");
+    });
+    newMemo = { src: src, at: now, out: out };
+    return out;
+  }
+  /* at most 2 tiles get the tag (2026-10-22): new shops are in most categories, and a tag on every tile says nothing.
+     Only tiles shown on Home count; the two with the most new shops win (then the most recent one). */
+  function newCatIds(hd, shownIds) {
+    const n = {}, last = {}, ids = {};
+    newStores(hd).forEach((m) => {
+      const t = joinedAt(m);
+      (m.merchant_category_ids || []).forEach((c) => {
+        if (shownIds.indexOf(c) === -1) return;
+        n[c] = (n[c] || 0) + 1;
+        if (!last[c] || t > last[c]) last[c] = t;
+      });
+    });
+    Object.keys(n).sort((a, b) => n[b] - n[a] || last[b] - last[a]).slice(0, 2).forEach((c) => { ids[c] = true; });
+    return ids;
+  }
+
+  /* ORDER CARD: only while the customer has an order in progress (Hyperzod status 1 placed, 2 accepted, 3 ready,
+     4 collected; 5 completed and 6 cancelled never show). The list is Hyperzod's own (getOnGoingOrders), kept live by
+     Hyperzod's order updates (watchOrders). It is loaded here the same way Hyperzod's own order strip loads it, every
+     60 seconds at most, only when signed in. An order whose last status change is older than 48 hours is not shown. */
+  const orderFetch = { at: 0, busy: false, user: "" };
+  const orderWatched = {};
+  let orderShown = {};
+  function orderStore() { const g = vueGlobals(); return g && g.$store; }
+  function loadOrders(st, uid) {
+    let tok = "";
+    try { tok = String(localStorage.getItem("access_token") || "").replace(/^"|"$/g, ""); } catch (e) {}
+    if (!tok || orderFetch.busy || (orderFetch.user === uid && Date.now() - orderFetch.at < 60000)) return;
+    orderFetch.busy = true;
+    orderFetch.user = uid;
+    orderFetch.at = Date.now();
+    fetch("https://api.hyperzod.app/store/v1/order/getOrdersByUserId?user_id=" + encodeURIComponent(uid) + "&per_page=3&page=1", {
+      headers: { accept: "application/json", authorization: "Bearer " + tok, "x-tenant": location.host, "x-client-device": "web" }
+    }).then((r) => r.json()).then((j) => {
+      const d = j && j.data;
+      const list = d && Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : null);
+      if (!list) return;
+      const on = list.filter((o) => o && [5, 6].indexOf(o.order_status) === -1);
+      const fresh = on.filter((o) => o.order_uuid && !orderWatched[o.order_uuid]);
+      fresh.forEach((o) => { orderWatched[o.order_uuid] = true; });
+      try { if (fresh.length) st.dispatch("watchOrders", fresh); } catch (e) {}
+      st.commit("setOnGoingOrders", on);
+    }).catch(() => {}).then(() => { orderFetch.busy = false; schedule(); });
+  }
+  function parseT(v) {
+    if (typeof v === "number") return v < 1e12 ? v * 1000 : v;
+    const t = Date.parse(String(v || "").replace(" ", "T"));
+    return isNaN(t) ? 0 : t;
+  }
+  function orderTime(o) {
+    let t = 0;
+    (Array.isArray(o.order_status_history) ? o.order_status_history : []).forEach((x) => { const v = parseT(x && x.timestamp); if (v > t) t = v; });
+    return t || parseT(o.updated_at) || parseT(o.created_at);
+  }
+  function activeOrders() {
+    const st = orderStore();
+    const u = st && st.getters && st.getters.getLoggedInUser;
+    if (!u || !u.id) return [];
+    loadOrders(st, String(u.id));
+    const now = Date.now(), seen = {};
+    return (st.getters.getOnGoingOrders || []).filter((o) => {
+      if (!o || !o.order_id || seen[o.order_id]) return false;
+      seen[o.order_id] = true;
+      if ([1, 2, 3, 4].indexOf(o.order_status) === -1) return false;
+      const t = orderTime(o);
+      return !t || now - t < 48 * 3600e3;
+    }).sort((a, b) => orderTime(b) - orderTime(a));
+  }
+  const OICON = {
+    bike: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h6l-3-8H8M15 9h3l3 5"/></svg>',
+    home: '<svg viewBox="0 0 24 24" fill="none" stroke="#1B2023" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg>',
+    chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>'
+  };
+  function orderCardHtml(list, L) {
+    orderShown = {};
+    if (!list.length) return "";
+    const o = list[0], A = ATXT[L], s = o.order_status;
+    orderShown[o.order_id] = o;
+    const type = String(o.order_type || "");
+    const label = (type === "pickup" && A.pst[s]) || A.st[s];
+    const shop = o.merchant ? (nameOf(o.merchant) || o.merchant.name || "") : "";
+    const href = "/" + L + "/profile/order/" + encodeURIComponent(o.order_id);
+    const stage = s === 4 ? 1 : 0;
+    let route = "";
+    if (type === "delivery") {
+      route = '<span class="hgn-oc-route" aria-hidden="true"><span class="hgn-oc-dot"></span>' +
+        '<span class="hgn-oc-line' + (stage ? " is-done" : "") + '"></span><span class="hgn-oc-bike' + (stage ? " is-on" : "") + '">' + OICON.bike + "</span>" +
+        '<span class="hgn-oc-line"></span><span class="hgn-oc-home">' + OICON.home + "</span></span>" +
+        '<span class="hgn-oc-lbl">' + A.route.map((r, i) => '<span' + (i === stage ? ' class="is-on"' : "") + ">" + esc(r) + "</span>").join("") + "</span>";
+    }
+    return '<a class="hgn-oc" href="' + esc(href) + '" data-href="' + esc(href) + '" data-act="order" data-id="' + esc(o.order_id) + '">' +
+      '<span class="hgn-oc-top"><span class="hgn-oc-t">' + (shop ? esc(A.from) + "<b>" + esc(shop) + "</b>" : esc(A.your)) + "</span>" +
+      '<span class="hgn-oc-go">' + OICON.chev + "</span></span>" +
+      '<span class="hgn-oc-st"><span class="hgn-oc-pill">' + esc(label) + "</span>" +
+      (list.length > 1 ? '<span class="hgn-oc-more">' + esc(A.more(list.length - 1)) + "</span>" : "") + "</span>" +
+      route + "</a>";
+  }
+
+  /* Little joys (chosen 2026-10-22): real products from the 4 nearest open Gifts and Flowers stores (their Hyperzod menus,
+     with photo, in stock, featured first), up to 3 per store, 10 in all. Shown only once every one of those menus has
+     loaded and there are at least 3 products. "delivered free" only when every one of those stores delivers free. */
+  const JOY_CATS = ["6a9bf0d4288fb9d9e903a7e9", "6a9bee55dda6795f8c065932"];
+  const SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><radialGradient id="hgn-lj-g" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#F4FFF2"/><stop offset=".55" stop-color="#ACE4AA"/><stop offset="1" stop-color="#6FBF6B"/></radialGradient></defs><path d="M12 2l2.6 6.9L22 12l-7.4 3.1L12 22l-2.6-6.9L2 12l7.4-3.1Z" fill="url(#hgn-lj-g)"/></svg>';
+  function joysHtml(hd, L) {
+    const stores = nearStores(hd).filter((m) => m.is_open !== false && m.is_accepting_orders !== false &&
+      (m.merchant_category_ids || []).some((c) => JOY_CATS.indexOf(c) !== -1)).slice(0, 4);
+    if (!stores.length) return "";
+    const lists = stores.map((m) => storeProducts(m._id || m.id));
+    if (lists.some((l) => !l)) return "";
+    const items = [];
+    for (let k = 0; k < 3 && items.length < 10; k++) {
+      stores.forEach((m, i) => { const p = lists[i][k]; if (p && items.length < 10) items.push({ m: m, p: p }); });
+    }
+    if (items.length < 3) return "";
+    const A = ATXT[L];
+    const free = stores.every((m) => storeFee(m) === 0);
+    return '<section class="hgn-joys"><div class="hgn-joy-head"><h2 class="hgn-joy-h"><span class="hgn-jak">' + esc(A.joysA) + "</span>" +
+      '<span class="hgn-serif">' + esc(A.joysB) + "</span>" + SPARK + "</h2>" +
+      '<span class="hgn-joy-sub">' + esc(free ? A.joysFree : A.joysSub) + "</span></div>" +
+      '<div class="hgn-joy-row">' + items.map(({ m, p }) => {
+        seenStores[m._id || m.id] = m;
+        const href = storeHref(m, L);
+        return '<a class="hgn-joy" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+          '<span class="hgn-joy-pic"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"></span>' +
+          '<span class="hgn-joy-n">' + esc(nameOf(p)) + "</span>" +
+          '<span class="hgn-joy-s">' + esc(nameOf(m) || m.name) + "</span>" +
+          '<span class="hgn-joy-p">' + prodPrice(p) + "</span></a>";
+      }).join("") + "</div></section>";
+  }
+
+  /* Made in Bahrain (redesigned 2026-10-22): the shops near the customer that joined in the last 14 days, nearest
+     first (10 cards at most; the count is all of them). Each card: the store's own cover photo and logo from Hyperzod
+     (a purple gloss and the initials when it has none), its category and how many days ago it joined (from its id). */
+  const SERR = '<span class="hgn-mib-serr" aria-hidden="true"><svg viewBox="0 0 84 300" preserveAspectRatio="none"><path fill="currentColor" d="M84 0H30L0 30L30 60L0 90L30 120L0 150L30 180L0 210L30 240L0 270L30 300H84Z"/></svg></span>';
+  function initials(n) {
+    return String(n || "").trim().split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase();
+  }
+  function mibHtml(hd, L, catMap) {
+    const all = newStores(hd).filter((m) => m.is_accepting_orders !== false);
+    if (!all.length) return "";
+    const A = ATXT[L], now = Date.now();
+    return '<section class="hgn-mib">' + SERR + '<div class="hgn-mib-head"><span class="hgn-mib-eye">' + esc(A.mibEye) + "</span>" +
+      '<h2 class="hgn-mib-h hgn-jak">' + esc(A.mibA) + '<span class="hgn-mib-ring"><span>' + esc(A.mibB) + "</span></span></h2>" +
+      '<span class="hgn-mib-sub">' + A.mibSub(all.length) + "</span></div>" +
+      '<div class="hgn-mib-row">' + all.slice(0, 10).map((m) => {
+        seenStores[m._id || m.id] = m;
+        const href = storeHref(m, L), cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
+        const c = catMap[(m.merchant_category_ids || [])[0]];
+        const name = nameOf(m) || m.name;
+        const days = Math.max(0, Math.floor((now - joinedAt(m)) / 864e5));
+        return '<a class="hgn-mib-card" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+          '<span class="hgn-mib-cover' + (cover ? "" : " is-empty") + '">' + (cover ? '<img src="' + esc(cover) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+          '<span class="hgn-mib-logo">' + (logo ? '<img src="' + esc(logo) + '" alt="" loading="lazy" decoding="async">' : esc(initials(name))) + "</span>" +
+          '<span class="hgn-mib-body"><span class="hgn-mib-n">' + esc(name) + "</span>" +
+          (c ? '<span class="hgn-mib-c">' + esc(catLabel(c)) + "</span>" : "") +
+          '<span class="hgn-mib-age">' + esc(A.age(days)) + "</span></span></a>";
+      }).join("") + "</div></section>";
+  }
+
+  /* the three parts under the banner are filled on their own (every run, only rewritten when their content changes),
+     so the rows keep their scroll and a new order status shows within 1.5 seconds without redrawing Home */
+  function setSlot(id, html) {
+    const el = document.getElementById(id);
+    if (!el || el.__hgHtml === html) return;
+    el.__hgHtml = html;
+    el.innerHTML = html;
+    el.hidden = !html;
+  }
+  function fillSlots(hd, L) {
+    if (!document.getElementById("hgn-order-slot")) return;
+    const orders = activeOrders();
+    setSlot("hgn-order-slot", orderCardHtml(orders, L));
+    document.documentElement.classList.toggle("hgn-order-on", orders.length > 0);
+    setSlot("hgn-joys-slot", joysHtml(hd, L));
+    setSlot("hgn-mib-slot", mibHtml(hd, L, catMapOf(hd)));
   }
 
   /* ---------- HOME ---------- */
@@ -1044,7 +1322,8 @@
       return '<a class="hgn-sp-row" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
         '<span class="hgn-sp-img">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
         '<span class="hgn-sp-txt"><span class="hgn-sp-name">' + esc(m.name) + "</span>" +
-        (meta ? '<span class="hgn-sp-meta">' + esc(meta) + "</span>" : "") + "</span></a>";
+        (meta ? '<span class="hgn-sp-meta">' + esc(meta) + "</span>" : "") +
+        (storeFee(m) === 0 ? '<span class="hgn-sp-free">' + esc(TXT[d.L].free) + "</span>" : "") + "</span></a>";
     }).join("");
   }
   function storePanel(title, stores, L, catMap, t, seeAll) {
@@ -1130,8 +1409,12 @@
     const favs = favList(), favIds = {};
     favs.forEach((f) => { favIds[f.id] = true; });
     /* favourites are not in the signature (2026-10-20): a heart tap flips the hearts in place (onHomeClick), so the rows keep their scroll */
-    const sig = [L, WIDE.matches, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(",")].join("|");
-    if (sig === homeSig && box.firstChild) return;
+    /* (2026-10-22) campaign banners and New tags: both depend on the nearby stores, so they are in the signature */
+    const camps = campaignsFor(hd);
+    const newCats = newCatIds(hd, cats.slice(0, cats.length > 8 ? 7 : cats.length).map(idOf));
+    const sig = [L, WIDE.matches, cats.map(idOf).join(","), stores.map(idOf).join(","), feat.map(idOf).join(","),
+      camps.map((x) => x.c.id).join(","), Object.keys(newCats).sort().join(",")].join("|");
+    if (sig === homeSig && box.firstChild) { fillSlots(hd, L); return; }
     homeSig = sig;
 
     const catMap = catMapOf(hd);
@@ -1147,7 +1430,8 @@
       const photo = catPhoto(c);
       const img = photo || c.image;
       html += '<a class="hgn-cat' + (photo ? " hgn-cat-photo" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-        '<span class="hgn-cat-ring">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+        '<span class="hgn-cat-ring' + (newCats[idOf(c)] ? " has-new" : "") + '">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") +
+        (newCats[idOf(c)] ? '<span class="hgn-cat-new">' + esc(ATXT[L].isNew) + "</span>" : "") + "</span>" +
         '<span class="hgn-cat-name">' + esc(catLabel(c)) + "</span></a>";
     });
     /* "See all" opens the Search page, which lists every category ("Shop by category") */
@@ -1162,9 +1446,21 @@
     /* banner (C1, chosen 2026-10-18): the store's own banner photo as it is (it already shows the store's name and logo,
        so we add no text on it), with only a small "Shop now" pill in the corner. Slides = the stores in the Featured collection (Hyperzod page builder), then
        any Featured / Sponsored stores; a store without a cover photo is left out; hidden while there are none. */
-    if (feat.length) {
-      html += '<section class="hgn-banner" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
-      feat.forEach((m) => {
+    /* mixed carousel (design A, chosen 2026-10-22): one of our campaign banners, then one shop banner, and so on; a shop
+       whose campaign banner is already in the row is not shown twice */
+    const campIds = {};
+    camps.forEach((x) => { campIds[x.c.id] = true; });
+    const shops = feat.filter((m) => !campIds[idOf(m)]);
+    const slides = [];
+    for (let i = 0, j = 0; i < camps.length || j < shops.length;) {
+      if (i < camps.length) slides.push(camps[i++]);
+      if (j < shops.length) slides.push({ m: shops[j++] });
+    }
+    if (slides.length) {
+      html += '<section class="hgn-banner' + (slides.length > 1 ? " has-dots" : "") + '" aria-label="' + esc(t.featured) + '"><div class="hgn-slides">';
+      slides.forEach((x) => {
+        if (x.c) { html += campSlide(x.c, x.m, L); return; }
+        const m = x.m;
         const href = storeHref(m, L);
         html += '<a class="hgn-slide" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
           '<img class="hgn-slide-photo" src="' + esc(storeImg(m, "cover")) + '" alt="" decoding="async">' +
@@ -1172,11 +1468,13 @@
           "</a>";
       });
       html += "</div>";
-      if (feat.length > 1) {
-        html += '<div class="hgn-dots" aria-hidden="true">' + feat.map((m, i) => '<span class="hgn-dot' + (i ? "" : " is-on") + '"></span>').join("") + "</div>";
+      if (slides.length > 1) {
+        html += '<div class="hgn-dots" aria-hidden="true">' + slides.map((x, i) => '<span class="hgn-dot' + (x.c ? " is-ours" : "") + (i ? "" : " is-on") + '"></span>').join("") + "</div>";
       }
       html += "</section>";
     }
+    /* (2026-10-22) order card, Little joys and Made in Bahrain: filled by fillSlots */
+    html += '<div id="hgn-order-slot" hidden></div><div id="hgn-joys-slot" hidden></div><div id="hgn-mib-slot" hidden></div>';
 
     /* Shop by occasion (O4, chosen 2026-10-19, in place of Popular right now): purple cards, each opens a Hyperzod category.
        A card whose category is missing or switched off is left out. */
@@ -1185,11 +1483,12 @@
       html += '<section class="hgn-occs"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.occ) + '</h2></div><div class="hgn-occ-row">' +
         occ.map(({ o, c }) => {
           const href = catHref(c, L);
-          return '<a class="hgn-occ" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-            '<span class="hgn-occ-t">' + esc(o[L]) + "</span>" +
-            '<span class="hgn-occ-go">' + esc(t.shop) + "</span>" +
-            '<span class="hgn-occ-glow" aria-hidden="true"></span>' +
-            '<img class="hgn-occ-img" src="' + esc(OCC_IMG_BASE + o.img + ".webp") + '" alt="" loading="lazy" decoding="async"></a>';
+          /* ticket card (2026-10-22): the photo, then a perforated stub with the occasion, its category and a go button */
+          return '<a class="hgn-tk" href="' + esc(href) + '" data-href="' + esc(href) + '" aria-label="' + esc(o[L] + ", " + catLabel(c)) + '">' +
+            '<span class="hgn-tk-pic"><img src="' + esc(OCC_IMG_BASE + o.img + ".webp") + '" alt="" loading="lazy" decoding="async"></span>' +
+            '<span class="hgn-tk-stub"><span class="hgn-tk-t hgn-jak">' + esc(o[L]) + "</span>" +
+            '<span class="hgn-tk-s">' + esc(catLabel(c)) + "</span>" +
+            '<span class="hgn-tk-go">' + GO_ARROW + "</span></span></a>";
         }).join("") + "</div></section>";
     }
 
@@ -1212,6 +1511,7 @@
     box.setAttribute("dir", ar ? "rtl" : "ltr");
     box.innerHTML = html;
     bindSlider(box);
+    fillSlots(hd, L);
   }
 
   function onHomeClick(e) {
@@ -1231,6 +1531,13 @@
         b.setAttribute("aria-label", on ? tt.unfav : tt.fav);
       });
       tick();
+      return;
+    }
+    if (act && act.getAttribute("data-act") === "order") {
+      e.preventDefault();
+      const o = orderShown[act.getAttribute("data-id")];
+      try { if (o) orderStore().commit("setViewOrder", o); } catch (x) {}
+      go(act.getAttribute("data-href"));
       return;
     }
     if (act && act.getAttribute("data-act") === "spf") {
@@ -1584,6 +1891,7 @@
       if (!c.list.length) { row.remove(); return; }
       row.innerHTML = prodsHtml(m, c.list, lang());
     });
+    if (document.getElementById("hgn-joys-slot")) schedule(); /* (2026-10-22) Little joys waits for its menus */
   }
   function storeTime(m) {
     const d = m && m.delivery_data;
@@ -2252,9 +2560,9 @@
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
     /* renderSearchFav after renderSearchLanding (2026-10-20): it sits above the start screen it draws */
-    hookRouter, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
+    hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
-    () => { if (isHomePath(currentPath())) renderHome(); },
+    () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
     renderStore
   ];
   function tick() {

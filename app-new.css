@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1819 */
+/* hg-version 2026-10-22-2039 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -582,15 +582,10 @@ html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobi
 }
 html.hg-new-app.hgn-store body .v-dialog--fullscreen #add_to_cart_hide_from_mobile_app .bg-button_normal *{font-weight:inherit!important;}
 
-/* Shop by occasion (Home, O4 chosen 2026-10-19): 210px brand-purple cards, white title, white "Shop now" pill,
-   the product (no background) on a soft white glow at the end */
-html.hg-new-app .hgn-occ-row{display:flex;gap:12px;padding:12px 16px 4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
+/* Shop by occasion (Home): the row. The cards are the ticket cards (.hgn-tk, 2026-10-22, see APPETITE ACCENTS);
+   the old purple cards with the category cut-outs were removed. 16 under the cards so their shadow is not cut off. */
+html.hg-new-app .hgn-occ-row{display:flex;gap:12px;padding:12px 16px 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
 html.hg-new-app .hgn-occ-row::-webkit-scrollbar{display:none;}
-html.hg-new-app .hgn-occ{position:relative;flex:0 0 210px;height:118px;border-radius:14px;overflow:hidden;scroll-snap-align:start;text-decoration:none;background:radial-gradient(130% 130% at 20% 10%,#8C68F0 0%,#5A29DE 60%,#3F17B5 100%);}
-html.hg-new-app .hgn-occ-t{position:absolute;top:12px;inset-inline-start:14px;max-width:105px;font-size:calc(var(--hg-fs) * 16);line-height:1.2;font-weight:600;letter-spacing:var(--hg-ls);color:#FFFFFF;z-index:1;}
-html.hg-new-app .hgn-occ-go{position:absolute;bottom:12px;inset-inline-start:14px;display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:14px;background:#FFFFFF;color:#5A29DE;font-size:calc(var(--hg-fs) * 14);font-weight:600;letter-spacing:var(--hg-ls);z-index:1;}
-html.hg-new-app .hgn-occ-glow{position:absolute;bottom:-4px;inset-inline-end:-4px;width:112px;height:112px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 65%);}
-html.hg-new-app .hgn-occ-img{position:absolute;bottom:2px;inset-inline-end:2px;width:106px;height:106px;object-fit:contain;}
 
 /* ---------- SEARCH START SCREEN + HEADER ----------
    Top bar (Talabat sizes, 2026-10-20, replaces the purple E2 header): one row on the page colour, 8 under the clock and 10
@@ -681,7 +676,6 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
   html.hg-new-app #hgn-home .hgn-occs .hgn-head,html.hg-new-app #hgn-home .hgn-stores .hgn-head{margin:40px 0 0;}
   html.hg-new-app #hgn-home .hgn-h2{font-size:22px;}
   html.hg-new-app #hgn-home .hgn-occ-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:14px 0 0;overflow:visible;}
-  html.hg-new-app #hgn-home .hgn-occ{flex:none;width:auto;height:150px;}
   html.hg-new-app #hgn-home .hgn-sp{margin:14px 0 0;}
   html.hg-new-app #hgn-home .hgn-sp-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;}
   /* Search start screen */
@@ -713,4 +707,245 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
   html.hg-new-app #hgn-catpage .hgn-cp-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 20px;padding:20px 0 0;}
   html.hg-new-app #hgn-catpage .hgn-cc{margin:0;}
   html.hg-new-app #hgn-catpage .hgn-cc-img{aspect-ratio:2/1;height:auto;}
+}
+
+/* ================= APPETITE ACCENTS (2026-10-22, from "HyperGo Appetite Accents", chosen by Nouf) =================
+   Appetite green #ACE4AA as small glossy accents, each finish used once:
+   liquid green text ("day." banner), gel green pill (order status), chrome ring ("Bahrain" title), glass pill ("sorted."),
+   green pearl (cart counts, Open now dot, occasion orbs). Two display fonts for a few words: Plus Jakarta Sans 800 and
+   Instrument Serif italic (loaded by app-new.js); Arabic always stays in the phone's own font. */
+html.hg-new-app .hgn-jak{font-family:"Plus Jakarta Sans",var(--hg-font);font-weight:800;letter-spacing:-.02em;}
+html.hg-new-app .hgn-serif{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400;letter-spacing:0;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]) :is(.hgn-jak,.hgn-serif){font-family:var(--hg-font);font-style:normal;font-weight:800;letter-spacing:0;}
+
+/* banner dots under the banner, centred (design A); our banners' dots are green */
+html.hg-new-app .hgn-banner.has-dots{overflow:visible;margin-bottom:16px;}
+html.hg-new-app .hgn-banner .hgn-slides{border-radius:inherit;}
+html.hg-new-app .hgn-banner.has-dots .hgn-dots{top:calc(100% + 10px);bottom:auto;left:0;right:0;inset-inline-start:0;justify-content:center;}
+html.hg-new-app .hgn-dot{background:#E5E5E5;}
+html.hg-new-app .hgn-dot.is-ours{background:#ACE4AA;}
+html.hg-new-app .hgn-dot.is-on{background:#5A29DE;}
+
+/* campaign banners: text column on the start side, the store's photo in its own frame on the end side */
+html.hg-new-app #hgn-home .hgn-slide.hgn-camp{display:flex;align-items:stretch;text-decoration:none;isolation:isolate;}
+html.hg-new-app .hgn-k-txt{position:relative;z-index:2;flex:1 1 0;min-width:0;box-sizing:border-box;padding-block:20px;padding-inline:20px 8px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;}
+html.hg-new-app .hgn-k-eye{font-size:12px;line-height:14px;font-weight:700;letter-spacing:.1em;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-k-eye{letter-spacing:0;font-size:13px;}
+html.hg-new-app .hgn-k-h{font-size:26px;line-height:30px;}
+html.hg-new-app .hgn-k-cta{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:18px;font-size:14px;font-weight:700;white-space:nowrap;}
+html.hg-new-app .hgn-k-pic{position:relative;z-index:1;flex:none;overflow:hidden;box-sizing:border-box;}
+html.hg-new-app .hgn-k-pic img{display:block;width:100%;height:100%;object-fit:cover;}
+/* 1 · Make their day: deep purple, liquid green serif, arch photo */
+html.hg-new-app #hgn-home .hgn-slide.hgn-k1{background:radial-gradient(130% 120% at 15% 0%,#5B33C9 0%,#361985 55%,#1E0C57 100%);}
+html.hg-new-app .hgn-k1::before{content:"";position:absolute;z-index:0;inset-inline-start:-60px;top:-80px;width:220px;height:160px;border-radius:50%;background:rgba(255,255,255,.08);}
+html.hg-new-app .hgn-k1 .hgn-k-h{color:#FFFFFF;line-height:28px;}
+html.hg-new-app .hgn-k1-b{display:inline-block;font-size:46px;line-height:48px;padding-inline-end:6px;
+  background:linear-gradient(180deg,#F3FFF1 0%,#ACE4AA 55%,#74C470 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+html.hg-new-app .hgn-k1 .hgn-k-cta{background:linear-gradient(180deg,#FFFFFF,#ECE6FF);box-shadow:inset 0 -2px 0 rgba(54,25,133,.12),0 4px 10px rgba(0,0,0,.25);color:#361985;}
+html.hg-new-app .hgn-k1-pic{align-self:flex-end;height:calc(100% - 14px);aspect-ratio:150/198;margin-inline-end:14px;border-radius:999px 999px 0 0;box-shadow:0 0 0 3px rgba(255,255,255,.18);}
+html.hg-new-app .hgn-k1-gloss{position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 38%);}
+/* 2 · Made in Bahrain: fresh green, gel purple pill, round portal photo */
+html.hg-new-app #hgn-home .hgn-slide.hgn-k2{background:linear-gradient(160deg,#DDF8DA 0%,#ACE4AA 50%,#8CD088 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
+html.hg-new-app .hgn-k2::before{content:"";position:absolute;z-index:0;inset-inline-start:-30px;bottom:-70px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.25);}
+html.hg-new-app .hgn-k2 .hgn-k-eye{color:#2A1270;}
+html.hg-new-app .hgn-k2 .hgn-k-h{color:#1B2023;line-height:36px;}
+html.hg-new-app .hgn-k2-b{display:inline-block;padding:0 12px 2px;border-radius:20px;line-height:34px;color:#FFFFFF;
+  background:linear-gradient(180deg,#7A4CF5 0%,#5A29DE 55%,#4519C2 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(69,25,194,.35);}
+html.hg-new-app .hgn-k2-pic{align-self:center;height:70%;aspect-ratio:1/1;margin-inline-end:16px;border-radius:50%;border:4px solid #FFFFFF;box-shadow:0 10px 20px rgba(30,60,30,.25);}
+/* 3 · Gym day, sorted: full photo, purple fade, glass pill */
+html.hg-new-app #hgn-home .hgn-slide.hgn-k3{background:#1E0C57;}
+html.hg-new-app .hgn-k3-pic{position:absolute;z-index:0;top:0;bottom:0;inset-inline-end:0;width:80%;} /* whole product group visible, centred in the photo */
+html.hg-new-app .hgn-k3-fade{position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,#1E0C57 0%,rgba(30,12,87,.92) 38%,rgba(30,12,87,0) 75%);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-k3-fade{background:linear-gradient(270deg,#1E0C57 0%,rgba(30,12,87,.92) 38%,rgba(30,12,87,0) 75%);}
+html.hg-new-app .hgn-k3 .hgn-k-txt{flex:0 0 auto;max-width:60%;}
+html.hg-new-app .hgn-k3 .hgn-k-eye{color:#ACE4AA;}
+html.hg-new-app .hgn-k3 .hgn-k-h{color:#FFFFFF;line-height:36px;}
+html.hg-new-app .hgn-k3-b{display:inline-block;padding:0 12px 2px;border-radius:12px;line-height:32px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+html.hg-new-app .hgn-k3 .hgn-k-cta{background:linear-gradient(180deg,#E4FBE1,#ACE4AA 60%,#8ED38A);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 10px rgba(0,0,0,.3);color:#1B2023;}
+/* 4 · Bring the party home: lavender, stacked-shadow word, tilted print photo, confetti pearls */
+html.hg-new-app #hgn-home .hgn-slide.hgn-k4{background:radial-gradient(120% 120% at 100% 0%,#FFFFFF 0%,#F4F2FA 40%,#E7E0FB 100%);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-slide.hgn-k4{background:radial-gradient(120% 120% at 0% 0%,#FFFFFF 0%,#F4F2FA 40%,#E7E0FB 100%);}
+html.hg-new-app .hgn-k4 .hgn-k-eye{color:#5A29DE;}
+html.hg-new-app .hgn-k4 .hgn-k-h{color:#361985;}
+html.hg-new-app .hgn-k4-b{font-size:36px;line-height:40px;color:#FFFFFF;text-shadow:2px 2px 0 #5A29DE,4px 4px 0 #ACE4AA;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-k4-b{text-shadow:-2px 2px 0 #5A29DE,-4px 4px 0 #ACE4AA;}
+html.hg-new-app .hgn-k4-pic{align-self:center;height:79%;aspect-ratio:140/168;margin-inline-end:18px;border-radius:14px;border:5px solid #FFFFFF;box-shadow:0 12px 22px rgba(54,25,133,.25);transform:rotate(4deg);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-k4-pic{transform:rotate(-4deg);}
+html.hg-new-app .hgn-k4-c{position:absolute;z-index:1;border-radius:50%;}
+html.hg-new-app .hgn-k4-c1{inset-inline-start:42%;top:18px;width:10px;height:10px;background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#6FBF6B);}
+html.hg-new-app .hgn-k4-c2{inset-inline-start:51%;bottom:24px;width:7px;height:7px;background:radial-gradient(circle at 35% 30%,#C9B6FF,#5A29DE);}
+html.hg-new-app .hgn-k4-c3{inset-inline-start:34%;bottom:46px;width:6px;height:6px;background:#ACE4AA;}
+
+/* New tag on a category tile: a store in it joined in the last 14 days */
+html.hg-new-app .hgn-cat-ring.has-new{position:relative;overflow:hidden;}
+html.hg-new-app .hgn-cat-new{position:absolute;z-index:2;inset-inline-start:0;bottom:0;height:18px;padding:0 7px;border-start-end-radius:10px;
+  background:linear-gradient(180deg,#D9F7D6,#ACE4AA 60%,#93D68F);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+  color:#1B2023;font-size:10.5px;line-height:18px;font-weight:700;letter-spacing:0;white-space:nowrap;}
+/* See all tile: glossy purple */
+html.hg-new-app .hgn-cat-all .hgn-cat-ring{background:linear-gradient(160deg,#7A48F2,#5A29DE 55%,#4519C2);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 14px rgba(90,41,222,.3);}
+
+/* order card (only while an order is in progress) */
+html.hg-new-app #hgn-order-slot{margin:18px 16px 0;}
+html.hg-new-app .hgn-oc{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:18px;text-decoration:none;color:var(--hg-ink);
+  background:linear-gradient(180deg,#FFFFFF,#FAF8FF);border:1px solid #ECE8F6;box-shadow:0 6px 18px rgba(54,25,133,.07);-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-oc-top{display:flex;align-items:center;gap:10px;}
+html.hg-new-app .hgn-oc-t{flex:1 1 auto;min-width:0;font-size:15px;line-height:20px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+html.hg-new-app .hgn-oc-t b{font-weight:700;}
+html.hg-new-app .hgn-oc-go{flex:none;width:18px;height:18px;color:#767676;}
+html.hg-new-app .hgn-oc-go svg{width:18px;height:18px;display:block;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-oc-go svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-oc-st{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+html.hg-new-app .hgn-oc-pill{height:24px;padding:0 10px;border-radius:12px;display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#1B2023;white-space:nowrap;
+  background:linear-gradient(180deg,#E4FBE1 0%,#ACE4AA 55%,#8ED38A 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 8px rgba(62,155,58,.25);}
+html.hg-new-app .hgn-oc-more{font-size:12px;color:var(--hg-muted);}
+html.hg-new-app .hgn-oc-route{display:flex;align-items:center;gap:6px;}
+html.hg-new-app .hgn-oc-dot{flex:none;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#A98BFF,#5A29DE 60%,#3A1499);}
+html.hg-new-app .hgn-oc-line{flex:1 1 0;height:0;border-top:3px dotted #ACE4AA;}
+html.hg-new-app .hgn-oc-line.is-done{border-top-style:solid;}
+html.hg-new-app .hgn-oc-bike{flex:none;width:20px;height:20px;color:#262626;}
+html.hg-new-app .hgn-oc-bike.is-on{color:#5A29DE;}
+html.hg-new-app .hgn-oc-bike svg{width:20px;height:20px;display:block;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-oc-bike svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-oc-home{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#72C26E);box-shadow:0 3px 8px rgba(62,155,58,.35);}
+html.hg-new-app .hgn-oc-home svg{width:14px;height:14px;}
+html.hg-new-app .hgn-oc-lbl{display:flex;justify-content:space-between;font-size:12px;line-height:16px;color:var(--hg-muted);}
+html.hg-new-app .hgn-oc-lbl .is-on{color:var(--hg-ink);font-weight:700;}
+/* while our card shows, Hyperzod's own order strip is not shown on Home too (the same order twice) */
+html.hg-new-app.hgn-order-on .ongoing-orders-strip{display:none!important;}
+
+/* Little joys */
+html.hg-new-app .hgn-joys{margin-top:26px;padding:22px 0 20px;background:radial-gradient(120% 90% at 85% 0%,#FFFFFF 0%,#F4F2FA 45%,#EDE8FB 100%);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-joys{background:radial-gradient(120% 90% at 15% 0%,#FFFFFF 0%,#F4F2FA 45%,#EDE8FB 100%);}
+html.hg-new-app .hgn-joy-head{padding:0 16px;display:flex;flex-direction:column;gap:2px;}
+html.hg-new-app .hgn-joy-h{margin:0;display:flex;align-items:baseline;gap:6px;}
+html.hg-new-app .hgn-joy-h .hgn-jak{font-size:24px;line-height:30px;color:#1B2023;}
+html.hg-new-app .hgn-joy-h .hgn-serif{font-size:34px;line-height:34px;color:#5A29DE;padding-inline-end:2px;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-joy-h .hgn-serif{font-size:24px;line-height:30px;}
+html.hg-new-app .hgn-joy-h svg{flex:none;width:22px;height:22px;align-self:flex-start;}
+html.hg-new-app .hgn-joy-sub{font-size:14px;line-height:20px;color:var(--hg-ink);}
+html.hg-new-app .hgn-joy-row{display:flex;gap:12px;padding:16px 16px 4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
+html.hg-new-app .hgn-joy-row::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-joy{flex:0 0 146px;min-width:0;display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--hg-ink);scroll-snap-align:start;}
+html.hg-new-app .hgn-joy-pic{position:relative;width:146px;height:146px;margin-bottom:4px;border-radius:16px;overflow:hidden;background:#FFFFFF;box-shadow:0 8px 18px rgba(54,25,133,.16);}
+html.hg-new-app .hgn-joy-pic img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-joy-pic::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%);pointer-events:none;}
+html.hg-new-app .hgn-joy-n{font-size:14px;line-height:18px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px;max-height:36px;overflow-wrap:anywhere;}
+html.hg-new-app .hgn-joy-s{font-size:12px;line-height:16px;color:var(--hg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-joy-p{font-size:14px;line-height:18px;}
+html.hg-new-app .hgn-joy-p b{font-weight:700;}
+
+/* Shop by occasion, ticket cards (2026-10-22): the stores' own photos (Nouf's Merchants folder) in the repo's
+   occasion-photos folder, never the category pictures. Photo on top, a perforated ticket stub under it. */
+html.hg-new-app .hgn-tk{position:relative;flex:0 0 172px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
+  text-decoration:none;background:#FFFFFF;box-shadow:0 12px 24px -14px rgba(54,25,133,.45),0 0 0 1px rgba(54,25,133,.06);-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-tk-pic{position:relative;display:block;height:124px;overflow:hidden;background:#EDE8FB;}
+html.hg-new-app .hgn-tk-pic img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-tk-pic::after{content:"";position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,0) 38%),linear-gradient(0deg,rgba(30,12,87,.28),rgba(30,12,87,0) 45%);}
+html.hg-new-app .hgn-tk::before,html.hg-new-app .hgn-tk::after{content:"";position:absolute;z-index:2;top:117px;width:14px;height:14px;border-radius:50%;background:var(--hg-bg);box-shadow:inset 0 0 0 1px rgba(54,25,133,.06);}
+html.hg-new-app .hgn-tk::before{left:-7px;}
+html.hg-new-app .hgn-tk::after{right:-7px;}
+html.hg-new-app .hgn-tk-stub{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:13px 12px 12px 14px;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F7F3FF 100%);}
+html.hg-new-app .hgn-tk-stub::before{content:"";position:absolute;top:0;left:12px;right:12px;border-top:2px dashed #DDD3F7;}
+html.hg-new-app .hgn-tk-t{grid-column:1;font-size:15px;line-height:19px;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-tk-s{grid-column:1;margin-top:2px;font-size:12px;line-height:16px;color:var(--hg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-tk-go{grid-column:2;grid-row:1 / span 2;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;
+  background:linear-gradient(160deg,#8C68F0,#5A29DE 55%,#4519C2);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(90,41,222,.35);}
+html.hg-new-app .hgn-tk-go svg{width:13px;height:13px;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-tk-go svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-tk-tag{position:absolute;z-index:1;top:10px;inset-inline-start:10px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#361985;font-size:11px;font-weight:700;letter-spacing:.02em;}
+html.hg-new-app .hgn-tk-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#ACE4AA;box-shadow:0 0 0 2px rgba(172,228,170,.35);}
+
+/* Made in Bahrain (redesign 2026-10-22): night-purple panel with the flag's five-point serrated edge as a faint motif,
+   a count of the new shops, and one card per shop: its own cover photo, logo, category and how long ago it joined */
+html.hg-new-app .hgn-mib{position:relative;overflow:hidden;margin:28px 16px 0;padding:22px 0 18px;border-radius:24px;isolation:isolate;
+  background:radial-gradient(120% 80% at 100% 0%,#5B33C9 0%,rgba(91,51,201,0) 60%),linear-gradient(165deg,#2A1270 0%,#1E0C57 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -12px rgba(30,12,87,.55);}
+html.hg-new-app .hgn-mib-serr{position:absolute;z-index:-1;top:0;bottom:0;inset-inline-end:0;width:84px;opacity:.1;color:#FFFFFF;}
+html.hg-new-app .hgn-mib-serr svg{display:block;width:100%;height:100%;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-mib-serr svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-mib::before{content:"";position:absolute;z-index:-1;inset-inline-start:-60px;bottom:-90px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(172,228,170,.35),rgba(172,228,170,0) 70%);pointer-events:none;}
+html.hg-new-app .hgn-mib-head{position:relative;padding:0 16px;display:flex;flex-direction:column;gap:6px;}
+html.hg-new-app .hgn-mib-eye{display:inline-flex;align-items:center;gap:6px;font-size:11px;line-height:14px;font-weight:700;letter-spacing:.12em;color:#ACE4AA;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-mib-eye{letter-spacing:0;font-size:12px;}
+html.hg-new-app .hgn-mib-eye::before{content:"";width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#6FBF6B);box-shadow:0 0 8px rgba(172,228,170,.8);}
+html.hg-new-app #hgn-home .hgn-mib-h{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:26px;line-height:34px;color:#FFFFFF;}
+html.hg-new-app .hgn-mib-ring{padding:0 13px 2px;border-radius:22px;border:2px solid transparent;
+  background:linear-gradient(#2A1270,#2A1270) padding-box,linear-gradient(120deg,#FFFFFF 0%,#ACE4AA 35%,#6FBF6B 55%,#F0FFEE 75%,#ACE4AA 100%) border-box;
+  box-shadow:0 0 18px rgba(172,228,170,.25);}
+html.hg-new-app .hgn-mib-ring span{background:linear-gradient(180deg,#F4FFF2 0%,#ACE4AA 70%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+html.hg-new-app .hgn-mib-sub{font-size:14px;line-height:20px;color:#E4DCFF;}
+html.hg-new-app .hgn-mib-sub b{color:#FFFFFF;font-weight:700;}
+html.hg-new-app .hgn-mib-row{position:relative;display:flex;gap:12px;padding:16px 16px 4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
+html.hg-new-app .hgn-mib-row::-webkit-scrollbar{display:none;}
+html.hg-new-app #hgn-home a.hgn-mib-card{position:relative;flex:0 0 150px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
+  text-decoration:none;color:#FFFFFF;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 10px 20px -12px rgba(0,0,0,.5);}
+html.hg-new-app .hgn-mib-cover{position:relative;display:block;height:96px;overflow:hidden;
+  background:radial-gradient(90% 120% at 20% 10%,#8C68F0 0%,#5A29DE 45%,#2A1270 100%);}
+html.hg-new-app .hgn-mib-cover img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-mib-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(30,12,87,.55),rgba(30,12,87,0) 55%);}
+html.hg-new-app .hgn-mib-logo{position:absolute;z-index:1;top:72px;inset-inline-start:12px;width:42px;height:42px;box-sizing:border-box;border-radius:13px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FFFFFF,#E9E2FF);border:2px solid #FFFFFF;
+  box-shadow:0 6px 14px rgba(0,0,0,.35);color:#5A29DE;font-size:14px;font-weight:800;}
+html.hg-new-app .hgn-mib-logo img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-mib-body{display:flex;flex-direction:column;gap:2px;padding:24px 12px 12px;min-width:0;}
+html.hg-new-app .hgn-mib-n{font-size:14px;line-height:18px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-mib-c{font-size:12px;line-height:16px;color:#D9CEFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* a Latin store or product name inside the Arabic page: its own direction, so the dots end it on the right side (it was cut at the start) */
+html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-joy-s,.hgn-tk-t){unicode-bidi:plaintext;text-align:right;}
+html.hg-new-app .hgn-mib-age{align-self:flex-start;margin-top:8px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;white-space:nowrap;
+  background:rgba(172,228,170,.16);box-shadow:inset 0 0 0 1px rgba(172,228,170,.4);color:#ACE4AA;font-size:11px;font-weight:700;}
+@media (min-width:960px){
+  html.hg-new-app #hgn-home .hgn-tk{flex:none;width:auto;}
+  html.hg-new-app #hgn-home .hgn-tk-pic{height:150px;}
+  html.hg-new-app #hgn-home .hgn-tk::before,html.hg-new-app #hgn-home .hgn-tk::after{top:143px;}
+  html.hg-new-app .hgn-mib{margin:40px 0 0;padding:28px 0 24px;}
+  html.hg-new-app .hgn-mib-head,html.hg-new-app .hgn-mib-row{padding-inline:28px;}
+  html.hg-new-app #hgn-home a.hgn-mib-card{flex-basis:180px;}
+}
+
+/* Stores near you: Free delivery chip (Hyperzod's delivery fee is 0) */
+html.hg-new-app .hgn-sp-free{align-self:flex-start;margin-top:4px;height:22px;padding:0 9px;border-radius:11px;background:#E7F6E5;color:#1B2023;
+  font-size:12px;font-weight:600;display:inline-flex;align-items:center;white-space:nowrap;}
+
+/* store page: "Our favourites" over Hyperzod's Recommended Products, glossy cart bar, pearl Open now dot */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading{
+  font-size:0!important;line-height:0!important;display:flex!important;align-items:baseline;gap:6px;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading::before{
+  content:"Our";font-family:"Plus Jakarta Sans",var(--hg-font);font-size:24px;line-height:30px;font-weight:800;letter-spacing:-.6px;color:#1B2023;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading::after{
+  content:"favourites";font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-size:34px;line-height:38px;font-weight:400;color:#1B2023;padding:0 4px 2px 0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 130 12' preserveAspectRatio='none'%3E%3Cpath d='M3 8c22-5 44-6 64-3s40 3 60-2' fill='none' stroke='%23ACE4AA' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left bottom/100% 12px;}
+html.hg-new-app.hgn-store:is([lang^="ar"],[dir="rtl"]) body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading::before{content:none;}
+html.hg-new-app.hgn-store:is([lang^="ar"],[dir="rtl"]) body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading::after{
+  content:"مختاراتنا";font-family:var(--hg-font);font-style:normal;font-weight:800;font-size:24px;line-height:32px;padding:0 0 2px 4px;background-position:right bottom;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{
+  background-image:linear-gradient(180deg,#7A4CF5 0%,#5A29DE 55%,#4519C2 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 24px -12px rgba(90,41,222,.6)!important;}
+html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart{background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#72C26E)!important;box-shadow:0 2px 6px rgba(0,0,0,.18)!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open:not(.is-closed){background:#E7F6E5;box-shadow:inset 0 1px 0 rgba(255,255,255,.9);}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .hgn-open:not(.is-closed)::before{
+  width:8px;height:8px;border-radius:4px;background:radial-gradient(circle at 35% 30%,#9BE596,#3E9B3A);box-shadow:none;}
+
+/* desktop website: bigger banner words on the wider 2:1 banners */
+@media (min-width:960px){
+  html.hg-new-app .hgn-k-txt{padding-inline:32px 12px;gap:16px;}
+  html.hg-new-app .hgn-k-h{font-size:32px;line-height:38px;}
+  html.hg-new-app .hgn-k1 .hgn-k-h{line-height:34px;}
+  html.hg-new-app .hgn-k1-b{font-size:58px;line-height:60px;}
+  html.hg-new-app .hgn-k2 .hgn-k-h,html.hg-new-app .hgn-k3 .hgn-k-h{line-height:44px;}
+  html.hg-new-app .hgn-k2-b,html.hg-new-app .hgn-k3-b{line-height:40px;}
+  html.hg-new-app .hgn-k4-b{font-size:44px;line-height:48px;}
+  html.hg-new-app #hgn-order-slot{margin:32px 0 0;}
+  html.hg-new-app .hgn-joys{margin-top:40px;border-radius:24px;}
+  html.hg-new-app .hgn-joy-head,html.hg-new-app .hgn-joy-row{padding-inline:24px;}
+  html.hg-new-app .hgn-mib{margin:40px 0 0;}
 }

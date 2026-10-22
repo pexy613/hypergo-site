@@ -551,6 +551,32 @@ These apply to a component only when a future change touches that component. Do 
 
 ---
 
+## 10c. APPETITE ACCENTS (approved by Nouf, 2026-10-22, from the "HyperGo Appetite Accents" canvas)
+
+Appetite green `#ACE4AA` as small glossy accents on our purple. Each glossy finish is used once:
+- Liquid green text (gradient `#F3FFF1 → #ACE4AA → #74C470`, clipped to the text): "day." on the Make their day banner.
+- Gel green pill (`#E4FBE1 → #ACE4AA → #8ED38A`, white inner highlight): the order status in the order card.
+- Chrome ring (2px gradient border `#FFFFFF/#ACE4AA/#6FBF6B`): "Bahrain" in the Made in Bahrain title.
+- Glass pill (`rgba(255,255,255,.16)`, 1px white 40% border, blur 6px): "sorted." on the Gym day banner.
+- Green pearl (radial `#F2FFF0 → #ACE4AA → #72C26E`): header cart count (dark `#1B2023` number; replaces #15's red for this badge), checkout bar basket, Open now dot (`#9BE596 → #3E9B3A`), order card home stop.
+
+Fonts: Plus Jakarta Sans 800 (headline words) and Instrument Serif italic (one accent word), loaded from Google Fonts by app-new.js. Only for a few display words; never body text. Arabic always uses the phone's own font, weight 800, never italic.
+
+Photos: category pictures (cat-icons) only on category tiles. Everywhere else the stores' own photos from Nouf's Merchants folder, cropped with the product in the middle of its frame: `campaigns/` (banners) and `occasion-photos/` (Shop by occasion).
+
+Parts (app-new.js / app-new.css, Home unless noted):
+- Banner carousel, design A (mixed): ours, then a shop banner, and so on. 4 campaign banners, each opens its store and shows only while that store is nearby and taking orders: Make their day (arch photo, Golden Petals), Made in Bahrain (round photo, Rocky and Eva), Gym day sorted (full photo with purple fade, Supplmentoz), Bring the party home (tilted print, Arham Gift). Dots under the banner, centred; ours green `#ACE4AA`, shops `#E5E5E5`, current one a purple `#5A29DE` pill. No offer is shown that is not true (the free delivery weekend banner is not in the app).
+- Order card: only while an order is in progress (Hyperzod status 1-4), live from Hyperzod; status pill, route Shop / On the way / Your door for delivery orders; tap opens Hyperzod's order page. Hyperzod's own order strip is hidden on Home while it shows.
+- Little joys: real products (photo, in stock) from the 4 nearest open Gifts and Flowers stores; "delivered free" only when all of them deliver free.
+- Made in Bahrain: shops that joined in the last 14 days (from the store id), night-purple panel, faint five-point serrated edge (the flag motif), count of new shops, cards with the store's cover, logo, category and "Joined N days ago".
+- New tag (green gloss, bottom-start corner of the tile): at most 2 category tiles, the ones with the most shops that joined in the last 14 days.
+- Shop by occasion: ticket cards (photo, perforated stub with notches, category under the title, purple go button).
+- Stores near you: pale green Free delivery chip when the delivery fee is 0.
+- Header: gloss gradient `#8640FC` (top 40%) to `#7432EE`; glossy white cart button.
+- Store page: "Our favourites" (Jakarta + serif with a green marker swash; Arabic "مختاراتنا") over Recommended Products; checkout bar purple gloss `#7A4CF5 → #5A29DE → #4519C2`.
+
+---
+
 ## 11. UNKNOWN
 
 1. The English font actually shown: the repo never declares one (only `inherit`). reference/*.html snapshots (may be outdated) show Hyperzod's `--primary-font:"Poppins",sans-serif` and Google Fonts links for Poppins, Inter and IBM Plex Sans Arabic; nothing confirms what the app loads.
