@@ -1,4 +1,201 @@
-/* hg-version 2026-10-21-1300 */
+/* hg-version 2026-10-22-1555 */
+/* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
+   so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
+   for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for good
+   (localStorage "hg-team-ok"). Changing PASS_HASH locks everyone again. Once unlocked this block adds nothing to the page.
+   Only a hash of the password is here (fnv()), checked without capitals or spaces at the ends. It runs first in this
+   file (Global footer) so it is in place before Hyperzod draws the page. Picture and logo: coming-soon/ in this repo.
+   (Moved here from app-footer.js, where it was app only.) */
+(function () {
+  var PASS_HASH = "3d948b6f";
+  var KEY = "hg-team-ok";
+  var HOLD_MS = 3000;
+  var BASE = "https://pexy613.github.io/hypergo-site/coming-soon/";
+  function fnv(s) {
+    var x = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; }
+    return x.toString(16);
+  }
+  function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  if (window.__hgTeamLock || read() === PASS_HASH) return;
+  window.__hgTeamLock = 1;
+  var html = document.documentElement;
+  /* language: the address first (/en/..., /ar/...), then the customer's saved choice; Hyperzod's page starts with lang="ar"
+     before it switches, so <html lang> is only the last fallback */
+  var lm = /^\/(en|ar)(\/|$)/.exec(location.pathname);
+  var loc = lm ? lm[1] : null;
+  if (!loc) { try { loc = localStorage.getItem("user_selected_locale"); } catch (e) {} }
+  var ar = (loc || html.getAttribute("lang") || "en").slice(0, 2) === "ar";
+  /* Hyperzod can still change the language after this runs (this file loads deferred): <html lang> changes are followed
+     below and the texts redrawn */
+  var TXT = { ar: {
+    soon: "قريبًا",
+    h1a: "كن جزءًا من ",
+    h1b: "الحركة.",
+    text: "هايبرجو هو الحل الذي يساعد الأعمال المحلية على بيع المزيد والوصول إلى عدد أكبر من الناس والنمو.",
+    follow: "تابعنا على \u2066@hypergobh\u2069", /* the handle kept left-to-right inside the Arabic line */
+    team: "دخول الفريق",
+    teamText: "لفريق هايبرجو فقط.",
+    pass: "كلمة المرور",
+    enter: "دخول",
+    cancel: "إلغاء",
+    err: "كلمة المرور غير صحيحة"
+  }, en: {
+    soon: "Coming soon",
+    h1a: "Be part of the ",
+    h1b: "movement.",
+    text: "HyperGo is the solution that helps local businesses sell more, reach more people and grow.",
+    follow: "Follow @hypergobh",
+    team: "Team access",
+    teamText: "For the HyperGo team only.",
+    pass: "Password",
+    enter: "Enter",
+    cancel: "Cancel",
+    err: "Wrong password"
+  } };
+  /* B1 values: deep purple #361985 behind the picture, off-white #FFFCF9 card with 28 top corners, title 34 bold #262626
+     with the key word underlined in Appetite #ACE4AA (7pt line), text 16 grey #767676, purple #5A29DE 52 tall button;
+     sheet: field #F6F4FB, 14 corners, 1.5pt border (#5A29DE focused, #E5384F wrong). Wide screens: picture left, card right. */
+  var R = "#hg-cs";
+  var css =
+    "html.hg-team-locked,html.hg-team-locked body{overflow:hidden!important;}" +
+    R + "{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#361985;color:#262626;overflow:hidden;" +
+      "font-family:inherit;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}" +
+    R + " *{box-sizing:border-box;font-family:inherit;letter-spacing:0;margin:0;}" +
+    R + " .hg-cs-hero{position:relative;flex:0 0 56%;overflow:hidden;}" +
+    R + " .hg-cs-hero img.hg-cs-pic{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;display:block;}" +
+    R + " .hg-cs-brand{position:absolute;inset-inline-start:16px;top:calc(var(--native-status-bar-height,env(safe-area-inset-top,0px)) + 10px);" +
+      "display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:default;touch-action:none;-webkit-touch-callout:none;}" +
+    R + " .hg-cs-brand img{width:28px;height:32px;display:block;pointer-events:none;-webkit-user-drag:none;}" +
+    R + " .hg-cs-brand span{font-size:20px;line-height:24px;font-weight:700;color:#fff;}" +
+    R + " .hg-cs-card{position:relative;flex:1 1 auto;margin-top:-28px;background:#FFFCF9;border-radius:28px 28px 0 0;" +
+      "padding:32px 24px calc(32px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;overflow-y:auto;}" +
+    R + " .hg-cs-soon{font-size:13px;line-height:16px;font-weight:600;color:#5A29DE;}" +
+    R + " h1{font-size:34px;line-height:42px;font-weight:700;color:#262626;}" +
+    R + ":not([dir=rtl]) h1{letter-spacing:-.5px;}" +
+    R + " h1 u{text-decoration-line:underline;text-decoration-color:#ACE4AA;text-decoration-thickness:7px;text-underline-offset:5px;text-decoration-skip-ink:none;}" +
+    R + " .hg-cs-text{font-size:16px;line-height:24px;color:#767676;}" +
+    R + " .hg-cs-follow{margin-top:auto;min-height:52px;border-radius:26px;background:#5A29DE;color:#fff;font-size:16px;font-weight:600;" +
+      "text-decoration:none;display:flex;align-items:center;justify-content:center;}" +
+    "@media (min-width:900px){" +
+      R + "{flex-direction:row;}" +
+      R + " .hg-cs-hero{flex:0 0 55%;}" +
+      R + " .hg-cs-brand{top:24px;inset-inline-start:32px;}" +
+      R + " .hg-cs-card{flex:1 1 45%;margin:0;margin-inline-start:-28px;border-radius:28px 0 0 28px;padding:64px;justify-content:center;gap:16px;}" +
+      R + "[dir=rtl] .hg-cs-card{border-radius:0 28px 28px 0;}" +
+      R + " h1{font-size:44px;line-height:54px;max-width:520px;}" +
+      R + " .hg-cs-text{font-size:18px;line-height:28px;max-width:480px;}" +
+      R + " .hg-cs-follow{margin-top:16px;max-width:320px;}" +
+    "}" +
+    R + " .hg-cs-scrim{position:absolute;inset:0;background:rgba(27,24,48,.45);display:none;}" +
+    R + ".hg-cs-open .hg-cs-scrim{display:block;}" +
+    R + " .hg-cs-sheet{position:absolute;inset-inline:0;bottom:0;background:#FFFCF9;border-radius:28px 28px 0 0;" +
+      "padding:12px 24px calc(32px + env(safe-area-inset-bottom,0px));display:none;flex-direction:column;gap:16px;-webkit-user-select:text;user-select:text;}" +
+    R + ".hg-cs-open .hg-cs-sheet{display:flex;}" +
+    "@media (min-width:900px){" + R + " .hg-cs-sheet{inset-inline:auto;left:50%;bottom:auto;top:50%;transform:translate(-50%,-50%);width:420px;border-radius:28px;padding:24px;}" +
+      R + " .hg-cs-grab{display:none;}}" +
+    R + " .hg-cs-grab{align-self:center;width:40px;height:5px;border-radius:3px;background:#E5E5E5;}" +
+    R + " h2{font-size:20px;line-height:24px;font-weight:700;color:#262626;margin-top:8px;}" +
+    R + " .hg-cs-sub{font-size:14px;line-height:20px;color:#767676;margin-top:4px;}" +
+    R + " label{display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:16px;font-weight:600;color:#767676;}" +
+    R + " input{width:100%;height:52px;padding:0 16px;border:1.5px solid transparent;border-radius:14px;background:#F6F4FB;" +
+      "font-size:16px;color:#262626;outline:none;-webkit-appearance:none;appearance:none;}" +
+    R + " input:focus{border-color:#5A29DE;}" +
+    R + ".hg-cs-bad input{border-color:#E5384F;}" +
+    R + " .hg-cs-err{min-height:20px;font-size:14px;line-height:20px;color:#E5384F;}" +
+    R + " button{width:100%;border:0;cursor:pointer;font-size:16px;font-weight:600;}" +
+    R + " .hg-cs-enter{height:52px;border-radius:26px;background:#5A29DE;color:#fff;}" +
+    R + " .hg-cs-cancel{height:44px;background:transparent;color:#767676;font-size:14px;}";
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+  function build() {
+    if (document.getElementById("hg-cs")) return;
+    var st = el("style"); st.id = "hg-cs-style"; st.textContent = css;
+    (document.head || html).appendChild(st);
+    var root = el("div"); root.id = "hg-cs";
+    /* picture with the logo on it (the logo is the hidden 3-second press) */
+    var hero = el("div", "hg-cs-hero");
+    var pic = el("img", "hg-cs-pic"); pic.src = BASE + "hero.jpg"; pic.alt = ""; pic.setAttribute("aria-hidden", "true"); pic.draggable = false;
+    var brand = el("div", "hg-cs-brand");
+    var logo = el("img"); logo.src = BASE + "logo-white.svg"; logo.alt = ""; logo.draggable = false;
+    brand.appendChild(logo); brand.appendChild(el("span", "", "HyperGo"));
+    hero.appendChild(pic); hero.appendChild(brand);
+    /* card */
+    var card = el("div", "hg-cs-card");
+    var soon = el("span", "hg-cs-soon");
+    var h1 = el("h1"), h1a = document.createTextNode(""), h1b = el("u");
+    h1.appendChild(h1a); h1.appendChild(h1b);
+    var text = el("p", "hg-cs-text");
+    var follow = el("a", "hg-cs-follow");
+    follow.href = "https://instagram.com/hypergobh"; follow.target = "_blank"; follow.rel = "noopener";
+    card.appendChild(soon); card.appendChild(h1); card.appendChild(text); card.appendChild(follow);
+    /* hidden team sheet */
+    var scrim = el("div", "hg-cs-scrim");
+    var sheet = el("form", "hg-cs-sheet"); sheet.setAttribute("autocomplete", "off");
+    var lab = el("label"), labText = el("span");
+    var input = el("input"); input.type = "password"; input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocapitalize", "off"); input.setAttribute("enterkeyhint", "go");
+    lab.appendChild(labText); lab.appendChild(input);
+    var head = el("div"), team = el("h2"), teamText = el("p", "hg-cs-sub");
+    head.appendChild(team); head.appendChild(teamText);
+    var err = el("div", "hg-cs-err"); err.setAttribute("role", "alert");
+    var enter = el("button", "hg-cs-enter"); enter.type = "submit";
+    var cancel = el("button", "hg-cs-cancel"); cancel.type = "button";
+    sheet.appendChild(el("div", "hg-cs-grab")); sheet.appendChild(head); sheet.appendChild(lab); sheet.appendChild(err);
+    sheet.appendChild(enter); sheet.appendChild(cancel);
+    root.appendChild(hero); root.appendChild(card); root.appendChild(scrim); root.appendChild(sheet);
+    function paint() {
+      var T = ar ? TXT.ar : TXT.en;
+      root.setAttribute("dir", ar ? "rtl" : "ltr"); root.setAttribute("lang", ar ? "ar" : "en");
+      soon.textContent = T.soon; h1a.nodeValue = T.h1a; h1b.textContent = T.h1b; text.textContent = T.text;
+      follow.textContent = T.follow; team.textContent = T.team; teamText.textContent = T.teamText;
+      labText.textContent = T.pass; enter.textContent = T.enter; cancel.textContent = T.cancel;
+      if (err.textContent) err.textContent = T.err;
+    }
+    paint();
+    html.classList.add("hg-team-locked");
+    (document.body || html).appendChild(root);
+    var langWatch = new MutationObserver(function () {
+      var l = (html.getAttribute("lang") || "").slice(0, 2);
+      if ((l === "ar" || l === "en") && (l === "ar") !== ar) { ar = l === "ar"; paint(); }
+    });
+    langWatch.observe(html, { attributes: true, attributeFilter: ["lang"] });
+
+    function openSheet() { root.classList.add("hg-cs-open"); try { input.focus(); } catch (e) {} }
+    function closeSheet() {
+      root.classList.remove("hg-cs-open", "hg-cs-bad"); err.textContent = ""; input.value = "";
+      try { input.blur(); } catch (e) {}
+    }
+    /* hold the logo for 3 seconds (finger or mouse); moving away or lifting early cancels it */
+    var timer = 0;
+    function stop() { if (timer) { clearTimeout(timer); timer = 0; } }
+    brand.addEventListener("pointerdown", function () { stop(); timer = setTimeout(function () { timer = 0; openSheet(); }, HOLD_MS); });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (t) { brand.addEventListener(t, stop); });
+    brand.addEventListener("contextmenu", function (ev) { ev.preventDefault(); });
+    scrim.addEventListener("click", closeSheet);
+    cancel.addEventListener("click", closeSheet);
+    input.addEventListener("input", function () { root.classList.remove("hg-cs-bad"); err.textContent = ""; });
+    sheet.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (fnv(String(input.value || "").trim().toLowerCase()) === PASS_HASH) {
+        try { localStorage.setItem(KEY, PASS_HASH); } catch (e) {}
+        try { input.blur(); } catch (e) {}
+        langWatch.disconnect();
+        root.remove(); st.remove();
+        html.classList.remove("hg-team-locked");
+      } else {
+        root.classList.add("hg-cs-bad"); err.textContent = (ar ? TXT.ar : TXT.en).err; input.value = "";
+      }
+    });
+  }
+  if (document.body) build();
+  else document.addEventListener("DOMContentLoaded", build);
+})();
+
 (function () {
   /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
      (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
