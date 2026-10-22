@@ -1,8 +1,8 @@
-/* hg-version 2026-10-22-1615 */
+/* hg-version 2026-10-22-1619 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
-   (localStorage "hg-team-ok" = hash:time; 2026-10-22, was for good). After that it locks again, on the next opening or
+   (localStorage KEY = hash:time; 2026-10-22, was for good). After that it locks again, on the next opening or
    when the app or tab comes back to the front. Changing PASS_HASH locks everyone again. While unlocked this block adds
    nothing to the page.
    Only a hash of the password is here (fnv()), checked without capitals or spaces at the ends. It runs first in this
@@ -10,7 +10,9 @@
    (Moved here from app-footer.js, where it was app only.) */
 (function () {
   var PASS_HASH = "3d948b6f";
-  var KEY = "hg-team-ok";
+  /* the unlock is kept under KEY; giving KEY a new name logs out every device at once (v2 2026-10-22: everyone reset) */
+  var KEY = "hg-team-ok-v2";
+  try { localStorage.removeItem("hg-team-ok"); } catch (e) {}
   var HOLD_MS = 3000;
   var DAY_MS = 24 * 60 * 60 * 1000;
   var BASE = "https://pexy613.github.io/hypergo-site/coming-soon/";

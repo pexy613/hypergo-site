@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-1300 */
+/* hg-version 2026-10-22-1625 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -217,13 +217,13 @@
         sp(locRow, "max-width", "none");
 
         sp(label, "color", "#FFFFFF");
-        sp(label, "font-size", "calc(var(--hg-fs, 1px) * 16)");
+        sp(label, "font-size", "calc(var(--hg-fs, 1px) * 14)"); /* (2026-10-22) Deliver to 14, place 14 semibold, address 12 (were 16 / 16 / 13) */
         sp(label, "font-weight", "400");
         sp(label, "white-space", "nowrap");
         sp(label, "margin-inline-start", "4px");
 
         sp(nameEl, "color", "#FFFFFF");
-        sp(nameEl, "font-size", "calc(var(--hg-fs, 1px) * 16)");
+        sp(nameEl, "font-size", "calc(var(--hg-fs, 1px) * 14)");
         sp(nameEl, "font-weight", "600");
 
         const chevPath = chevron && chevron.querySelector("path");
@@ -231,7 +231,7 @@
         sp(chevPath, "fill", "none");
 
         sp(subEl, "color", "#FFFFFF");
-        sp(subEl, "font-size", "calc(var(--hg-fs, 1px) * 13)");
+        sp(subEl, "font-size", "calc(var(--hg-fs, 1px) * 12)");
 
       }
 
@@ -1409,7 +1409,10 @@
     if (!pages.length) return null;
     const sheet = pages.filter((p) => p.closest(".v-overlay-container")).pop();
     if (sheet) return sheet;
-    return isStorePath(currentPath()) ? pages[pages.length - 1] : null;
+    /* (2026-10-22) a store page still on screen counts even when the address has already moved on: going back, Hyperzod
+       keeps the store on screen for about half a second while it builds the next page, and it showed in the old look
+       because this switched off with the address. Item pages (/product/) have their own look, so they stay out. */
+    return /\/product\//.test(currentPath()) ? null : pages[pages.length - 1];
   }
   function renderStore() {
     const de = document.documentElement;
@@ -1742,7 +1745,8 @@
   /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ----------
      On /<lang>/m-category/<slug>/<id> our list replaces Hyperzod's: back button, category name and how many stores,
      Sort / Open now / Free delivery, then one big card per store (cover photo, delivery time, name, distance, tags).
-     A store opens as its own page. Hyperzod's list stays until the nearby stores have loaded. */
+     A store opens as its own page. Grey loading rows show while the nearby stores load (2026-10-22); Hyperzod's own list
+     shows only when they can't load (no address, or the load failed). */
   const CTXT = {
     en: { n1: " store near you", n: " stores near you", sort: "Sort: ", closed: "Closed" },
     ar: { n1: " متجر قريب منك", n: " متاجر قريبة منك", sort: "ترتيب: ", closed: "مغلق" }
@@ -1787,25 +1791,38 @@
     const de = document.documentElement;
     let box = document.getElementById("hgn-catpage");
     const off = () => { de.classList.toggle("hgn-cat-on", false); if (box) box.remove(); catSig = ""; }; /* toggle (2026-10-20): no class rewrite when already off */
+    const place = () => {
+      de.classList.toggle("hgn-cat-on", true);
+      if (!box) {
+        box = document.createElement("div");
+        box.id = "hgn-catpage";
+        box.addEventListener("click", onCatClick);
+        catSig = "";
+      }
+      if (root.firstElementChild !== box) root.insertAdjacentElement("afterbegin", box);
+    };
+    /* (2026-10-22) going back, Hyperzod keeps the category page on screen for about half a second after the address has
+       changed; our page stays until it leaves, so Hyperzod's old list never shows in between */
+    if (!r && root && box && root.getClientRects().length) return;
     if (!r || !root) { off(); return; }
     const hd = homeData();
     if (!hd) { off(); return; }
     const cid = String(r.params.id);
     if (cid !== catWas) { catWas = cid; catSt = newListState(); }
     const all = nearStores(hd);
-    if (!nearAll.key) { off(); return; } /* nearby stores not loaded yet: Hyperzod's own list stays meanwhile */
+    /* nearby stores still loading (2026-10-22): grey loading rows (as on Search) instead of Hyperzod's old list. Not
+       loading at all (no address, or the load failed): Hyperzod's own list stays */
+    if (!nearAll.key) {
+      if (!nearAll.busy) { off(); return; }
+      place();
+      if (catSig !== "loading") { catSig = "loading"; box.innerHTML = '<div class="hgn-sres-loading hgn-cp-wait"><span></span><span></span><span></span><span></span></div>'; }
+      return;
+    }
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L], T = LTXT[L], C = CTXT[L];
     const catMap = catMapOf(hd);
     const cat = catMap[cid] || (hd.merchant_categories || []).find((c) => String(c.id || c._id) === cid);
     const list = all.filter((m) => (m.merchant_category_ids || []).some((x) => String(x) === cid));
-    de.classList.toggle("hgn-cat-on", true);
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "hgn-catpage";
-      box.addEventListener("click", onCatClick);
-      catSig = "";
-    }
-    if (root.firstElementChild !== box) root.insertAdjacentElement("afterbegin", box);
+    place();
     const sig = [cid, L, JSON.stringify(catSt), list.map((m) => m._id || m.id).join(",")].join("|");
     if (sig === catSig) return;
     catSig = sig;
@@ -1938,6 +1955,9 @@
     let box = document.getElementById("hgn-sres");
     const de = document.documentElement;
     const off = () => { de.classList.toggle("hgn-sres-on", false); if (box) box.remove(); sresSig = ""; }; /* toggle (2026-10-20) */
+    /* (2026-10-22) going back from results to a page other than Search, Hyperzod keeps Search on screen for about half a
+       second; our results stay until it leaves */
+    if (!q && wrap && box && !/^\/(en|ar)\/search\/?$/.test(currentPath()) && wrap.getClientRects().length) return;
     if (!q || !wrap) { off(); return; }
     const g = vueGlobals(), S = g && g.$store && g.$store.state;
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
@@ -2053,6 +2073,9 @@
   function renderSearchLanding() {
     const de = document.documentElement;
     const root = document.getElementById("MultiVendorSearch");
+    /* (2026-10-22) going back from Search, Hyperzod keeps it on screen for about half a second after the address has
+       changed; our top bar and start screen stay until it leaves, so its old search page never shows in between */
+    if (root && !/^\/(en|ar)\/search\/?$/.test(currentPath()) && root.getClientRects().length && document.getElementById("hgn-shead")) return;
     const onSearch = /^\/(en|ar)\/search\/?$/.test(currentPath()) && root;
     const hdr = onSearch && root.querySelector(".scheme-global-search-mobile-header");
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L], s2 = STXT2[L];

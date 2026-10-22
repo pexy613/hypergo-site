@@ -1,4 +1,4 @@
-/* hg-version 2026-10-21-1300 */
+/* hg-version 2026-10-22-1625 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -292,6 +292,8 @@ html.hg-new-app .hgn-sres-loading span{height:76px;border-radius:16px;background
 /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ---------- */
 html.hg-new-app.hgn-cat-on #merchants_by_category > :not(#hgn-catpage){display:none!important;}
 html.hg-new-app.hgn-cat-on body #app #merchants_by_category{background:#FFFCF9;min-height:100vh;}
+/* loading rows while the nearby stores load (2026-10-22; .hgn-sres-loading is the Search loading component) */
+html.hg-new-app #hgn-catpage .hgn-cp-wait{padding-top:calc(var(--native-status-bar-height,0px) + 72px);}
 html.hg-new-app #hgn-catpage{font-family:var(--hg-font);color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
   background:#FFFCF9;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
 html.hg-new-app #hgn-catpage *{box-sizing:border-box;}
