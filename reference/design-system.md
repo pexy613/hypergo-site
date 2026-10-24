@@ -574,6 +574,7 @@ Parts (app-new.js / app-new.css, Home unless noted):
 - Stores near you: pale green Free delivery chip when the delivery fee is 0.
 - Header: gloss gradient `#8640FC` (top 40%) to `#7432EE`; glossy white cart button.
 - Store page: "Our favourites" (Jakarta + serif with a green marker swash; Arabic "مختاراتنا") over Recommended Products; checkout bar purple gloss `#7A4CF5 → #5A29DE → #4519C2`.
+- Store page on the website desktop (960px and up, 2026-10-24): the same store look as the app (off-white page, Open now badge, small category tag, chip tabs with the selected one purple, "Our favourites", section titles 20px bold with the purple bar and count, 16px photo boxes with a hairline, white "+" with a thin dark plus, bold price amounts). Desktop keeps its own layout: large cover, logo beside the name, 28px name, 5-tile product grids, cart drawer. Phone-only layout (cover with sheet, logo on the sheet edge, one-product rows with a 112px photo, floating View cart pill) stays below 960px and in the app.
 
 ---
 
