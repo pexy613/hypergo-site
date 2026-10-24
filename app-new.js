@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1820 */
+/* hg-version 2026-10-24-1823 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2337,7 +2337,14 @@
     const off = () => { de.classList.toggle("hgn-sres-on", false); if (box) box.remove(); sresSig = ""; }; /* toggle (2026-10-20) */
     /* (2026-10-22) going back from results to a page other than Search, Hyperzod keeps Search on screen for about half a
        second; our results stay until it leaves */
-    if (!q && wrap && box && !/^\/(en|ar)\/search\/?$/.test(currentPath()) && wrap.getClientRects().length) return;
+    /* (2026-10-24) opening a store from the results: the address changes ~100 ms after the tap while Search stays on
+       screen ~400 ms more, sliding away. Our results came off at once and Hyperzod's own results page (hidden under
+       ours by html.hgn-sres-on) showed in their place: "Product | Merchant · 13 Results", grey photos, ADD ITEM (Nouf's
+       recording at 0:11 and 0:34; measured in the pane: off at 204 ms, Hyperzod's page shown until 500 ms). The test
+       above looked at Hyperzod's results, which are hidden while ours show, so it never held. Now the Search page itself
+       is what counts: while it is still on screen, our results stay. */
+    const spage = wrap && wrap.closest("#MultiVendorSearch");
+    if (!q && box && !/^\/(en|ar)\/search\/?$/.test(currentPath()) && spage && spage.getClientRects().length) return;
     if (!q || !wrap) { off(); return; }
     const g = vueGlobals(), S = g && g.$store && g.$store.state;
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
