@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1823 */
+/* hg-version 2026-10-24-1831 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1700,7 +1700,10 @@
       if (!id) return;
       const real = box.querySelector("img.v-img__img");
       const mine = box.querySelector("img.hgn-thumb");
-      if (real) { if (mine) mine.remove(); return; }
+      /* (2026-10-24) Hyperzod's own photo arriving later used to replace ours, so the photo jumped to another size and
+         crop a moment after showing (Nouf's recording, Moroccan Soap). Ours stays once it has loaded (Hyperzod's is
+         hidden under it, app-new.css); ours is only taken out when Hyperzod's came first. */
+      if (real) { if (mine && !(mine.complete && mine.naturalWidth > 0)) mine.remove(); return; }
       if (mine && mine.getAttribute("data-pid") === id) return;
       /* (2026-10-20): a product without a photo used to re-read all of Hyperzod's product data on every run; now every 3s */
       const np = noPhoto.get(box);
@@ -1713,7 +1716,7 @@
       img.className = "hgn-thumb";
       img.alt = "";
       img.decoding = "async";
-      img.loading = "lazy";
+      img.loading = "eager"; /* (2026-10-24) was lazy: boxes stayed empty while scrolling, the + alone on them */
       img.setAttribute("data-pid", id);
       img.src = u;
       if (!mine) host.appendChild(img);

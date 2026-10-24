@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1827 */
+/* hg-version 2026-10-24-1831 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -486,8 +486,11 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 
 /* product photo boxes (lists and Recommended): white tile, hairline, soft corners */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .pro-card-h-img{
-  background:#FFFCF9!important;border-radius:16px!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;overflow:hidden!important; /* Talabat cards: 16 corners, 1pt line */
+  background:#F4F2FA!important;border-radius:16px!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;overflow:hidden!important; /* Talabat cards: 16 corners, 1pt line */
 }
+/* (2026-10-24) the box is soft lilac (#F4F2FA, like the store cards' photo boxes) while its photo loads, not white with
+   the + alone on it; our photo, once there, stays on top of Hyperzod's (no jump to another crop) */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .pro-card-h-img:has(img.hgn-thumb) img.v-img__img{opacity:0!important;}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .pro-card-h-img img.hgn-thumb{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;border-radius:inherit;
 }
