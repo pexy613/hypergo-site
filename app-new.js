@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1608 */
+/* hg-version 2026-10-24-1618 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2723,6 +2723,20 @@
     if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
   }
 
+  /* STORE TAGS (2026-10-24): the tags under a store's name are now separate chips (app-new.css), so the comma Hyperzod
+     writes after each one ("Retail Trade, ") is taken off the chip's text. */
+  function renderStoreTags() {
+    const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
+    const box = page && page.querySelector("#merchant-header-v2 .v-card-text>div>div>div:last-child");
+    if (!box) return;
+    /* Hyperzod writes the name and the comma as separate bits of text ("Retail Trade" + ", "): every comma bit is emptied */
+    box.querySelectorAll(":scope > span").forEach((sp) => {
+      sp.childNodes.forEach((n) => {
+        if (n.nodeType === 3 && /[,\u060C][\s\u00A0]*$/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(/[\s\u00A0]*[,\u060C][\s\u00A0]*$/, "");
+      });
+    });
+  }
+
   /* STORE FILTER BY THE CATEGORIES (2026-10-24, "HyperGo Store Top Buttons", Nouf: option D with the filter of B).
      Phones and the app. Hyperzod's Filter button left the top of the store (app-new.css, STORE TOP BUTTONS); ours, a
      soft round purple button, starts the row of category tabs and simply presses Hyperzod's (hidden) one, so its filter
@@ -3079,7 +3093,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
+    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {

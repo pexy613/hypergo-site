@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1608 */
+/* hg-version 2026-10-24-1618 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -401,13 +401,19 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 @media (min-width:960px){
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .hgn-open{align-self:flex-start;width:max-content;}
 }
+/* (2026-10-24, later) the store's tags under its name: Hyperzod keeps them in a one-line box 20px tall with the overflow
+   cut off, so the 20px tags were clipped at the edges and a second tag was hidden. Now the box grows and wraps, and the
+   tags are the same soft chips as the store tags elsewhere (.hgn-tag): 24px, 10px sides, 8px corners. */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .v-card-text>div>div>div:last-child{
-  flex:0 0 100%;margin:0!important;font-size:0!important;line-height:0!important;
+  flex:0 0 100%;margin:6px 0 0!important;font-size:0!important;line-height:0!important;
+  display:flex!important;flex-wrap:wrap!important;gap:6px!important;height:auto!important;max-height:none!important;overflow:visible!important;
+  -webkit-line-clamp:unset!important;-webkit-box-orient:unset!important;
 }
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .v-card-text>div>div>div:last-child span{
-  display:inline-flex!important;align-items:center;height:20px;padding:0 6px;border-radius:6px;background:#FFFCF9;
-  box-shadow:inset 0 0 0 1px var(--hg-line);color:var(--hg-muted)!important;font-size:calc(var(--hg-fs) * 12)!important;line-height:1!important;font-weight:400!important;
+  display:inline-flex!important;align-items:center;box-sizing:border-box;height:24px;padding:0 10px;border-radius:8px;background:#F4F2FA;
+  box-shadow:none;color:#4A4E54!important;font-size:calc(var(--hg-fs) * 12)!important;line-height:16px!important;font-weight:500!important;white-space:nowrap;
 }
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .v-card-text>div>div>div:last-child span span{display:none!important;} /* the comma Hyperzod puts between tags */
 
 /* the old distance line is replaced by the info card (#hgn-sinfo); the store's own text line below it stays */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .storefront-gutter>.tw-mt-4>div:first-child{display:none!important;}
@@ -1380,3 +1386,14 @@ html.hg-new-app.hgn-ms-leaving #MerchantSearchPage{visibility:hidden !important;
   html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-tital .v-skeleton-loader__text:first-child{height:20px !important;width:60% !important;}
   html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader>.tw-flex.tw-justify-center{display:none !important;}
 }
+
+/* ================= PRODUCT DESCRIPTIONS: ONE LINE (everywhere, 2026-10-24, Nouf: "only a few words at max, strictly") =================
+   A long description (several paragraphs) filled the whole store page. In every product list, row and card the
+   description is now one line ending in "...": its paragraphs run on in that one line and line breaks are dropped. The
+   full text stays only on the product's own page (#productInfo). Places that already hide the description still do. */
+html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *){
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-height:none!important;-webkit-line-clamp:unset!important;}
+html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(p,div,span,li,ul,ol,h1,h2,h3,h4,h5,h6,strong,b,em,i,u,a,font){
+  display:inline!important;margin:0!important;padding:0!important;white-space:nowrap!important;}
+html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(p,div,li)+:is(p,div,li)::before{content:" ";}
+html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(br,img,table,hr){display:none!important;}
