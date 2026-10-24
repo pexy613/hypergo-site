@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1629 */
+/* hg-version 2026-10-24-1707 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2608,6 +2608,23 @@
     S.commit("sidePanel", ["cart", true]);
     return true;
   }
+  /* EDIT ON THE CHECKOUT (2026-10-24): Nouf: "it should take u back to the store page with the cart open" (the sheet over
+     the checkout looked wrong). Edit goes back to the cart's store (history back when the checkout was opened from that
+     store, so Back from the store does not return to the checkout; otherwise the store is opened), and the cart sheet
+     opens there as soon as the store page and its cart are loaded (renderViewCart). Gives up after 8 seconds. */
+  let coEditOpen = null;
+  function coEditInStore() {
+    const S = csStore(), g = vueGlobals();
+    const m = S && S.getters.getCartMerchant;
+    if (!m || !m.slug || !m.merchant_id || !g || !g.$router) { csOpen(); return; }
+    const path = "/" + lang() + "/m/" + encodeURIComponent(m.slug) + "/" + m.merchant_id;
+    coEditOpen = { id: m.merchant_id, until: Date.now() + 8000 };
+    const back = history.state && typeof history.state.back === "string" ? history.state.back.split("?")[0] : "";
+    let same = false;
+    try { same = !!back && decodeURIComponent(back) === decodeURIComponent(path); } catch (e) {}
+    if (same) g.$router.back(); else g.$router.push(path);
+    setTimeout(schedule, 400);
+  }
   /* LEAVING THE CART SHEET (2026-10-24): when Checkout is pressed, Hyperzod first switches the sheet to its list of
      every store's cart ("Golden Petals · VIEW STORE · CHECKOUT", ...) and only then opens the checkout, so that list
      flashed for a moment (Nouf's screen recording). Now the sheet slides down as soon as Checkout is pressed and is
@@ -2797,6 +2814,12 @@
     if (!vcWatch && S.subscribe) { vcWatch = true; S.subscribe((m) => { if (m && /cart/i.test(m.type)) schedule(); }); }
     const cart = vcCart(S);
     const n = cart ? cart.total_items || 0 : 0;
+    if (coEditOpen) {
+      const md = S.state.Merchant && S.state.Merchant.merchantData;
+      if (Date.now() > coEditOpen.until) coEditOpen = null;
+      else if (n > 0 && md && md.merchant_id === coEditOpen.id && !/\/checkout/.test(currentPath())) { coEditOpen = null; csOpen(); }
+      else setTimeout(schedule, 300);
+    }
     if (!bar) {
       bar = document.createElement("button");
       bar.type = "button";
@@ -2997,7 +3020,7 @@
         el.addEventListener("click", (ev) => {
           if (!ev.target.closest || !ev.target.closest(".hgn-co-edit")) return;
           ev.preventDefault();
-          csOpen();
+          coEditInStore();
         });
       }
       if (items.firstElementChild !== el) items.insertBefore(el, items.firstChild);
@@ -3019,14 +3042,33 @@
     const bill = ck.querySelector("#CartCard > div > :has(#summary)");
     if (bill) {
       const row = (k, v, cls) => '<div class="hgn-co-br' + (cls ? " " + cls : "") + '"><span>' + esc(k) + "</span><span>" + v + "</span></div>";
+      /* delivery fee (2026-10-24): Hyperzod prices delivery only once an address is chosen (validateCart), so before that the
+         bill had no fee and the total was the items only. A store with a fixed fee (its Hyperzod delivery setting, e.g.
+         Zee Shop BHD 1) charges that same fee wherever the address is (tested signed in: BHD 5 + 1 = BHD 6), so it is shown
+         and added to the total straight away, with its delivery tax when the store has one. Stores priced by location
+         show their fee once the address is chosen, and "Free" when Hyperzod then charges none. */
+      const ot = S.getters.getOrderType, cm = S.getters.getCartMerchant;
+      const isDel = !ot || ot === "delivery";
+      const vd = S.state.Cart.validateCartData;
+      const ve = S.state.Cart.validateError;
+      const priced = !!(vd && vd.address_id && S.getters.getDeliveryAddress) && !(ve && typeof ve === "object" ? Object.keys(ve).length : ve);
+      const ds = cm && cm.delivery_setting, fx = ds && ds.default_type === "fixed" && ds.types && ds.types.fixed;
+      let early = 0, earlyTax = 0;
+      if (isDel && !c.is_delivery_fee_applied && !priced && fx && num(fx.amount) > 0) {
+        early = num(fx.amount);
+        earlyTax = ds.delivery_tax_enabled && num(ds.delivery_tax_percent) > 0 ? Math.round(early * num(ds.delivery_tax_percent) * 10) / 1000 : 0;
+      }
       let h = row(T.sub, moneyHtml(num(c.sub_total_amount)));
       if (c.is_delivery_fee_applied) h += row(T.fee, num(c.delivery_fee) > 0 ? moneyHtml(num(c.delivery_fee)) : esc(T.free));
+      else if (early > 0) h += row(T.fee, moneyHtml(early));
+      else if (isDel && priced) h += row(T.fee, esc(T.free));
       if (num(c.tax) > 0) h += row(T.tax, moneyHtml(num(c.tax)));
       if (num(c.delivery_tax) > 0) h += row(T.dtax, moneyHtml(num(c.delivery_tax)));
+      else if (earlyTax > 0) h += row(T.dtax, moneyHtml(earlyTax));
       if (num(c.tip_amount) > 0) h += row(T.tipr, moneyHtml(num(c.tip_amount)));
       if (num(c.merchant_tip_amount) > 0) h += row(T.tipr, moneyHtml(num(c.merchant_tip_amount)));
       if (num(c.discount_amount) > 0) h += row(T.disc, "−" + moneyHtml(num(c.discount_amount)), "is-disc");
-      h += row(T.total, moneyHtml(num(c.total_amount)), "is-total");
+      h += row(T.total, moneyHtml(Math.round((num(c.total_amount) + early + earlyTax) * 1000) / 1000), "is-total");
       ccPut(bill, "hgn-co-bill", h, false);
     }
   }
