@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1530 */
+/* hg-version 2026-10-24-1608 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1814,10 +1814,33 @@
 
   /* ---------- running it ---------- */
   let routerHooked = false;
+  /* LEAVING A STORE'S SEARCH PAGE (2026-10-24): on the way back from Filtered Results, Hyperzod first redraws that page
+     empty ("Search In Undefined", Relevance) and only then shows the store, so an old-looking page flashed (Nouf's
+     screen recording). The page is hidden as soon as the way back starts; the class goes once it is gone (3s at most). */
+  let msLeaveAt = 0;
+  function msLeaveDone() {
+    const de = document.documentElement;
+    if (!de.classList.contains("hgn-ms-leaving")) return;
+    if (document.getElementById("MerchantSearchPage") && Date.now() - msLeaveAt < 3000) return;
+    de.classList.remove("hgn-ms-leaving");
+  }
   function hookRouter() {
+    msLeaveDone();
     if (routerHooked) return;
     const g = vueGlobals();
-    if (g && g.$router && g.$router.afterEach) { g.$router.afterEach(() => schedule()); routerHooked = true; }
+    if (g && g.$router && g.$router.afterEach) {
+      g.$router.afterEach(() => schedule());
+      if (g.$router.beforeEach) {
+        g.$router.beforeEach((to, from) => {
+          if (from && to && /\/m\/[^/]+\/[^/]+\/search\/?$/.test(from.path || "") && to.path !== from.path) {
+            document.documentElement.classList.add("hgn-ms-leaving");
+            msLeaveAt = Date.now();
+            setTimeout(msLeaveDone, 3100);
+          }
+        });
+      }
+      routerHooked = true;
+    }
   }
 
   /* ---------- STORE LIST LAYOUT (2026-10-18, from Nouf's example) ----------
@@ -2728,7 +2751,9 @@
     }
     const label = native.getAttribute("aria-label") || (lang() === "ar" ? "تصفية" : "Filter");
     const n = (native.textContent || "").replace(/\D+/g, "");
-    const html = SF_ICON + (n ? '<span class="hgn-sfilter-n">' + esc(n) + "</span>" : "");
+    /* (2026-10-24, later) the word too ("Filter"), with the number of filters in use after it */
+    const word = lang() === "ar" ? "تصفية" : "Filter";
+    const html = SF_ICON + "<span>" + esc(word) + "</span>" + (n ? '<span class="hgn-sfilter-n">' + esc(n) + "</span>" : "");
     if (b.getAttribute("aria-label") !== label) b.setAttribute("aria-label", label);
     if (b.dataset.sig !== html) { b.innerHTML = html; b.dataset.sig = html; }
   }

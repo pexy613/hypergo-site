@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1530 */
+/* hg-version 2026-10-24-1608 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -556,28 +556,31 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 
 /* STORE TOP BUTTONS (2026-10-24, "HyperGo Store Top Buttons" option D, chosen by Nouf): Back, Filter and Search
    without circles: white icons (44px to tap) on a soft dark shade over the top of the banner. Once the page scrolls
-   under Hyperzod's cream top bar (.cover-scrolled) the shade fades and the icons turn dark, as before. */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions{padding:0 6px !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn{width:44px !important;height:44px !important;min-width:44px !important;max-width:44px !important;min-height:44px !important;max-height:44px !important;
+   under Hyperzod's cream top bar (.cover-scrolled) the shade fades and the icons turn dark, as before.
+   (2026-10-24, later) not waiting for html.hgn-store: while a store loads (going Back to it, for example) Hyperzod's
+   white circles showed for a moment first. */
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions{padding:0 6px !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn{width:44px !important;height:44px !important;min-width:44px !important;max-width:44px !important;min-height:44px !important;max-height:44px !important;
   border:0 !important;background:transparent !important;box-shadow:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn svg{width:22px !important;height:22px !important;transition:filter .2s;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{color:#FFFFFF !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg{color:#FFFFFF !important;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg [stroke]:not([stroke="none"]){stroke:#FFFFFF !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg [fill]:not([fill="none"]){fill:#FFFFFF !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions::before{content:"";position:absolute;left:0;right:0;top:calc(-8px - var(--native-status-bar-height,0px));height:calc(110px + var(--native-status-bar-height,0px));
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn svg{width:22px !important;height:22px !important;transition:filter .2s;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{color:#FFFFFF !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg{color:#FFFFFF !important;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg [stroke]:not([stroke="none"]){stroke:#FFFFFF !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn svg [fill]:not([fill="none"]){fill:#FFFFFF !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions::before{content:"";position:absolute;left:0;right:0;top:calc(-8px - var(--native-status-bar-height,0px));height:calc(110px + var(--native-status-bar-height,0px));
   background:linear-gradient(180deg,rgba(27,32,35,.5) 0%,rgba(27,32,35,.32) 55%,rgba(27,32,35,0) 100%);pointer-events:none;z-index:-1;transition:opacity .2s;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions.cover-scrolled::before{opacity:0;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions.cover-scrolled::before{opacity:0;}
 
 /* the Filter button sits at the start of the category tabs instead (app-new.js, STORE FILTER BY THE CATEGORIES) */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn.tw-relative{display:none !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn.tw-relative{display:none !important;}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter){display:flex !important;align-items:center !important;}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter) > .product-categories-nav__scroller{flex:1 1 auto;min-width:0;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter{flex:none;position:relative;width:34px;height:34px;margin:0;margin-inline-start:16px;padding:0;border:0;border-radius:17px;
-  background:#F1ECFF;color:#5A29DE;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter{flex:none;position:relative;height:38px;margin:0;margin-inline-start:16px;padding:0 14px 0 12px;border:0;border-radius:19px;gap:6px;
+  background:#F1ECFF;color:#5A29DE;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font:inherit;font-size:calc(var(--hg-fs) * 14);font-weight:600;white-space:nowrap;} /* (2026-10-24, later) bigger, with its word: the 34px circle was too small */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter-n{position:absolute;top:-3px;inset-inline-end:-3px;min-width:16px;height:16px;box-sizing:border-box;padding:0 4px;border-radius:8px;
-  background:#5A29DE;color:#FFFFFF;font-size:10px;font-weight:700;line-height:16px;text-align:center;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter-n{position:static;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;
+  background:#5A29DE;color:#FFFFFF;font-size:11px;font-weight:700;line-height:18px;text-align:center;}
 
 /* VIEW CART BAR (2026-10-24): our own bar (#hgn-vc, app-new.js), Hyperzod's button hidden: it flickered and shook on every add */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill{
@@ -1260,3 +1263,120 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
 #hgn-done .hgn-done-bt .hgn-done-track{height:54px;border-radius:27px;background:#5A29DE;color:#FFFFFF;font-size:16px;font-weight:800;}
 #hgn-done button:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
 html.hgn-done-on body{overflow:hidden;}
+
+/* ================= SORT AND FILTERS SHEET (phones and the app, 2026-10-24) =================
+   Hyperzod's filter sheet in the cart-sheet look: cream, 24px top corners, a grab handle, "Sort And Filters" 20/800 and
+   a round close button; the left column of sections (Sort By, Categories, Labels) becomes a row of pills on top (the
+   open one purple); the choices are 52px rows with a hairline, a purple check for the chosen sort, purple ticked boxes
+   for categories and labels; Clear all soft purple, Apply purple, both round. The class is repeated three times to win
+   over Hyperzod's grey text rule ([data-color-scheme] .scheme-filter-panel :is(...)). */
+@media (max-width:959.98px){
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame{background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;overflow:hidden !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-panel{background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-panel::before{content:"";flex:none;display:block;width:40px;height:5px;border-radius:3px;background:#D9D4E5;margin:8px auto 0;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__header{padding:10px 16px 8px !important;min-height:0 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__title{margin:0 !important;font-size:20px !important;line-height:26px !important;font-weight:800 !important;color:#1B2023 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__close{width:40px !important;height:40px !important;border-radius:20px !important;background:#F1ECFF !important;color:#1B2023 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-divider{display:none !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__body{flex-direction:column !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-rail{width:auto !important;background:transparent !important;overflow-x:auto !important;overflow-y:hidden !important;flex:none !important;scrollbar-width:none;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-rail::-webkit-scrollbar{display:none;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-rail>div:first-child{flex-direction:row !important;gap:8px !important;padding:6px 16px 12px !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-rail>div:not(:first-child){display:none !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-tab{flex:none !important;height:38px !important;padding:0 16px !important;border-radius:19px !important;background:#FFFFFF !important;
+    box-shadow:inset 0 0 0 1px #E6E1F3 !important;cursor:pointer;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-tab>div{gap:6px !important;overflow:visible !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-tab span:last-child{font-size:14px !important;line-height:18px !important;font-weight:600 !important;color:#1B2023 !important;white-space:nowrap;-webkit-line-clamp:1 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-tab--active{background:#5A29DE !important;box-shadow:none !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-tab--active span:last-child{color:#FFFFFF !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__content>div:first-child{display:none !important;} /* the section's name again in small capitals: the pill above says it */
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-sheet__options-scroll{padding:0 16px 120px !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row{min-height:52px !important;margin:0 !important;padding:0 !important;display:flex !important;align-items:center !important;gap:12px !important;
+    border-bottom:1px solid #F0EDF5 !important;cursor:pointer;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-label,html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame div.filter-row.filter-row>span{flex:1 1 auto;font-size:15px !important;line-height:20px !important;font-weight:500 !important;color:#1B2023 !important;opacity:1 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row.v-selection-control--dirty .v-label{font-weight:700 !important;}
+  /* the round choice: a purple check when chosen (Hyperzod draws its ring and dot on ::before / ::after) */
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-selection-control__wrapper{order:2;width:24px !important;height:24px !important;margin-inline-start:auto;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-selection-control__input{width:24px !important;height:24px !important;border-radius:12px !important;box-shadow:inset 0 0 0 1.5px #D9D4E5 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-selection-control__input::before,html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-selection-control__input::after{content:none !important;display:none !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row .v-selection-control__input>.v-icon{opacity:0 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .filter-row.v-selection-control--dirty .v-selection-control__input{box-shadow:none !important;
+    background:#5A29DE url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/14px no-repeat !important;}
+  /* ticked boxes (categories, labels) */
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-checkbox{order:2;width:24px !important;height:24px !important;border-radius:7px !important;border:1.5px solid #D9D4E5 !important;background:#FFFFFF !important;color:#FFFFFF !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-checkbox:has(svg),html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-checkbox:not(:empty){background:#5A29DE !important;border-color:#5A29DE !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-checkbox svg{color:#FFFFFF !important;fill:currentColor;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-checkbox svg [stroke]:not([stroke="none"]){stroke:#FFFFFF !important;}
+  /* the two buttons */
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-footer{background:#FFFCF9 !important;padding-top:12px !important;padding-left:calc(env(safe-area-inset-left,0px) + 16px) !important;
+    padding-right:calc(env(safe-area-inset-right,0px) + 16px) !important;gap:10px !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-footer .v-btn{border-radius:26px !important;box-shadow:none !important;max-width:none !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-clear{background:#F1ECFF !important;border:0 !important;color:#5A29DE !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-clear .v-btn__overlay,html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-clear .v-btn__underlay{border:0 !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-apply{background:#5A29DE !important;color:#FFFFFF !important;}
+  html.hg-new-app body .filter-bottom-sheet-frame.filter-bottom-sheet-frame.filter-bottom-sheet-frame .scheme-filter-footer .v-btn__content{font-size:15px !important;font-weight:700 !important;text-transform:none !important;letter-spacing:0 !important;}
+}
+
+/* ================= FILTERED RESULTS (a store's search page, phones and the app, 2026-10-24) =================
+   The page Apply opens (/m/<store>/<id>/search): cream like the store, a round back button and a soft search field,
+   "Filtered Results" 20/800, the filter / sort / categories buttons as pills (the ones in use soft purple), and the
+   products as the store's rows: no boxes, a hairline between rows, the 112px photo on the end side. */
+@media (max-width:959.98px){
+  html.hg-new-app body #app #MerchantSearchPage,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content{background:#FFFCF9 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header{padding:8px 16px 4px !important;border:0 !important;box-shadow:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar{height:auto !important;min-height:48px !important;margin:0 !important;border:0 !important;background:transparent !important;gap:10px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .navLight{width:44px !important;height:44px !important;min-width:44px !important;border-radius:22px !important;background:#FFFFFF !important;
+    box-shadow:inset 0 0 0 1px #E6E1F3 !important;display:flex !important;align-items:center !important;justify-content:center !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .navLight .v-icon{color:#1B2023 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .merchant-search .v-field{height:44px !important;min-height:44px !important;border-radius:22px !important;background:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .merchant-search .v-field__overlay,html.hg-new-app body #app #MerchantSearchPage .merchant-search .v-field__outline{display:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .merchant-search input{min-height:44px !important;padding:0 16px !important;font-size:15px !important;color:#1B2023 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .merchant-search input::placeholder{color:#6E6880 !important;opacity:1 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header h3{margin:12px 0 2px !important;font-size:20px !important;line-height:26px !important;font-weight:800 !important;color:#1B2023 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header h3+div,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header :has(> .scheme-merchant-search-filter){gap:8px !important;padding:8px 0 10px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .full-bleed-scroll{margin-inline:-16px !important;padding-inline:16px !important;scroll-padding-inline:16px;} /* the first pill 16px from the edge, like the rest of the page */
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter{height:38px !important;min-height:38px !important;padding:0 14px !important;border:0 !important;border-radius:19px !important;
+    background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;color:#1B2023 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter .v-btn__overlay,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter .v-btn__underlay{border:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter .v-btn__content,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter .v-btn__content *{font-size:14px !important;font-weight:600 !important;text-transform:none !important;letter-spacing:0 !important;color:inherit !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter--active{background:#F1ECFF !important;box-shadow:none !important;color:#5A29DE !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-filter .tw-bg-black{background:#5A29DE !important;color:#FFFFFF !important;width:18px !important;height:18px !important;font-size:11px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content{padding:0 16px 96px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-horizontal-cards{display:flex !important;flex-direction:column !important;gap:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal{background:transparent !important;box-shadow:none !important;border-radius:0 !important;border-bottom:1px solid var(--hg-line) !important;margin:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal:last-child{border-bottom:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal>.v-card__underlay,html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal>.v-card__overlay{display:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal>.v-card-text{padding:16px 0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .v-card-text>.tw-grid{display:flex !important;flex-direction:row !important;align-items:stretch !important;gap:16px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .v-card-text>.tw-grid>div:not(.pro-card-h){order:0 !important;flex:1 1 auto !important;min-width:0 !important;width:auto !important;max-width:none !important;padding:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .pro-card-h{order:1 !important;flex:0 0 112px !important;width:112px !important;min-width:112px !important;max-width:112px !important;
+    height:112px !important;min-height:112px !important;max-height:112px !important;margin:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .pro-card-h-img{width:112px !important;min-width:112px !important;max-width:112px !important;height:112px !important;min-height:112px !important;max-height:112px !important;
+    border:0 !important;border-radius:16px !important;overflow:hidden !important;background:#F4F2FA !important;margin:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-name{font-size:calc(var(--hg-fs) * 14) !important;line-height:20px !important;font-weight:600 !important;color:var(--hg-ink) !important;margin:0 !important;
+    display:-webkit-box !important;-webkit-box-orient:vertical !important;-webkit-line-clamp:2 !important;overflow:hidden !important;max-height:40px !important;text-transform:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-description,html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-description *{margin-top:2px !important;font-size:calc(var(--hg-fs) * 14) !important;line-height:16px !important;font-weight:400 !important;color:var(--hg-muted) !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-price{font-size:calc(var(--hg-fs) * 14) !important;line-height:20px !important;font-weight:600 !important;color:var(--hg-ink) !important;}
+  html.hg-new-app body #app #MerchantSearchPage .v-skeleton-loader,html.hg-new-app body #app #MerchantSearchPage .v-skeleton-loader__bone{background:#F1ECF5 !important;border-radius:16px;}
+}
+
+/* leaving Filtered Results (html.hgn-ms-leaving, app-new.js): Hyperzod's emptied search page is hidden on the way back */
+html.hg-new-app.hgn-ms-leaving #MerchantSearchPage{visibility:hidden !important;}
+
+/* ================= STORE LOADING (phones and the app, 2026-10-24) =================
+   While a store loads (going Back to it from its search page, for example) Hyperzod shows grey blocks and a spinner;
+   that looked like an old page flashing. Now the loading screen is cream with soft lilac blocks in our store's layout
+   (banner, the rounded logo tile, the name line) and no spinner. */
+@media (max-width:959.98px){
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader{background:#FFFCF9 !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-banner-loader{aspect-ratio:16/9 !important;background:#EEE8F3 !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-banner-loader .v-skeleton-loader__bone{background:transparent !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader #merchant-header-skeleton>div:last-child{margin-top:-24px;border-radius:24px 24px 0 0;background:#FFFCF9;padding:40px 16px 0 !important;position:relative;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-header-img{top:-34px !important;inset-inline-start:16px !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-header-img .v-skeleton-loader{width:60px !important;height:60px !important;border-radius:14px !important;background:#FFFFFF !important;box-shadow:0 2px 10px rgba(27,32,35,.12) !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-header-img .v-skeleton-loader__bone{background:transparent !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .v-card-text>div:first-child{margin-inline-start:0 !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .v-skeleton-loader__text{background:#EEE8F3 !important;border-radius:8px !important;height:14px !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader .merchant-tital .v-skeleton-loader__text:first-child{height:20px !important;width:60% !important;}
+  html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .scheme-merchant-page-loader>.tw-flex.tw-justify-center{display:none !important;}
+}
