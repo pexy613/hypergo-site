@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1508 */
+/* hg-version 2026-10-24-1530 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2700,6 +2700,39 @@
     if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
   }
 
+  /* STORE FILTER BY THE CATEGORIES (2026-10-24, "HyperGo Store Top Buttons", Nouf: option D with the filter of B).
+     Phones and the app. Hyperzod's Filter button left the top of the store (app-new.css, STORE TOP BUTTONS); ours, a
+     soft round purple button, starts the row of category tabs and simply presses Hyperzod's (hidden) one, so its filter
+     sheet opens as before. A number on Hyperzod's button (filters in use) is shown on ours too. */
+  const SF_ICON = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>';
+  function renderStoreFilter() {
+    const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
+    const nav = page && page.classList.contains("merchant-mobile-view") ? page.querySelector("#ProductCategoriesNav") : null;
+    const native = page ? page.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative") : null;
+    document.querySelectorAll(".hgn-sfilter").forEach((b) => { if (!nav || !native || b.parentNode !== nav) b.remove(); });
+    if (!nav || !native) return;
+    let b = nav.querySelector(":scope > .hgn-sfilter");
+    if (!b) {
+      b = document.createElement("button");
+      b.type = "button";
+      b.className = "hgn-sfilter";
+      b.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const pg = openStorePage();
+        const nb = pg && pg.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative");
+        if (nb) nb.click();
+      });
+      nav.insertBefore(b, nav.firstChild);
+      const sw = nav.querySelector(".swiper");
+      if (sw && sw.swiper && sw.swiper.update) { try { sw.swiper.update(); } catch (e) {} }
+    }
+    const label = native.getAttribute("aria-label") || (lang() === "ar" ? "تصفية" : "Filter");
+    const n = (native.textContent || "").replace(/\D+/g, "");
+    const html = SF_ICON + (n ? '<span class="hgn-sfilter-n">' + esc(n) + "</span>" : "");
+    if (b.getAttribute("aria-label") !== label) b.setAttribute("aria-label", label);
+    if (b.dataset.sig !== html) { b.innerHTML = html; b.dataset.sig = html; }
+  }
+
   /* ---------- VIEW CART BAR (2026-10-24, "HyperGo Quick Checkout" board 1) ----------
      Phones and the app, store pages. Our own purple bar at the bottom: the number of items in a green circle,
      "View cart", and the cart total (the old price struck through when there is a discount). Tapping it opens the
@@ -3021,7 +3054,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
+    renderStore, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {
@@ -3036,7 +3069,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = ".hgn-sfilter,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
