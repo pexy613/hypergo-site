@@ -12,7 +12,7 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 ### Backgrounds
 | Value | Where | File |
 |---|---|---|
-| `#8640FC` | Mobile home header root (inline), desktop `#AppBar`, search header, account header + hero, category page header + desktop title band, address editor header, status strip (search/account/category/address pages) | GF1 L75, L376, (extra) L1761/L1864/L2304, (acct) L1262/L1267/L1274, (forms) L1577/L1604; GF.css L37-38; AF L50 |
+| `#8640FC` | Mobile home header root (inline), search header, account header + hero, category page header + desktop title band, address editor header, status strip (search/account/category/address pages) | GF1 L75, L376, (extra) L1761/L1864/L2304, (acct) L1262/L1267/L1274, (forms) L1577/L1604; GF.css L37-38; AF L50 |
 | `#5A29DE` | App `html` + `body` background (inline !important, app only) | AF L13, L19 |
 | `#FAFAFC` | `body,.v-application` everywhere | GF1 (extra) L1724 |
 | `#FFFFFF` / `#fff` | Home canvas (`#MultiVendorHome`, `#ProductCategories`, `#hg-cat-rows`), search page, cards, account page, sheets, launch section | GF1 (home88) L2346, (cat) L2631; GF.css L36, L880; GL L48 |
@@ -328,7 +328,7 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 - Cart button: 38px circle `rgba(255,255,255,.18)`, `right:16px`, `top:calc(var(--native-status-bar-height,0px) + 7px)`, 22px bag `#111`; badge dot 11px `#FF3B4E` with `2px solid #8640FC`, number badge 17px tall, 10px / 700 (GF1 (cart) L1101-1111).
 - Watermark: outline logo 190px, `right:6px; bottom:-24px`, opacity 0 → 0.55 over first 50px of scroll, clipped (GF1 (wm) L492-506).
 
-**Purple header, desktop website** — GF1 `applyHyperGoDesktop()` L372-483: `#AppBar` `#8640FC`, radius `0 0 24px 24px`, `position:absolute`; text/icons white; pill 42px, radius 21px, input padding-left 42px, 15px; icon 18px `#2A2F38` at 11px; placeholder 15px / 500; logo `filter:brightness(0) invert(1)`; filled cart `rgba(255,255,255,.18)`.
+**White header, desktop website (option A, 2026-10-24)** — GF1 `applyHyperGoDesktop()`: `#AppBar` `#FFFFFF`, straight edge, shadow `0 1px 0 #ECE8F6, 0 6px 18px rgba(54,25,133,.06)`, `position:absolute`; items lined up with the 1200px content column (`padding-inline:max(24px,calc((100% - 1200px) / 2))`, gap 16px); text/icons `#3A3F42`; full colour wordmark 30px tall (Home link); Home / Stores links 36px, radius 10px, 15px / 600, active `#F1ECFF` + `#5A29DE`, hover `#F6F3FD`; location chip inset `#E6E1F3`, radius 12px, max 210px, pin `#5A29DE`, "Deliver to" + address `#6E6880`; search 44px, radius 12px, `#F4F2FA` + inset `#E6E1F3`, icon 18px `#5A29DE` at 13px; Filter icon-only 40px; cart pill `#5A29DE`, white text, radius 20px, 40px, count `#ACE4AA` / `#1B2023`; globe button 40px (opens Hyperzod's Language menu, was the hamburger). Under 1200px: Stores link and the Account word hide; under 1100px: "Deliver to" and the address line hide. (Was: purple `#8640FC` bar, radius `0 0 24px 24px`, white text, white icon logo.)
 
 **Search page header (mobile)** — see CONFLICT 3. GF.css: flex, gap 10px, `#8640FC`, padding `12px 16px 20px`, radius `0 0 24px 24px`, min-height 76px, sticky under status bar; cart 40px circle `#fff`, border `#E7E5EA`, badge `#FF4000` 17px, 10px / 800 (L37-49, L1515). App only: pinned-header shift variables, no field loading bar (GF.css L1696-1706).
 

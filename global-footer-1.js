@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-1619 */
+/* hg-version 2026-10-24-1213 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -621,25 +621,97 @@
   }
 
   /* DESKTOP HEADER (width >= 960) — tested in Console, same approach:
-     inline !important styles on the fixed #AppBar, re-applied by the observer */
+     inline !important styles on the fixed #AppBar, re-applied by the observer.
+     (2026-10-24, header option A) a clean white bar: the flat purple bar blended with the purple page and looked cheap.
+     White, straight bottom edge, a hairline and a soft shadow; its items line up with the page's 1200px content column.
+     The full colour HyperGo wordmark fills the old empty logo slot and goes Home; Home and Stores links sit next to it
+     (Stores = our "Stores near you" page, /home?hgn=stores); the hamburger, which only held Language, becomes a globe
+     button at the end that opens the same Language menu; the cart is a purple pill with a green count. */
+  const HG_WORDMARK = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 725.11 152.55'><polygon fill='#1B2023' points='81.92 53.7 15.05 53.7 15.05 2.05 0 2.05 0 120.05 15.05 120.05 15.05 67.72 81.92 67.72 81.92 120.05 96.97 120.05 96.97 2.05 81.92 2.05 81.92 53.7'/><polygon fill='#1B2023' points='159.73 103.36 129.8 32.84 113.73 32.84 152 119.66 142.89 139.55 125.36 139.55 125.36 152.55 152.72 152.55 205.56 32.84 189.66 32.84 159.73 103.36'/><path fill='#1B2023' d='M291.5,36.77c-6.67-3.99-14.11-5.99-22.32-5.99s-14.97,1.99-21.29,5.99c-5.37,3.39-9.72,7.85-13.08,13.37v-17.31h-14.02v119.71h14.02v-49.8c3.36,5.52,7.71,9.99,13.08,13.37,6.33,3.99,13.42,5.99,21.29,5.99s15.65-1.99,22.32-5.99c6.67-3.99,11.91-9.46,15.73-16.42,3.82-6.95,5.73-14.71,5.73-23.26s-1.91-16.3-5.73-23.26c-3.82-6.95-9.06-12.43-15.73-16.42ZM294.23,92.78c-2.79,4.85-6.61,8.67-11.46,11.46-4.85,2.79-10.23,4.19-16.16,4.19s-11.46-1.4-16.25-4.19c-4.79-2.79-8.58-6.64-11.37-11.54-2.8-4.9-4.19-10.32-4.19-16.25s1.39-11.48,4.19-16.33c2.79-4.85,6.61-8.66,11.46-11.46,4.84-2.79,10.23-4.19,16.16-4.19s11.46,1.4,16.25,4.19c4.79,2.8,8.58,6.64,11.37,11.54,2.79,4.9,4.19,10.32,4.19,16.25s-1.4,11.49-4.19,16.33Z'/><path fill='#1B2023' d='M397.1,36.77c-7.07-3.99-14.94-5.99-23.6-5.99s-16.53,1.99-23.6,5.99c-7.07,3.99-12.63,9.46-16.67,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.02,16.3,6.07,23.26c4.05,6.95,9.6,12.43,16.67,16.42,7.07,3.99,14.94,5.99,23.6,5.99,10.49,0,19.72-2.73,27.7-8.21,7.98-5.47,13.57-12.71,16.76-21.72h-15.39c-2.39,5.13-6.19,9.23-11.37,12.31-5.19,3.08-11.09,4.62-17.7,4.62-5.93,0-11.32-1.42-16.16-4.27-4.85-2.85-8.67-6.76-11.46-11.71-1.86-3.3-3.08-6.86-3.7-10.69h77.16c.34-1.71.51-3.7.51-5.99,0-8.55-2.03-16.3-6.07-23.26-4.05-6.95-9.61-12.43-16.67-16.42ZM342.3,69.6c.65-3.5,1.81-6.78,3.49-9.83,2.74-4.96,6.52-8.86,11.37-11.71,4.85-2.85,10.29-4.27,16.33-4.27s11.12,1.37,15.9,4.11c4.79,2.73,8.57,6.47,11.37,11.2,1.9,3.23,3.2,6.74,3.91,10.52h-62.38Z'/><path fill='#1B2023' d='M452.85,49.21v-16.37h-14.02v87.22h14.02v-43.95c0-6.04,1.14-11.31,3.42-15.82,2.28-4.5,5.61-8.01,10-10.52,4.39-2.51,9.55-3.76,15.48-3.76v-14.54c-6.5,0-12.29,1.65-17.36,4.96-4.67,3.05-8.52,7.32-11.54,12.78Z'/><path fill='#5A29DE' d='M557,74.39h35.75c-1.01,3.5-2.54,6.78-4.62,9.83-3.53,5.19-8.15,9.26-13.85,12.23-5.7,2.97-11.97,4.45-18.82,4.45-7.41,0-14.14-1.74-20.18-5.22-6.04-3.48-10.77-8.24-14.2-14.28-3.42-6.04-5.13-12.83-5.13-20.35s1.71-14.31,5.13-20.35c3.42-6.04,8.15-10.8,14.2-14.28,6.04-3.48,12.77-5.22,20.18-5.22s14.28,1.8,20.27,5.39c5.99,3.59,10.52,8.41,13.6,14.45h24.46c-2.05-7.87-5.9-14.93-11.54-21.21-5.64-6.27-12.51-11.14-20.61-14.62-8.1-3.47-16.82-5.22-26.17-5.22-11.63,0-22.17,2.68-31.64,8.04-9.47,5.36-16.93,12.69-22.4,21.98-5.47,9.29-8.21,19.64-8.21,31.04s2.74,21.75,8.21,31.04c5.47,9.29,12.94,16.62,22.4,21.97,9.46,5.36,20.01,8.04,31.64,8.04,7.87,0,14.94-1.14,21.21-3.42,6.27-2.28,11.57-5.56,15.9-9.83,1.68-1.65,3.21-3.45,4.61-5.36v16.57h19.33V54.38h-59.52v20.01Z'/><path fill='#5A29DE' d='M719.04,53.19c-4.05-6.95-9.64-12.43-16.76-16.42-7.13-3.99-15.08-5.99-23.86-5.99s-16.9,1.99-24.03,5.99c-7.13,3.99-12.72,9.46-16.76,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.03,16.3,6.07,23.26c4.04,6.95,9.63,12.43,16.76,16.42,7.12,3.99,15.13,5.99,24.03,5.99s16.73-1.99,23.86-5.99c7.12-3.99,12.71-9.46,16.76-16.42,4.04-6.95,6.07-14.71,6.07-23.26s-2.03-16.3-6.07-23.26ZM700.4,89.44c-2.22,3.88-5.27,6.93-9.15,9.15-3.87,2.22-8.21,3.34-12.99,3.34s-9.09-1.11-12.91-3.34c-3.82-2.22-6.84-5.27-9.06-9.15-2.22-3.87-3.33-8.21-3.33-13s1.11-9.12,3.33-13c2.22-3.87,5.27-6.93,9.15-9.15,3.87-2.22,8.21-3.34,13-3.34s9.09,1.11,12.91,3.34c3.82,2.22,6.84,5.27,9.06,9.15,2.22,3.88,3.34,8.21,3.34,13s-1.11,9.12-3.34,13Z'/></svg>");
+  const HG_GLOBE = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#3A3F42' stroke-width='1.9' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3c2.6 2.7 3.9 5.7 3.9 9s-1.3 6.3-3.9 9c-2.6-2.7-3.9-5.7-3.9-9s1.3-6.3 3.9-9z'/></svg>");
+  const HG_HOUSE = "<svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/></svg>";
+  /* which link of the bar is the current page: Home, the Stores page, or none */
+  function hgDeskNavOn() {
+    if (!/^\/(en|ar)(\/home)?\/?$/.test(location.pathname)) return "";
+    const q = new URLSearchParams(location.search).get("hgn");
+    return q === "stores" ? "stores" : q ? "" : "home";
+  }
+  /* what the bar shows: when none of this changed, the full run is skipped (2026-10-20; one copy since 2026-10-24) */
+  function hgDeskSig(bar) {
+    const loc = bar.querySelector("#CurrentLocationBtn");
+    return bar.getElementsByTagName("*").length + "|" + (loc ? loc.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length +
+      "|" + hgIsAr() + "|" + hgDeskNavOn();
+  }
+  function hgDeskRouter() {
+    const app = document.querySelector("#app");
+    return app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$router;
+  }
+  function hgDeskGo(path) {
+    const r = hgDeskRouter();
+    if (r) r.push(path).catch(() => {}); else location.href = path;
+  }
+  /* Home <-> Stores changes no part of the page the observer watches, so the bar also re-checks after every page change */
+  let hgDeskHooked = false;
+  function hgDeskHook() {
+    if (hgDeskHooked) return;
+    const r = hgDeskRouter();
+    if (!r || !r.afterEach) return;
+    hgDeskHooked = true;
+    r.afterEach(() => setTimeout(applyHyperGoDesktop, 0));
+  }
+  function hgDeskStyle() {
+    if (document.getElementById("hg-desk-style")) return;
+    const st = document.createElement("style");
+    st.id = "hg-desk-style";
+    st.textContent =
+      "#AppBar .hg-wordmark{display:flex;align-items:center;cursor:pointer;}" +
+      "#AppBar .hg-wordmark img{height:30px;width:auto;display:block;}" +
+      "#AppBar .hg-dnav{display:flex;align-items:center;gap:4px;flex:none;}" +
+      "#AppBar .hg-dnav a{height:36px;padding:0 14px;border-radius:10px;display:flex;align-items:center;gap:7px;font-size:15px;" +
+        "font-weight:600;line-height:1;color:#3A3F42;text-decoration:none;white-space:nowrap;transition:background-color .15s,color .15s;}" +
+      "#AppBar .hg-dnav a:hover{background:#F6F3FD;color:#1B2023;}" +
+      "#AppBar .hg-dnav a.is-on{background:#F1ECFF;color:#5A29DE;}" +
+      "#AppBar .hg-dnav a:focus-visible,#AppBar .hg-wordmark:focus-visible{outline:3px solid #5A29DE;outline-offset:2px;}" +
+      "#AppBar #NavBtn .v-icon{visibility:hidden;}" +
+      "#AppBar #NavBtn{background:url(\"" + HG_GLOBE + "\") center/20px no-repeat !important;}" +
+      "#AppBar #NavBtn:hover{background-color:#F6F3FD !important;}" +
+      /* Filter is an icon button (its name stays on aria-label), so the search keeps its room */
+      "#AppBar #FilterBtn{min-width:40px !important;width:40px !important;padding:0 !important;border-radius:12px !important;}" +
+      "#AppBar #FilterBtn .text{display:none !important;}" +
+      /* narrower windows: the Stores link and the Account word go first, then "Deliver to" and the address line */
+      "@media (max-width:1199px){#AppBar .hg-dnav a[data-k='stores'],#AppBar #ProfileBtn .text{display:none !important;}" +
+        "#AppBar #ProfileBtn{min-width:40px !important;padding:0 10px !important;}}" +
+      "@media (max-width:1099px){#AppBar #CurrentLocationBtn>div+div,#AppBar #CurrentLocationBtn .hg-deliver-label{display:none !important;}}";
+    document.head.appendChild(st);
+  }
   let deskLast = null, deskLastTxt = "";
   function applyHyperGoDesktop() {
     try {
       if (!window.matchMedia("(min-width: 960px)").matches) return;
 
-      const P = "#8640FC", W = "#FFFFFF", G = "#1F2430", IC = "#2A2F38";
+      const A = "#5A29DE", W = "#FFFFFF", G = "#1F2430", T = "#3A3F42", LINE = "#E6E1F3";
       const bar = document.querySelector("#AppBar");
       if (!bar) return;
 
       /* (2026-10-20): skip restyling every element of the bar when nothing in it changed since the last full run */
-      const deskLoc = bar.querySelector("#CurrentLocationBtn");
-      const deskTxt = bar.getElementsByTagName("*").length + "|" + (deskLoc ? deskLoc.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length + "|" + hgIsAr();
-      if (deskLast === bar && deskLastTxt === deskTxt && bar.style.getPropertyValue("background-color")) {
+      if (deskLast === bar && deskLastTxt === hgDeskSig(bar) && bar.style.getPropertyValue("background-color")) {
         hgSyncPhOpacity(bar.querySelector(".d-md-flex .v-field"));
         return;
       }
 
       const s = (el, k, v) => el.style.setProperty(k, v, "important");
+      /* text + icon colour of an element and every icon inside it */
+      const paint = (el, c) => {
+        s(el, "color", c);
+        el.querySelectorAll("svg, svg *").forEach((g) => {
+          const st = g.getAttribute("stroke"), fi = g.getAttribute("fill");
+          if (st && st !== "none") s(g, "stroke", c);
+          if (fi && fi !== "none") s(g, "fill", c);
+        });
+      };
+      const ar = hgIsAr(), L = ar ? "ar" : "en";
+      hgDeskStyle();
+      hgDeskHook();
 
       /* header scrolls away with the page (native: position fixed) */
       s(bar, "position", "absolute");
@@ -648,63 +720,124 @@
       const rootEl = document.querySelector("#MultiVendorHeaderRoot");
       if (rootEl) rootEl.style.setProperty("--scheme-header-search-placeholder", G);
 
-      s(bar, "background-color", P);
+      s(bar, "background-color", W);
       s(bar, "background-image", "none");
-      s(bar, "border-radius", "0 0 24px 24px");
-      s(bar, "box-shadow", "none");
+      s(bar, "border-radius", "0");
+      s(bar, "box-shadow", "0 1px 0 #ECE8F6, 0 6px 18px rgba(54,25,133,.06)");
+      const content = bar.querySelector(".v-toolbar__content");
+      if (content) {
+        s(content, "padding-left", "max(24px, calc((100% - 1200px) / 2))");
+        s(content, "padding-right", "max(24px, calc((100% - 1200px) / 2))");
+        s(content, "gap", "16px");
+      }
 
-      /* white text + icons (search box and logo excluded) */
+      /* dark text + icons (search box, logo, our links and the cart excluded) */
       bar.querySelectorAll("*").forEach((el) => {
-        if (el.closest(".d-md-flex") || el.closest("#Logo")) return;
-        s(el, "color", W);
+        if (el.closest(".d-md-flex") || el.closest("#Logo") || el.closest(".hg-dnav") || el.closest(".v-badge")) return;
+        s(el, "color", T);
         if (el instanceof SVGElement) {
           const st = el.getAttribute("stroke"), fi = el.getAttribute("fill");
-          if (st && st !== "none") s(el, "stroke", W);
-          if (fi && fi !== "none") s(el, "fill", W);
+          if (st && st !== "none") s(el, "stroke", T);
+          if (fi && fi !== "none") s(el, "fill", T);
         }
       });
 
-      /* cart with items: Hyperzod switches the button to its theme fill (white), which hid the white icon + text.
-         Keep it on the purple bar as a soft translucent pill instead. */
-      bar.querySelectorAll(".cart-btn--filled").forEach((b) => s(b, "background-color", "rgba(255,255,255,.18)"));
-
-      /* "Deliver to" */
-      const loc = bar.querySelector("#CurrentLocationBtn");
-      if (loc && !loc.querySelector(".hg-deliver-label")) {
-        const nameEl = loc.querySelector("span.text");
-        if (nameEl) {
-          const lab = hgMakeDeliverLabel();
-          lab.style.cssText =
-            "color:#fff;font-size:14px;font-weight:400;white-space:nowrap;margin-inline-start:4px;margin-inline-end:4px";
-          nameEl.parentNode.insertBefore(lab, nameEl);
-          s(nameEl, "font-weight", "700");
+      /* logo: the full colour wordmark (Hyperzod's icon-only logo left most of its 150px slot empty); goes Home */
+      const logoBox = bar.querySelector("#Logo");
+      if (logoBox) {
+        s(logoBox, "width", "auto");
+        s(logoBox, "max-width", "none");
+        s(logoBox, "flex", "none");
+        s(logoBox, "margin", "0");
+        const vimg = logoBox.querySelector(".v-img");
+        if (vimg) s(vimg, "display", "none");
+        let wm = logoBox.querySelector(".hg-wordmark");
+        if (!wm) {
+          wm = document.createElement("a");
+          wm.className = "hg-wordmark";
+          wm.setAttribute("aria-label", "HyperGo");
+          wm.innerHTML = '<img src="' + HG_WORDMARK + '" alt="" draggable="false">';
+          wm.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            hgDeskGo("/" + (hgIsAr() ? "ar" : "en") + "/home");
+          });
+          logoBox.appendChild(wm);
         }
+        wm.href = "/" + L + "/home";
       }
 
-      /* search pill */
+      /* Home and Stores links next to the logo */
+      let nav = bar.querySelector(".hg-dnav");
+      if (!nav && logoBox) {
+        nav = document.createElement("nav");
+        nav.className = "hg-dnav";
+        nav.addEventListener("click", (ev) => {
+          const a = ev.target.closest("a[href]");
+          if (!a) return;
+          ev.preventDefault();
+          hgDeskGo(a.getAttribute("href"));
+        });
+        logoBox.insertAdjacentElement("afterend", nav);
+      }
+      if (nav) {
+        const on = hgDeskNavOn();
+        const html =
+          '<a data-k="home" href="/' + L + '/home"' + (on === "home" ? ' class="is-on" aria-current="page"' : "") + ">" + HG_HOUSE + (ar ? "الرئيسية" : "Home") + "</a>" +
+          '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>";
+        if (nav.innerHTML !== html) nav.innerHTML = html;
+      }
+
+      /* "Deliver to": an outlined chip with a purple pin */
+      const loc = bar.querySelector("#CurrentLocationBtn");
+      if (loc) {
+        s(loc, "box-shadow", "inset 0 0 0 1px " + LINE);
+        s(loc, "border-radius", "12px");
+        s(loc, "max-width", "210px");
+        s(loc, "flex", "none");
+        const pin = loc.querySelector("svg");
+        if (pin) paint(pin.parentNode === loc ? pin : { style: pin.style, querySelectorAll: () => [] } && pin, A);
+        const nameEl = loc.querySelector("span.text");
+        if (nameEl && !loc.querySelector(".hg-deliver-label")) {
+          const lab = hgMakeDeliverLabel();
+          lab.style.cssText = "font-size:14px;font-weight:400;white-space:nowrap;margin-inline-start:4px;margin-inline-end:4px";
+          nameEl.parentNode.insertBefore(lab, nameEl);
+        }
+        const lab = loc.querySelector(".hg-deliver-label");
+        if (lab) s(lab, "color", "#6E6880");
+        if (nameEl) { s(nameEl, "font-weight", "700"); s(nameEl, "color", "#1B2023"); }
+        const addr = loc.querySelector(":scope>div+div");
+        if (addr) s(addr, "color", "#6E6880");
+      }
+
+      /* search field: soft lilac, rounded 12px, purple icon */
+      const sbox = bar.querySelector(".d-md-flex");
+      if (sbox) { s(sbox, "margin-left", "8px"); s(sbox, "margin-right", "8px"); }
+      const ms = bar.querySelector(".web-main-search");
+      if (ms) s(ms, "border-radius", "12px");   /* the focus ring (global-footer.css) follows this corner */
       const f = bar.querySelector(".d-md-flex .v-field");
       if (f) {
-        s(f, "background-color", W);
-        s(f, "border-radius", "21px");
-        s(f, "height", "42px");
-        s(f, "min-height", "42px");
+        s(f, "background-color", "#F4F2FA");
+        s(f, "box-shadow", "inset 0 0 0 1px " + LINE);
+        s(f, "border-radius", "12px");
+        s(f, "height", "44px");
+        s(f, "min-height", "44px");
         const ctl = f.closest(".v-input__control");
-        if (ctl) { s(ctl, "height", "42px"); s(ctl, "min-height", "42px"); }
+        if (ctl) { s(ctl, "height", "44px"); s(ctl, "min-height", "44px"); }
         s(f, "overflow", "hidden");
         const o = f.querySelector(".v-field__outline");
         if (o) s(o, "display", "none");
 
-        /* search icon on the LEFT: centred on the middle of the round left end.
-           grid-area:auto makes the padding box (not the grid cell) the reference. */
+        /* search icon on the LEFT, 11px in (grid-area:auto makes the padding box, not the grid cell, the reference) */
         const ap = f.querySelector(".v-field__append-inner");
         if (ap) {
           s(ap, "grid-area", "auto");
           s(ap, "position", "absolute");
-          if (hgIsAr()) {
+          if (ar) {
             s(ap, "left", "auto");
-            s(ap, "right", "11px");
+            s(ap, "right", "13px");
           } else {
-            s(ap, "left", "11px");
+            s(ap, "left", "13px");
           }
           s(ap, "top", "0");
           s(ap, "bottom", "0");
@@ -714,14 +847,14 @@
         }
         const inp = f.querySelector("input");
         if (inp) {
-          if (hgIsAr()) {
+          if (ar) {
             s(inp, "padding-right", "42px");
             s(inp, "padding-left", "16px");
           } else {
             s(inp, "padding-left", "42px");
           }
-          s(inp, "height", "42px");
-          s(inp, "min-height", "42px");
+          s(inp, "height", "44px");
+          s(inp, "min-height", "44px");
           s(inp, "font-size", "15px");
         }
         const ic = f.querySelector(".header-search-append svg");
@@ -729,21 +862,54 @@
           s(ic, "display", "block");
           s(ic, "width", "18px");
           s(ic, "height", "18px");
-          ic.querySelectorAll("g, path").forEach((e) => s(e, "fill", IC));
+          ic.querySelectorAll("g, path").forEach((e) => s(e, "fill", A));
         }
 
         ensureRotatingPlaceholder(f, { left: 42, size: 15, weight: 500 });
       }
 
-      /* logo */
-      const img = bar.querySelector("#Logo img");
-      if (img)
-        s(img, "filter", "brightness(0) invert(1)");   /* plain white icon on the purple bar: no glow, no purple-on-purple */
+      /* cart: a purple pill (also with items: Hyperzod switches a filled cart to its own white) and a green count */
+      const cart = bar.querySelector(".v-badge .v-btn");
+      if (cart) {
+        s(cart, "background-color", A);
+        s(cart, "border-radius", "20px");
+        s(cart, "height", "40px");
+        s(cart, "padding", "0 16px");
+        paint(cart, W);
+      }
+      const badge = bar.querySelector(".v-badge__badge");
+      if (badge) {
+        s(badge, "background-color", "#ACE4AA");
+        s(badge, "color", "#1B2023");
+        s(badge, "font-weight", "800");
+      }
 
-      /* (2026-10-20): remember what was styled (measured after our label/placeholder were added) */
-      const deskLoc2 = bar.querySelector("#CurrentLocationBtn");
+      /* icon-only buttons keep their name for screen readers */
+      ["#FilterBtn", "#ProfileBtn"].forEach((sel) => {
+        const b = bar.querySelector(sel), t = b && b.querySelector(".text");
+        const name = t && t.textContent.trim();
+        if (name && b.getAttribute("aria-label") !== name) b.setAttribute("aria-label", name);
+      });
+
+      /* the hamburger (its menu only holds Language) becomes a globe button at the end of the bar */
+      const pre = bar.querySelector(".v-toolbar__prepend");
+      if (pre) { s(pre, "order", "99"); s(pre, "margin", "0"); }
+      const nb = bar.querySelector("#NavBtn");
+      if (nb) {
+        const lt = ar ? "اللغة" : "Language";
+        if (nb.getAttribute("aria-label") !== lt) { nb.setAttribute("aria-label", lt); nb.title = lt; }
+        s(nb, "width", "40px");
+        s(nb, "height", "40px");
+        s(nb, "max-width", "none");   /* Hyperzod caps the hamburger at 24px */
+        s(nb, "max-height", "none");
+        s(nb, "margin", "0");
+        s(nb, "border-radius", "12px");
+        s(nb, "box-shadow", "inset 0 0 0 1px " + LINE);
+      }
+
+      /* (2026-10-20): remember what was styled (measured after our label/links/placeholder were added) */
       deskLast = bar;
-      deskLastTxt = bar.getElementsByTagName("*").length + "|" + (deskLoc2 ? deskLoc2.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length + "|" + hgIsAr();
+      deskLastTxt = hgDeskSig(bar);
     } catch (e) {}
   }
 
