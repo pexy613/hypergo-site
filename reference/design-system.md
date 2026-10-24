@@ -211,7 +211,9 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Profile pages | 1260px, padding 30px 28px 60px, sidebar 300px, gap 28px | GF.css L1435-1437 |
 | Category list page | 1248px | GF1 (extra) L2303 |
 | Fixed checkout bar | 1200px, padding 10px 20px | GF.css L1400 |
-| Checkout section order (phones + app, 2026-10-24) | items, payment method, delivery instructions + tip, coupons, order type, delivery type, bill, You May Also Like last; address + Place Order stay in the fixed bottom bar; desktop unchanged | app-new.css CHECKOUT ORDER |
+| Checkout section order (phones + app, 2026-10-24) | address card with map first, then items, payment method, delivery instructions (one row that opens) + tip, coupons, bill, You May Also Like last; order type / delivery type hidden when there is nothing to choose; Place order left + total right in a 27px-round button; desktop unchanged | app-new.css CHECKOUT ORDER, CHECKOUT TOP |
+| Checkout address card (phones + app, 2026-10-24) | white, radius 20px; 150px Mapbox map (zoom 16, purple #5A29DE pin 32x40); "Deliver to" 12px #6E6880, type 15px/700, address 13px #3A3F42 one line; Change pill 36px #F1ECFF / #5A29DE 14px/700; header "Checkout" 17px/700 over store name 12px #6E6880 | app-new.css CHECKOUT TOP |
+| Cart sheet (phones + app, 2026-10-24) | slides up, stops 96px from the top (plus status bar), scrim rgba(27,32,35,.45), radius 24px top, #FFFCF9, grabber 40x5 #D9D4E5; "Your cart" 20px/800 + store 13px #6E6880; close 40px round #F1ECFF; item image 56px r12, name 15/600, price 14/700, white +/- pill 36px with #E6E1F3 line; You may also like 17px/800, 120px cards r14, + 30px white circle; Checkout button 54px r27 #5A29DE, "Checkout" 16/800 + total 16/700 | app-new.css CART SHEET |
 | Launch card | 1100px; section padding 14px 16px 8px (mobile), 40px 48px 24px (desktop) | GL L48-52 |
 
 **Gaps between sections**

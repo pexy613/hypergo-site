@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1314 */
+/* hg-version 2026-10-24-1337 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -990,4 +990,105 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#deliveryTime){order:6;}
   html.hg-new-app #checkout #CartCard > div > :has(#summary){order:7;margin-top:10px !important;}
   html.hg-new-app #checkout #CartCard > div > .tw-flex-col > .similar-items-panel{order:8;}
+}
+
+/* ================= CART SHEET (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 2) =================
+   Hyperzod's phone cart (a full-screen sheet, .scheme-cart-panel) shown as a sheet that slides up over the store and
+   stops 96px from the top, the store dimmed behind it (tap there to close). "Your cart" and the store's name on top,
+   the items as rows with a white + / - pill, "You may also like" at the end (app-new.js, CART SHEET), and one purple
+   Checkout button with the total at the bottom. */
+html.hg-new-app .v-dialog--fullscreen:has(.scheme-cart-panel){background:rgba(27,32,35,.45);}
+html.hg-new-app .v-dialog--fullscreen:has(.scheme-cart-panel)>.v-overlay__content{top:auto !important;bottom:0 !important;
+  height:calc(100% - 96px - var(--native-status-bar-height,0px)) !important;max-height:none !important;border-radius:24px 24px 0 0 !important;overflow:hidden !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel{height:100% !important;background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel::before{content:"";flex:none;width:40px;height:5px;border-radius:3px;background:#D9D4E5;margin:8px auto 0;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title{display:flex !important;align-items:center !important;justify-content:space-between !important;
+  gap:12px;padding:10px 16px 6px !important;min-height:0 !important;font-size:0 !important;line-height:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-head{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:start;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-t{font-size:20px;line-height:26px;font-weight:800;color:#1B2023;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-s{font-size:13px;line-height:16px;font-weight:400;color:#6E6880;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title .v-btn{position:relative !important;left:auto !important;right:auto !important;transform:none !important;flex:none;width:40px !important;height:40px !important;
+  min-width:40px !important;border-radius:20px !important;background:#F1ECFF !important;margin:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>hr.v-divider{display:none !important;}
+/* items */
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-text{padding:0 16px 24px !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2>.v-card-text{padding:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item{padding:12px 0 !important;border-bottom:1px solid #F0EDF5;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-avatar{width:56px !important;height:56px !important;border-radius:12px !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-name{font-size:15px !important;line-height:20px !important;font-weight:600 !important;color:#1B2023 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price,
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price *{font-size:14px !important;line-height:18px !important;font-weight:700 !important;color:#1B2023 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal{height:36px !important;border-radius:18px !important;
+  background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 4px !important;overflow:hidden;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal button{background:transparent !important;color:#5A29DE !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal span{color:#1B2023 !important;font-weight:700 !important;font-size:15px !important;}
+/* You may also like, at the end */
+html.hg-new-app .hgn-cs-also{margin-top:26px;}
+html.hg-new-app .hgn-cs-h{margin:0;font-size:17px;line-height:22px;font-weight:800;color:#1B2023;}
+html.hg-new-app .hgn-cs-row{display:flex;gap:10px;margin:12px -16px 0;padding:0 16px 4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
+html.hg-new-app .hgn-cs-row::-webkit-scrollbar{display:none;}
+html.hg-new-app .hgn-cs-p{flex:none;width:120px;display:flex;flex-direction:column;gap:6px;padding:0;margin:0;border:0;background:none;text-align:start;font:inherit;color:#1B2023;cursor:pointer;}
+html.hg-new-app .hgn-cs-p:disabled{opacity:.6;}
+html.hg-new-app .hgn-cs-pi{position:relative;display:block;width:120px;height:120px;border-radius:14px;overflow:hidden;background:#F4F2FA;}
+html.hg-new-app .hgn-cs-pi img{width:100%;height:100%;object-fit:cover;display:block;}
+html.hg-new-app .hgn-cs-plus{position:absolute;inset-inline-end:6px;bottom:6px;width:30px;height:30px;border-radius:15px;background:#FFFFFF;color:#5A29DE;
+  display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;font-weight:600;box-shadow:0 2px 8px rgba(27,32,35,.15);}
+html.hg-new-app .hgn-cs-pn{font-size:13px;line-height:17px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+html.hg-new-app .hgn-cs-pp{font-size:13px;line-height:17px;font-weight:700;}
+/* Checkout button: "Checkout" on the start side, the total on the end side */
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions{padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px)) !important;background:#FFFCF9 !important;
+  box-shadow:0 -6px 20px rgba(27,32,35,.06);}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .v-card.bg-button_normal{height:54px !important;border-radius:27px !important;background:#5A29DE !important;
+  display:flex !important;flex-direction:row-reverse !important;align-items:center !important;justify-content:space-between !important;padding:0 22px !important;box-shadow:none !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .v-card.bg-button_normal .v-btn{height:auto !important;padding:0 !important;background:transparent !important;min-width:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .v-card.bg-button_normal .v-btn .v-btn__content{font-size:16px !important;font-weight:800 !important;text-transform:none !important;letter-spacing:0 !important;color:#FFFFFF !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .v-card.bg-button_normal .v-btn .v-icon{display:none !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme-cart-checkout-summary{padding:0 !important;margin:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme-cart-checkout-divider{display:none !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme-cart-checkout-summary div{padding:0 !important;font-size:16px !important;font-weight:700 !important;color:#FFFFFF !important;}
+
+/* ================= CHECKOUT TOP (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 3) =================
+   With app-new.js (CHECKOUT TOP): "Checkout" over the store's name in the header; the address card with its map first;
+   the address line in the bottom bar hidden while that card shows (its Change button opens the same address list);
+   delivery instructions folded into one row; the tip as one compact row; order type and delivery type hidden when
+   there is nothing to choose (one order type, delivery type only says "Express"). */
+@media (max-width:959.98px){
+  html.hg-new-app.hgn-co-top .scheme-mobile-page-header__title{visibility:hidden !important;}
+  html.hg-new-app .hgn-co-title{position:absolute;inset:0 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none;}
+  html.hg-new-app:not(.hgn-co-top) .hgn-co-title{display:none;}
+  html.hg-new-app .hgn-co-t1{font-size:17px;line-height:20px;font-weight:700;color:#1B2023;}
+  html.hg-new-app .hgn-co-t2{font-size:12px;line-height:14px;color:#6E6880;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  html.hg-new-app #checkout #hgn-co-addr{order:0;margin-top:10px;border-radius:20px;overflow:hidden;background:#FFFFFF;
+    box-shadow:0 1px 0 #F0EDF5,0 8px 24px -18px rgba(27,32,35,.35);}
+  html.hg-new-app .hgn-co-map{position:relative;height:150px;overflow:hidden;background:#EEF1EA;}
+  html.hg-new-app .hgn-co-map img{position:absolute;width:256px;height:256px;max-width:none;display:block;}
+  html.hg-new-app .hgn-co-pin{position:absolute;left:50%;top:50%;width:32px;height:40px;margin:-40px 0 0 -16px;filter:drop-shadow(0 3px 4px rgba(27,32,35,.3));}
+  html.hg-new-app .hgn-co-attr{position:absolute;inset-inline-end:6px;bottom:4px;font-size:9px;line-height:12px;color:#3A3F42;background:rgba(255,255,255,.75);padding:0 4px;border-radius:4px;}
+  html.hg-new-app .hgn-co-row{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+  html.hg-new-app .hgn-co-txt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px;}
+  html.hg-new-app .hgn-co-to{font-size:12px;line-height:14px;color:#6E6880;}
+  html.hg-new-app .hgn-co-type{font-size:15px;line-height:19px;font-weight:700;color:#1B2023;}
+  html.hg-new-app .hgn-co-line{font-size:13px;line-height:17px;color:#3A3F42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  html.hg-new-app .hgn-co-change{flex:none;height:36px;padding:0 14px;border:0;border-radius:18px;background:#F1ECFF;color:#5A29DE;font:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+  html.hg-new-app.hgn-co-top .checkout-footer .place-order>.address-card{display:none !important;}
+  /* delivery instructions: one row, the choices open under it */
+  html.hg-new-app .hgn-co-instr{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;background:none;font:inherit;color:#1B2023;text-align:start;cursor:pointer;}
+  html.hg-new-app .hgn-co-instr-t{flex:1 1 auto;font-size:16px;line-height:20px;font-weight:600;}
+  html.hg-new-app .hgn-co-instr svg{color:#6E6880;transition:transform .2s;}
+  html.hg-new-app .hgn-open>.hgn-co-instr svg{transform:rotate(180deg);}
+  html.hg-new-app #checkout :has(> .hgn-co-instr)>h2{display:none !important;}
+  html.hg-new-app #checkout :has(> .hgn-co-instr):not(.hgn-open)>.simple-slider{display:none !important;}
+  html.hg-new-app #checkout :has(> .hgn-co-instr){margin-bottom:0 !important;}
+  /* the tip: one compact row of 4 */
+  html.hg-new-app #checkout #CartCard .tw-grid.tw-grid-cols-4{gap:8px !important;margin-top:8px !important;}
+  html.hg-new-app #checkout #CartCard .tw-grid.tw-grid-cols-4>*{height:38px !important;min-height:38px !important;border-radius:12px !important;}
+  /* payment: no empty message line under the choice */
+  html.hg-new-app #checkout #payment-card .v-input__details{display:none !important;}
+  /* Place order on the start side, the total on the end side, one round button */
+  html.hg-new-app .checkout-footer .mobile-place-order-btn{border-radius:27px !important;}
+  html.hg-new-app .checkout-footer .mobile-place-order-btn .v-btn__content>div{flex-direction:row-reverse;width:100%;padding:0 8px;}
+  html.hg-new-app .checkout-footer .mobile-place-order-btn .v-btn__content>div>*{font-size:16px !important;font-weight:800 !important;text-transform:none !important;}
+  /* nothing to choose: hidden */
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#mbOrderTypeSelect):not(:has(.v-list-item ~ .v-list-item)){display:none !important;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#deliveryTime):not(:has(button,input,select,[role="radio"],[role="button"])){display:none !important;}
 }

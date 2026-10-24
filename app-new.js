@@ -1,4 +1,4 @@
-/* hg-version 2026-10-22-2039 */
+/* hg-version 2026-10-24-1337 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2556,6 +2556,247 @@
     onHomeClick(e);
   }
 
+  /* ---------- CART SHEET (2026-10-24, "HyperGo Quick Checkout" board 2, chosen by Nouf) ----------
+     Phones and the app. The store's purple bar ("View cart") now opens Hyperzod's own phone cart as a sheet that slides
+     up over the store (its items, + and - work as before), with "You may also like" at the end of it, then Checkout goes
+     straight to the checkout page. Before, the bar went to Hyperzod's full-page "You May Also Like" step first
+     (Hyperzod's "last minute" recommendations, its checkout journey): that step is switched off here for every screen,
+     so the cart panel on the website goes straight to checkout too. The look is in app-new.css (CART SHEET). */
+  const CS_TXT = {
+    en: { title: "Your cart", also: "You may also like", add: "Add" },
+    ar: { title: "سلّتك", also: "قد يعجبك أيضًا", add: "أضف" }
+  };
+  function csStore() { const g = vueGlobals(); return g && g.$store; }
+  /* Hyperzod's "last minute" step before checkout: off (the recommendations themselves stay on, we show them in the cart) */
+  function csJourneyOff(S) {
+    const b = S.state.Utils && S.state.Utils.bootSettings;
+    const si = b && b.recommendations && b.recommendations.similar_items;
+    if (si && si.last_minute) si.last_minute = false;
+  }
+  function csOpen() {
+    const S = csStore();
+    if (!S) return false;
+    const md = S.state.Merchant && S.state.Merchant.merchantData;
+    const mid = md && md.merchant_id;
+    const carts = (S.state.Cart && S.state.Cart.cart) || [];
+    const cart = carts.find((c) => c && c.cart_items && c.cart_items[0] && c.cart_items[0].merchant_id === mid) || S.getters.getCart;
+    if (!cart) return false;
+    S.commit("setSelectedCart", cart);
+    S.commit("sidePanel", ["cart", true]);
+    return true;
+  }
+  function csBindBar() {
+    document.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest || !t.closest(".hg-checkout-bar")) return;
+      if (!csOpen()) return; /* no cart found: Hyperzod's own button does its usual thing */
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+    }, true);
+  }
+  /* "You may also like": Hyperzod's own recommendations for this cart, loaded once per cart */
+  const csRec = { key: "", list: null, busy: false };
+  function csKey(S) {
+    const c = S.getters.getCart, m = S.getters.getCartMerchant;
+    const ids = ((c && c.cart_items) || []).map((x) => x.product_id).filter(Boolean).sort();
+    return (m && m.merchant_id ? m.merchant_id : "") + "|" + ids.join(",");
+  }
+  function csLoad(S) {
+    const key = csKey(S);
+    if (key === csRec.key && (csRec.list || csRec.busy)) return;
+    csRec.key = key; csRec.list = null; csRec.busy = true;
+    const c = S.getters.getCart, m = S.getters.getCartMerchant, tn = S.getters.getTenantByDomain;
+    const products = ((c && c.cart_items) || []).filter((x) => x && x.product_id)
+      .map((x) => ({ product_id: x.product_id, product_price: x.product_price || x.price || null })).slice(0, 10);
+    if (!m || !m.merchant_id || !tn || !tn.id || !products.length) { csRec.busy = false; csRec.list = []; return; }
+    Promise.resolve(S.dispatch("getSimilarItems", { tenant_id: tn.id, merchant_id: m.merchant_id, n: 10, location: "last_minute", products: products }))
+      .then((r) => { if (csRec.key === key) csRec.list = (r && r.success && r.products) || []; }, () => { if (csRec.key === key) csRec.list = []; })
+      .then(() => { csRec.busy = false; schedule(); });
+  }
+  function csAdd(p, btn) {
+    const S = csStore();
+    if (!S || !p) return;
+    const m = S.getters.getCartMerchant;
+    const sm = S.getters.getMerchant;
+    const merchant = sm && m && sm.merchant_id === m.merchant_id ? sm : m;
+    /* a product with choices or a note opens its own page, like tapping it in the store */
+    if (p.has_product_options || p.product_instruction_enabled) {
+      S.commit("sidePanel", ["cart", false]);
+      go("/" + lang() + "/m/" + ((m && m.slug) || "store") + "/" + p.merchant_id + "/product/" + p._id);
+      return;
+    }
+    const q = p.is_quantity_enabled && p.product_quantity && p.product_quantity.min_quantity > 1 ? p.product_quantity.min_quantity : 1;
+    const img = p.product_images && p.product_images[0] ? p.product_images[0].file_url : null;
+    const item = { merchant_id: p.merchant_id, product_id: p._id, item_image_url: img, product_name: p.name, quantity: q,
+      product_price: p.price, product_options: [], sub_total_amount: p.price * q,
+      unit: p.product_pricing ? p.product_pricing.unit : undefined, is_recommended_product: true };
+    if (btn) btn.disabled = true;
+    Promise.resolve(S.dispatch("addToCart", [item, "inc", q, merchant, null, p, null, { getSimilarItems: false }]))
+      .finally(() => { if (btn) btn.disabled = false; });
+  }
+  /* prices with 2 decimals, like Hyperzod's cart rows above them */
+  function csPrice(p) {
+    const v = p && (p.product_pricing ? p.product_pricing.price_display : p.price_display);
+    return typeof v === "number" ? moneyHtml(v) : "";
+  }
+  function renderCartSheet() {
+    const S = csStore();
+    if (!S) return;
+    csJourneyOff(S);
+    const panel = document.querySelector(".v-dialog--fullscreen .scheme-cart-panel");
+    if (!panel) return;
+    const L = lang(), T = CS_TXT[L];
+    const m = S.getters.getCartMerchant;
+    /* title: "Your cart" and the store's name */
+    const head = panel.querySelector(":scope > .v-card-title");
+    if (head) {
+      let h = head.querySelector(".hgn-cs-head");
+      if (!h) { h = document.createElement("div"); h.className = "hgn-cs-head"; head.insertBefore(h, head.firstChild); }
+      const html = '<span class="hgn-cs-t">' + esc(T.title) + '</span><span class="hgn-cs-s">' + esc(nameOf(m)) + "</span>";
+      if (h.dataset.sig !== html) { h.innerHTML = html; h.dataset.sig = html; }
+    }
+    /* You may also like, at the end of the list */
+    const body = panel.querySelector(":scope > .v-card-text");
+    if (!body) return;
+    csLoad(S);
+    const inCart = {};
+    (((S.getters.getCart || {}).cart_items) || []).forEach((x) => { inCart[x.product_id] = true; });
+    const list = (csRec.list || []).filter((p) => p && p._id && !inCart[p._id] && p.in_stock !== false && prodImg(p)).slice(0, 8);
+    let sec = body.querySelector(":scope > .hgn-cs-also");
+    if (!list.length) { if (sec) sec.remove(); return; }
+    if (!sec) {
+      sec = document.createElement("section");
+      sec.className = "hgn-cs-also";
+      sec.addEventListener("click", (ev) => {
+        const b = ev.target.closest && ev.target.closest("[data-pid]");
+        if (!b) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        csAdd((csRec.list || []).find((p) => p._id === b.getAttribute("data-pid")), b);
+      });
+    }
+    if (sec.parentNode !== body || sec.nextSibling) body.appendChild(sec);
+    const html = '<h3 class="hgn-cs-h">' + esc(T.also) + '</h3><div class="hgn-cs-row">' + list.map((p) =>
+      '<button type="button" class="hgn-cs-p" data-pid="' + esc(p._id) + '" aria-label="' + esc(T.add + " " + nameOf(p)) + '">' +
+      '<span class="hgn-cs-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"><span class="hgn-cs-plus" aria-hidden="true">+</span></span>' +
+      '<span class="hgn-cs-pn">' + esc(nameOf(p)) + '</span><span class="hgn-cs-pp">' + csPrice(p) + "</span></button>").join("") + "</div>";
+    if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
+  }
+
+  /* ---------- CHECKOUT TOP (2026-10-24, "HyperGo Quick Checkout" board 3, chosen by Nouf) ----------
+     Phones and the app. On top of the checkout page: "Checkout" with the store's name in the header, then a card with
+     a small map of the delivery address (Mapbox map pictures from Hyperzod's own Mapbox key; the map pictures are
+     asked for by map square, so the exact address is never put in a web address), "Deliver to", the address and a
+     Change button (it opens Hyperzod's own address list, the one the address line in the bottom bar opened; that line
+     is hidden while this card shows). Delivery instructions fold into one row that opens the choices. The order of the
+     sections and the rest of the look: app-new.css (CHECKOUT ORDER, CHECKOUT TOP). No address yet: nothing changes. */
+  const CO_TXT = {
+    en: { title: "Checkout", to: "Deliver to", change: "Change", instr: "Delivery instructions",
+      types: { home: "Home", office: "Work", work: "Work", others: "Other", other: "Other" } },
+    ar: { title: "إتمام الطلب", to: "التوصيل إلى",
+      change: "تغيير", instr: "تعليمات التوصيل",
+      types: { home: "المنزل", office: "العمل", work: "العمل",
+        others: "أخرى", other: "أخرى" } }
+  };
+  const CO_PIN = '<svg aria-hidden="true" width="32" height="40" viewBox="0 0 32 40"><path d="M16 39s13-12.4 13-23A13 13 0 0 0 3 16c0 10.6 13 23 13 23z" fill="#5A29DE"/><circle cx="16" cy="16" r="5" fill="#FFFFFF"/></svg>';
+  /* map squares (256px, zoom 16) around the address, the address in the middle of the box */
+  function coMapHtml(lat, lon, W, H, token) {
+    const z = 16, TS = 256, n = Math.pow(2, z);
+    const px = (lon + 180) / 360 * n * TS;
+    const s = Math.sin(lat * Math.PI / 180);
+    const py = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n * TS;
+    const x0 = px - W / 2, y0 = py - H / 2;
+    let html = "";
+    for (let tx = Math.floor(x0 / TS); tx <= Math.floor((x0 + W) / TS); tx++) {
+      for (let ty = Math.floor(y0 / TS); ty <= Math.floor((y0 + H) / TS); ty++) {
+        html += '<img alt="" decoding="async" src="https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/' + z + "/" + tx + "/" + ty +
+          "@2x?access_token=" + encodeURIComponent(token) + '" style="left:' + Math.round(tx * TS - x0) + "px;top:" + Math.round(ty * TS - y0) + 'px">';
+      }
+    }
+    return html;
+  }
+  function renderCheckoutTop() {
+    const de = document.documentElement;
+    const ck = document.getElementById("checkout");
+    const phone = window.innerWidth < 960;
+    const grid = ck && phone ? ck.querySelector("div:has(> div > #CartCard)") : null;
+    const old = document.getElementById("hgn-co-addr");
+    const S = csStore();
+    const da = S && S.state.Address && S.state.Address.deliveryAddress;
+    const ll = da && Array.isArray(da.location_lat_lon) ? da.location_lat_lon : null;
+    if (!grid || !da || !da.address || !ll || ll.length < 2) {
+      if (old) old.remove();
+      if (de.classList.contains("hgn-co-top")) de.classList.remove("hgn-co-top");
+      return;
+    }
+    const L = lang(), T = CO_TXT[L];
+    /* header: "Checkout" over the store's name */
+    const hs = document.querySelector(".scheme-mobile-page-header__surface");
+    const hm = hs && hs.querySelector(".scheme-mobile-page-header__title");
+    if (hs && hm) {
+      let ht = hs.querySelector(".hgn-co-title");
+      if (!ht) { ht = document.createElement("div"); ht.className = "hgn-co-title"; hs.appendChild(ht); }
+      const m = S.getters.getCartMerchant;
+      const h = '<span class="hgn-co-t1">' + esc(T.title) + '</span><span class="hgn-co-t2">' + esc(m ? nameOf(m) : hm.textContent.trim()) + "</span>";
+      if (ht.dataset.sig !== h) { ht.innerHTML = h; ht.dataset.sig = h; }
+    }
+    /* the address card */
+    let card = old;
+    if (!card) {
+      card = document.createElement("section");
+      card.id = "hgn-co-addr";
+      card.addEventListener("click", (ev) => {
+        if (!ev.target.closest || !ev.target.closest(".hgn-co-change")) return;
+        ev.preventDefault();
+        /* what Hyperzod's own address line does (its openSelections): open the saved addresses list */
+        const st = csStore();
+        if (st) st.commit("sidePanel", ["addressList", true]);
+      });
+    }
+    if (card.parentNode !== grid || grid.firstElementChild !== card) grid.insertBefore(card, grid.firstElementChild);
+    const lat = +ll[0], lon = +ll[1];
+    const maps = S.state.Utils && S.state.Utils.bootSettings && S.state.Utils.bootSettings.api_keys && S.state.Utils.bootSettings.api_keys.map_keys;
+    const token = maps && typeof maps.mapbox === "string" ? maps.mapbox : "";
+    const W = Math.max(200, Math.round(grid.clientWidth || 358)), H = 150;
+    const type = String(da.custom_address_type || "").trim() || T.types[String(da.address_type || "").toLowerCase()] || T.types.other;
+    const line = [da.building, da.address].filter(Boolean).join(", ");
+    const sig = [L, lat, lon, W, token ? 1 : 0, type, line].join("|");
+    if (card.dataset.sig !== sig) {
+      card.innerHTML =
+        (token && isFinite(lat) && isFinite(lon)
+          ? '<div class="hgn-co-map" role="img" aria-label="' + esc(T.to + " " + type) + '">' + coMapHtml(lat, lon, W, H, token) +
+            '<span class="hgn-co-pin">' + CO_PIN + '</span><span class="hgn-co-attr">© Mapbox © OpenStreetMap</span></div>'
+          : "") +
+        '<div class="hgn-co-row"><div class="hgn-co-txt"><span class="hgn-co-to">' + esc(T.to) + '</span><span class="hgn-co-type">' + esc(type) +
+        '</span><span class="hgn-co-line">' + esc(line) + '</span></div><button type="button" class="hgn-co-change">' + esc(T.change) + "</button></div>";
+      card.dataset.sig = sig;
+    }
+    if (!de.classList.contains("hgn-co-top")) de.classList.add("hgn-co-top");
+    /* delivery instructions: one row that opens the choices */
+    const sl = ck.querySelector("#slinstruction-slider");
+    const box = sl && sl.closest(".simple-slider");
+    const blk = box && box.parentElement;
+    if (blk) {
+      let tg = blk.querySelector(":scope > .hgn-co-instr");
+      if (!tg) {
+        tg = document.createElement("button");
+        tg.type = "button";
+        tg.className = "hgn-co-instr";
+        tg.setAttribute("aria-expanded", "false");
+        tg.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const open = !blk.classList.contains("hgn-open");
+          blk.classList.toggle("hgn-open", open);
+          tg.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        blk.insertBefore(tg, blk.firstChild);
+      }
+      const h = '<span class="hgn-co-instr-t">' + esc(T.instr) + '</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+      if (tg.dataset.sig !== h) { tg.innerHTML = h; tg.dataset.sig = h; }
+    }
+  }
+
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
@@ -2563,7 +2804,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore
+    renderStore, renderCartSheet, renderCheckoutTop
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {
@@ -2578,7 +2819,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = ".hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
@@ -2627,6 +2868,7 @@
   function start() {
     tick();
     keyboardHandoff();
+    csBindBar();
     new MutationObserver((recs) => {
       if (!relevant(recs)) return;
       /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */
