@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1138 */
+/* hg-version 2026-10-24-1148 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -891,4 +891,27 @@
     }).observe(document.documentElement, { childList: true, subtree: true });
   } catch (e) {}
   addStyle();
+})();
+
+/* TOP BAR SEARCH ON A STORE PAGE (website, 2026-10-24): the purple top bar's search field (#navSearchBar) opened
+   Hyperzod's own store search screen (/<lang>/m/<store>/search) whenever a store page was open (Hyperzod's header sends it
+   there when it has a store loaded). On store pages and that store search screen, a click on the field now opens our Search
+   page (/<lang>/search, the same page it opens from Home); the field keeps the focus, so typing carries on there with our
+   results. The field's own buttons (Ask) are left alone. Elsewhere the field works as before. */
+(() => {
+  "use strict";
+  if (window.__hgTopSearch) return;
+  window.__hgTopSearch = true;
+  document.addEventListener("click", (ev) => {
+    const t = ev.target;
+    if (!t || !t.closest || !t.closest("#navSearchBar, .web-main-search") || t.closest("button")) return;
+    let R = null, r = null;
+    try { R = document.querySelector("#app").__vue_app__.config.globalProperties.$router; r = R.currentRoute.value; } catch (e) {}
+    if (!R || !r || !/^\/(en|ar)\/m\//.test(r.path)) return;
+    ev.stopPropagation();
+    const inp = document.getElementById("navSearchBar");
+    if (inp && document.activeElement !== inp) { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }
+    const lang = (r.params && r.params.lang) || (/^\/ar\//.test(r.path) ? "ar" : "en");
+    R.push("/" + lang + "/search").catch(() => {});
+  }, true);
 })();
