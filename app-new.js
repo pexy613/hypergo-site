@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1337 */
+/* hg-version 2026-10-24-1349 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2723,7 +2723,12 @@
     const grid = ck && phone ? ck.querySelector("div:has(> div > #CartCard)") : null;
     const old = document.getElementById("hgn-co-addr");
     const S = csStore();
-    const da = S && S.state.Address && S.state.Address.deliveryAddress;
+    /* the chosen delivery address; without one (a new customer), the location picked on the phone (2026-10-24) */
+    let da = S && S.state.Address && S.state.Address.deliveryAddress;
+    if (!(da && da.address && Array.isArray(da.location_lat_lon))) {
+      const sl = S && ((S.state.Address && S.state.Address.selectedAddress) || (S.state.Utils && S.state.Utils.selectedLocation));
+      da = sl && sl.address && sl.location ? { address: sl.address, address_type: "other", location_lat_lon: [sl.location.latitude, sl.location.longitude] } : null;
+    }
     const ll = da && Array.isArray(da.location_lat_lon) ? da.location_lat_lon : null;
     if (!grid || !da || !da.address || !ll || ll.length < 2) {
       if (old) old.remove();

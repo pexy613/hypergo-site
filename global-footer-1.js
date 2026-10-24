@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1337 */
+/* hg-version 2026-10-24-1349 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -3423,7 +3423,20 @@
      reload - so reading it is just a plain localStorage read, no interception needed. */
   /* (2026-10-20): parsed once (was twice), and not parsed again while the stored text is unchanged */
   let hgCartRaw = null, hgCartVal = null;
+  /* (2026-10-24) the store page's bar shows THIS store's cart: with carts from several stores it read the first one
+     (another store's total, e.g. BHD 4.50 on a store where the cart held BHD 1.60). Read from Hyperzod's live store,
+     the cart whose items belong to the store on screen; only when that can't be read, the saved copy as before. */
   function hgReadCart() {
+    try {
+      const S = document.querySelector("#app").__vue_app__.config.globalProperties.$store;
+      const md = S.state.Merchant && S.state.Merchant.merchantData;
+      const carts = S.state.Cart && S.state.Cart.cart;
+      if (md && md.merchant_id && Array.isArray(carts)) {
+        const c = carts.find((x) => x && ((x.cart_items && x.cart_items[0] && x.cart_items[0].merchant_id === md.merchant_id) || x.merchant_id === md.merchant_id));
+        if (!c || typeof c.total_amount !== "number") return null;
+        return { total: c.total_amount, count: c.total_items || 0, discount: c.discount_amount || 0 };
+      }
+    } catch (e) {}
     try {
       const raw = localStorage.getItem("vuex");
       if (!raw) return null;

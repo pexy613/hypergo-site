@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1337 */
+/* hg-version 2026-10-24-1349 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1000,28 +1000,32 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 html.hg-new-app .v-dialog--fullscreen:has(.scheme-cart-panel){background:rgba(27,32,35,.45);}
 html.hg-new-app .v-dialog--fullscreen:has(.scheme-cart-panel)>.v-overlay__content{top:auto !important;bottom:0 !important;
   height:calc(100% - 96px - var(--native-status-bar-height,0px)) !important;max-height:none !important;border-radius:24px 24px 0 0 !important;overflow:hidden !important;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel{height:100% !important;background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel{height:100% !important;background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;
+  padding-top:0 !important;}   /* (2026-10-24) the app's status-bar padding left a 54px gap above the handle: the sheet starts below the status bar */
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel::before{content:"";flex:none;width:40px;height:5px;border-radius:3px;background:#D9D4E5;margin:8px auto 0;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title{display:flex !important;align-items:center !important;justify-content:space-between !important;
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title{display:flex !important;align-items:center !important;justify-content:flex-start !important;
   gap:12px;padding:10px 16px 6px !important;min-height:0 !important;font-size:0 !important;line-height:0 !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-head{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:start;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-t{font-size:20px;line-height:26px;font-weight:800;color:#1B2023;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-s{font-size:13px;line-height:16px;font-weight:400;color:#6E6880;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title .v-btn{position:relative !important;left:auto !important;right:auto !important;transform:none !important;flex:none;width:40px !important;height:40px !important;
-  min-width:40px !important;border-radius:20px !important;background:#F1ECFF !important;margin:0 !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title .v-btn{position:relative !important;left:auto !important;right:auto !important;top:auto !important;transform:none !important;flex:none;width:40px !important;height:40px !important;
+  min-width:40px !important;border-radius:20px !important;background:#F1ECFF !important;margin:0 !important;margin-inline-start:auto !important;}
+/* (2026-10-24) Hyperzod's own "Cart" title text is an invisible item after the close button: the close button goes to the end */
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>hr.v-divider{display:none !important;}
 /* items */
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-text{padding:0 16px 24px !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2>.v-card-text{padding:0 !important;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item{padding:12px 0 !important;border-bottom:1px solid #F0EDF5;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item{padding:12px 0 !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-avatar{width:56px !important;height:56px !important;border-radius:12px !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-name{font-size:15px !important;line-height:20px !important;font-weight:600 !important;color:#1B2023 !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price,
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price *{font-size:14px !important;line-height:18px !important;font-weight:700 !important;color:#1B2023 !important;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal{height:36px !important;border-radius:18px !important;
+/* the + / - pill: the outline on the pill only (its two buttons carry the same Hyperzod class and got their own rings) */
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 div.cart-qty-button{height:36px !important;border-radius:18px !important;
   background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 4px !important;overflow:hidden;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal button{background:transparent !important;color:#5A29DE !important;}
-html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-list-item__append .bg-button_normal span{color:#1B2023 !important;font-weight:700 !important;font-size:15px !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 div.cart-qty-button button{background:transparent !important;box-shadow:none !important;border:0 !important;
+  border-radius:0 !important;color:#5A29DE !important;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 div.cart-qty-button span{color:#1B2023 !important;font-weight:700 !important;font-size:15px !important;}
 /* You may also like, at the end */
 html.hg-new-app .hgn-cs-also{margin-top:26px;}
 html.hg-new-app .hgn-cs-h{margin:0;font-size:17px;line-height:22px;font-weight:800;color:#1B2023;}
