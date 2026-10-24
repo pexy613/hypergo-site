@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1401 */
+/* hg-version 2026-10-24-1418 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1093,3 +1093,106 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
   html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#mbOrderTypeSelect):not(:has(.v-list-item ~ .v-list-item)){display:none !important;}
   html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#deliveryTime):not(:has(button,input,select,[role="radio"],[role="button"])){display:none !important;}
 }
+
+/* ================= CHECKOUT CARDS (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 3) =================
+   The checkout sections as white cards with 20px corners and no grey outline, on the cream page; with app-new.js
+   (CHECKOUT CARDS): "Your order · 2 items", the items like the cart sheet (56px pictures, white + / - pill), the note
+   field soft lilac, "Pay with Tap" with its icon in a soft square, "Tip your rider (optional)" with soft tip buttons
+   (the chosen one purple), the bill as plain rows with Total in bold, and a 54px round Place order button. */
+@media (max-width:959.98px){
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#cartItems),
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider),
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div,
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > :has(#summary),
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .similar-items-panel,
+  html.hg-new-app.hgn-co-top #checkout #payment-card{border:0 !important;border-radius:20px !important;background:#FFFFFF !important;box-shadow:0 1px 0 #F0EDF5 !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#cartItems),
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > :has(#summary){padding:14px 16px !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider){padding:0 12px 14px !important;overflow:hidden;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-instr{padding:0 16px;min-height:52px;} /* Hyperzod's row has -12px sides against the card's 12px padding */
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2{margin-bottom:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div{margin-top:0 !important;padding:0 4px !important;}
+  /* your order */
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-oh{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-oh-n{font-weight:400;color:#6E6880;font-size:14px;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems{background:transparent !important;} /* it was cream inside the white card */
+html.hg-new-app.hgn-co-top #checkout #cartItems .cart-item{padding:10px 0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .cart-row + .cart-row{border-top:1px solid #F0EDF5;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .product-image{width:56px !important;height:56px !important;border-radius:12px !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .v-list-item__prepend>div{padding-inline-end:12px !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .product-name{font-size:15px !important;line-height:20px !important;font-weight:600 !important;color:#1B2023 !important;margin-bottom:4px !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .product-price,html.hg-new-app.hgn-co-top #checkout #cartItems .product-price *{font-size:14px !important;line-height:18px !important;font-weight:700 !important;color:#1B2023 !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems .price>div{max-width:none !important;height:36px !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button{height:36px !important;border-radius:18px !important;background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 6px !important;gap:2px;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button button{background:transparent !important;color:#5A29DE !important;box-shadow:none !important;border:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button span{color:#1B2023 !important;font-weight:700 !important;font-size:15px !important;}
+  html.hg-new-app.hgn-co-top #checkout #cartItems > .tw-capitalize.tw-cursor-pointer{display:none !important;} /* "Add Item": the back arrow goes to the store */
+  html.hg-new-app.hgn-co-top #checkout #message{margin:10px 0 0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #message .message-input{border:0 !important;border-radius:12px !important;background:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 12px !important;min-height:44px;}
+  /* payment */
+  html.hg-new-app.hgn-co-top #checkout #payment-card{padding:4px 0 6px !important;margin-top:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card h3.heading{margin:10px 16px 2px !important;padding:0 !important;text-transform:none !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method label{padding-inline:16px 12px !important;margin:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method label>div:first-child{height:auto !important;min-height:56px;margin:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .method-icon{flex:none;box-sizing:content-box !important;padding:8px;border-radius:12px;background:#F4F2FA;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method .tw-ps-3.name{padding-inline-start:12px !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method .name .name{font-size:13px !important;line-height:17px !important;font-weight:400 !important;color:#6E6880 !important;margin-top:2px !important;}
+  /* Tap: "Pay with Tap / Card, Apple Pay or Benefit" (Hyperzod cut its own line off at "Benef...") */
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"Pay with ";}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .name .name{font-size:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .name .name::after{content:"Card, Apple Pay or Benefit";font-size:13px;}
+  html.hg-new-app.hgn-co-top[lang^="ar"] #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"الدفع عبر ";}
+  html.hg-new-app.hgn-co-top[lang^="ar"] #checkout #payment-card .payment-method.Tap .name .name::after{content:"بطاقة أو Apple Pay أو بنفت";}
+  /* tip */
+  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-tiph){margin:4px 4px 0 !important;}
+  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-tiph)>h2{display:none !important;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-tiph{font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-opt{font-size:13px;font-weight:400;color:#6E6880;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*{border:0 !important;background:#F4F2FA !important;color:#1B2023 !important;font-size:14px !important;font-weight:600 !important;padding:0 4px !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div{margin:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div>span{margin:0 !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"]{background:#5A29DE !important;color:#FFFFFF !important;}
+  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"] *{color:#FFFFFF !important;}
+  /* bill */
+  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-bill)>#summary{display:none !important;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-bill{display:flex;flex-direction:column;gap:8px;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-br{display:flex;justify-content:space-between;gap:12px;font-size:14px;line-height:20px;color:#3A3F42;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-br b{font-weight:400;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-disc{color:#2E7D32;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-total{margin-top:2px;padding-top:10px;border-top:1px solid #F0EDF5;font-size:16px;line-height:22px;font-weight:800;color:#1B2023;}
+  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-total b{font-weight:800;}
+  /* Place order */
+  html.hg-new-app.hgn-co-top .checkout-footer{border:0 !important;box-shadow:0 -6px 20px rgba(27,32,35,.06);}
+  html.hg-new-app.hgn-co-top .checkout-footer .place-order{border:0 !important;padding-top:12px !important;padding-inline:8px !important;} /* + Hyperzod's 8px inside = 16px */
+  html.hg-new-app.hgn-co-top .checkout-footer .place-order div:has(> .mobile-place-order-btn){margin-right:0 !important;margin-left:0 !important;}
+  /* #app#app: an older rule (html body #app :is(#checkout,.place-order) .mobile-place-order-btn, 2 ids) kept it 52px tall with 12px corners */
+  html.hg-new-app.hgn-co-top body #app#app .checkout-footer .mobile-place-order-btn{height:54px !important;min-height:54px !important;border-radius:27px !important;box-shadow:none !important;}
+}
+
+/* ================= ORDER PLACED (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 4) =================
+   With app-new.js (ORDER PLACED): over the order's page right after it is placed. Cream screen, green check circle,
+   "Order placed" 26px/800, which store has it, a white card (order number, scheduled time, address, total), and
+   "Track order" (purple, 54px round) and "Back to Home" at the bottom. */
+#hgn-done{position:fixed;inset:0;z-index:2300;background:#FFFCF9;color:#1B2023;display:flex;flex-direction:column;overflow-y:auto;
+  padding:calc(72px + var(--native-status-bar-height,0px) + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));}
+#hgn-done .hgn-done-in{flex:1 0 auto;display:flex;flex-direction:column;align-items:center;gap:18px;}
+#hgn-done .hgn-done-ok{width:96px;height:96px;border-radius:48px;background:#ACE4AA;color:#1B2023;display:flex;align-items:center;justify-content:center;
+  animation:hgn-done-pop .45s cubic-bezier(.2,.9,.3,1.3) both;}
+@keyframes hgn-done-pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+#hgn-done .hgn-done-hd{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
+#hgn-done h1{margin:0;font-size:26px;line-height:32px;font-weight:800;text-wrap:balance;}
+#hgn-done .hgn-done-hd p{margin:0;font-size:15px;line-height:20px;color:#6E6880;}
+#hgn-done .hgn-done-card{width:100%;box-sizing:border-box;margin-top:10px;border-radius:20px;background:#FFFFFF;padding:16px;display:flex;flex-direction:column;gap:12px;
+  box-shadow:0 1px 0 #F0EDF5,0 8px 24px -18px rgba(27,32,35,.35);}
+#hgn-done .hgn-done-r{display:flex;justify-content:space-between;gap:16px;font-size:14px;line-height:20px;}
+#hgn-done .hgn-done-r>span:first-child{flex:none;color:#6E6880;}
+#hgn-done .hgn-done-r>span:last-child{min-width:0;font-weight:700;text-align:end;overflow-wrap:anywhere;}
+#hgn-done .hgn-done-r b{font-weight:700;}
+#hgn-done .hgn-done-r.is-total{padding-top:10px;border-top:1px solid #F0EDF5;font-size:15px;}
+#hgn-done .hgn-done-r.is-total>span:first-child{color:#1B2023;font-weight:700;}
+#hgn-done .hgn-done-r.is-total>span:last-child,#hgn-done .hgn-done-r.is-total b{font-weight:800;}
+#hgn-done .hgn-done-bt{flex:none;display:flex;flex-direction:column;gap:10px;padding-top:24px;}
+#hgn-done .hgn-done-bt button{height:48px;border:0;border-radius:24px;background:none;color:#5A29DE;font:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+#hgn-done .hgn-done-bt .hgn-done-track{height:54px;border-radius:27px;background:#5A29DE;color:#FFFFFF;font-size:16px;font-weight:800;}
+#hgn-done button:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
+html.hgn-done-on body{overflow:hidden;}

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1401 */
+/* hg-version 2026-10-24-1418 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2840,6 +2840,120 @@
     }
   }
 
+  /* ---------- CHECKOUT CARDS (2026-10-24, "HyperGo Quick Checkout" board 3) ----------
+     Phones and the app, on the checkout page while the address card shows (html.hgn-co-top). Adds three small things to
+     Hyperzod's own sections; their look is in app-new.css (CHECKOUT CARDS):
+     - "Your order · 2 items" on top of the items;
+     - "Tip your rider (optional)" over the tip choices (Hyperzod's says only "TIP");
+     - the bill as plain rows (Items, delivery fee when there is one, tax, tip, coupon discount, Total) from Hyperzod's
+       own cart numbers, instead of one "Grand Total" line that had to be tapped open. Total is Hyperzod's total. */
+  const CC_TXT = {
+    en: { order: "Your order", item: "item", items: "items", tip: "Tip your rider", opt: "(optional)", sub: "Items",
+      fee: "Delivery fee", free: "Free", tax: "Tax", dtax: "Delivery tax", tipr: "Tip", disc: "Coupon discount", total: "Total" },
+    ar: { order: "طلبك", item: "منتج", items: "منتجات", tip: "إكرامية للسائق", opt: "(اختياري)", sub: "المنتجات",
+      fee: "رسوم التوصيل", free: "مجاني", tax: "الضريبة", dtax: "ضريبة التوصيل", tipr: "الإكرامية", disc: "خصم القسيمة", total: "المجموع" }
+  };
+  function ccPut(host, cls, html, first) {
+    let el = host.querySelector(":scope > ." + cls);
+    if (!el) { el = document.createElement("div"); el.className = cls; }
+    if (first ? host.firstElementChild !== el : el.parentNode !== host) { if (first) host.insertBefore(el, host.firstChild); else host.appendChild(el); }
+    if (el.dataset.sig !== html) { el.innerHTML = html; el.dataset.sig = html; }
+  }
+  function renderCheckoutCards() {
+    const ck = document.getElementById("checkout");
+    if (!ck || !document.documentElement.classList.contains("hgn-co-top")) return;
+    const S = csStore();
+    const c = S && S.state.Cart && S.state.Cart.selectedCart;
+    if (!c || typeof c.total_amount !== "number") return;
+    const T = CC_TXT[lang()];
+    /* your order */
+    const items = ck.querySelector("#CartCard > div > .tw-flex-col > :has(#cartItems)");
+    if (items) {
+      const n = c.total_items || 0;
+      ccPut(items, "hgn-co-oh", '<span class="hgn-co-oh-t">' + esc(T.order) + '</span><span class="hgn-co-oh-n">· ' + n + " " + esc(n === 1 ? T.item : T.items) + "</span>", true);
+    }
+    /* tip */
+    const tg = ck.querySelector("#CartCard .tw-grid.tw-grid-cols-4");
+    const tb = tg && tg.parentElement;
+    if (tb && tb !== items) ccPut(tb, "hgn-co-tiph", esc(T.tip) + ' <span class="hgn-co-opt">' + esc(T.opt) + "</span>", true);
+    /* bill */
+    const bill = ck.querySelector("#CartCard > div > :has(#summary)");
+    if (bill) {
+      const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+      const row = (k, v, cls) => '<div class="hgn-co-br' + (cls ? " " + cls : "") + '"><span>' + esc(k) + "</span><span>" + v + "</span></div>";
+      let h = row(T.sub, moneyHtml(num(c.sub_total_amount)));
+      if (c.is_delivery_fee_applied) h += row(T.fee, num(c.delivery_fee) > 0 ? moneyHtml(num(c.delivery_fee)) : esc(T.free));
+      if (num(c.tax) > 0) h += row(T.tax, moneyHtml(num(c.tax)));
+      if (num(c.delivery_tax) > 0) h += row(T.dtax, moneyHtml(num(c.delivery_tax)));
+      if (num(c.tip_amount) > 0) h += row(T.tipr, moneyHtml(num(c.tip_amount)));
+      if (num(c.merchant_tip_amount) > 0) h += row(T.tipr, moneyHtml(num(c.merchant_tip_amount)));
+      if (num(c.discount_amount) > 0) h += row(T.disc, "−" + moneyHtml(num(c.discount_amount)), "is-disc");
+      h += row(T.total, moneyHtml(num(c.total_amount)), "is-total");
+      ccPut(bill, "hgn-co-bill", h, false);
+    }
+  }
+
+  /* ---------- ORDER PLACED (2026-10-24, "HyperGo Quick Checkout" board 4) ----------
+     Phones and the app. Right after an order is placed Hyperzod shows its short success animation, then opens the
+     order's page (/<lang>/order/success/<order id>) with the tracking. On that page, once Hyperzod has loaded the order,
+     this draws a calm "Order placed" screen over it: a green check, "Order placed", which store has it, then a card with
+     the order number, the scheduled time (only for scheduled orders), the delivery address and the total, and two
+     buttons: "Track order" (shows Hyperzod's tracking page underneath, for that order from then on) and "Back to Home".
+     Everything comes from Hyperzod's own order data; nothing is placed or changed. The look: app-new.css (ORDER PLACED). */
+  const OD_TXT = {
+    en: { title: "Order placed", sent: "We've sent your order to", order: "Order", when: "Scheduled for", to: "To", total: "Total",
+      track: "Track order", home: "Back to Home" },
+    ar: { title: "تم إرسال طلبك", sent: "أرسلنا طلبك إلى", order: "الطلب", when: "موعد التوصيل", to: "إلى", total: "المجموع",
+      track: "تتبّع الطلب", home: "العودة للرئيسية" }
+  };
+  const OD_CHECK = '<svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function odSeen(id, set) {
+    try {
+      const k = "hgn-done-seen", list = JSON.parse(sessionStorage.getItem(k) || "[]");
+      if (set) { list.push(id); sessionStorage.setItem(k, JSON.stringify(list.slice(-20))); }
+      return list.indexOf(id) >= 0;
+    } catch (e) { return !!set; }
+  }
+  function renderOrderPlaced() {
+    const m = currentPath().match(/^\/(en|ar)\/order\/success\/([^/?#]+)/);
+    let box = document.getElementById("hgn-done");
+    const S = csStore();
+    const o = S && S.getters && S.getters.getViewOrder;
+    const id = m ? decodeURIComponent(m[2]) : "";
+    const ok = m && window.innerWidth < 960 && o && String(o.order_id) === id && !odSeen(id);
+    if (!ok) { if (box) box.remove(); document.documentElement.classList.remove("hgn-done-on"); return; }
+    const T = OD_TXT[lang()];
+    const da = o.delivery_address;
+    const addr = typeof da === "string" ? da : da ? [da.building, da.address].filter(Boolean).join(", ") : "";
+    const total = o.cart && typeof o.cart.total_amount === "number" ? moneyHtml(o.cart.total_amount) : "";
+    const th = o.delivery_timestamp_human;
+    const when = o.is_scheduled && th ? [th.local_date, th.local_time].filter(Boolean).join(" · ") : "";
+    const row = (k, v, cls) => '<div class="hgn-done-r' + (cls ? " " + cls : "") + '"><span>' + esc(k) + "</span><span>" + v + "</span></div>";
+    const html =
+      '<div class="hgn-done-in"><span class="hgn-done-ok" role="img" aria-label="' + esc(T.title) + '">' + OD_CHECK + "</span>" +
+      '<div class="hgn-done-hd"><h1>' + esc(T.title) + "</h1>" +
+      (o.merchant && o.merchant.name ? '<p>' + esc(T.sent) + " " + esc(o.merchant.name) + "</p>" : "") + "</div>" +
+      '<section class="hgn-done-card">' + row(T.order, "#" + esc(o.order_id)) + (when ? row(T.when, esc(when)) : "") +
+      (addr ? row(T.to, esc(addr), "is-addr") : "") + (total ? row(T.total, total, "is-total") : "") + "</section></div>" +
+      '<div class="hgn-done-bt"><button type="button" class="hgn-done-track">' + esc(T.track) + '</button>' +
+      '<button type="button" class="hgn-done-home">' + esc(T.home) + "</button></div>";
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "hgn-done";
+      box.addEventListener("click", (ev) => {
+        const b = ev.target.closest && ev.target.closest("button");
+        if (!b) return;
+        const cur = (currentPath().match(/\/order\/success\/([^/?#]+)/) || [])[1];
+        if (cur) odSeen(decodeURIComponent(cur), true);
+        if (b.classList.contains("hgn-done-home")) go("/" + lang() + "/home");
+        schedule();
+      });
+      document.body.appendChild(box);
+    }
+    if (box.dataset.sig !== html) { box.innerHTML = html; box.dataset.sig = html; }
+    document.documentElement.classList.add("hgn-done-on");
+  }
+
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
@@ -2847,7 +2961,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderViewCart, renderCartSheet, renderCheckoutTop
+    renderStore, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {
@@ -2862,7 +2976,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-vc,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = "#hgn-done,#hgn-vc,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
