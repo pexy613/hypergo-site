@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1451 */
+/* hg-version 2026-10-24-1508 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2585,6 +2585,31 @@
     S.commit("sidePanel", ["cart", true]);
     return true;
   }
+  /* LEAVING THE CART SHEET (2026-10-24): when Checkout is pressed, Hyperzod first switches the sheet to its list of
+     every store's cart ("Golden Petals · VIEW STORE · CHECKOUT", ...) and only then opens the checkout, so that list
+     flashed for a moment (Nouf's screen recording). Now the sheet slides down as soon as Checkout is pressed and is
+     hidden before the list can show. It is shown normally again once the sheet has closed over the checkout (at most 5
+     seconds), or after 2.5 seconds if the checkout did not open (for example a store minimum not reached). */
+  let csLeaveAt = 0;
+  function csLeaveDone() {
+    const de = document.documentElement;
+    if (!de.classList.contains("hgn-cs-leaving")) return;
+    const open = !!document.querySelector(".v-dialog--fullscreen .scheme-cart-panel");
+    const t = Date.now() - csLeaveAt, onCo = /\/checkout/.test(currentPath());
+    if (open && t < (onCo ? 5000 : 2500)) return;
+    de.classList.remove("hgn-cs-leaving");
+  }
+  function csBindLeave() {
+    document.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest || !t.closest(".v-dialog--fullscreen .scheme-cart-panel > .v-card-actions .bg-button_normal")) return;
+      const de = document.documentElement;
+      de.classList.add("hgn-cs-leaving");
+      csLeaveAt = Date.now();
+      setTimeout(csLeaveDone, 2600);
+      setTimeout(csLeaveDone, 5100);
+    }, true);
+  }
   /* "You may also like": Hyperzod's own recommendations for this cart, loaded once per cart */
   const csRec = { key: "", list: null, busy: false };
   function csKey(S) {
@@ -2631,6 +2656,7 @@
     return typeof v === "number" ? moneyHtml(v) : "";
   }
   function renderCartSheet() {
+    csLeaveDone();
     const S = csStore();
     if (!S) return;
     csJourneyOff(S);
@@ -3059,6 +3085,7 @@
   function start() {
     tick();
     keyboardHandoff();
+    csBindLeave();
     new MutationObserver((recs) => {
       if (!relevant(recs)) return;
       /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */
@@ -3072,7 +3099,9 @@
       const mbc = document.getElementById("merchants_by_category");
       const bareCat = mbc && !mbc.querySelector("#hgn-catpage") && !document.documentElement.classList.contains("hgn-cat-native") && !!catRoute();
       /* at most once per frame (2026-10-20): while Home's data is still loading these stay true, and every change ran a full tick */
-      if ((bareHeader || bareHome || bareSearch || bareCat) && !syncFrame) {
+      /* (2026-10-24) a new checkout too: Hyperzod's header (the store's name) showed for a moment before ours */
+      const bareCo = window.innerWidth < 960 && !!document.getElementById("checkout") && !document.documentElement.classList.contains("hgn-co");
+      if ((bareHeader || bareHome || bareSearch || bareCat || bareCo) && !syncFrame) {
         syncFrame = true;
         requestAnimationFrame(() => { syncFrame = false; });
         tick();

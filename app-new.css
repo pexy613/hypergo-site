@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1451 */
+/* hg-version 2026-10-24-1508 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1017,6 +1017,11 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .v-avatar{w
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-name{font-size:15px !important;line-height:20px !important;font-weight:600 !important;color:#1B2023 !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price,
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 .product-price *{font-size:14px !important;line-height:18px !important;font-weight:700 !important;color:#1B2023 !important;}
+/* Checkout pressed (html.hgn-cs-leaving, app-new.js): the sheet slides down and is hidden, so Hyperzod's list of every
+   store's cart never flashes in it on the way to the checkout */
+html.hg-new-app.hgn-cs-leaving .v-dialog--fullscreen:has(.scheme-cart-panel){background:transparent !important;transition:background .2s;}
+html.hg-new-app.hgn-cs-leaving .v-dialog--fullscreen:has(.scheme-cart-panel)>.v-overlay__content{transform:translateY(105%) !important;visibility:hidden !important;
+  transition:transform .2s cubic-bezier(.4,0,1,1),visibility 0s linear .2s !important;}
 /* the + / - pill: the outline on the pill only (its two buttons carry the same Hyperzod class and got their own rings) */
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel #cartItems2 div.cart-qty-button{height:36px !important;border-radius:18px !important;
   background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 4px !important;overflow:hidden;}
