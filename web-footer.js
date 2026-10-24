@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1102 */
+/* hg-version 2026-10-24-1138 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -777,4 +777,118 @@
     new MutationObserver(queue).observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir"] });
   } catch (e) {}
   queue();
+})();
+
+/* STORE SEARCH IN PLACE (website, 2026-10-24): the search bar in the store's top bar (#MerchantStickyHeader, shown on
+   desktop store pages once you scroll) searches inside the store page itself.
+   Hyperzod puts an invisible click layer over that bar that opens its separate store search screen ("merchant-search").
+   That layer is made click-through, so a click goes straight into Hyperzod's own field. While text is in the field, the
+   store page shows only the products whose name holds every word typed (capitals, Arabic alef/ya/ta marbuta forms and
+   accents are ignored); categories with no match and Recommended Products are hidden, the menu is scrolled into view, and
+   a line says when nothing matches. Clearing the field shows the whole store again. Nothing is removed or moved: the
+   products are only hidden, so the "+" button and opening a product work as before. */
+(() => {
+  "use strict";
+  if (window.__hgStoreSearch) return;
+  window.__hgStoreSearch = true;
+  const CSS =
+    "#MerchantStickyHeader .tw-w-full.tw-relative>.tw-absolute.tw-cursor-pointer{pointer-events:none !important;}" +
+    ".scheme-merchant-page .hg-ss-hide{display:none !important;}" +
+    ".scheme-merchant-page.hg-ss-on .page-builder-section-surface:has(.scheme-product-recommendation-section){display:none !important;}" +
+    /* the top bar shows only while the page is scrolled down to the menu (Hyperzod's #anchor): while searching the page
+       stays tall enough to stay there, and the gap under #anchor keeps the results clear of the top bar and the tabs */
+    ".scheme-merchant-page.hg-ss-on #merchant-content{min-height:100vh;}" +
+    ".scheme-merchant-page.hg-ss-on #anchor{height:var(--hg-ss-gap,150px);}" +
+    /* the count next to a category name is the whole category, not the matches: hidden while searching */
+    "html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page.hg-ss-on .cat-section .category-name[data-hgn-count]::after{display:none !important;}" +
+    "#hg-ss-empty{padding:48px 16px;text-align:center;color:#1B2023;font-size:16px;font-weight:600;line-height:1.4;}";
+  function addStyle() {
+    if (document.getElementById("hg-ss-style")) return;
+    const st = document.createElement("style");
+    st.id = "hg-ss-style";
+    st.textContent = CSS;
+    (document.head || document.documentElement).appendChild(st);
+  }
+  function norm(s) {
+    return String(s || "").toLowerCase().normalize("NFKD")
+      .replace(/[\u0300-\u036f\u064b-\u065f\u0670\u0640]/g, "")
+      .replace(/[\u0622\u0623\u0625\u0671]/g, "\u0627").replace(/\u0649/g, "\u064a").replace(/\u0629/g, "\u0647")
+      .replace(/\s+/g, " ").trim();
+  }
+  function field() { return document.getElementById("headerSearchProducts"); }
+  let lastQ = "";
+  function apply() {
+    const inp = field();
+    const page = (inp && inp.closest(".scheme-merchant-page")) || document.querySelector(".scheme-merchant-page");
+    if (!page) return;
+    const q = norm(inp ? inp.value : "");
+    const on = !!q;
+    if (!on && !page.classList.contains("hg-ss-on")) { lastQ = ""; return; }
+    addStyle();
+    page.classList.toggle("hg-ss-on", on);
+    const content = page.querySelector("#merchant-content");
+    let found = 0;
+    const words = q.split(" ");
+    page.querySelectorAll(".cat-section").forEach((sec) => {
+      let shown = 0;
+      sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").forEach((card) => {
+        const nameEl = card.querySelector(".product-name");
+        const name = norm(nameEl ? nameEl.textContent : "");
+        const hit = !on || words.every((w) => name.indexOf(w) !== -1);
+        card.classList.toggle("hg-ss-hide", !hit);
+        if (hit) shown++;
+      });
+      sec.classList.toggle("hg-ss-hide", on && !shown);
+      found += shown;
+    });
+    let empty = document.getElementById("hg-ss-empty");
+    if (on && !found && content) {
+      if (!empty) {
+        empty = document.createElement("div"); empty.id = "hg-ss-empty";
+        const anchor = content.querySelector("#anchor");
+        if (anchor) anchor.insertAdjacentElement("afterend", empty); else content.insertBefore(empty, content.firstChild);
+      }
+      const raw = String(inp.value).trim();
+      const txt = (document.documentElement.lang || "").indexOf("ar") === 0
+        ? "\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u062a\u062c\u0627\u062a \u062a\u0637\u0627\u0628\u0642 \u00ab" + raw + "\u00bb"
+        : "No products match \u201c" + raw + "\u201d";
+      if (empty.textContent !== txt) empty.textContent = txt;
+    } else if (empty) empty.remove();
+    /* a new search: scroll to the top of the menu (just past #anchor, so the top bar and its search field stay on screen) */
+    const anchor = content && content.querySelector("#anchor");
+    if (on && q !== lastQ && anchor) {
+      const bar = document.getElementById("MerchantStickyHeader");
+      const tabs = page.querySelector("#mobileStickyHeader");
+      const barH = (bar && bar.getBoundingClientRect().height) || 96;
+      page.style.setProperty("--hg-ss-gap", Math.round(barH + (tabs ? tabs.getBoundingClientRect().height : 0) + 16) + "px");
+      const y = Math.ceil(anchor.getBoundingClientRect().top + window.scrollY) + 1;
+      if (Math.abs(window.scrollY - y) > 2) window.scrollTo({ top: y });
+    }
+    lastQ = on ? q : "";
+  }
+  let timer = 0;
+  function queue(ms) {
+    clearTimeout(timer);
+    timer = setTimeout(() => { try { apply(); } catch (e) {} }, ms);
+  }
+  document.addEventListener("input", (ev) => { if (ev.target && ev.target.id === "headerSearchProducts") queue(150); }, true);
+  /* Hyperzod's clear (x) button empties the field without an input event */
+  document.addEventListener("click", (ev) => {
+    const t = ev.target;
+    if (t && t.closest && t.closest("#MerchantStickyHeader .v-field__clearable")) queue(60);
+  }, true);
+  /* products drawn later (another store opened, more products loaded) follow the search still in the field */
+  try {
+    new MutationObserver((recs) => {
+      const inp = field();
+      if (!(inp && inp.value) && !document.querySelector(".scheme-merchant-page.hg-ss-on")) return;
+      for (const r of recs) {
+        const t = r.target;
+        if (t && t.nodeType === 1 && t.closest && t.closest("#hg-ss-empty")) continue;
+        queue(150);
+        return;
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+  addStyle();
 })();
