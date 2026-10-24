@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1731 */
+/* hg-version 2026-10-24-1741 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1291,13 +1291,15 @@
     const href = storeHref(m, L);
     const cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
     const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2);
+    const fl = feeLabel(m, L);
     const on = !!favIds[id];
     return '<a class="hgn-store" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
       '<span class="hgn-store-img' + (cover ? "" : " is-logo") + '">' +
       ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
       '<button type="button" class="hgn-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + TOP_ICON.heart + "</button></span>" +
       '<span class="hgn-store-name">' + esc(m.name) + "</span>" +
-      ((extra || tags.length) ? '<span class="hgn-tags">' + (extra || "") + tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
+      ((extra || tags.length || fl) ? '<span class="hgn-tags">' + (extra || "") + (fl ? '<span class="hgn-tag hgn-tag-fee"><bdi>' + esc(fl) + "</bdi></span>" : "") +
+        tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
   }
   function storeRow(title, list, L, catMap, t, favIds, extraFn) {
@@ -1318,7 +1320,8 @@
       seenStores[m._id || m.id] = m;
       const href = storeHref(m, d.L), img = storeImg(m, "logo") || storeImg(m, "cover"); /* the logo first (2026-10-21) */
       const c = d.catMap[(m.merchant_category_ids || [])[0]];
-      const meta = [c ? catLabel(c) : "", storeTime(m)].filter(Boolean).join(" · ");
+      const fee = storeFee(m);
+      const meta = [c ? catLabel(c) : "", storeTime(m), fee ? feeLabel(m, d.L) : ""].filter(Boolean).join(" · ");
       return '<a class="hgn-sp-row" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
         '<span class="hgn-sp-img">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
         '<span class="hgn-sp-txt"><span class="hgn-sp-name">' + esc(m.name) + "</span>" +
@@ -1367,10 +1370,23 @@
   }
   function storeRating(m) { const v = parseFloat(m && m.average_rating); return isNaN(v) ? 0 : v; }
   /* only Hyperzod's delivery fee for this customer counts (delivery_data.fee); "delivery_amount" is 0 for most stores
-     even when a fee is charged, so it is not used */
+     even when a fee is charged, so it is not used.
+     (2026-10-24, Nouf: "always ensure that their deliveries fees show up") A fee of null means the store has no delivery
+     fee set in Hyperzod (no delivery setting, or its type "none"; read from Hyperzod's search data), and Hyperzod then
+     charges no delivery fee at checkout (tested signed in, Ramik Perfumes: fee 0), so it counts as free delivery.
+     Without delivery_data, a store's fixed fee setting is used (store page opened straight from a link). */
   function storeFee(m) {
     const d = m && m.delivery_data;
-    return d && typeof d.fee === "number" ? d.fee : null;
+    if (d && typeof d === "object") return typeof d.fee === "number" ? d.fee : 0;
+    const ds = m && m.delivery_setting, fx = ds && ds.default_type === "fixed" && ds.types && ds.types.fixed;
+    return fx && typeof fx.amount === "number" ? fx.amount : null;
+  }
+  /* "BHD 1.000 delivery" / "Free delivery" (Arabic: "توصيل 1.000 د.ب." / "توصيل مجاني"), "" when unknown */
+  function feeLabel(m, L) {
+    const fee = storeFee(m), T = LTXT[L];
+    if (fee === null) return "";
+    if (fee === 0) return T.free;
+    return L === "ar" ? T.fee + money(fee, true) : money(fee, true) + T.fee;
   }
 
   function renderHome() {
@@ -1764,7 +1780,9 @@
       const distEl = gutter.querySelector(":scope > .tw-mt-4 span");
       const dm = distEl && distEl.textContent.match(/([\d.]+)\s*(km|كم)/i);
       if (dm) items.push(["pin", dm[1] + T.km, T.dist]);
-      const fee = entry.delivery_data && entry.delivery_data.fee;
+      /* the delivery fee, always when Hyperzod gives one (2026-10-24): from the store lists, else from the store itself */
+      let fee = storeFee(entry);
+      if (fee === null) fee = storeFee(md);
       if (typeof fee === "number") items.push(["bike", fee === 0 ? T.free : money(fee), T.fee]);
       else if (typeof md.min_order_amount === "number") items.push(["bag", md.min_order_amount > 0 ? money(md.min_order_amount) : T.nomin, T.min]);
       const html = items.map((x) => '<span class="hgn-sstat">' + sIcon(x[0]) + '<span class="hgn-sstat-t"><b>' + esc(x[1]) + "</b><small>" + esc(x[2]) + "</small></span></span>").join("");
@@ -1932,9 +1950,8 @@
     if (rate > 0) meta.push('<span class="hgn-sb-rate">' + STAR + rate.toFixed(1) + "</span>");
     const tm = storeTime(m);
     if (tm) meta.push("<bdi>" + esc(tm) + "</bdi>");
-    const fee = storeFee(m);
-    if (fee === 0) meta.push(esc(T.free));
-    else if (fee) meta.push("<bdi>" + esc(L === "ar" ? T.fee + money(fee, true) : money(fee, true) + T.fee) + "</bdi>");
+    const fl = feeLabel(m, L);
+    if (fl) meta.push("<bdi>" + esc(fl) + "</bdi>");
     const on = !!favIds[id];
     /* products load only when the store comes near the screen (watchProdRows), never all stores at once:
        a page of 80+ stores would otherwise ask Hyperzod for 80+ menus in one go */
@@ -2115,11 +2132,14 @@
     const T = LTXT[L], C = CTXT[L];
     const tm = storeTime(m), km = storeKm(m);
     const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2).map((c) => catLabel(c));
-    if (storeFee(m) === 0) tags.push(T.free);
+    /* the delivery fee next to the time on the photo, always (2026-10-24, Nouf: "it should at least be next to the
+       '30 mins' ... u can show both"): "30 mins · BHD 1.000 delivery" / "30 mins · Free delivery" */
+    const fl = feeLabel(m, L);
+    const badge = [tm, fl].filter(Boolean).join(" · ");
     const closed = m.is_open === false || m.is_accepting_orders === false;
     return '<a class="hgn-cc' + (closed ? " is-closed" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
       '<span class="hgn-cc-img' + (cover ? "" : " is-logo") + '">' + ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
-      (tm ? '<span class="hgn-cc-time">' + CICON.clock + "<bdi>" + esc(tm) + "</bdi></span>" : "") +
+      (badge ? '<span class="hgn-cc-time">' + (tm ? CICON.clock : "") + "<bdi>" + esc(badge) + "</bdi></span>" : "") +
       (closed ? '<span class="hgn-cc-closed">' + esc(C.closed) + "</span>" : "") + "</span>" +
       '<span class="hgn-cc-row"><span class="hgn-cc-name">' + esc(nameOf(m) || m.name) + "</span>" +
       (km ? '<span class="hgn-cc-dist">' + sIcon("pin") + /* same pin as the store info card */ "<bdi>" + esc(km) + "</bdi></span>" : "") + "</span>" +
