@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-24-1102 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -582,9 +582,14 @@
     return n;
   }
 
-  /* the product a name belongs to: the closest element around the name that also holds the "+" button */
+  /* the product a name belongs to: the closest element around the name that also holds the "+" button.
+     (2026-10-24): a product holds exactly one name. A name whose own card has no "+" (Hyperzod hides it while a category is
+     scheduled or unavailable) used to climb to a box holding other products' "+" buttons - sometimes the whole menu, which
+     was then marked as one product and squeezed into the first grid column. The climb now stops at the first box that holds
+     two or more names (a row or a whole menu, never a product): that name is left alone. */
   function productOf(name, page) {
     for (let el = name.parentElement; el && el !== page; el = el.parentElement) {
+      if (countProducts(el) > 1) return null;
       if (el.querySelector(".add-btn,.add-product-btn")) return el;
     }
     return null;
