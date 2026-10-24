@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1148 */
+/* hg-version 2026-10-24-1303 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -914,4 +914,76 @@
     const lang = (r.params && r.params.lang) || (/^\/ar\//.test(r.path) ? "ar" : "en");
     R.push("/" + lang + "/search").catch(() => {});
   }, true);
+})();
+
+/* DRAG TO SCROLL ON DESKTOP (website, 2026-10-24): every sideways row (banners, Little joys, Our favourites, category tiles,
+   tabs and chips, the products in a store card, ...) is a native sideways scroller with its scrollbar hidden. A finger can
+   swipe it, but with a mouse there was no way to move it. With a mouse (not touch, not a pen), press and drag any row that
+   scrolls sideways to move it. A drag of 6px or more does not count as a click, so dragging over a product or store does
+   not open it; a plain click still does. The row's snapping is paused while dragging and comes back on release, so it
+   settles on a card like a swipe does. Nothing changes on phones or in the app. */
+(() => {
+  "use strict";
+  if (window.__hgDragRows) return;
+  window.__hgDragRows = true;
+  const MIN = 6;
+  function rowOf(el) {
+    for (let n = el; n && n !== document.body && n.nodeType === 1; n = n.parentElement) {
+      if (n.scrollWidth <= n.clientWidth + 1) continue;
+      const ox = getComputedStyle(n).overflowX;
+      if (ox === "auto" || ox === "scroll") return n;
+    }
+    return null;
+  }
+  let row = null, x0 = 0, left0 = 0, moved = false, snap = "", behavior = "";
+  function end() {
+    if (!row) return;
+    const r = row;
+    row = null;
+    document.documentElement.classList.remove("hg-dragging");
+    if (moved) {
+      r.style.scrollSnapType = snap;   /* restoring the snapping settles the row on the nearest card */
+      r.style.scrollBehavior = behavior;
+    }
+  }
+  document.addEventListener("pointerdown", (ev) => {
+    if (ev.pointerType !== "mouse" || ev.button !== 0) return;
+    const t = ev.target;
+    if (!t || !t.closest || t.closest("input,textarea,select,[contenteditable='true']")) return;
+    const r = rowOf(t);
+    if (!r) return;
+    row = r; x0 = ev.clientX; left0 = r.scrollLeft; moved = false;
+  }, true);
+  document.addEventListener("pointermove", (ev) => {
+    if (!row) return;
+    if (!(ev.buttons & 1)) { end(); return; }
+    const dx = ev.clientX - x0;
+    if (!moved) {
+      if (Math.abs(dx) < MIN) return;
+      moved = true;
+      snap = row.style.scrollSnapType; behavior = row.style.scrollBehavior;
+      row.style.scrollSnapType = "none";
+      row.style.scrollBehavior = "auto";
+      document.documentElement.classList.add("hg-dragging");
+    }
+    row.scrollLeft = left0 - dx;
+    ev.preventDefault();
+  }, true);
+  document.addEventListener("pointerup", () => {
+    if (row && moved) {
+      /* the click that follows this release is the end of a drag, not a tap */
+      const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
+      document.addEventListener("click", stop, { capture: true, once: true });
+      setTimeout(() => document.removeEventListener("click", stop, true), 0);
+    }
+    end();
+  }, true);
+  document.addEventListener("pointercancel", end, true);
+  /* no ghost image of a picture or link while dragging a row */
+  document.addEventListener("dragstart", (ev) => { if (ev.target && ev.target.closest && rowOf(ev.target)) ev.preventDefault(); }, true);
+  try {
+    const st = document.createElement("style");
+    st.textContent = "html.hg-dragging,html.hg-dragging *{cursor:grabbing !important;user-select:none !important;}";
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) {}
 })();
