@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1820 */
+/* hg-version 2026-10-24-1827 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -572,6 +572,12 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
    under Hyperzod's cream top bar (.cover-scrolled) the shade fades and the icons turn dark, as before.
    (2026-10-24, later) not waiting for html.hgn-store: while a store loads (going Back to it, for example) Hyperzod's
    white circles showed for a moment first. */
+/* the cream top bar (2026-10-24): Hyperzod fades it in with the scroll itself (opacity = (scroll - 40) / 100), so
+   between 40 and 140 px it is half see-through and the logo, the store name and the banner show through it; stopping
+   there kept it that way (Nouf's recordings: Golden Petals, Ateaya). Now it is fully off, or fully on from 40 px
+   (Hyperzod's own --visible switch, the same moment the icons turn dark), with its own short fade. */
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page .merchant-cover-header{opacity:0 !important;}
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page .merchant-cover-header.merchant-cover-header--visible{opacity:1 !important;}
 html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions{padding:0 6px !important;}
 html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn{width:44px !important;height:44px !important;min-width:44px !important;max-width:44px !important;min-height:44px !important;max-height:44px !important;
   border:0 !important;background:transparent !important;box-shadow:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
