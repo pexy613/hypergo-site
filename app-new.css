@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1252 */
+/* hg-version 2026-10-24-1314 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -970,4 +970,24 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app .hgn-joys{margin-top:40px;border-radius:24px;}
   html.hg-new-app .hgn-joy-head,html.hg-new-app .hgn-joy-row{padding-inline:24px;}
   html.hg-new-app .hgn-mib{margin:40px 0 0;}
+}
+
+/* ================= CHECKOUT ORDER (phones and the app, 2026-10-24, "HyperGo Quick Checkout", chosen by Nouf) =================
+   Hyperzod's phone checkout is one long page with "You May Also Like" in the middle and the payment method at the very
+   bottom. The same sections, nothing removed or rebuilt, are shown in this order: your items, payment method, delivery
+   instructions + tip, coupons, order type, delivery type, bill, and "You May Also Like" last. Hyperzod's boxes around the
+   sections (the cart card and its columns) step aside (display:contents) so every section can take its place in one
+   column. The address and Place Order stay in Hyperzod's fixed bar at the bottom. Desktop (960px and up) is unchanged: it
+   already shows the address and payment on the left and the cart on the right. */
+@media (max-width:959.98px){
+  html.hg-new-app #checkout div:has(> div > #CartCard){display:flex !important;flex-direction:column !important;}
+  html.hg-new-app #checkout :is(div:has(> #CartCard),#CartCard,#CartCard > div,#CartCard > div > .tw-flex-col){display:contents !important;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > *{order:4;margin-top:10px !important;margin-bottom:0 !important;}
+  html.hg-new-app #checkout div:has(> div > #CartCard) > :has(#payment-opt){order:2;margin-top:10px !important;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#cartItems){order:1;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider){order:3;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#mbOrderTypeSelect){order:5;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > :has(#deliveryTime){order:6;}
+  html.hg-new-app #checkout #CartCard > div > :has(#summary){order:7;margin-top:10px !important;}
+  html.hg-new-app #checkout #CartCard > div > .tw-flex-col > .similar-items-panel{order:8;}
 }

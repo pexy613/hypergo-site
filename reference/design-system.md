@@ -211,6 +211,7 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Profile pages | 1260px, padding 30px 28px 60px, sidebar 300px, gap 28px | GF.css L1435-1437 |
 | Category list page | 1248px | GF1 (extra) L2303 |
 | Fixed checkout bar | 1200px, padding 10px 20px | GF.css L1400 |
+| Checkout section order (phones + app, 2026-10-24) | items, payment method, delivery instructions + tip, coupons, order type, delivery type, bill, You May Also Like last; address + Place Order stay in the fixed bottom bar; desktop unchanged | app-new.css CHECKOUT ORDER |
 | Launch card | 1100px; section padding 14px 16px 8px (mobile), 40px 48px 24px (desktop) | GL L48-52 |
 
 **Gaps between sections**
