@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1618 */
+/* hg-version 2026-10-24-1629 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1109,6 +1109,10 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
   html.hg-new-app .hgn-co-to{font-size:12px;line-height:14px;color:#6E6880;}
   html.hg-new-app .hgn-co-type{font-size:15px;line-height:19px;font-weight:700;color:#1B2023;}
   html.hg-new-app .hgn-co-line{font-size:13px;line-height:17px;color:#3A3F42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  /* no delivery address chosen yet (app-new.js): the card asks for one, a purple Choose button */
+  html.hg-new-app #hgn-co-addr.is-need .hgn-co-line{white-space:normal;}
+  html.hg-new-app #hgn-co-addr.is-need .hgn-co-map{opacity:.55;}
+  html.hg-new-app .hgn-co-change.is-need{background:#5A29DE !important;color:#FFFFFF !important;}
   html.hg-new-app .hgn-co-change{flex:none;height:36px;padding:0 14px;border:0;border-radius:18px;background:#F1ECFF;color:#5A29DE;font:inherit;font-size:14px;font-weight:700;cursor:pointer;}
   html.hg-new-app.hgn-co-top .checkout-footer .place-order>.address-card{display:none !important;}
   /* delivery instructions: one row, the choices open under it */
@@ -1155,7 +1159,7 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
   html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .similar-items-panel{display:none !important;}
   /* your order */
   html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#cartItems){padding:14px 16px !important;}
-  html.hg-new-app.hgn-co #checkout #cartItems{display:none !important;}
+  html.hg-new-app.hgn-co #checkout :has(> .hgn-co-sum) #cartItems{display:none !important;} /* only once our short list is there */
   html.hg-new-app.hgn-co #checkout .hgn-co-sum{display:flex;flex-direction:column;gap:8px;}
   html.hg-new-app.hgn-co #checkout .hgn-co-oh{display:flex;align-items:center;gap:6px;min-height:24px;font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
   html.hg-new-app.hgn-co #checkout .hgn-co-oh-n{flex:1 1 auto;font-weight:400;color:#6E6880;font-size:14px;}

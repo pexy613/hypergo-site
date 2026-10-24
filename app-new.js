@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1618 */
+/* hg-version 2026-10-24-1629 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2829,9 +2829,11 @@
      sections and the rest of the look: app-new.css (CHECKOUT ORDER, CHECKOUT TOP). No address yet: nothing changes. */
   const CO_TXT = {
     en: { title: "Checkout", to: "Deliver to", change: "Change", instr: "Delivery instructions",
+      need: "Choose your delivery address", needSub: "Needed for the delivery fee and to place your order", choose: "Choose",
       types: { home: "Home", office: "Work", work: "Work", others: "Other", other: "Other" } },
     ar: { title: "إتمام الطلب", to: "التوصيل إلى",
       change: "تغيير", instr: "تعليمات التوصيل",
+      need: "اختر عنوان التوصيل", needSub: "مطلوب لحساب رسوم التوصيل وإتمام الطلب", choose: "اختيار",
       types: { home: "المنزل", office: "العمل", work: "العمل",
         others: "أخرى", other: "أخرى" } }
   };
@@ -2901,19 +2903,20 @@
       const h = CO_ICON_INSTR + '<span class="hgn-co-instr-t">' + esc(T.instr) + '</span><svg class="hgn-co-chev" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
       if (tg.dataset.sig !== h) { tg.innerHTML = h; tg.dataset.sig = h; }
     }
-    /* the address card: the chosen delivery address; without one (a new customer), the location picked on the phone */
-    let da = S && S.state.Address && S.state.Address.deliveryAddress;
-    if (!(da && da.address && Array.isArray(da.location_lat_lon))) {
+    /* the address card: the chosen delivery address.
+       (2026-10-24, later) Without one, the card used to show the location picked on the phone as "Other" and Hyperzod's
+       own address line was hidden. But Hyperzod only shows the Place order button, works out the delivery fee and checks
+       the order once a delivery address is chosen, so customers saw no way to pay (Nouf: "there is no button to pay").
+       Now, without a chosen address, the card asks for one ("Choose your delivery address", Choose opens Hyperzod's
+       address list) and Hyperzod's own address line stays in the bottom bar. */
+    const real = S && S.state.Address && S.state.Address.deliveryAddress;
+    const hasReal = !!(real && real.address && Array.isArray(real.location_lat_lon) && real.location_lat_lon.length > 1);
+    let da = hasReal ? real : null;
+    if (!da) {
       const sel = S && ((S.state.Address && S.state.Address.selectedAddress) || (S.state.Utils && S.state.Utils.selectedLocation));
-      da = sel && sel.address && sel.location ? { address: sel.address, address_type: "other", location_lat_lon: [sel.location.latitude, sel.location.longitude] } : null;
+      da = sel && sel.location ? { address: sel.address || "", location_lat_lon: [sel.location.latitude, sel.location.longitude] } : null;
     }
     const ll = da && Array.isArray(da.location_lat_lon) ? da.location_lat_lon : null;
-    if (!da || !da.address || !ll || ll.length < 2) {
-      /* no address yet: Hyperzod's own address line stays in the bottom bar */
-      if (old) old.remove();
-      de.classList.remove("hgn-co-top");
-      return;
-    }
     let card = old;
     if (!card) {
       card = document.createElement("section");
@@ -2927,24 +2930,27 @@
       });
     }
     if (card.parentNode !== grid || grid.firstElementChild !== card) grid.insertBefore(card, grid.firstElementChild);
-    const lat = +ll[0], lon = +ll[1];
+    const lat = ll ? +ll[0] : NaN, lon = ll ? +ll[1] : NaN;
     const maps = S.state.Utils && S.state.Utils.bootSettings && S.state.Utils.bootSettings.api_keys && S.state.Utils.bootSettings.api_keys.map_keys;
     const token = maps && typeof maps.mapbox === "string" ? maps.mapbox : "";
     const W = Math.max(200, Math.round(grid.clientWidth || 358)), H = 150;
-    const type = String(da.custom_address_type || "").trim() || T.types[String(da.address_type || "").toLowerCase()] || T.types.other;
-    const line = [da.building, da.address].filter(Boolean).join(", ");
-    const sig = [L, lat, lon, W, token ? 1 : 0, type, line].join("|");
+    const type = hasReal ? (String(da.custom_address_type || "").trim() || T.types[String(da.address_type || "").toLowerCase()] || T.types.other) : T.need;
+    const line = hasReal ? [da.building, da.address].filter(Boolean).join(", ") : T.needSub;
+    const sig = [L, hasReal ? 1 : 0, lat, lon, W, token ? 1 : 0, type, line].join("|");
     if (card.dataset.sig !== sig) {
       card.innerHTML =
         (token && isFinite(lat) && isFinite(lon)
-          ? '<div class="hgn-co-map" role="img" aria-label="' + esc(T.to + " " + type) + '">' + coMapHtml(lat, lon, W, H, token) +
-            '<span class="hgn-co-pin">' + CO_PIN + '</span><span class="hgn-co-attr">© Mapbox © OpenStreetMap</span></div>'
+          ? '<div class="hgn-co-map" role="img" aria-label="' + esc(hasReal ? T.to + " " + type : T.need) + '">' + coMapHtml(lat, lon, W, H, token) +
+            (hasReal ? '<span class="hgn-co-pin">' + CO_PIN + "</span>" : "") + '<span class="hgn-co-attr">© Mapbox © OpenStreetMap</span></div>'
           : "") +
-        '<div class="hgn-co-row"><div class="hgn-co-txt"><span class="hgn-co-to">' + esc(T.to) + '</span><span class="hgn-co-type">' + esc(type) +
-        '</span><span class="hgn-co-line">' + esc(line) + '</span></div><button type="button" class="hgn-co-change">' + esc(T.change) + "</button></div>";
+        '<div class="hgn-co-row"><div class="hgn-co-txt">' + (hasReal ? '<span class="hgn-co-to">' + esc(T.to) + "</span>" : "") +
+        '<span class="hgn-co-type">' + esc(type) + '</span><span class="hgn-co-line">' + esc(line) + '</span></div>' +
+        '<button type="button" class="hgn-co-change' + (hasReal ? "" : " is-need") + '">' + esc(hasReal ? T.change : T.choose) + "</button></div>";
       card.dataset.sig = sig;
     }
-    if (!de.classList.contains("hgn-co-top")) de.classList.add("hgn-co-top");
+    card.classList.toggle("is-need", !hasReal);
+    /* Hyperzod's address line in the bottom bar is hidden only when a delivery address is really chosen */
+    de.classList.toggle("hgn-co-top", hasReal);
   }
 
   /* ---------- CHECKOUT CARDS (2026-10-24, "HyperGo Quick Checkout" board 3) ----------
