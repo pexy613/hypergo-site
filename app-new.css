@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1418 */
+/* hg-version 2026-10-24-1451 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1054,9 +1054,9 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
    delivery instructions folded into one row; the tip as one compact row; order type and delivery type hidden when
    there is nothing to choose (one order type, delivery type only says "Express"). */
 @media (max-width:959.98px){
-  html.hg-new-app.hgn-co-top .scheme-mobile-page-header__title{visibility:hidden !important;}
+  html.hg-new-app.hgn-co .scheme-mobile-page-header__title{visibility:hidden !important;}
   html.hg-new-app .hgn-co-title{position:absolute;inset:0 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none;}
-  html.hg-new-app:not(.hgn-co-top) .hgn-co-title{display:none;}
+  html.hg-new-app:not(.hgn-co) .hgn-co-title{display:none;}
   html.hg-new-app .hgn-co-t1{font-size:17px;line-height:20px;font-weight:700;color:#1B2023;}
   html.hg-new-app .hgn-co-t2{font-size:12px;line-height:14px;color:#6E6880;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   html.hg-new-app #checkout #hgn-co-addr{order:0;margin-top:10px;border-radius:20px;overflow:hidden;background:#FFFFFF;
@@ -1095,78 +1095,112 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
 }
 
 /* ================= CHECKOUT CARDS (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 3) =================
-   The checkout sections as white cards with 20px corners and no grey outline, on the cream page; with app-new.js
-   (CHECKOUT CARDS): "Your order · 2 items", the items like the cart sheet (56px pictures, white + / - pill), the note
-   field soft lilac, "Pay with Tap" with its icon in a soft square, "Tip your rider (optional)" with soft tip buttons
-   (the chosen one purple), the bill as plain rows with Total in bold, and a 54px round Place order button. */
+   On every phone checkout (html.hgn-co; before, only when the address had map coordinates). Cream page, white cards
+   with 20px corners and no outline: the address card with its map; "Your order · N items" + Edit with a short list
+   (2× name, price) instead of Hyperzod's item rows (Edit opens the cart sheet), the note field under it; "Pay with Tap"
+   with its icon in a soft square and a purple check when chosen; one card with "Tip your rider (optional)", Delivery
+   instructions and Add a coupon as rows; the bill as plain rows; a 54px round Place order. "You May Also Like" is only
+   in the cart sheet now. Header: round back button, "Checkout" and the store's name on the start side. */
 @media (max-width:959.98px){
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#cartItems),
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider),
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div,
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > :has(#summary),
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .similar-items-panel,
-  html.hg-new-app.hgn-co-top #checkout #payment-card{border:0 !important;border-radius:20px !important;background:#FFFFFF !important;box-shadow:0 1px 0 #F0EDF5 !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#cartItems),
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > :has(#summary){padding:14px 16px !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider){padding:0 12px 14px !important;overflow:hidden;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-instr{padding:0 16px;min-height:52px;} /* Hyperzod's row has -12px sides against the card's 12px padding */
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2{margin-bottom:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div{margin-top:0 !important;padding:0 4px !important;}
+  html.hg-new-app.hgn-co #checkout{background:#FFFCF9;}
+  /* header */
+  html.hg-new-app.hgn-co .scheme-mobile-page-header__surface .back-btn{width:40px !important;height:40px !important;border-radius:20px !important;
+    box-shadow:inset 0 0 0 1px #E6E1F3 !important;background:#FFFFFF !important;display:flex !important;align-items:center !important;justify-content:center !important;margin-inline-start:16px !important;}
+  html.hg-new-app.hgn-co .hgn-co-title{inset-inline:68px 16px !important;align-items:flex-start !important;text-align:start;}
+  /* cards */
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#cartItems),
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider),
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div,
+  html.hg-new-app.hgn-co #checkout #CartCard > div > :has(#summary),
+  html.hg-new-app.hgn-co #checkout #payment-card{border:0 !important;border-radius:20px !important;background:#FFFFFF !important;box-shadow:0 1px 0 #F0EDF5 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .similar-items-panel{display:none !important;}
   /* your order */
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-oh{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-oh-n{font-weight:400;color:#6E6880;font-size:14px;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems{background:transparent !important;} /* it was cream inside the white card */
-html.hg-new-app.hgn-co-top #checkout #cartItems .cart-item{padding:10px 0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .cart-row + .cart-row{border-top:1px solid #F0EDF5;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .product-image{width:56px !important;height:56px !important;border-radius:12px !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .v-list-item__prepend>div{padding-inline-end:12px !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .product-name{font-size:15px !important;line-height:20px !important;font-weight:600 !important;color:#1B2023 !important;margin-bottom:4px !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .product-price,html.hg-new-app.hgn-co-top #checkout #cartItems .product-price *{font-size:14px !important;line-height:18px !important;font-weight:700 !important;color:#1B2023 !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems .price>div{max-width:none !important;height:36px !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button{height:36px !important;border-radius:18px !important;background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 6px !important;gap:2px;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button button{background:transparent !important;color:#5A29DE !important;box-shadow:none !important;border:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems div.cart-qty-button span{color:#1B2023 !important;font-weight:700 !important;font-size:15px !important;}
-  html.hg-new-app.hgn-co-top #checkout #cartItems > .tw-capitalize.tw-cursor-pointer{display:none !important;} /* "Add Item": the back arrow goes to the store */
-  html.hg-new-app.hgn-co-top #checkout #message{margin:10px 0 0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #message .message-input{border:0 !important;border-radius:12px !important;background:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 12px !important;min-height:44px;}
-  /* payment */
-  html.hg-new-app.hgn-co-top #checkout #payment-card{padding:4px 0 6px !important;margin-top:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card h3.heading{margin:10px 16px 2px !important;padding:0 !important;text-transform:none !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method label{padding-inline:16px 12px !important;margin:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method label>div:first-child{height:auto !important;min-height:56px;margin:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .method-icon{flex:none;box-sizing:content-box !important;padding:8px;border-radius:12px;background:#F4F2FA;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method .tw-ps-3.name{padding-inline-start:12px !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method .name .name{font-size:13px !important;line-height:17px !important;font-weight:400 !important;color:#6E6880 !important;margin-top:2px !important;}
-  /* Tap: "Pay with Tap / Card, Apple Pay or Benefit" (Hyperzod cut its own line off at "Benef...") */
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"Pay with ";}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .name .name{font-size:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #payment-card .payment-method.Tap .name .name::after{content:"Card, Apple Pay or Benefit";font-size:13px;}
-  html.hg-new-app.hgn-co-top[lang^="ar"] #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"الدفع عبر ";}
-  html.hg-new-app.hgn-co-top[lang^="ar"] #checkout #payment-card .payment-method.Tap .name .name::after{content:"بطاقة أو Apple Pay أو بنفت";}
-  /* tip */
-  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-tiph){margin:4px 4px 0 !important;}
-  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-tiph)>h2{display:none !important;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-tiph{font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-opt{font-size:13px;font-weight:400;color:#6E6880;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*{border:0 !important;background:#F4F2FA !important;color:#1B2023 !important;font-size:14px !important;font-weight:600 !important;padding:0 4px !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div{margin:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div>span{margin:0 !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"]{background:#5A29DE !important;color:#FFFFFF !important;}
-  html.hg-new-app.hgn-co-top #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"] *{color:#FFFFFF !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#cartItems){padding:14px 16px !important;}
+  html.hg-new-app.hgn-co #checkout #cartItems{display:none !important;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-sum{display:flex;flex-direction:column;gap:8px;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-oh{display:flex;align-items:center;gap:6px;min-height:24px;font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-oh-n{flex:1 1 auto;font-weight:400;color:#6E6880;font-size:14px;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-edit{flex:none;border:0;background:none;padding:2px 0;font:inherit;font-size:14px;font-weight:600;color:#5A29DE;cursor:pointer;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-it{display:flex;align-items:baseline;gap:6px;font-size:14px;line-height:20px;color:#1B2023;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-it-q{flex:none;color:#6E6880;font-variant-numeric:tabular-nums;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-it-n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-it-p{flex:none;font-variant-numeric:tabular-nums;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-it-p b{font-weight:400;}
+  html.hg-new-app.hgn-co #checkout #message{margin:12px 0 0 !important;}
+  html.hg-new-app.hgn-co #checkout #message .message-input{border:0 !important;border-radius:12px !important;background:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding:0 12px !important;min-height:44px;}
+  /* payment: one row */
+  html.hg-new-app.hgn-co #checkout #payment-card{padding:2px 0 !important;margin-top:0 !important;}
+  /* #app#app: global-footer.css gives it a grey outline with 3 ids (html body #app #checkout :is(#AddressCard,#payment-card,...)) */
+  html.hg-new-app.hgn-co body #app#app #checkout #payment-card{border:0 !important;border-radius:20px !important;box-shadow:0 1px 0 #F0EDF5 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card h3.heading{display:none !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method + .payment-method{border-top:1px solid #F0EDF5;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method .v-card-text>div{padding:0 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method label{padding:12px 16px !important;margin:0 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method label>div:first-child{height:auto !important;margin:0 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .method-icon{flex:none;box-sizing:content-box !important;padding:8px;border-radius:12px;background:#F4F2FA;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method .tw-ps-3.name{padding-inline-start:12px !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method .name .name{font-size:13px !important;line-height:17px !important;font-weight:400 !important;color:#6E6880 !important;margin-top:2px !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"Pay with ";}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method.Tap .name .name{font-size:0 !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .payment-method.Tap .name .name::after{content:"Card, Apple Pay or Benefit";font-size:13px;}
+  html.hg-new-app.hgn-co[lang^="ar"] #checkout #payment-card .payment-method.Tap .tw-ps-3.name::before{content:"الدفع عبر ";}
+  html.hg-new-app.hgn-co[lang^="ar"] #checkout #payment-card .payment-method.Tap .name .name::after{content:"بطاقة أو Apple Pay أو بنفت";}
+  /* the round choice: a purple check when chosen */
+  html.hg-new-app.hgn-co #checkout #payment-card .v-radio .v-selection-control__wrapper{width:24px !important;height:24px !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .v-radio .v-selection-control__input{width:24px !important;height:24px !important;border-radius:12px;box-shadow:inset 0 0 0 1.5px #D9D4E5;}
+  html.hg-new-app.hgn-co #checkout #payment-card .v-radio .v-selection-control__input>.v-icon{opacity:0 !important;}
+  /* Hyperzod's own ring and dot are drawn on ::before / ::after (#app#app to win over its rules) */
+  html.hg-new-app.hgn-co body #app#app #checkout #payment-card .v-radio .v-selection-control__input::before,
+  html.hg-new-app.hgn-co body #app#app #checkout #payment-card .v-radio .v-selection-control__input::after{content:none !important;display:none !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card .v-radio.v-selection-control--dirty .v-selection-control__input{box-shadow:none;
+    background:#5A29DE url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/14px no-repeat;}
+  /* tip + more options: one card with rows (tip first, then instructions, then the coupon, joined below it) */
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider){display:flex !important;flex-direction:column !important;padding:0 12px !important;overflow:hidden;
+    border-end-start-radius:0 !important;border-end-end-radius:0 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider) > :has(.hgn-co-tiph){order:-1;margin:0 4px !important;padding:14px 0 14px !important;border-bottom:1px solid #F0EDF5;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider) > :not(:has(.hgn-co-tiph)){padding-top:0 !important;}
+  html.hg-new-app.hgn-co #checkout :has(> .hgn-co-tiph)>h2{display:none !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider) > [class*="tw-bg-[rgba(0,0,0,0.1)]"]{display:none !important;} /* Hyperzod's line under the instructions */
+  html.hg-new-app.hgn-co #checkout .hgn-co-tiph{font-size:15px;line-height:20px;font-weight:700;color:#1B2023;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-opt{font-size:13px;font-weight:400;color:#6E6880;}
+  html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4{gap:8px !important;margin-top:10px !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4>*{height:38px !important;min-height:38px !important;border-radius:12px !important;border:0 !important;background:#F4F2FA !important;
+    color:#1B2023 !important;font-size:14px !important;font-weight:600 !important;padding:0 4px !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div,html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4>*>div>span{margin:0 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"]{background:#5A29DE !important;color:#FFFFFF !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard .tw-grid.tw-grid-cols-4>[class~="tw-border-black"] *{color:#FFFFFF !important;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-instr{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:0 16px;border:0;background:none;font:inherit;color:#1B2023;text-align:start;cursor:pointer;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-instr-t{flex:1 1 auto;font-size:15px;line-height:20px;font-weight:600;}
+  html.hg-new-app.hgn-co #checkout :has(> .hgn-co-instr){margin-bottom:0 !important;}
+  html.hg-new-app.hgn-co #checkout .hgn-open>.simple-slider{padding:0 16px 14px !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2{margin:0 !important;order:4 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div{margin-top:0 !important;padding:0 !important;border-start-start-radius:0 !important;border-start-end-radius:0 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 > div::before{content:"";display:block;height:1px;background:#F0EDF5;margin:0 16px;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .v-list-item{min-height:52px !important;padding:0 16px !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .list-icon-small{width:18px;height:18px;margin-inline-end:12px !important;margin-inline-start:0 !important;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A29DE' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 9V5h18v4a3 3 0 0 0 0 6v4H3v-4a3 3 0 0 0 0-6z'/%3E%3C/svg%3E") center/18px no-repeat;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .list-icon-small>*{display:none !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .v-list-item-title{font-size:0 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .v-list-item-title::after{content:"Add a coupon";font-size:15px;line-height:20px;font-weight:600;color:#1B2023;}
+  html.hg-new-app.hgn-co[lang^="ar"] #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .v-list-item-title::after{content:"أضف قسيمة";}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > .tw-mb-2 .nav-icon{color:#6E6880 !important;}
   /* bill */
-  html.hg-new-app.hgn-co-top #checkout :has(> .hgn-co-bill)>#summary{display:none !important;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-bill{display:flex;flex-direction:column;gap:8px;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-br{display:flex;justify-content:space-between;gap:12px;font-size:14px;line-height:20px;color:#3A3F42;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-br b{font-weight:400;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-disc{color:#2E7D32;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-total{margin-top:2px;padding-top:10px;border-top:1px solid #F0EDF5;font-size:16px;line-height:22px;font-weight:800;color:#1B2023;}
-  html.hg-new-app.hgn-co-top #checkout .hgn-co-br.is-total b{font-weight:800;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > :has(#summary){padding:14px 16px !important;}
+  html.hg-new-app.hgn-co #checkout :has(> .hgn-co-bill)>#summary{display:none !important;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-bill{display:flex;flex-direction:column;gap:8px;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-br{display:flex;justify-content:space-between;gap:12px;font-size:14px;line-height:20px;color:#3A3F42;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-br b{font-weight:400;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-br.is-disc{color:#2E7D32;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-br.is-total{margin-top:2px;padding-top:10px;border-top:1px solid #F0EDF5;font-size:16px;line-height:22px;font-weight:800;color:#1B2023;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-br.is-total b{font-weight:800;}
   /* Place order */
-  html.hg-new-app.hgn-co-top .checkout-footer{border:0 !important;box-shadow:0 -6px 20px rgba(27,32,35,.06);}
-  html.hg-new-app.hgn-co-top .checkout-footer .place-order{border:0 !important;padding-top:12px !important;padding-inline:8px !important;} /* + Hyperzod's 8px inside = 16px */
-  html.hg-new-app.hgn-co-top .checkout-footer .place-order div:has(> .mobile-place-order-btn){margin-right:0 !important;margin-left:0 !important;}
+  html.hg-new-app.hgn-co .checkout-footer{border:0 !important;box-shadow:0 -6px 20px rgba(27,32,35,.06);}
+  html.hg-new-app.hgn-co .checkout-footer .place-order{border:0 !important;padding-top:12px !important;padding-inline:8px !important;} /* + Hyperzod's 8px inside = 16px */
+  html.hg-new-app.hgn-co .checkout-footer .place-order div:has(> .mobile-place-order-btn){margin-right:0 !important;margin-left:0 !important;}
+  /* the app's "PAY USING > Tap" next to the button: the payment card above already shows it */
+  html.hg-new-app.hgn-co .checkout-footer .place-order .tw-shrink-0:has(.payment-method-name){display:none !important;}
   /* #app#app: an older rule (html body #app :is(#checkout,.place-order) .mobile-place-order-btn, 2 ids) kept it 52px tall with 12px corners */
-  html.hg-new-app.hgn-co-top body #app#app .checkout-footer .mobile-place-order-btn{height:54px !important;min-height:54px !important;border-radius:27px !important;box-shadow:none !important;}
+  html.hg-new-app.hgn-co body #app#app .checkout-footer .mobile-place-order-btn{height:54px !important;min-height:54px !important;border-radius:27px !important;box-shadow:none !important;}
 }
 
 /* ================= ORDER PLACED (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 4) =================

@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1418 */
+/* hg-version 2026-10-24-1451 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2738,6 +2738,7 @@
         others: "أخرى", other: "أخرى" } }
   };
   const CO_PIN = '<svg aria-hidden="true" width="32" height="40" viewBox="0 0 32 40"><path d="M16 39s13-12.4 13-23A13 13 0 0 0 3 16c0 10.6 13 23 13 23z" fill="#5A29DE"/><circle cx="16" cy="16" r="5" fill="#FFFFFF"/></svg>';
+  const CO_ICON_INSTR = '<svg class="hgn-co-ic" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A29DE" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg>';
   /* map squares (256px, zoom 16) around the address, the address in the middle of the box */
   function coMapHtml(lat, lon, W, H, token) {
     const z = 16, TS = 256, n = Math.pow(2, z);
@@ -2760,19 +2761,15 @@
     const phone = window.innerWidth < 960;
     const grid = ck && phone ? ck.querySelector("div:has(> div > #CartCard)") : null;
     const old = document.getElementById("hgn-co-addr");
-    const S = csStore();
-    /* the chosen delivery address; without one (a new customer), the location picked on the phone (2026-10-24) */
-    let da = S && S.state.Address && S.state.Address.deliveryAddress;
-    if (!(da && da.address && Array.isArray(da.location_lat_lon))) {
-      const sl = S && ((S.state.Address && S.state.Address.selectedAddress) || (S.state.Utils && S.state.Utils.selectedLocation));
-      da = sl && sl.address && sl.location ? { address: sl.address, address_type: "other", location_lat_lon: [sl.location.latitude, sl.location.longitude] } : null;
-    }
-    const ll = da && Array.isArray(da.location_lat_lon) ? da.location_lat_lon : null;
-    if (!grid || !da || !da.address || !ll || ll.length < 2) {
+    /* (2026-10-24, later) the new checkout look (html.hgn-co) is on for every phone checkout. Before, all of it waited
+       for a delivery address with map coordinates, so without one the checkout stayed Hyperzod's (reported in the app). */
+    if (!grid) {
       if (old) old.remove();
-      if (de.classList.contains("hgn-co-top")) de.classList.remove("hgn-co-top");
+      de.classList.remove("hgn-co", "hgn-co-top");
       return;
     }
+    if (!de.classList.contains("hgn-co")) de.classList.add("hgn-co");
+    const S = csStore();
     const L = lang(), T = CO_TXT[L];
     /* header: "Checkout" over the store's name */
     const hs = document.querySelector(".scheme-mobile-page-header__surface");
@@ -2780,11 +2777,45 @@
     if (hs && hm) {
       let ht = hs.querySelector(".hgn-co-title");
       if (!ht) { ht = document.createElement("div"); ht.className = "hgn-co-title"; hs.appendChild(ht); }
-      const m = S.getters.getCartMerchant;
+      const m = S && S.getters.getCartMerchant;
       const h = '<span class="hgn-co-t1">' + esc(T.title) + '</span><span class="hgn-co-t2">' + esc(m ? nameOf(m) : hm.textContent.trim()) + "</span>";
       if (ht.dataset.sig !== h) { ht.innerHTML = h; ht.dataset.sig = h; }
     }
-    /* the address card */
+    /* delivery instructions: one row that opens the choices */
+    const sl = ck.querySelector("#slinstruction-slider");
+    const box = sl && sl.closest(".simple-slider");
+    const blk = box && box.parentElement;
+    if (blk) {
+      let tg = blk.querySelector(":scope > .hgn-co-instr");
+      if (!tg) {
+        tg = document.createElement("button");
+        tg.type = "button";
+        tg.className = "hgn-co-instr";
+        tg.setAttribute("aria-expanded", "false");
+        tg.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const open = !blk.classList.contains("hgn-open");
+          blk.classList.toggle("hgn-open", open);
+          tg.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+        blk.insertBefore(tg, blk.firstChild);
+      }
+      const h = CO_ICON_INSTR + '<span class="hgn-co-instr-t">' + esc(T.instr) + '</span><svg class="hgn-co-chev" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+      if (tg.dataset.sig !== h) { tg.innerHTML = h; tg.dataset.sig = h; }
+    }
+    /* the address card: the chosen delivery address; without one (a new customer), the location picked on the phone */
+    let da = S && S.state.Address && S.state.Address.deliveryAddress;
+    if (!(da && da.address && Array.isArray(da.location_lat_lon))) {
+      const sel = S && ((S.state.Address && S.state.Address.selectedAddress) || (S.state.Utils && S.state.Utils.selectedLocation));
+      da = sel && sel.address && sel.location ? { address: sel.address, address_type: "other", location_lat_lon: [sel.location.latitude, sel.location.longitude] } : null;
+    }
+    const ll = da && Array.isArray(da.location_lat_lon) ? da.location_lat_lon : null;
+    if (!da || !da.address || !ll || ll.length < 2) {
+      /* no address yet: Hyperzod's own address line stays in the bottom bar */
+      if (old) old.remove();
+      de.classList.remove("hgn-co-top");
+      return;
+    }
     let card = old;
     if (!card) {
       card = document.createElement("section");
@@ -2816,41 +2847,19 @@
       card.dataset.sig = sig;
     }
     if (!de.classList.contains("hgn-co-top")) de.classList.add("hgn-co-top");
-    /* delivery instructions: one row that opens the choices */
-    const sl = ck.querySelector("#slinstruction-slider");
-    const box = sl && sl.closest(".simple-slider");
-    const blk = box && box.parentElement;
-    if (blk) {
-      let tg = blk.querySelector(":scope > .hgn-co-instr");
-      if (!tg) {
-        tg = document.createElement("button");
-        tg.type = "button";
-        tg.className = "hgn-co-instr";
-        tg.setAttribute("aria-expanded", "false");
-        tg.addEventListener("click", (ev) => {
-          ev.preventDefault();
-          const open = !blk.classList.contains("hgn-open");
-          blk.classList.toggle("hgn-open", open);
-          tg.setAttribute("aria-expanded", open ? "true" : "false");
-        });
-        blk.insertBefore(tg, blk.firstChild);
-      }
-      const h = '<span class="hgn-co-instr-t">' + esc(T.instr) + '</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
-      if (tg.dataset.sig !== h) { tg.innerHTML = h; tg.dataset.sig = h; }
-    }
   }
 
   /* ---------- CHECKOUT CARDS (2026-10-24, "HyperGo Quick Checkout" board 3) ----------
-     Phones and the app, on the checkout page while the address card shows (html.hgn-co-top). Adds three small things to
+     Phones and the app, on every phone checkout page (html.hgn-co). Adds small things to
      Hyperzod's own sections; their look is in app-new.css (CHECKOUT CARDS):
      - "Your order · 2 items" on top of the items;
      - "Tip your rider (optional)" over the tip choices (Hyperzod's says only "TIP");
      - the bill as plain rows (Items, delivery fee when there is one, tax, tip, coupon discount, Total) from Hyperzod's
        own cart numbers, instead of one "Grand Total" line that had to be tapped open. Total is Hyperzod's total. */
   const CC_TXT = {
-    en: { order: "Your order", item: "item", items: "items", tip: "Tip your rider", opt: "(optional)", sub: "Items",
+    en: { order: "Your order", edit: "Edit", item: "item", items: "items", tip: "Tip your rider", opt: "(optional)", sub: "Items",
       fee: "Delivery fee", free: "Free", tax: "Tax", dtax: "Delivery tax", tipr: "Tip", disc: "Coupon discount", total: "Total" },
-    ar: { order: "طلبك", item: "منتج", items: "منتجات", tip: "إكرامية للسائق", opt: "(اختياري)", sub: "المنتجات",
+    ar: { order: "طلبك", edit: "تعديل", item: "منتج", items: "منتجات", tip: "إكرامية للسائق", opt: "(اختياري)", sub: "المنتجات",
       fee: "رسوم التوصيل", free: "مجاني", tax: "الضريبة", dtax: "ضريبة التوصيل", tipr: "الإكرامية", disc: "خصم القسيمة", total: "المجموع" }
   };
   function ccPut(host, cls, html, first) {
@@ -2859,18 +2868,44 @@
     if (first ? host.firstElementChild !== el : el.parentNode !== host) { if (first) host.insertBefore(el, host.firstChild); else host.appendChild(el); }
     if (el.dataset.sig !== html) { el.innerHTML = html; el.dataset.sig = html; }
   }
+  let ccPayKey = "";
   function renderCheckoutCards() {
     const ck = document.getElementById("checkout");
-    if (!ck || !document.documentElement.classList.contains("hgn-co-top")) return;
+    if (!ck || !document.documentElement.classList.contains("hgn-co")) return;
     const S = csStore();
     const c = S && S.state.Cart && S.state.Cart.selectedCart;
     if (!c || typeof c.total_amount !== "number") return;
     const T = CC_TXT[lang()];
-    /* your order */
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    /* your order: a short list (2 × name, price) and Edit, which opens the cart sheet with its + and - */
     const items = ck.querySelector("#CartCard > div > .tw-flex-col > :has(#cartItems)");
     if (items) {
-      const n = c.total_items || 0;
-      ccPut(items, "hgn-co-oh", '<span class="hgn-co-oh-t">' + esc(T.order) + '</span><span class="hgn-co-oh-n">· ' + n + " " + esc(n === 1 ? T.item : T.items) + "</span>", true);
+      const list = (c.cart_items || []).filter((x) => x && x.product_name);
+      const n = c.total_items || list.reduce((s, x) => s + (x.quantity || 0), 0);
+      const h = '<div class="hgn-co-oh"><span class="hgn-co-oh-t">' + esc(T.order) + '</span><span class="hgn-co-oh-n">· ' + n + " " + esc(n === 1 ? T.item : T.items) +
+        '</span><button type="button" class="hgn-co-edit">' + esc(T.edit) + "</button></div>" +
+        list.map((x) => '<div class="hgn-co-it"><span class="hgn-co-it-q">' + (x.quantity || 1) + '×</span><span class="hgn-co-it-n">' + esc(x.product_name) +
+          '</span><span class="hgn-co-it-p">' + moneyHtml(num(x.sub_total_amount != null ? x.sub_total_amount : x.total_amount)) + "</span></div>").join("");
+      let el = items.querySelector(":scope > .hgn-co-sum");
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "hgn-co-sum";
+        el.addEventListener("click", (ev) => {
+          if (!ev.target.closest || !ev.target.closest(".hgn-co-edit")) return;
+          ev.preventDefault();
+          csOpen();
+        });
+      }
+      if (items.firstElementChild !== el) items.insertBefore(el, items.firstChild);
+      if (el.dataset.sig !== h) { el.innerHTML = h; el.dataset.sig = h; }
+    }
+    /* payment: with one way to pay and none chosen yet, it is chosen for the customer (one tap less) */
+    const pms = ck.querySelectorAll("#payment-card .payment-method");
+    const key = String(c.id || c.cart_id || "") + "|" + pms.length;
+    if (pms.length === 1 && ccPayKey !== key) {
+      ccPayKey = key;
+      const r = pms[0].querySelector("input[type=radio]");
+      if (r && !r.checked && !c.payment_mode_id) pms[0].click();
     }
     /* tip */
     const tg = ck.querySelector("#CartCard .tw-grid.tw-grid-cols-4");
@@ -2879,7 +2914,6 @@
     /* bill */
     const bill = ck.querySelector("#CartCard > div > :has(#summary)");
     if (bill) {
-      const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
       const row = (k, v, cls) => '<div class="hgn-co-br' + (cls ? " " + cls : "") + '"><span>' + esc(k) + "</span><span>" + v + "</span></div>";
       let h = row(T.sub, moneyHtml(num(c.sub_total_amount)));
       if (c.is_delivery_fee_applied) h += row(T.fee, num(c.delivery_fee) > 0 ? moneyHtml(num(c.delivery_fee)) : esc(T.free));
@@ -2976,7 +3010,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = "#hgn-done,#hgn-vc,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = "#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
