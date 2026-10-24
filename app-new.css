@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1118 */
+/* hg-version 2026-10-24-1231 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -665,12 +665,16 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores{margin:0 calc(var(--hg-gutter) * -1)
 html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
 
 /* ---------- DESKTOP (website, 2026-10-20) ----------
-   The same new design on wide screens: a centred page (1200px, like the desktop header), all 8 category tiles in one row,
+   The same new design on wide screens: a centred page, all 8 category tiles in one row,
    two banners side by side, the 4 occasions in one row, Stores near you in two columns (8 stores), Search in a centred
    column, store lists as white cards two per row, category pages three cards per row. Phones are not affected.
    Values reused from the phone design (radius 24/20, #F4F2FA, the banner shadow); only the sizes grow. */
 @media (min-width:960px){
-  html.hg-new-app #hgn-home{max-width:1200px;margin:0 auto;padding:28px 32px 72px;box-sizing:border-box;}
+  /* (2026-10-24) the page column: up to 1600px wide with 48px sides (was 1200px, which left wide empty sides on a big
+     screen). One place for both numbers: the desktop header and the store page (global-footer-1.js) read them too. */
+  html.hg-new-app{--hg-page:1600px;--hg-gut:48px;}
+  html.hg-new-app :is(#hgn-home,#hgn-sres,#hgn-catpage){max-width:none;margin:0;padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2));box-sizing:border-box;}
+  html.hg-new-app #hgn-home{padding-block:28px 72px;}
   html.hg-new-app #hgn-home .hgn-cats{margin:0;}
   html.hg-new-app #hgn-home .hgn-cat-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px;padding:0;margin:0;}
   html.hg-new-app #hgn-home .hgn-cat-ring{width:100%;height:auto;aspect-ratio:1/1;max-width:112px;border-radius:28px;margin:0 auto;}
@@ -696,26 +700,31 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
   html.hg-new-app #hgn-sland .hgn-cat-ring img,html.hg-new-app #hgn-sland .hgn-cat-photo .hgn-cat-ring img{width:calc(100% - 8px);height:calc(100% - 8px);}
   html.hg-new-app #hgn-sland > .hgn-sl-stores{margin:0;}
   /* search results */
-  html.hg-new-app #hgn-sres{max-width:1200px;margin:0 auto;padding:24px 32px 72px;box-sizing:border-box;}
+  html.hg-new-app #hgn-sres{padding-block:24px 72px;}
   html.hg-new-app #hgn-sres .hgn-filters{padding:0 0 4px;box-shadow:none;background:none;position:static;}
   /* store lists (search results, Stores near you, Favourites): white cards, two per row */
   html.hg-new-app .hgn-sblist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:16px;padding:0;}
   html.hg-new-app .hgn-sblist .hgn-sb{min-width:0;margin:0;padding:18px 18px 14px;border:0;border-radius:20px;background:#FFFFFF;box-shadow:0 1px 0 #F0EDF5,0 8px 24px -18px rgba(27,32,35,.35);}
   html.hg-new-app .hgn-sblist .hgn-sb-prods{padding-inline:0;margin-inline:0;}
-  /* Stores near you / Favourites page: under the desktop header (65px), centred */
-  html.hg-new-app #hgn-page{top:65px;padding-inline:max(32px,calc((100% - 1136px) / 2));box-sizing:border-box;}
+  /* Stores near you / Favourites page: under the desktop header (72px since 2026-10-24), centred */
+  html.hg-new-app #hgn-page{top:72px;padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2));box-sizing:border-box;}
   html.hg-new-app #hgn-page .hgn-page-top{background:transparent;}
   html.hg-new-app #hgn-page .hgn-page-bar{padding-inline:0;padding-top:20px;}
   html.hg-new-app #hgn-page .hgn-page-title{font-size:26px;}
   html.hg-new-app #hgn-page .hgn-filters{padding-inline:0;}
   /* category page */
-  html.hg-new-app #hgn-catpage{max-width:1200px;margin:0 auto;padding:24px 32px 72px;box-sizing:border-box;}
+  html.hg-new-app #hgn-catpage{padding-block:24px 72px;}
   html.hg-new-app #hgn-catpage .hgn-cp-top{padding-inline:0;}
   html.hg-new-app #hgn-catpage .hgn-cp-title h1{font-size:28px;}
   html.hg-new-app #hgn-catpage .hgn-cp-pills{padding-inline:0;margin-top:16px;}
   html.hg-new-app #hgn-catpage .hgn-cp-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 20px;padding:20px 0 0;}
   html.hg-new-app #hgn-catpage .hgn-cc{margin:0;}
   html.hg-new-app #hgn-catpage .hgn-cc-img{aspect-ratio:2/1;height:auto;}
+}
+/* (2026-10-24) big screens use the extra room: store lists three per row, category pages four per row */
+@media (min-width:1400px){
+  html.hg-new-app .hgn-sblist{grid-template-columns:repeat(3,minmax(0,1fr));}
+  html.hg-new-app #hgn-catpage .hgn-cp-list{grid-template-columns:repeat(4,minmax(0,1fr));}
 }
 
 /* ================= APPETITE ACCENTS (2026-10-22, from "HyperGo Appetite Accents", chosen by Nouf) =================

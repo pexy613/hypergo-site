@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1213 */
+/* hg-version 2026-10-24-1231 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -623,15 +623,17 @@
   /* DESKTOP HEADER (width >= 960) — tested in Console, same approach:
      inline !important styles on the fixed #AppBar, re-applied by the observer.
      (2026-10-24, header option A) a clean white bar: the flat purple bar blended with the purple page and looked cheap.
-     White, straight bottom edge, a hairline and a soft shadow; its items line up with the page's 1200px content column.
-     The full colour HyperGo wordmark fills the old empty logo slot and goes Home; Home and Stores links sit next to it
-     (Stores = our "Stores near you" page, /home?hgn=stores); the hamburger, which only held Language, becomes a globe
-     button at the end that opens the same Language menu; the cart is a purple pill with a green count. */
+     White, straight bottom edge, a hairline and a soft shadow; its items line up with the page column (--hg-page, app-new.css).
+     The full colour HyperGo wordmark fills the old empty logo slot and goes Home; Home, Stores and Categories links sit next
+     to it (Stores = our "Stores near you" page, /home?hgn=stores; Categories = our Search page, like Home's "See all" tile); the hamburger, which only held Language, becomes a globe
+     button at the end that opens the same Language menu; the cart is a purple pill with a green count. 72px tall, 28px between items. */
   const HG_WORDMARK = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 725.11 152.55'><polygon fill='#1B2023' points='81.92 53.7 15.05 53.7 15.05 2.05 0 2.05 0 120.05 15.05 120.05 15.05 67.72 81.92 67.72 81.92 120.05 96.97 120.05 96.97 2.05 81.92 2.05 81.92 53.7'/><polygon fill='#1B2023' points='159.73 103.36 129.8 32.84 113.73 32.84 152 119.66 142.89 139.55 125.36 139.55 125.36 152.55 152.72 152.55 205.56 32.84 189.66 32.84 159.73 103.36'/><path fill='#1B2023' d='M291.5,36.77c-6.67-3.99-14.11-5.99-22.32-5.99s-14.97,1.99-21.29,5.99c-5.37,3.39-9.72,7.85-13.08,13.37v-17.31h-14.02v119.71h14.02v-49.8c3.36,5.52,7.71,9.99,13.08,13.37,6.33,3.99,13.42,5.99,21.29,5.99s15.65-1.99,22.32-5.99c6.67-3.99,11.91-9.46,15.73-16.42,3.82-6.95,5.73-14.71,5.73-23.26s-1.91-16.3-5.73-23.26c-3.82-6.95-9.06-12.43-15.73-16.42ZM294.23,92.78c-2.79,4.85-6.61,8.67-11.46,11.46-4.85,2.79-10.23,4.19-16.16,4.19s-11.46-1.4-16.25-4.19c-4.79-2.79-8.58-6.64-11.37-11.54-2.8-4.9-4.19-10.32-4.19-16.25s1.39-11.48,4.19-16.33c2.79-4.85,6.61-8.66,11.46-11.46,4.84-2.79,10.23-4.19,16.16-4.19s11.46,1.4,16.25,4.19c4.79,2.8,8.58,6.64,11.37,11.54,2.79,4.9,4.19,10.32,4.19,16.25s-1.4,11.49-4.19,16.33Z'/><path fill='#1B2023' d='M397.1,36.77c-7.07-3.99-14.94-5.99-23.6-5.99s-16.53,1.99-23.6,5.99c-7.07,3.99-12.63,9.46-16.67,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.02,16.3,6.07,23.26c4.05,6.95,9.6,12.43,16.67,16.42,7.07,3.99,14.94,5.99,23.6,5.99,10.49,0,19.72-2.73,27.7-8.21,7.98-5.47,13.57-12.71,16.76-21.72h-15.39c-2.39,5.13-6.19,9.23-11.37,12.31-5.19,3.08-11.09,4.62-17.7,4.62-5.93,0-11.32-1.42-16.16-4.27-4.85-2.85-8.67-6.76-11.46-11.71-1.86-3.3-3.08-6.86-3.7-10.69h77.16c.34-1.71.51-3.7.51-5.99,0-8.55-2.03-16.3-6.07-23.26-4.05-6.95-9.61-12.43-16.67-16.42ZM342.3,69.6c.65-3.5,1.81-6.78,3.49-9.83,2.74-4.96,6.52-8.86,11.37-11.71,4.85-2.85,10.29-4.27,16.33-4.27s11.12,1.37,15.9,4.11c4.79,2.73,8.57,6.47,11.37,11.2,1.9,3.23,3.2,6.74,3.91,10.52h-62.38Z'/><path fill='#1B2023' d='M452.85,49.21v-16.37h-14.02v87.22h14.02v-43.95c0-6.04,1.14-11.31,3.42-15.82,2.28-4.5,5.61-8.01,10-10.52,4.39-2.51,9.55-3.76,15.48-3.76v-14.54c-6.5,0-12.29,1.65-17.36,4.96-4.67,3.05-8.52,7.32-11.54,12.78Z'/><path fill='#5A29DE' d='M557,74.39h35.75c-1.01,3.5-2.54,6.78-4.62,9.83-3.53,5.19-8.15,9.26-13.85,12.23-5.7,2.97-11.97,4.45-18.82,4.45-7.41,0-14.14-1.74-20.18-5.22-6.04-3.48-10.77-8.24-14.2-14.28-3.42-6.04-5.13-12.83-5.13-20.35s1.71-14.31,5.13-20.35c3.42-6.04,8.15-10.8,14.2-14.28,6.04-3.48,12.77-5.22,20.18-5.22s14.28,1.8,20.27,5.39c5.99,3.59,10.52,8.41,13.6,14.45h24.46c-2.05-7.87-5.9-14.93-11.54-21.21-5.64-6.27-12.51-11.14-20.61-14.62-8.1-3.47-16.82-5.22-26.17-5.22-11.63,0-22.17,2.68-31.64,8.04-9.47,5.36-16.93,12.69-22.4,21.98-5.47,9.29-8.21,19.64-8.21,31.04s2.74,21.75,8.21,31.04c5.47,9.29,12.94,16.62,22.4,21.97,9.46,5.36,20.01,8.04,31.64,8.04,7.87,0,14.94-1.14,21.21-3.42,6.27-2.28,11.57-5.56,15.9-9.83,1.68-1.65,3.21-3.45,4.61-5.36v16.57h19.33V54.38h-59.52v20.01Z'/><path fill='#5A29DE' d='M719.04,53.19c-4.05-6.95-9.64-12.43-16.76-16.42-7.13-3.99-15.08-5.99-23.86-5.99s-16.9,1.99-24.03,5.99c-7.13,3.99-12.72,9.46-16.76,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.03,16.3,6.07,23.26c4.04,6.95,9.63,12.43,16.76,16.42,7.12,3.99,15.13,5.99,24.03,5.99s16.73-1.99,23.86-5.99c7.12-3.99,12.71-9.46,16.76-16.42,4.04-6.95,6.07-14.71,6.07-23.26s-2.03-16.3-6.07-23.26ZM700.4,89.44c-2.22,3.88-5.27,6.93-9.15,9.15-3.87,2.22-8.21,3.34-12.99,3.34s-9.09-1.11-12.91-3.34c-3.82-2.22-6.84-5.27-9.06-9.15-2.22-3.87-3.33-8.21-3.33-13s1.11-9.12,3.33-13c2.22-3.87,5.27-6.93,9.15-9.15,3.87-2.22,8.21-3.34,13-3.34s9.09,1.11,12.91,3.34c3.82,2.22,6.84,5.27,9.06,9.15,2.22,3.88,3.34,8.21,3.34,13s-1.11,9.12-3.34,13Z'/></svg>");
   const HG_GLOBE = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#3A3F42' stroke-width='1.9' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3c2.6 2.7 3.9 5.7 3.9 9s-1.3 6.3-3.9 9c-2.6-2.7-3.9-5.7-3.9-9s1.3-6.3 3.9-9z'/></svg>");
+  const HG_PERSON = "<svg aria-hidden='true' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='8' r='4'/><path d='M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6'/></svg>";
   const HG_HOUSE = "<svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/></svg>";
   /* which link of the bar is the current page: Home, the Stores page, or none */
   function hgDeskNavOn() {
+    if (/^\/(en|ar)\/search\/?$/.test(location.pathname)) return "cats";
     if (!/^\/(en|ar)(\/home)?\/?$/.test(location.pathname)) return "";
     const q = new URLSearchParams(location.search).get("hgn");
     return q === "stores" ? "stores" : q ? "" : "home";
@@ -640,7 +642,13 @@
   function hgDeskSig(bar) {
     const loc = bar.querySelector("#CurrentLocationBtn");
     return bar.getElementsByTagName("*").length + "|" + (loc ? loc.textContent : "") + "|" + bar.querySelectorAll(".cart-btn--filled").length +
-      "|" + hgIsAr() + "|" + hgDeskNavOn();
+      "|" + hgIsAr() + "|" + hgDeskNavOn() + "|" + hgDeskCount(bar);
+  }
+  /* the cart count Hyperzod keeps on its own badge ("" when the cart is empty) */
+  function hgDeskCount(bar) {
+    const b = bar.querySelector(".v-badge__badge");
+    const n = b ? b.textContent.trim() : "";
+    return n && n !== "0" ? n : "";
   }
   function hgDeskRouter() {
     const app = document.querySelector("#app");
@@ -675,13 +683,30 @@
       "#AppBar #NavBtn .v-icon{visibility:hidden;}" +
       "#AppBar #NavBtn{background:url(\"" + HG_GLOBE + "\") center/20px no-repeat !important;}" +
       "#AppBar #NavBtn:hover{background-color:#F6F3FD !important;}" +
+      /* the bar is 72px: the header box in the page flow keeps the same height, so the page starts under it;
+         Hyperzod's spacer before Filter would add a second 28px gap */
+      "@media (min-width:960px){#MultiVendorHeaderRoot{height:72px !important;}}" +
+      "#AppBar .v-spacer{display:none !important;}" +
       /* Filter is an icon button (its name stays on aria-label), so the search keeps its room */
-      "#AppBar #FilterBtn{min-width:40px !important;width:40px !important;padding:0 !important;border-radius:12px !important;}" +
+      "#AppBar #FilterBtn{min-width:40px !important;width:40px !important;padding:0 !important;border-radius:10px !important;}" +
       "#AppBar #FilterBtn .text{display:none !important;}" +
-      /* narrower windows: the Stores link and the Account word go first, then "Deliver to" and the address line */
-      "@media (max-width:1199px){#AppBar .hg-dnav a[data-k='stores'],#AppBar #ProfileBtn .text{display:none !important;}" +
-        "#AppBar #ProfileBtn{min-width:40px !important;padding:0 10px !important;}}" +
-      "@media (max-width:1099px){#AppBar #CurrentLocationBtn>div+div,#AppBar #CurrentLocationBtn .hg-deliver-label{display:none !important;}}";
+      /* location on one line: pin, area name, chevron (no "Deliver to", no address line) */
+      "#AppBar #CurrentLocationBtn>div+div,#AppBar #CurrentLocationBtn .hg-deliver-label{display:none !important;}" +
+      "#AppBar #CurrentLocationBtn>div:first-child{gap:7px;}" +
+      "#AppBar #CurrentLocationBtn span.text{font-size:14px !important;}" +
+      /* Account: person icon + "Account" (Hyperzod shows Login + a door icon when signed out; the button works the same) */
+      "#AppBar #ProfileBtn{padding:0 6px !important;min-width:0 !important;}" +
+      "#AppBar #ProfileBtn .v-btn__content>:not(.hg-acct){display:none !important;}" +
+      "#AppBar .hg-acct{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;color:#3A3F42;text-transform:none;letter-spacing:0;}" +
+      /* cart count inside the pill, Hyperzod's corner badge hidden */
+      "#AppBar .v-badge__badge{display:none !important;}" +
+      "#AppBar .hg-cart-n{min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#ACE4AA;color:#1B2023;" +
+        "font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-inline-start:8px;}" +
+      "#AppBar .hg-cart-n:empty{display:none;}" +
+      /* narrower windows: the Account word goes first, then the Stores and Categories links */
+      "@media (max-width:1299px){#AppBar .hg-acct-t{display:none;}}" +
+      "@media (max-width:1199px){#AppBar .hg-dnav a:not([data-k='home']){display:none;}}" +
+      "@media (max-width:1099px){#AppBar{--hg-bar-gap:16px;}}";
     document.head.appendChild(st);
   }
   let deskLast = null, deskLastTxt = "";
@@ -703,7 +728,8 @@
       /* text + icon colour of an element and every icon inside it */
       const paint = (el, c) => {
         s(el, "color", c);
-        el.querySelectorAll("svg, svg *").forEach((g) => {
+        [el, ...el.querySelectorAll("svg, svg *")].forEach((g) => {
+          if (!(g instanceof SVGElement)) return;
           const st = g.getAttribute("stroke"), fi = g.getAttribute("fill");
           if (st && st !== "none") s(g, "stroke", c);
           if (fi && fi !== "none") s(g, "fill", c);
@@ -724,11 +750,14 @@
       s(bar, "background-image", "none");
       s(bar, "border-radius", "0");
       s(bar, "box-shadow", "0 1px 0 #ECE8F6, 0 6px 18px rgba(54,25,133,.06)");
+      s(bar, "height", "72px");
       const content = bar.querySelector(".v-toolbar__content");
       if (content) {
-        s(content, "padding-left", "max(24px, calc((100% - 1200px) / 2))");
-        s(content, "padding-right", "max(24px, calc((100% - 1200px) / 2))");
-        s(content, "gap", "16px");
+        const side = "max(var(--hg-gut, 48px), calc((100% - var(--hg-page, 1600px)) / 2))";
+        s(content, "padding-left", side);
+        s(content, "padding-right", side);
+        s(content, "height", "72px");
+        s(content, "gap", "var(--hg-bar-gap, 28px)");
       }
 
       /* dark text + icons (search box, logo, our links and the cart excluded) */
@@ -784,35 +813,33 @@
         const on = hgDeskNavOn();
         const html =
           '<a data-k="home" href="/' + L + '/home"' + (on === "home" ? ' class="is-on" aria-current="page"' : "") + ">" + HG_HOUSE + (ar ? "الرئيسية" : "Home") + "</a>" +
-          '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>";
-        if (nav.innerHTML !== html) nav.innerHTML = html;
+          '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>" +
+          /* Categories: our Search page, where Home's "See all" category tile goes ("Shop by category") */
+          '<a data-k="cats" href="/' + L + '/search"' + (on === "cats" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "\u0627\u0644\u0641\u0626\u0627\u062A" : "Categories") + "</a>";
+        if (nav.dataset.sig !== html) { nav.innerHTML = html; nav.dataset.sig = html; }
       }
 
-      /* "Deliver to": an outlined chip with a purple pin */
+      /* location: an outlined 40px chip on one line, purple pin, area name, grey chevron */
       const loc = bar.querySelector("#CurrentLocationBtn");
       if (loc) {
         s(loc, "box-shadow", "inset 0 0 0 1px " + LINE);
-        s(loc, "border-radius", "12px");
-        s(loc, "max-width", "210px");
+        s(loc, "border-radius", "10px");
+        s(loc, "height", "40px");
+        s(loc, "padding", "0 12px");
+        s(loc, "display", "flex");
+        s(loc, "align-items", "center");
+        s(loc, "max-width", "240px");
         s(loc, "flex", "none");
-        const pin = loc.querySelector("svg");
-        if (pin) paint(pin.parentNode === loc ? pin : { style: pin.style, querySelectorAll: () => [] } && pin, A);
+        const icons = loc.querySelectorAll(":scope>div:first-child>svg");
+        if (icons[0]) paint(icons[0], A);
+        if (icons[1]) paint(icons[1], "#6E6880");
         const nameEl = loc.querySelector("span.text");
-        if (nameEl && !loc.querySelector(".hg-deliver-label")) {
-          const lab = hgMakeDeliverLabel();
-          lab.style.cssText = "font-size:14px;font-weight:400;white-space:nowrap;margin-inline-start:4px;margin-inline-end:4px";
-          nameEl.parentNode.insertBefore(lab, nameEl);
-        }
-        const lab = loc.querySelector(".hg-deliver-label");
-        if (lab) s(lab, "color", "#6E6880");
         if (nameEl) { s(nameEl, "font-weight", "700"); s(nameEl, "color", "#1B2023"); }
-        const addr = loc.querySelector(":scope>div+div");
-        if (addr) s(addr, "color", "#6E6880");
       }
 
       /* search field: soft lilac, rounded 12px, purple icon */
       const sbox = bar.querySelector(".d-md-flex");
-      if (sbox) { s(sbox, "margin-left", "8px"); s(sbox, "margin-right", "8px"); }
+      if (sbox) { s(sbox, "margin-left", "0"); s(sbox, "margin-right", "0"); }
       const ms = bar.querySelector(".web-main-search");
       if (ms) s(ms, "border-radius", "12px");   /* the focus ring (global-footer.css) follows this corner */
       const f = bar.querySelector(".d-md-flex .v-field");
@@ -877,15 +904,31 @@
         s(cart, "padding", "0 16px");
         paint(cart, W);
       }
-      const badge = bar.querySelector(".v-badge__badge");
-      if (badge) {
-        s(badge, "background-color", "#ACE4AA");
-        s(badge, "color", "#1B2023");
-        s(badge, "font-weight", "800");
+      const cartIn = cart && cart.querySelector(".v-btn__content");
+      if (cartIn) {
+        let n = cartIn.querySelector(".hg-cart-n");
+        if (!n) { n = document.createElement("span"); n.className = "hg-cart-n"; cartIn.appendChild(n); }
+        const cnt = hgDeskCount(bar);
+        if (n.textContent !== cnt) n.textContent = cnt;
       }
 
+      /* Account: our person icon + word in Hyperzod's button */
+      const prof = bar.querySelector("#ProfileBtn");
+      const profIn = prof && prof.querySelector(".v-btn__content");
+      if (profIn) {
+        const at = ar ? "\u0627\u0644\u062D\u0633\u0627\u0628" : "Account";
+        let acct = profIn.querySelector(".hg-acct");
+        if (!acct) { acct = document.createElement("span"); acct.className = "hg-acct"; profIn.appendChild(acct); }
+        const html = HG_PERSON + '<span class="hg-acct-t">' + at + "</span>";
+        if (acct.dataset.sig !== html) { acct.innerHTML = html; acct.dataset.sig = html; }
+        if (prof.getAttribute("aria-label") !== at) prof.setAttribute("aria-label", at);
+      }
+
+      /* Filter, Account and Cart: 28px apart, like every item of the bar (Hyperzod: 6px) */
+      if (prof && prof.parentElement) s(prof.parentElement, "gap", "var(--hg-bar-gap, 28px)");
+
       /* icon-only buttons keep their name for screen readers */
-      ["#FilterBtn", "#ProfileBtn"].forEach((sel) => {
+      ["#FilterBtn"].forEach((sel) => {
         const b = bar.querySelector(sel), t = b && b.querySelector(".text");
         const name = t && t.textContent.trim();
         if (name && b.getAttribute("aria-label") !== name) b.setAttribute("aria-label", name);
@@ -903,7 +946,7 @@
         s(nb, "max-width", "none");   /* Hyperzod caps the hamburger at 24px */
         s(nb, "max-height", "none");
         s(nb, "margin", "0");
-        s(nb, "border-radius", "12px");
+        s(nb, "border-radius", "10px");
         s(nb, "box-shadow", "inset 0 0 0 1px " + LINE);
       }
 
@@ -2727,7 +2770,8 @@
          store bar (#MerchantStickyHeader, 96px) appears - otherwise it floated 64px down with products showing above it */
       "@media (min-width:960px){.scheme-merchant-page:not(.merchant-mobile-view) #mobileStickyHeader{top:0 !important;background:#FFFCF9 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view):has(#MerchantStickyHeader:not([style*='display: none'])) #mobileStickyHeader{top:96px !important;}}" +
-      /* DESKTOP (>=960px): same look as mobile, laid out in a centered 1200px column. Home rows wrap 4-up + 2-col list;
+      /* DESKTOP (>=960px): same look as mobile, laid out in a centered column (store page: the page column, --hg-page /
+         --hg-gut in app-new.css, 1600px with 48px sides since 2026-10-24; it was 1200px with 24px sides). Home rows wrap 4-up + 2-col list;
          store page: contained 1200x320 banner (20px corners), 88px logo, 28px name, tabs under the info, Recommended under the tabs,
          5-col product tiles; category pages: purple title band + 3-col list rows; product modal: no top price, pill Add Item bar. */
       "@media (min-width:960px){" +
@@ -2745,7 +2789,7 @@
       ".scheme-merchant-page:not(.merchant-mobile-view) #mobileStickyHeader{order:2;margin-top:24px;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view)>.page-builder-section-surface:has(.scheme-product-recommendation-section){order:3;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content{order:4;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2{max-width:1200px;margin:20px auto 0 !important;box-shadow:none !important;background:transparent !important;padding:0 24px;box-sizing:content-box;}" +
+      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2{max-width:var(--hg-page,1600px);margin:20px auto 0 !important;box-shadow:none !important;background:transparent !important;padding:0 var(--hg-gut,48px);box-sizing:content-box;}" +
       /* 2026-10-08: store banners are uploaded at 2:1 (e.g. 2000x1000). The old fixed 320px height on the 1200px column (3.75:1)
          cut off almost half of the image. The banner now spans the same 1200px column as the logo, name and tabs (edges line up)
          at 3:1 (about 1200x400): only a thin strip at the top and bottom of a 2:1 image is trimmed, the middle (logo, text) stays.
@@ -2768,10 +2812,10 @@
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4>div{border:0 !important;background:none !important;border-radius:0 !important;padding:0 !important;text-align:start !important;font-weight:400 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4>div::first-letter{text-transform:uppercase;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav{border-bottom:1px solid #E5E5E5 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav .product-categories-nav__scroller{padding-inline:max(24px,calc((100% - 1200px) / 2 + 24px)) !important;}" +
+      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav .product-categories-nav__scroller{padding-inline:max(var(--hg-gut,48px),calc((100% - var(--hg-page,1600px)) / 2)) !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav a.scheme-category-primary-nav__item{font-size:15px !important;font-weight:500 !important;color:#5C5C5C !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav a.scheme-category-primary-nav__item.is-active{color:#5A29DE !important;font-weight:600 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section,.scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter{max-width:1200px;margin-left:auto !important;margin-right:auto !important;padding-left:24px !important;padding-right:24px !important;box-sizing:content-box;}" +
+      ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section,.scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter{max-width:var(--hg-page,1600px);margin-left:auto !important;margin-right:auto !important;padding-left:var(--hg-gut,48px) !important;padding-right:var(--hg-gut,48px) !important;box-sizing:content-box;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter>div{padding-left:0 !important;padding-right:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section{margin-top:44px !important;margin-bottom:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-heading,.scheme-merchant-page:not(.merchant-mobile-view) h3.category-name{font-size:26px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:22px !important;padding-bottom:0 !important;}" +
