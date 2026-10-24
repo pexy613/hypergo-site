@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1231 */
+/* hg-version 2026-10-24-1248 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -667,119 +667,122 @@
     hgDeskHooked = true;
     r.afterEach(() => setTimeout(applyHyperGoDesktop, 0));
   }
+  /* (2026-10-24) every fixed size and colour of the bar lives in this stylesheet with !important. Hyperzod redraws parts
+     of the bar while you type (the toolbar height back to 65px, the search field back to white); inline styles were only
+     put back on the next run 60ms later, so the whole bar jumped on every key. A stylesheet !important rule wins over
+     Hyperzod's own inline values, so nothing moves (the toolbar's 0.2s height animation is off too). */
   function hgDeskStyle() {
     if (document.getElementById("hg-desk-style")) return;
+    const SIDE = "max(var(--hg-gut,48px),calc((100% - var(--hg-page,1600px)) / 2))";
+    const BTN = "#AppBar :is(#CurrentLocationBtn,#FilterBtn,#ProfileBtn,#NavBtn)";
     const st = document.createElement("style");
     st.id = "hg-desk-style";
-    st.textContent =
+    /* every rule starts with #MultiVendorHeaderRoot #AppBar#AppBar (3 ids): Hyperzod's own !important colour and shadow
+       rules on the bar use up to 2 ids */
+    const css =
+      "@media (min-width:960px){" +
+      /* the bar: white, 72px, straight edge; the header box in the page flow keeps the same height so the page starts
+         under it; it scrolls away with the page (native: position fixed) */
+      "#MultiVendorHeaderRoot{height:72px !important;}" +
+      "#AppBar{position:absolute !important;height:72px !important;background-color:#FFFFFF !important;background-image:none !important;" +
+        "border-radius:0 !important;box-shadow:0 1px 0 #ECE8F6,0 6px 18px rgba(54,25,133,.06) !important;}" +
+      "#AppBar .v-toolbar__content{height:72px !important;padding-left:" + SIDE + " !important;padding-right:" + SIDE + " !important;" +
+        "gap:var(--hg-bar-gap,28px) !important;transition:none !important;}" +
+      /* Filter, Account and Cart: the same gap as every item of the bar (Hyperzod: 6px); its spacer would add a second gap */
+      "#AppBar :has(>#ProfileBtn){gap:var(--hg-bar-gap,28px) !important;}" +
+      "#AppBar .v-spacer{display:none !important;}" +
+      /* dark text + icons on the buttons */
+      BTN + "," + BTN + " *{color:#3A3F42 !important;}" +
+      BTN + " :is(svg,svg *)[stroke]:not([stroke='none']){stroke:currentColor !important;}" +
+      BTN + " :is(svg,svg *)[fill]:not([fill='none']){fill:currentColor !important;}" +
+      /* logo: the full colour wordmark (Hyperzod's icon-only logo left most of its 150px slot empty); goes Home */
+      "#AppBar #Logo{width:auto !important;max-width:none !important;flex:none !important;margin:0 !important;}" +
+      "#AppBar #Logo .v-img{display:none !important;}" +
       "#AppBar .hg-wordmark{display:flex;align-items:center;cursor:pointer;}" +
       "#AppBar .hg-wordmark img{height:30px;width:auto;display:block;}" +
+      /* Home, Stores and Categories */
       "#AppBar .hg-dnav{display:flex;align-items:center;gap:4px;flex:none;}" +
       "#AppBar .hg-dnav a{height:36px;padding:0 14px;border-radius:10px;display:flex;align-items:center;gap:7px;font-size:15px;" +
         "font-weight:600;line-height:1;color:#3A3F42;text-decoration:none;white-space:nowrap;transition:background-color .15s,color .15s;}" +
       "#AppBar .hg-dnav a:hover{background:#F6F3FD;color:#1B2023;}" +
       "#AppBar .hg-dnav a.is-on{background:#F1ECFF;color:#5A29DE;}" +
       "#AppBar .hg-dnav a:focus-visible,#AppBar .hg-wordmark:focus-visible{outline:3px solid #5A29DE;outline-offset:2px;}" +
-      "#AppBar #NavBtn .v-icon{visibility:hidden;}" +
-      "#AppBar #NavBtn{background:url(\"" + HG_GLOBE + "\") center/20px no-repeat !important;}" +
-      "#AppBar #NavBtn:hover{background-color:#F6F3FD !important;}" +
-      /* the bar is 72px: the header box in the page flow keeps the same height, so the page starts under it;
-         Hyperzod's spacer before Filter would add a second 28px gap */
-      "@media (min-width:960px){#MultiVendorHeaderRoot{height:72px !important;}}" +
-      "#AppBar .v-spacer{display:none !important;}" +
+      /* location: an outlined 40px chip on one line, purple pin, area name, grey chevron (no "Deliver to", no address line) */
+      "#AppBar #CurrentLocationBtn{box-shadow:inset 0 0 0 1px #E6E1F3 !important;border-radius:10px !important;height:40px !important;" +
+        "padding:0 12px !important;display:flex !important;align-items:center !important;max-width:240px !important;flex:none !important;}" +
+      "#AppBar #CurrentLocationBtn>div+div,#AppBar #CurrentLocationBtn .hg-deliver-label{display:none !important;}" +
+      "#AppBar #CurrentLocationBtn>div:first-child{gap:7px;}" +
+      "#AppBar #CurrentLocationBtn>div:first-child>svg:first-of-type,#AppBar #CurrentLocationBtn>div:first-child>svg:first-of-type *{color:#5A29DE !important;}" +
+      "#AppBar #CurrentLocationBtn>div:first-child>svg:last-of-type,#AppBar #CurrentLocationBtn>div:first-child>svg:last-of-type *{color:#6E6880 !important;}" +
+      "#AppBar #CurrentLocationBtn span.text{font-size:14px !important;font-weight:700 !important;color:#1B2023 !important;}" +
+      /* search field: soft lilac, rounded 12px, 44px, purple icon 13px in from the start side */
+      "#AppBar .d-md-flex{margin-left:0 !important;margin-right:0 !important;}" +
+      "#AppBar .web-main-search{border-radius:12px !important;}" +   /* the focus ring (global-footer.css) follows this corner */
+      "#AppBar .d-md-flex .v-input__control{height:44px !important;min-height:44px !important;}" +
+      "#AppBar .d-md-flex .v-field{background-color:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;border-radius:12px !important;" +
+        "height:44px !important;min-height:44px !important;overflow:hidden !important;}" +
+      "#AppBar .d-md-flex .v-field__outline{display:none !important;}" +
+      /* grid-area:auto makes the field's padding box, not the grid cell, the reference */
+      "#AppBar .d-md-flex .v-field__append-inner{grid-area:auto !important;position:absolute !important;inset-inline-start:13px !important;" +
+        "inset-inline-end:auto !important;top:0 !important;bottom:0 !important;padding:0 !important;display:flex !important;align-items:center !important;}" +
+      "#AppBar .d-md-flex input{padding-inline-start:42px !important;padding-inline-end:16px !important;height:44px !important;min-height:44px !important;font-size:15px !important;}" +
+      "#AppBar .header-search-append svg{display:block !important;width:18px !important;height:18px !important;}" +
+      "#AppBar .header-search-append svg :is(g,path){fill:#5A29DE !important;}" +
       /* Filter is an icon button (its name stays on aria-label), so the search keeps its room */
       "#AppBar #FilterBtn{min-width:40px !important;width:40px !important;padding:0 !important;border-radius:10px !important;}" +
       "#AppBar #FilterBtn .text{display:none !important;}" +
-      /* location on one line: pin, area name, chevron (no "Deliver to", no address line) */
-      "#AppBar #CurrentLocationBtn>div+div,#AppBar #CurrentLocationBtn .hg-deliver-label{display:none !important;}" +
-      "#AppBar #CurrentLocationBtn>div:first-child{gap:7px;}" +
-      "#AppBar #CurrentLocationBtn span.text{font-size:14px !important;}" +
       /* Account: person icon + "Account" (Hyperzod shows Login + a door icon when signed out; the button works the same) */
       "#AppBar #ProfileBtn{padding:0 6px !important;min-width:0 !important;}" +
       "#AppBar #ProfileBtn .v-btn__content>:not(.hg-acct){display:none !important;}" +
-      "#AppBar .hg-acct{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;color:#3A3F42;text-transform:none;letter-spacing:0;}" +
-      /* cart count inside the pill, Hyperzod's corner badge hidden */
+      "#AppBar .hg-acct{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;text-transform:none;letter-spacing:0;}" +
+      /* cart: a purple pill (also with items: Hyperzod switches a filled cart to its own white), the count inside it */
+      "#AppBar .v-badge .v-btn{background-color:#5A29DE !important;border-radius:20px !important;height:40px !important;padding:0 16px !important;}" +
+      "#AppBar .v-badge .v-btn,#AppBar .v-badge .v-btn *{color:#FFFFFF !important;}" +
+      "#AppBar .v-badge .v-btn :is(svg,svg *)[stroke]:not([stroke='none']){stroke:currentColor !important;}" +
+      "#AppBar .v-badge .v-btn :is(svg,svg *)[fill]:not([fill='none']){fill:currentColor !important;}" +
       "#AppBar .v-badge__badge{display:none !important;}" +
-      "#AppBar .hg-cart-n{min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#ACE4AA;color:#1B2023;" +
+      "#AppBar .v-badge .v-btn .hg-cart-n{min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#ACE4AA;color:#1B2023 !important;" +
         "font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-inline-start:8px;}" +
-      "#AppBar .hg-cart-n:empty{display:none;}" +
-      /* narrower windows: the Account word goes first, then the Stores and Categories links */
+      "#AppBar .hg-cart-n:empty{display:none !important;}" +
+      /* the hamburger (its menu only holds Language) is a globe button at the end of the bar */
+      "#AppBar .v-toolbar__prepend{order:99 !important;margin:0 !important;}" +
+      "#AppBar #NavBtn{width:40px !important;height:40px !important;max-width:none !important;max-height:none !important;margin:0 !important;" +
+        "border-radius:10px !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;background:url(\"" + HG_GLOBE + "\") center/20px no-repeat !important;}" +
+      "#AppBar #NavBtn:hover{background-color:#F6F3FD !important;}" +
+      "#AppBar #NavBtn .v-icon{visibility:hidden;}" +
+      "}" +
+      /* narrower windows: the Account word goes first, then the Stores and Categories links, then the gaps get smaller */
       "@media (max-width:1299px){#AppBar .hg-acct-t{display:none;}}" +
       "@media (max-width:1199px){#AppBar .hg-dnav a:not([data-k='home']){display:none;}}" +
       "@media (max-width:1099px){#AppBar{--hg-bar-gap:16px;}}";
+    st.textContent = css.split("#AppBar").join("#MultiVendorHeaderRoot #AppBar#AppBar");
     document.head.appendChild(st);
   }
+
   let deskLast = null, deskLastTxt = "";
   function applyHyperGoDesktop() {
     try {
       if (!window.matchMedia("(min-width: 960px)").matches) return;
 
-      const A = "#5A29DE", W = "#FFFFFF", G = "#1F2430", T = "#3A3F42", LINE = "#E6E1F3";
       const bar = document.querySelector("#AppBar");
       if (!bar) return;
+      hgDeskStyle();
 
-      /* (2026-10-20): skip restyling every element of the bar when nothing in it changed since the last full run */
-      if (deskLast === bar && deskLastTxt === hgDeskSig(bar) && bar.style.getPropertyValue("background-color")) {
+      /* (2026-10-20): skip the run when nothing in the bar changed since the last full run */
+      if (deskLast === bar && deskLastTxt === hgDeskSig(bar)) {
         hgSyncPhOpacity(bar.querySelector(".d-md-flex .v-field"));
         return;
       }
-
-      const s = (el, k, v) => el.style.setProperty(k, v, "important");
-      /* text + icon colour of an element and every icon inside it */
-      const paint = (el, c) => {
-        s(el, "color", c);
-        [el, ...el.querySelectorAll("svg, svg *")].forEach((g) => {
-          if (!(g instanceof SVGElement)) return;
-          const st = g.getAttribute("stroke"), fi = g.getAttribute("fill");
-          if (st && st !== "none") s(g, "stroke", c);
-          if (fi && fi !== "none") s(g, "fill", c);
-        });
-      };
       const ar = hgIsAr(), L = ar ? "ar" : "en";
-      hgDeskStyle();
       hgDeskHook();
-
-      /* header scrolls away with the page (native: position fixed) */
-      s(bar, "position", "absolute");
 
       /* darker grey search placeholder via the theme's own variable */
       const rootEl = document.querySelector("#MultiVendorHeaderRoot");
-      if (rootEl) rootEl.style.setProperty("--scheme-header-search-placeholder", G);
+      if (rootEl) rootEl.style.setProperty("--scheme-header-search-placeholder", "#1F2430");
 
-      s(bar, "background-color", W);
-      s(bar, "background-image", "none");
-      s(bar, "border-radius", "0");
-      s(bar, "box-shadow", "0 1px 0 #ECE8F6, 0 6px 18px rgba(54,25,133,.06)");
-      s(bar, "height", "72px");
-      const content = bar.querySelector(".v-toolbar__content");
-      if (content) {
-        const side = "max(var(--hg-gut, 48px), calc((100% - var(--hg-page, 1600px)) / 2))";
-        s(content, "padding-left", side);
-        s(content, "padding-right", side);
-        s(content, "height", "72px");
-        s(content, "gap", "var(--hg-bar-gap, 28px)");
-      }
-
-      /* dark text + icons (search box, logo, our links and the cart excluded) */
-      bar.querySelectorAll("*").forEach((el) => {
-        if (el.closest(".d-md-flex") || el.closest("#Logo") || el.closest(".hg-dnav") || el.closest(".v-badge")) return;
-        s(el, "color", T);
-        if (el instanceof SVGElement) {
-          const st = el.getAttribute("stroke"), fi = el.getAttribute("fill");
-          if (st && st !== "none") s(el, "stroke", T);
-          if (fi && fi !== "none") s(el, "fill", T);
-        }
-      });
-
-      /* logo: the full colour wordmark (Hyperzod's icon-only logo left most of its 150px slot empty); goes Home */
+      /* logo: our wordmark link inside Hyperzod's logo box */
       const logoBox = bar.querySelector("#Logo");
       if (logoBox) {
-        s(logoBox, "width", "auto");
-        s(logoBox, "max-width", "none");
-        s(logoBox, "flex", "none");
-        s(logoBox, "margin", "0");
-        const vimg = logoBox.querySelector(".v-img");
-        if (vimg) s(vimg, "display", "none");
         let wm = logoBox.querySelector(".hg-wordmark");
         if (!wm) {
           wm = document.createElement("a");
@@ -796,7 +799,7 @@
         wm.href = "/" + L + "/home";
       }
 
-      /* Home and Stores links next to the logo */
+      /* Home, Stores and Categories links next to the logo */
       let nav = bar.querySelector(".hg-dnav");
       if (!nav && logoBox) {
         nav = document.createElement("nav");
@@ -815,96 +818,16 @@
           '<a data-k="home" href="/' + L + '/home"' + (on === "home" ? ' class="is-on" aria-current="page"' : "") + ">" + HG_HOUSE + (ar ? "الرئيسية" : "Home") + "</a>" +
           '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>" +
           /* Categories: our Search page, where Home's "See all" category tile goes ("Shop by category") */
-          '<a data-k="cats" href="/' + L + '/search"' + (on === "cats" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "\u0627\u0644\u0641\u0626\u0627\u062A" : "Categories") + "</a>";
+          '<a data-k="cats" href="/' + L + '/search"' + (on === "cats" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "الفئات" : "Categories") + "</a>";
         if (nav.dataset.sig !== html) { nav.innerHTML = html; nav.dataset.sig = html; }
       }
 
-      /* location: an outlined 40px chip on one line, purple pin, area name, grey chevron */
-      const loc = bar.querySelector("#CurrentLocationBtn");
-      if (loc) {
-        s(loc, "box-shadow", "inset 0 0 0 1px " + LINE);
-        s(loc, "border-radius", "10px");
-        s(loc, "height", "40px");
-        s(loc, "padding", "0 12px");
-        s(loc, "display", "flex");
-        s(loc, "align-items", "center");
-        s(loc, "max-width", "240px");
-        s(loc, "flex", "none");
-        const icons = loc.querySelectorAll(":scope>div:first-child>svg");
-        if (icons[0]) paint(icons[0], A);
-        if (icons[1]) paint(icons[1], "#6E6880");
-        const nameEl = loc.querySelector("span.text");
-        if (nameEl) { s(nameEl, "font-weight", "700"); s(nameEl, "color", "#1B2023"); }
-      }
-
-      /* search field: soft lilac, rounded 12px, purple icon */
-      const sbox = bar.querySelector(".d-md-flex");
-      if (sbox) { s(sbox, "margin-left", "0"); s(sbox, "margin-right", "0"); }
-      const ms = bar.querySelector(".web-main-search");
-      if (ms) s(ms, "border-radius", "12px");   /* the focus ring (global-footer.css) follows this corner */
+      /* the moving "Search for ..." words */
       const f = bar.querySelector(".d-md-flex .v-field");
-      if (f) {
-        s(f, "background-color", "#F4F2FA");
-        s(f, "box-shadow", "inset 0 0 0 1px " + LINE);
-        s(f, "border-radius", "12px");
-        s(f, "height", "44px");
-        s(f, "min-height", "44px");
-        const ctl = f.closest(".v-input__control");
-        if (ctl) { s(ctl, "height", "44px"); s(ctl, "min-height", "44px"); }
-        s(f, "overflow", "hidden");
-        const o = f.querySelector(".v-field__outline");
-        if (o) s(o, "display", "none");
+      if (f) ensureRotatingPlaceholder(f, { left: 42, size: 15, weight: 500 });
 
-        /* search icon on the LEFT, 11px in (grid-area:auto makes the padding box, not the grid cell, the reference) */
-        const ap = f.querySelector(".v-field__append-inner");
-        if (ap) {
-          s(ap, "grid-area", "auto");
-          s(ap, "position", "absolute");
-          if (ar) {
-            s(ap, "left", "auto");
-            s(ap, "right", "13px");
-          } else {
-            s(ap, "left", "13px");
-          }
-          s(ap, "top", "0");
-          s(ap, "bottom", "0");
-          s(ap, "padding", "0");
-          s(ap, "display", "flex");
-          s(ap, "align-items", "center");
-        }
-        const inp = f.querySelector("input");
-        if (inp) {
-          if (ar) {
-            s(inp, "padding-right", "42px");
-            s(inp, "padding-left", "16px");
-          } else {
-            s(inp, "padding-left", "42px");
-          }
-          s(inp, "height", "44px");
-          s(inp, "min-height", "44px");
-          s(inp, "font-size", "15px");
-        }
-        const ic = f.querySelector(".header-search-append svg");
-        if (ic) {
-          s(ic, "display", "block");
-          s(ic, "width", "18px");
-          s(ic, "height", "18px");
-          ic.querySelectorAll("g, path").forEach((e) => s(e, "fill", A));
-        }
-
-        ensureRotatingPlaceholder(f, { left: 42, size: 15, weight: 500 });
-      }
-
-      /* cart: a purple pill (also with items: Hyperzod switches a filled cart to its own white) and a green count */
-      const cart = bar.querySelector(".v-badge .v-btn");
-      if (cart) {
-        s(cart, "background-color", A);
-        s(cart, "border-radius", "20px");
-        s(cart, "height", "40px");
-        s(cart, "padding", "0 16px");
-        paint(cart, W);
-      }
-      const cartIn = cart && cart.querySelector(".v-btn__content");
+      /* cart count inside the pill */
+      const cartIn = bar.querySelector(".v-badge .v-btn .v-btn__content");
       if (cartIn) {
         let n = cartIn.querySelector(".hg-cart-n");
         if (!n) { n = document.createElement("span"); n.className = "hg-cart-n"; cartIn.appendChild(n); }
@@ -916,7 +839,7 @@
       const prof = bar.querySelector("#ProfileBtn");
       const profIn = prof && prof.querySelector(".v-btn__content");
       if (profIn) {
-        const at = ar ? "\u0627\u0644\u062D\u0633\u0627\u0628" : "Account";
+        const at = ar ? "الحساب" : "Account";
         let acct = profIn.querySelector(".hg-acct");
         if (!acct) { acct = document.createElement("span"); acct.className = "hg-acct"; profIn.appendChild(acct); }
         const html = HG_PERSON + '<span class="hg-acct-t">' + at + "</span>";
@@ -924,33 +847,17 @@
         if (prof.getAttribute("aria-label") !== at) prof.setAttribute("aria-label", at);
       }
 
-      /* Filter, Account and Cart: 28px apart, like every item of the bar (Hyperzod: 6px) */
-      if (prof && prof.parentElement) s(prof.parentElement, "gap", "var(--hg-bar-gap, 28px)");
-
       /* icon-only buttons keep their name for screen readers */
-      ["#FilterBtn"].forEach((sel) => {
-        const b = bar.querySelector(sel), t = b && b.querySelector(".text");
-        const name = t && t.textContent.trim();
-        if (name && b.getAttribute("aria-label") !== name) b.setAttribute("aria-label", name);
-      });
-
-      /* the hamburger (its menu only holds Language) becomes a globe button at the end of the bar */
-      const pre = bar.querySelector(".v-toolbar__prepend");
-      if (pre) { s(pre, "order", "99"); s(pre, "margin", "0"); }
+      const fb = bar.querySelector("#FilterBtn"), ft = fb && fb.querySelector(".text");
+      const fname = ft && ft.textContent.trim();
+      if (fname && fb.getAttribute("aria-label") !== fname) fb.setAttribute("aria-label", fname);
       const nb = bar.querySelector("#NavBtn");
       if (nb) {
         const lt = ar ? "اللغة" : "Language";
         if (nb.getAttribute("aria-label") !== lt) { nb.setAttribute("aria-label", lt); nb.title = lt; }
-        s(nb, "width", "40px");
-        s(nb, "height", "40px");
-        s(nb, "max-width", "none");   /* Hyperzod caps the hamburger at 24px */
-        s(nb, "max-height", "none");
-        s(nb, "margin", "0");
-        s(nb, "border-radius", "10px");
-        s(nb, "box-shadow", "inset 0 0 0 1px " + LINE);
       }
 
-      /* (2026-10-20): remember what was styled (measured after our label/links/placeholder were added) */
+      /* (2026-10-20): remember what was checked (measured after our links/placeholder were added) */
       deskLast = bar;
       deskLastTxt = hgDeskSig(bar);
     } catch (e) {}
