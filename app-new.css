@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1629 */
+/* hg-version 2026-10-24-1731 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1091,8 +1091,10 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
    With app-new.js (CHECKOUT TOP): "Checkout" over the store's name in the header; the address card with its map first;
    the address line in the bottom bar hidden while that card shows (its Change button opens the same address list);
    delivery instructions folded into one row; the tip as one compact row; order type and delivery type hidden when
-   there is nothing to choose (one order type, delivery type only says "Express"). */
-@media (max-width:959.98px){
+   there is nothing to choose (one order type, delivery type only says "Express").
+   (2026-10-24, later) Computers too ("@media all", it was phones only): html.hgn-co is only set on a checkout page that
+   app-new.js recognises; the computer layout is in CHECKOUT ON COMPUTERS below. */
+@media all{
   html.hg-new-app.hgn-co .scheme-mobile-page-header__title{visibility:hidden !important;}
   html.hg-new-app .hgn-co-title{position:absolute;inset:0 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none;}
   html.hg-new-app:not(.hgn-co) .hgn-co-title{display:none;}
@@ -1143,8 +1145,9 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
    (2× name, price) instead of Hyperzod's item rows (Edit opens the cart sheet), the note field under it; "Pay with Tap"
    with its icon in a soft square and a purple check when chosen; one card with "Tip your rider (optional)", Delivery
    instructions and Add a coupon as rows; the bill as plain rows; a 54px round Place order. "You May Also Like" is only
-   in the cart sheet now. Header: round back button, "Checkout" and the store's name on the start side. */
-@media (max-width:959.98px){
+   in the cart sheet now. Header: round back button, "Checkout" and the store's name on the start side.
+   (2026-10-24, later) Computers too ("@media all"); see CHECKOUT ON COMPUTERS below. */
+@media all{
   html.hg-new-app.hgn-co #checkout{background:#FFFCF9;}
   /* header */
   html.hg-new-app.hgn-co .scheme-mobile-page-header__surface .back-btn{width:40px !important;height:40px !important;border-radius:20px !important;
@@ -1244,6 +1247,48 @@ html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-actions .scheme
   html.hg-new-app.hgn-co .checkout-footer .place-order .tw-shrink-0:has(.payment-method-name){display:none !important;}
   /* #app#app: an older rule (html body #app :is(#checkout,.place-order) .mobile-place-order-btn, 2 ids) kept it 52px tall with 12px corners */
   html.hg-new-app.hgn-co body #app#app .checkout-footer .mobile-place-order-btn{height:54px !important;min-height:54px !important;border-radius:27px !important;box-shadow:none !important;}
+}
+
+/* ================= CHECKOUT ON COMPUTERS (website 960px and wider, 2026-10-24) =================
+   Nouf: "u just forgot to apply the checkout to the websites". The phone look above, in Hyperzod's two columns: the start
+   column has the address card with its map (Hyperzod's Delivery Location card is hidden; Change opens its address list)
+   and "Pay with Tap"; the end column (sticky) has the store, "Your order" + Edit, the tip / instructions / coupon card,
+   the bill and the round Place order. Hyperzod's grey boxes around the columns are gone, the cards sit on the cream page.
+   Order type / delivery type hidden when there is nothing to choose, "You May Also Like" hidden, as on phones. */
+@media (min-width:960px){
+  html.hg-new-app.hgn-co #checkout :has(> #hgn-co-addr){border:0 !important;background:none !important;padding:0 !important;gap:16px !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div{border:0 !important;background:none !important;padding:0 !important;}
+  html.hg-new-app.hgn-co #checkout #hgn-co-addr{margin-top:0;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-map{height:200px;}
+  html.hg-new-app.hgn-co #checkout .hgn-co-row{padding:16px 20px;}
+  html.hg-new-app.hgn-co #checkout #AddressCard{display:none !important;}
+  html.hg-new-app.hgn-co #checkout :has(> #mbOrderTypeSelect):not(:has(.v-list-item ~ .v-list-item)){display:none !important;}
+  html.hg-new-app.hgn-co #checkout #OrderScheduling:not(:has(button,input,select,[role="radio"],[role="button"])){display:none !important;}
+  html.hg-new-app.hgn-co #checkout .similar-items-panel{display:none !important;}
+  html.hg-new-app.hgn-co #checkout #payment-card{margin:0 !important;}
+  /* the store */
+  html.hg-new-app.hgn-co #checkout #CartCard .order-box-head{margin:0 !important;padding:14px 16px !important;border:0 !important;border-radius:20px !important;
+    background:#FFFFFF !important;box-shadow:0 1px 0 #F0EDF5 !important;text-align:start !important;}
+  /* the coupon: joined under the tip / instructions card, like phones */
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col{display:flex !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > [data-test-id="testCouponListOpenBtn"]{order:4 !important;margin:0 !important;padding:0 16px !important;min-height:52px;display:flex !important;align-items:center;
+    border:0 !important;border-radius:0 0 20px 20px !important;background:#FFFFFF !important;box-shadow:0 1px 0 #F0EDF5 !important;position:relative;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > [data-test-id="testCouponListOpenBtn"]::before{content:"";position:absolute;top:0;inset-inline:16px;height:1px;background:#F0EDF5;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > [data-test-id="testCouponListOpenBtn"] > div{flex:1 1 auto;}
+  /* "Add a coupon" with the purple ticket, as on phones */
+  html.hg-new-app.hgn-co #checkout [data-test-id="testCouponListOpenBtn"] div:has(+ h4){width:18px;height:18px;margin-inline-end:10px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A29DE' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M3 9V5h18v4a3 3 0 0 0 0 6v4H3v-4a3 3 0 0 0 0-6z'/%3E%3C/svg%3E") center/18px no-repeat;}
+  html.hg-new-app.hgn-co #checkout [data-test-id="testCouponListOpenBtn"] div:has(+ h4) > *{display:none !important;}
+  html.hg-new-app.hgn-co #checkout [data-test-id="testCouponListOpenBtn"] h4{font-size:0 !important;margin-inline-start:0 !important;}
+  html.hg-new-app.hgn-co #checkout [data-test-id="testCouponListOpenBtn"] h4::after{content:"Add a coupon";font-size:15px;line-height:20px;font-weight:600;color:#1B2023;}
+  html.hg-new-app.hgn-co[lang^="ar"] #checkout [data-test-id="testCouponListOpenBtn"] h4::after{content:"أضف قسيمة";}
+  html.hg-new-app.hgn-co #checkout [data-test-id="testCouponListOpenBtn"] .nav-icon{color:#6E6880 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#slinstruction-slider){order:3 !important;}
+  html.hg-new-app.hgn-co #checkout #CartCard > div > .tw-flex-col > :has(#cartItems){order:1 !important;}
+  /* Place order: no box around it, the round 54px button (#app#app: global-footer.css styles it with 3 ids) */
+  html.hg-new-app.hgn-co #checkout #CartCard > div > :has(#OrderPlaceButton){border:0 !important;background:none !important;padding:0 !important;margin-top:16px !important;box-shadow:none !important;}
+  html.hg-new-app.hgn-co body #app#app #checkout #OrderPlaceButton{width:100% !important;height:54px !important;min-height:54px !important;border-radius:27px !important;box-shadow:none !important;}
+  html.hg-new-app.hgn-co body #app#app #checkout #OrderPlaceButton :is(.v-btn__content,.v-btn__content *){font-size:16px !important;font-weight:800 !important;}
 }
 
 /* ================= ORDER PLACED (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 4) =================

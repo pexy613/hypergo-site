@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1707 */
+/* hg-version 2026-10-24-1731 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2805,8 +2805,20 @@
     const carts = (S.state.Cart && S.state.Cart.cart) || [];
     return mid ? carts.find((c) => c && c.cart_items && c.cart_items[0] && c.cart_items[0].merchant_id === mid) : null;
   }
+  /* Edit on the checkout (coEditInStore): once the store page and its cart are loaded, the cart opens (the sheet on phones,
+     Hyperzod's cart panel on computers) */
+  function coEditTick(page) {
+    if (!coEditOpen) return;
+    const S = csStore();
+    if (Date.now() > coEditOpen.until || !S) { coEditOpen = null; return; }
+    const md = S.state.Merchant && S.state.Merchant.merchantData;
+    const cart = vcCart(S);
+    if (page && cart && cart.total_items > 0 && md && md.merchant_id === coEditOpen.id && !/\/checkout/.test(currentPath())) { coEditOpen = null; csOpen(); }
+    else setTimeout(schedule, 300);
+  }
   function renderViewCart() {
     const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
+    coEditTick(page);
     let bar = document.getElementById("hgn-vc");
     if (!page || !page.classList.contains("merchant-mobile-view")) { if (bar) bar.remove(); return; }
     const S = csStore();
@@ -2814,12 +2826,6 @@
     if (!vcWatch && S.subscribe) { vcWatch = true; S.subscribe((m) => { if (m && /cart/i.test(m.type)) schedule(); }); }
     const cart = vcCart(S);
     const n = cart ? cart.total_items || 0 : 0;
-    if (coEditOpen) {
-      const md = S.state.Merchant && S.state.Merchant.merchantData;
-      if (Date.now() > coEditOpen.until) coEditOpen = null;
-      else if (n > 0 && md && md.merchant_id === coEditOpen.id && !/\/checkout/.test(currentPath())) { coEditOpen = null; csOpen(); }
-      else setTimeout(schedule, 300);
-    }
     if (!bar) {
       bar = document.createElement("button");
       bar.type = "button";
@@ -2882,7 +2888,16 @@
     const de = document.documentElement;
     const ck = document.getElementById("checkout");
     const phone = window.innerWidth < 960;
-    const grid = ck && phone ? ck.querySelector("div:has(> div > #CartCard)") : null;
+    /* computers (website, 2026-10-24, Nouf: "u just forgot to apply the checkout to the websites"): the same look in
+       Hyperzod's two columns. The address card goes on top of the start column (delivery and payment), next to the
+       order column (#CartCard). Found from the DOM: grid > [start column > box with the cards] [end column > #CartCard]. */
+    let grid = null;
+    if (ck && phone) grid = ck.querySelector("div:has(> div > #CartCard)");
+    else if (ck) {
+      const rc = ck.querySelector("#CartCard");
+      const colS = rc && rc.parentElement && rc.parentElement.previousElementSibling;
+      grid = colS && colS.firstElementChild && !colS.firstElementChild.contains(rc) ? colS.firstElementChild : null;
+    }
     const old = document.getElementById("hgn-co-addr");
     /* (2026-10-24, later) the new checkout look (html.hgn-co) is on for every phone checkout. Before, all of it waited
        for a delivery address with map coordinates, so without one the checkout stayed Hyperzod's (reported in the app). */
@@ -2947,7 +2962,10 @@
       card.addEventListener("click", (ev) => {
         if (!ev.target.closest || !ev.target.closest(".hgn-co-change")) return;
         ev.preventDefault();
-        /* what Hyperzod's own address line does (its openSelections): open the saved addresses list */
+        /* what Hyperzod's own address line does (its openSelections): open the saved addresses list. On computers,
+           Hyperzod's (hidden) Delivery Location card opens its own address list, so that card is tapped instead. */
+        const ac = window.innerWidth >= 960 && document.querySelector("#checkout #AddressCard");
+        if (ac) { ac.click(); return; }
         const st = csStore();
         if (st) st.commit("sidePanel", ["addressList", true]);
       });
@@ -2956,7 +2974,7 @@
     const lat = ll ? +ll[0] : NaN, lon = ll ? +ll[1] : NaN;
     const maps = S.state.Utils && S.state.Utils.bootSettings && S.state.Utils.bootSettings.api_keys && S.state.Utils.bootSettings.api_keys.map_keys;
     const token = maps && typeof maps.mapbox === "string" ? maps.mapbox : "";
-    const W = Math.max(200, Math.round(grid.clientWidth || 358)), H = 150;
+    const W = Math.max(200, Math.round(grid.clientWidth || 358)), H = phone ? 150 : 200;
     const type = hasReal ? (String(da.custom_address_type || "").trim() || T.types[String(da.address_type || "").toLowerCase()] || T.types.other) : T.need;
     const line = hasReal ? [da.building, da.address].filter(Boolean).join(", ") : T.needSub;
     const sig = [L, hasReal ? 1 : 0, lat, lon, W, token ? 1 : 0, type, line].join("|");
