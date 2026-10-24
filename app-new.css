@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1731 */
+/* hg-version 2026-10-24-1820 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -334,6 +334,13 @@ html.hg-new-app .hgn-cc-row{display:flex;align-items:center;justify-content:spac
 html.hg-new-app .hgn-cc-name{min-width:0;font-size:calc(var(--hg-fs) * 16);line-height:20px;font-weight:600;letter-spacing:var(--hg-ls);color:var(--hg-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-cc-dist{flex:none;display:inline-flex;align-items:center;gap:4px;color:var(--hg-muted);font-size:calc(var(--hg-fs) * 14);font-weight:400;letter-spacing:var(--hg-ls);}
 html.hg-new-app .hgn-cc-dist svg{width:14px;height:14px;}
+/* (2026-10-24, option A) time • fee • category on one line under the name; the fee semibold, free delivery green */
+html.hg-new-app .hgn-cc-meta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-top:4px;font-size:calc(var(--hg-fs) * 14);line-height:20px;letter-spacing:var(--hg-ls);color:#4A4E54;}
+html.hg-new-app .hgn-cc-meta>i{font-style:normal;color:var(--hg-muted);} /* as in the search results line */
+html.hg-new-app .hgn-cc-mi{display:inline-flex;align-items:center;gap:4px;}
+html.hg-new-app .hgn-cc-mi svg{width:15px;height:15px;flex:none;}
+html.hg-new-app .hgn-cc-fee{font-weight:600;color:var(--hg-ink);}
+html.hg-new-app .hgn-cc-fee.is-free{color:#2E7D32;}
 html.hg-new-app .hgn-cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
 html.hg-new-app .hgn-cc-tag{height:24px;padding:0 8px;border-radius:12px;background:#FFFCF9;box-shadow:inset 0 0 0 1px var(--hg-line);color:var(--hg-muted);font-size:calc(var(--hg-fs) * 12);font-weight:500;letter-spacing:var(--hg-ls);display:inline-flex;align-items:center;}
 

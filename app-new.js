@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1741 */
+/* hg-version 2026-10-24-1820 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1776,7 +1776,7 @@
       const items = [];
       const tm = entry.delivery_data && entry.delivery_data.time;
       const mm = tm && String(tm).match(/(\d+)/);
-      if (mm && entry.show_delivery_time !== false) items.push(["clock", mm[1] + T.mins, T.time]);
+      if (mm && +mm[1] > 0 && entry.show_delivery_time !== false) items.push(["clock", mm[1] + T.mins, T.time]); /* 0: not shown (2026-10-24) */
       const distEl = gutter.querySelector(":scope > .tw-mt-4 span");
       const dm = distEl && distEl.textContent.match(/([\d.]+)\s*(km|كم)/i);
       if (dm) items.push(["pin", dm[1] + T.km, T.dist]);
@@ -1934,11 +1934,15 @@
     });
     if (document.getElementById("hgn-joys-slot")) schedule(); /* (2026-10-22) Little joys waits for its menus */
   }
+  /* (2026-10-24) a delivery time of 0 is not shown (Ateaya Plus Shoe Store: Hyperzod gives "0", it showed "0 mins" and
+     "0 · Free delivery"); a bare number gets "mins" (Zee Shop: "35" showed as "35") */
   function storeTime(m) {
     const d = m && m.delivery_data;
     if (!d || !d.time || m.show_delivery_time === false) return "";
     const n = parseInt(d.time, 10);
-    return isNaN(n) ? "" : (lang() === "ar" ? n + " " + LTXT.ar.mins : String(d.time));
+    if (isNaN(n) || n <= 0) return "";
+    if (lang() === "ar") return n + " " + LTXT.ar.mins;
+    return /^\s*\d+\s*$/.test(String(d.time)) ? n + " " + LTXT.en.mins : String(d.time);
   }
   function storeBlock(m, L, t, favIds, prods) {
     const id = m._id || m.id;
@@ -2131,19 +2135,22 @@
     const href = storeHref(m, L), cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
     const T = LTXT[L], C = CTXT[L];
     const tm = storeTime(m), km = storeKm(m);
-    const tags = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean).slice(0, 2).map((c) => catLabel(c));
-    /* the delivery fee next to the time on the photo, always (2026-10-24, Nouf: "it should at least be next to the
-       '30 mins' ... u can show both"): "30 mins · BHD 1.000 delivery" / "30 mins · Free delivery" */
-    const fl = feeLabel(m, L);
-    const badge = [tm, fl].filter(Boolean).join(" · ");
+    const cat = (m.merchant_category_ids || []).map((x) => catMap[x]).filter(Boolean)[0];
+    /* the delivery time and fee (2026-10-24, option A of the "HyperGo Store Card Delivery Info" canvas, chosen by Nouf):
+       one line under the name, "(clock) 30 mins • (bike) Free delivery • Food"; free in green, a fee in dark. Nothing on
+       the photo any more (she did not like "30 mins · Free delivery" on top of the banner). */
+    const fl = feeLabel(m, L), fee = storeFee(m);
+    const meta = [];
+    if (tm) meta.push('<span class="hgn-cc-mi">' + sIcon("clock") + "<bdi>" + esc(tm) + "</bdi></span>");
+    if (fl) meta.push('<span class="hgn-cc-mi hgn-cc-fee' + (fee === 0 ? " is-free" : "") + '">' + sIcon("bike") + "<bdi>" + esc(fl) + "</bdi></span>");
+    if (cat) meta.push('<span class="hgn-cc-mi">' + esc(catLabel(cat)) + "</span>");
     const closed = m.is_open === false || m.is_accepting_orders === false;
     return '<a class="hgn-cc' + (closed ? " is-closed" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
       '<span class="hgn-cc-img' + (cover ? "" : " is-logo") + '">' + ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
-      (badge ? '<span class="hgn-cc-time">' + (tm ? CICON.clock : "") + "<bdi>" + esc(badge) + "</bdi></span>" : "") +
       (closed ? '<span class="hgn-cc-closed">' + esc(C.closed) + "</span>" : "") + "</span>" +
       '<span class="hgn-cc-row"><span class="hgn-cc-name">' + esc(nameOf(m) || m.name) + "</span>" +
       (km ? '<span class="hgn-cc-dist">' + sIcon("pin") + /* same pin as the store info card */ "<bdi>" + esc(km) + "</bdi></span>" : "") + "</span>" +
-      (tags.length ? '<span class="hgn-cc-tags">' + tags.map((x) => '<span class="hgn-cc-tag">' + esc(x) + "</span>").join("") + "</span>" : "") +
+      (meta.length ? '<span class="hgn-cc-meta">' + meta.join('<i aria-hidden="true">•</i>') + "</span>" : "") +
       "</a>";
   }
   function renderCategoryPage() {
