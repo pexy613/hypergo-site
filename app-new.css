@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1349 */
+/* hg-version 2026-10-24-1401 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -554,27 +554,28 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
 }
 
-/* View cart bar: floating purple pill above the home bar */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{
-  left:16px!important;right:16px!important;width:auto!important;max-width:none!important;
-  bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;min-height:52px!important;height:52px!important; /* Talabat bar buttons: 52, text 16 semibold (2026-10-21) */
-  padding:0 6px 0 12px!important;border-radius:26px!important;background:#5A29DE!important;background-image:none!important;
-  box-shadow:0 10px 24px -14px rgba(90,41,222,.55)!important;
-}
-html.hg-new-app.hgn-store[lang^="ar"] body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{padding:0 12px 0 7px!important;}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart{width:28px!important;height:28px!important;border-radius:14px!important;background:#ACE4AA!important;}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart svg{display:none!important;}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-badge{
-  position:static!important;min-width:0!important;height:auto!important;padding:0!important;background:transparent!important;
-  color:#1B2023!important;font-size:12.5px!important;font-weight:600!important;
-}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-label{font-size:calc(var(--hg-fs) * 16)!important;font-weight:600!important;letter-spacing:var(--hg-ls);}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-right{
-  height:40px!important;padding:0 14px!important;border-radius:20px!important;background:rgba(255,255,255,.14)!important;
-  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;
-}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-strike{font-size:12px!important;opacity:.7;}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-price{font-size:calc(var(--hg-fs) * 14)!important;font-weight:600!important;font-variant-numeric:tabular-nums;}
+/* VIEW CART BAR (2026-10-24): our own bar (#hgn-vc, app-new.js), Hyperzod's button hidden: it flickered and shook on every add */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill{
+  visibility:hidden!important;pointer-events:none!important;}
+#hgn-vc{
+  position:fixed;left:16px;right:auto;width:calc(100% - 32px);box-sizing:border-box;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6; /* a button does not stretch between left and right */
+  height:52px;margin:0;border:0;border-radius:26px;padding:0 6px 0 7px;display:flex;align-items:center;gap:10px; /* Talabat bar buttons: 52, text 16 semibold (2026-10-21) */
+  background:linear-gradient(180deg,#7A4CF5 0%,#5A29DE 55%,#4519C2 100%);color:#FFFFFF;font:inherit;text-align:start;cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 24px -12px rgba(90,41,222,.6);
+  transform:translateY(calc(100% + 40px));visibility:hidden;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s linear .28s;
+  -webkit-tap-highlight-color:transparent;}
+#hgn-vc.is-on{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s;}
+#hgn-vc:active{transform:scale(.985);}
+#hgn-vc:focus-visible{outline:2px solid #ACE4AA;outline-offset:2px;}
+#hgn-vc .hgn-vc-n{flex:none;width:38px;height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#72C26E);box-shadow:0 2px 6px rgba(0,0,0,.18);
+  color:#1B2023;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+#hgn-vc .hgn-vc-t{flex:1 1 auto;min-width:0;font-size:calc(var(--hg-fs) * 16);font-weight:600;letter-spacing:var(--hg-ls);white-space:nowrap;}
+#hgn-vc .hgn-vc-p{flex:none;height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.14);
+  display:flex;align-items:center;gap:6px;font-size:calc(var(--hg-fs) * 14);font-variant-numeric:tabular-nums;white-space:nowrap;}
+#hgn-vc .hgn-vc-p b{font-weight:600;}
+#hgn-vc .hgn-vc-s{font-size:12px;opacity:.7;}
+#hgn-vc .hgn-vc-s b{font-weight:400;}
 
 /* product pop-up */
 /* (Talabat item sheet, 2026-10-21) name 20 bold, description 14 grey on 20 lines, section titles 20 bold, 52 tall buttons */
@@ -949,10 +950,6 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 html.hg-new-app.hgn-store:is([lang^="ar"],[dir="rtl"]) body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .scheme-product-recommendation-heading::before{content:none;}
 html.hg-new-app.hgn-store:is([lang^="ar"],[dir="rtl"]) body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .scheme-product-recommendation-heading::after{
   content:"مختاراتنا";font-family:var(--hg-font);font-style:normal;font-weight:800;font-size:24px;line-height:32px;padding:0 0 2px 4px;background-position:right bottom;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{
-  background-image:linear-gradient(180deg,#7A4CF5 0%,#5A29DE 55%,#4519C2 100%)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 24px -12px rgba(90,41,222,.6)!important;}
-html.hg-new-app.hgn-store body .hg-checkout-bar .hg-co-cart{background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#72C26E)!important;box-shadow:0 2px 6px rgba(0,0,0,.18)!important;}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .hgn-open:not(.is-closed){background:#E7F6E5;box-shadow:inset 0 1px 0 rgba(255,255,255,.9);}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #merchant-header-v2 .hgn-open:not(.is-closed)::before{
   width:8px;height:8px;border-radius:4px;background:radial-gradient(circle at 35% 30%,#9BE596,#3E9B3A);box-shadow:none;}

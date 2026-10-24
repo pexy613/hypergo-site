@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1349 */
+/* hg-version 2026-10-24-1401 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2585,16 +2585,6 @@
     S.commit("sidePanel", ["cart", true]);
     return true;
   }
-  function csBindBar() {
-    document.addEventListener("click", (ev) => {
-      const t = ev.target;
-      if (!t || !t.closest || !t.closest(".hg-checkout-bar")) return;
-      if (!csOpen()) return; /* no cart found: Hyperzod's own button does its usual thing */
-      ev.preventDefault();
-      ev.stopPropagation();
-      ev.stopImmediatePropagation();
-    }, true);
-  }
   /* "You may also like": Hyperzod's own recommendations for this cart, loaded once per cart */
   const csRec = { key: "", list: null, busy: false };
   function csKey(S) {
@@ -2682,6 +2672,54 @@
       '<span class="hgn-cs-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"><span class="hgn-cs-plus" aria-hidden="true">+</span></span>' +
       '<span class="hgn-cs-pn">' + esc(nameOf(p)) + '</span><span class="hgn-cs-pp">' + csPrice(p) + "</span></button>").join("") + "</div>";
     if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
+  }
+
+  /* ---------- VIEW CART BAR (2026-10-24, "HyperGo Quick Checkout" board 1) ----------
+     Phones and the app, store pages. Our own purple bar at the bottom: the number of items in a green circle,
+     "View cart", and the cart total (the old price struck through when there is a discount). Tapping it opens the
+     cart sheet (CART SHEET above). Before, the bar was Hyperzod's own button dressed up: on every add it grew in,
+     showed its loading circle with no price for a moment, flashed its own "Checkout" text and changed width, so the
+     bar flickered and shook. Hyperzod's button is now hidden (app-new.css, VIEW CART BAR) and ours only slides up
+     once, when the cart has its first item, then just changes its number and price. It reads this store's cart
+     straight from Hyperzod's store, and redraws as soon as the cart changes. */
+  const VC_TXT = { en: "View cart", ar: "عرض السلة" };
+  let vcWatch = false;
+  function vcCart(S) {
+    const md = S.state.Merchant && S.state.Merchant.merchantData;
+    const mid = md && md.merchant_id;
+    const carts = (S.state.Cart && S.state.Cart.cart) || [];
+    return mid ? carts.find((c) => c && c.cart_items && c.cart_items[0] && c.cart_items[0].merchant_id === mid) : null;
+  }
+  function renderViewCart() {
+    const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
+    let bar = document.getElementById("hgn-vc");
+    if (!page || !page.classList.contains("merchant-mobile-view")) { if (bar) bar.remove(); return; }
+    const S = csStore();
+    if (!S) return;
+    if (!vcWatch && S.subscribe) { vcWatch = true; S.subscribe((m) => { if (m && /cart/i.test(m.type)) schedule(); }); }
+    const cart = vcCart(S);
+    const n = cart ? cart.total_items || 0 : 0;
+    if (!bar) {
+      bar = document.createElement("button");
+      bar.type = "button";
+      bar.id = "hgn-vc";
+      bar.addEventListener("click", () => {
+        if (csOpen()) return;
+        /* no cart found in the store: Hyperzod's own (hidden) button does its usual thing */
+        const nb = bar.parentNode && bar.parentNode.querySelector("button.v-btn--fixed.rounded-pill");
+        if (nb) nb.click();
+      });
+    }
+    if (bar.parentNode !== page) page.appendChild(bar);
+    if (n > 0) {
+      const total = cart.total_amount || 0, disc = cart.discount_amount || 0;
+      const html = '<span class="hgn-vc-n">' + n + '</span><span class="hgn-vc-t">' + esc(VC_TXT[lang()]) + '</span>' +
+        '<span class="hgn-vc-p">' + (disc > 0 ? '<s class="hgn-vc-s">' + moneyHtml(total + disc) + "</s>" : "") + moneyHtml(total) + "</span>";
+      if (bar.dataset.sig !== html) { bar.innerHTML = html; bar.dataset.sig = html; }
+      if (!bar.classList.contains("is-on")) requestAnimationFrame(() => bar.classList.add("is-on"));
+    } else bar.classList.remove("is-on");
+    bar.tabIndex = n > 0 ? 0 : -1;
+    bar.setAttribute("aria-hidden", n > 0 ? "false" : "true");
   }
 
   /* ---------- CHECKOUT TOP (2026-10-24, "HyperGo Quick Checkout" board 3, chosen by Nouf) ----------
@@ -2809,7 +2847,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderCartSheet, renderCheckoutTop
+    renderStore, renderViewCart, renderCartSheet, renderCheckoutTop
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {
@@ -2824,7 +2862,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = ".hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = "#hgn-vc,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
@@ -2873,7 +2911,6 @@
   function start() {
     tick();
     keyboardHandoff();
-    csBindBar();
     new MutationObserver((recs) => {
       if (!relevant(recs)) return;
       /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */

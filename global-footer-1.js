@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1349 */
+/* hg-version 2026-10-24-1401 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -3470,6 +3470,7 @@
     '</g><defs><clipPath id="hgcartclip"><rect width="18" height="18" fill="white"></rect></clipPath></defs></svg>';
 
   function applyCheckoutBar() {
+    if (hgNewDesign()) return; /* (2026-10-24) the new design draws its own View cart bar (app-new.js, VIEW CART BAR) */
     const btn = document.querySelector(".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill");
     if (!btn) return;
     if (!btn.classList.contains("hg-checkout-bar")) btn.classList.add("hg-checkout-bar");
