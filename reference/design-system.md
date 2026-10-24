@@ -205,7 +205,8 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 |---|---|---|
 | Home sections `#hg-cat-rows` | 1240px, padding 0 20px **and** 1200px, padding 0 24px 40px | GF1 (cat) L2709; (extra) L2235 — CONFLICT 9 |
 | Website home placeholder | 1240px | WH L305 |
-| Page column (website desktop, 2026-10-24) | up to 1600px wide, 48px sides: `--hg-page:1600px; --hg-gut:48px` (app-new.css desktop block); Home, Search results, category page, Stores near you, store page header/tabs/menu and the header bar all use `padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2))` or the same as max-width + padding. Was 1200px, 24px or 32px sides | app-new.css (desktop); GF1 store rules, `applyHyperGoDesktop()` |
+| Page column (website desktop, 2026-10-24) | up to 1600px wide, 48px sides: `--hg-page:1600px; --hg-gut:48px` (app-new.css desktop block); Home, Search start screen + category tabs (was an 840px column; Hyperzod's 1200px `#MultiVendorSearch>.v-container` uncapped), Search results, category page, Stores near you, store page header/tabs/menu and the header bar all use `padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2))` or the same as max-width + padding. Was 1200px, 24px or 32px sides | app-new.css (desktop); GF1 store rules, `applyHyperGoDesktop()` |
+| Desktop title line heights (website, 2026-10-24) | category page h1 28px / 34px, Stores near you title 26px / 32px, Home headings 22px / 28px, Home tile names 14px / 18px (the phone line heights cut the bigger desktop text off) | app-new.css desktop block |
 | Search discovery | 1180px, then 1350px, then none | GF.css L147, L888, L1051 — CONFLICT 10 |
 | Profile pages | 1260px, padding 30px 28px 60px, sidebar 300px, gap 28px | GF.css L1435-1437 |
 | Category list page | 1248px | GF1 (extra) L2303 |
