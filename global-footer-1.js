@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1401 */
+/* hg-version 2026-10-25-2327 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -624,8 +624,9 @@
      inline !important styles on the fixed #AppBar, re-applied by the observer.
      (2026-10-24, header option A) a clean white bar: the flat purple bar blended with the purple page and looked cheap.
      White, straight bottom edge, a hairline and a soft shadow; its items line up with the page column (--hg-page, app-new.css).
-     The full colour HyperGo wordmark fills the old empty logo slot and goes Home; Home, Stores and Categories links sit next
-     to it (Stores = our "Stores near you" page, /home?hgn=stores; Categories = our Search page, like Home's "See all" tile); the hamburger, which only held Language, becomes a globe
+     The full colour HyperGo wordmark fills the old empty logo slot and goes Home; Home and Stores links sit next
+     to it (Stores = our "Stores near you" page, /home?hgn=stores, with its category chips; a Categories link to the Search
+     page was dropped 2026-10-25: it reached the same stores); the hamburger, which only held Language, becomes a globe
      button at the end that opens the same Language menu; the cart is a purple pill with a green count. 72px tall, 28px between items. */
   const HG_WORDMARK = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 725.11 152.55'><polygon fill='#1B2023' points='81.92 53.7 15.05 53.7 15.05 2.05 0 2.05 0 120.05 15.05 120.05 15.05 67.72 81.92 67.72 81.92 120.05 96.97 120.05 96.97 2.05 81.92 2.05 81.92 53.7'/><polygon fill='#1B2023' points='159.73 103.36 129.8 32.84 113.73 32.84 152 119.66 142.89 139.55 125.36 139.55 125.36 152.55 152.72 152.55 205.56 32.84 189.66 32.84 159.73 103.36'/><path fill='#1B2023' d='M291.5,36.77c-6.67-3.99-14.11-5.99-22.32-5.99s-14.97,1.99-21.29,5.99c-5.37,3.39-9.72,7.85-13.08,13.37v-17.31h-14.02v119.71h14.02v-49.8c3.36,5.52,7.71,9.99,13.08,13.37,6.33,3.99,13.42,5.99,21.29,5.99s15.65-1.99,22.32-5.99c6.67-3.99,11.91-9.46,15.73-16.42,3.82-6.95,5.73-14.71,5.73-23.26s-1.91-16.3-5.73-23.26c-3.82-6.95-9.06-12.43-15.73-16.42ZM294.23,92.78c-2.79,4.85-6.61,8.67-11.46,11.46-4.85,2.79-10.23,4.19-16.16,4.19s-11.46-1.4-16.25-4.19c-4.79-2.79-8.58-6.64-11.37-11.54-2.8-4.9-4.19-10.32-4.19-16.25s1.39-11.48,4.19-16.33c2.79-4.85,6.61-8.66,11.46-11.46,4.84-2.79,10.23-4.19,16.16-4.19s11.46,1.4,16.25,4.19c4.79,2.8,8.58,6.64,11.37,11.54,2.79,4.9,4.19,10.32,4.19,16.25s-1.4,11.49-4.19,16.33Z'/><path fill='#1B2023' d='M397.1,36.77c-7.07-3.99-14.94-5.99-23.6-5.99s-16.53,1.99-23.6,5.99c-7.07,3.99-12.63,9.46-16.67,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.02,16.3,6.07,23.26c4.05,6.95,9.6,12.43,16.67,16.42,7.07,3.99,14.94,5.99,23.6,5.99,10.49,0,19.72-2.73,27.7-8.21,7.98-5.47,13.57-12.71,16.76-21.72h-15.39c-2.39,5.13-6.19,9.23-11.37,12.31-5.19,3.08-11.09,4.62-17.7,4.62-5.93,0-11.32-1.42-16.16-4.27-4.85-2.85-8.67-6.76-11.46-11.71-1.86-3.3-3.08-6.86-3.7-10.69h77.16c.34-1.71.51-3.7.51-5.99,0-8.55-2.03-16.3-6.07-23.26-4.05-6.95-9.61-12.43-16.67-16.42ZM342.3,69.6c.65-3.5,1.81-6.78,3.49-9.83,2.74-4.96,6.52-8.86,11.37-11.71,4.85-2.85,10.29-4.27,16.33-4.27s11.12,1.37,15.9,4.11c4.79,2.73,8.57,6.47,11.37,11.2,1.9,3.23,3.2,6.74,3.91,10.52h-62.38Z'/><path fill='#1B2023' d='M452.85,49.21v-16.37h-14.02v87.22h14.02v-43.95c0-6.04,1.14-11.31,3.42-15.82,2.28-4.5,5.61-8.01,10-10.52,4.39-2.51,9.55-3.76,15.48-3.76v-14.54c-6.5,0-12.29,1.65-17.36,4.96-4.67,3.05-8.52,7.32-11.54,12.78Z'/><path fill='#5A29DE' d='M557,74.39h35.75c-1.01,3.5-2.54,6.78-4.62,9.83-3.53,5.19-8.15,9.26-13.85,12.23-5.7,2.97-11.97,4.45-18.82,4.45-7.41,0-14.14-1.74-20.18-5.22-6.04-3.48-10.77-8.24-14.2-14.28-3.42-6.04-5.13-12.83-5.13-20.35s1.71-14.31,5.13-20.35c3.42-6.04,8.15-10.8,14.2-14.28,6.04-3.48,12.77-5.22,20.18-5.22s14.28,1.8,20.27,5.39c5.99,3.59,10.52,8.41,13.6,14.45h24.46c-2.05-7.87-5.9-14.93-11.54-21.21-5.64-6.27-12.51-11.14-20.61-14.62-8.1-3.47-16.82-5.22-26.17-5.22-11.63,0-22.17,2.68-31.64,8.04-9.47,5.36-16.93,12.69-22.4,21.98-5.47,9.29-8.21,19.64-8.21,31.04s2.74,21.75,8.21,31.04c5.47,9.29,12.94,16.62,22.4,21.97,9.46,5.36,20.01,8.04,31.64,8.04,7.87,0,14.94-1.14,21.21-3.42,6.27-2.28,11.57-5.56,15.9-9.83,1.68-1.65,3.21-3.45,4.61-5.36v16.57h19.33V54.38h-59.52v20.01Z'/><path fill='#5A29DE' d='M719.04,53.19c-4.05-6.95-9.64-12.43-16.76-16.42-7.13-3.99-15.08-5.99-23.86-5.99s-16.9,1.99-24.03,5.99c-7.13,3.99-12.72,9.46-16.76,16.42-4.05,6.96-6.07,14.71-6.07,23.26s2.03,16.3,6.07,23.26c4.04,6.95,9.63,12.43,16.76,16.42,7.12,3.99,15.13,5.99,24.03,5.99s16.73-1.99,23.86-5.99c7.12-3.99,12.71-9.46,16.76-16.42,4.04-6.95,6.07-14.71,6.07-23.26s-2.03-16.3-6.07-23.26ZM700.4,89.44c-2.22,3.88-5.27,6.93-9.15,9.15-3.87,2.22-8.21,3.34-12.99,3.34s-9.09-1.11-12.91-3.34c-3.82-2.22-6.84-5.27-9.06-9.15-2.22-3.87-3.33-8.21-3.33-13s1.11-9.12,3.33-13c2.22-3.87,5.27-6.93,9.15-9.15,3.87-2.22,8.21-3.34,13-3.34s9.09,1.11,12.91,3.34c3.82,2.22,6.84,5.27,9.06,9.15,2.22,3.88,3.34,8.21,3.34,13s-1.11,9.12-3.34,13Z'/></svg>");
   const HG_GLOBE = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#3A3F42' stroke-width='1.9' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M3 12h18M12 3c2.6 2.7 3.9 5.7 3.9 9s-1.3 6.3-3.9 9c-2.6-2.7-3.9-5.7-3.9-9s1.3-6.3 3.9-9z'/></svg>");
@@ -633,7 +634,6 @@
   const HG_HOUSE = "<svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'/></svg>";
   /* which link of the bar is the current page: Home, the Stores page, or none */
   function hgDeskNavOn() {
-    if (/^\/(en|ar)\/search\/?$/.test(location.pathname)) return "cats";
     if (!/^\/(en|ar)(\/home)?\/?$/.test(location.pathname)) return "";
     const q = new URLSearchParams(location.search).get("hgn");
     return q === "stores" ? "stores" : q ? "" : "home";
@@ -799,7 +799,7 @@
         wm.href = "/" + L + "/home";
       }
 
-      /* Home, Stores and Categories links next to the logo */
+      /* Home and Stores links next to the logo */
       let nav = bar.querySelector(".hg-dnav");
       if (!nav && logoBox) {
         nav = document.createElement("nav");
@@ -816,9 +816,8 @@
         const on = hgDeskNavOn();
         const html =
           '<a data-k="home" href="/' + L + '/home"' + (on === "home" ? ' class="is-on" aria-current="page"' : "") + ">" + HG_HOUSE + (ar ? "الرئيسية" : "Home") + "</a>" +
-          '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>" +
-          /* Categories: our Search page, where Home's "See all" category tile goes ("Shop by category") */
-          '<a data-k="cats" href="/' + L + '/search"' + (on === "cats" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "الفئات" : "Categories") + "</a>";
+          /* (2026-10-25) no Categories link any more: it led to the same stores as Stores' category chips (Nouf) */
+          '<a data-k="stores" href="/' + L + '/home?hgn=stores"' + (on === "stores" ? ' class="is-on" aria-current="page"' : "") + ">" + (ar ? "المتاجر" : "Stores") + "</a>";
         if (nav.dataset.sig !== html) { nav.innerHTML = html; nav.dataset.sig = html; }
       }
 
