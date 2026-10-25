@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1752 */
+/* hg-version 2026-10-25-1818 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -595,7 +595,9 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo b{font-size:15px!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo small{font-size:13px!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav{display:flex!important;align-items:center!important;gap:16px;}
-  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav>.product-categories-nav__scroller{flex:1 1 auto;min-width:0;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav>.product-categories-nav__scroller{flex:1 1 auto;min-width:0;padding-inline:0!important;}
+  /* (2026-10-25) Filter sits first in the row (not riding on the tabs), the first tab 10px after it */
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-sfilter{position:static!important;margin:0!important;margin-inline-end:-12px!important;transform:none!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch{flex:none;width:260px;height:40px;margin-inline-end:16px;padding:0 14px;border:0;border-radius:20px;background:#F4F2FA;box-shadow:inset 0 0 0 1px var(--hg-line);
     display:flex;align-items:center;gap:8px;font:inherit;font-size:14px;color:var(--hg-muted);cursor:pointer;text-align:start;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch svg{flex:none;width:16px;height:16px;}
@@ -607,6 +609,9 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   /* the bar Hyperzod shows on scrolling (logo, name, store search): its search box in our search-pill look */
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #MerchantStickyHeader{box-shadow:0 1px 0 #ECE8F6!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #MerchantStickyHeader .header-search .v-field{background:#F4F2FA!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;}
+  /* (2026-10-25) one Filter: while our Filter sits first in the tabs, the top bar's own Filter button is hidden (ours still opens
+     Hyperzod's filter panel through it) */
+  html.hg-new-app.hgn-store:has(.hgn-sfilter) #MultiVendorHeaderRoot #AppBar#AppBar .filter-btn{display:none!important;}
 }
 @media (max-width:959.98px){
   html.hg-new-app .hgn-ssearch{display:none!important;}
@@ -771,6 +776,7 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
   html.hg-new-app #hgn-home .hgn-cat-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px;padding:0;margin:0;}
   html.hg-new-app #hgn-home .hgn-cat-ring{width:100%;height:auto;aspect-ratio:1/1;max-width:112px;border-radius:28px;margin:0 auto;}
   html.hg-new-app #hgn-home .hgn-cat-ring img{width:calc(100% - 8px);height:calc(100% - 8px);border-radius:24px;}
+  html.hg-new-app #hgn-home .hgn-cat-new{inset-inline-start:8px;bottom:8px;}
   /* (2026-10-24) bigger desktop text gets a line height to match: the phone line heights cut the letters off */
   html.hg-new-app #hgn-home .hgn-cat-name{font-size:14px;line-height:18px;margin-top:10px;}
   html.hg-new-app #hgn-home .hgn-banner{margin:32px 0 0;aspect-ratio:auto;border-radius:0;overflow:visible;background:none;box-shadow:none;}
@@ -894,7 +900,8 @@ html.hg-new-app .hgn-k4-c3{inset-inline-start:34%;bottom:46px;width:6px;height:6
 
 /* New tag on a category tile: a store in it joined in the last 14 days */
 html.hg-new-app .hgn-cat-ring.has-new{position:relative;overflow:hidden;}
-html.hg-new-app .hgn-cat-new{position:absolute;z-index:2;inset-inline-start:0;bottom:0;height:18px;padding:0 7px;border-start-end-radius:10px;
+/* (2026-10-25) a small pill inside the tile's rounded corner (it sat in the corner itself, and the curve cut it off) */
+html.hg-new-app .hgn-cat-new{position:absolute;z-index:2;inset-inline-start:6px;bottom:6px;height:18px;padding:0 7px;border-radius:9px;
   background:linear-gradient(180deg,#D9F7D6,#ACE4AA 60%,#93D68F);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
   color:#1B2023;font-size:10.5px;line-height:18px;font-weight:700;letter-spacing:0;white-space:nowrap;}
 /* See all tile: glossy purple */
@@ -1432,8 +1439,9 @@ html.hgn-done-on body{overflow:hidden;}
 /* ================= FILTERED RESULTS (a store's search page, phones and the app, 2026-10-24) =================
    The page Apply opens (/m/<store>/<id>/search): cream like the store, a round back button and a soft search field,
    "Filtered Results" 20/800, the filter / sort / categories buttons as pills (the ones in use soft purple), and the
-   products as the store's rows: no boxes, a hairline between rows, the 112px photo on the end side. */
-@media (max-width:959.98px){
+   products as the store's rows: no boxes, a hairline between rows, the 112px photo on the end side.
+   (2026-10-25) computers too (the "Search <store>" pill opens this page): the same look in the page column, below. */
+@media all{
   html.hg-new-app body #app #MerchantSearchPage,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content{background:#FFFCF9 !important;}
   html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header{padding:8px 16px 4px !important;border:0 !important;box-shadow:none !important;}
   html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar{height:auto !important;min-height:48px !important;margin:0 !important;border:0 !important;background:transparent !important;gap:10px !important;}
@@ -1470,6 +1478,30 @@ html.hgn-done-on body{overflow:hidden;}
   html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-description,html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-description *{margin-top:2px !important;font-size:calc(var(--hg-fs) * 14) !important;line-height:16px !important;font-weight:400 !important;color:var(--hg-muted) !important;}
   html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal .product-price{font-size:calc(var(--hg-fs) * 14) !important;line-height:20px !important;font-weight:600 !important;color:var(--hg-ink) !important;}
   html.hg-new-app body #app #MerchantSearchPage .v-skeleton-loader,html.hg-new-app body #app #MerchantSearchPage .v-skeleton-loader__bone{background:#F1ECF5 !important;border-radius:16px;}
+}
+
+/* the store's search page on computers (2026-10-25): in the page column like the store page; the search field is our pill
+   (48px, #F4F2FA, hairline, purple ring while typing, like the checkout message box), the products as the store page's
+   white rows, two per line */
+@media (min-width:960px){
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content{
+    padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2)) !important;box-sizing:border-box !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header{padding-top:24px !important;padding-bottom:8px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header>.tw-overflow-x-auto{margin-inline:0 !important;padding-inline:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .merchant-search .v-field,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field{
+    height:48px !important;min-height:48px !important;border-radius:24px !important;background:#F4F2FA !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;padding-inline:16px 8px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field:focus-within{box-shadow:inset 0 0 0 1px #5A29DE,0 0 0 4px rgba(90,41,222,.12) !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field__overlay,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field__outline{display:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar input{min-height:48px !important;padding:0 8px !important;font-size:15px !important;color:#1B2023 !important;outline:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar input::placeholder{color:#6E6880 !important;opacity:1 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field__prepend-inner,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-control-bar .v-field__prepend-inner .v-icon{color:#6E6880 !important;opacity:1 !important;background:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header .v-btn{height:38px !important;min-height:38px !important;padding:0 14px !important;border:0 !important;border-radius:19px !important;
+    background:#FFFFFF !important;box-shadow:inset 0 0 0 1px #E6E1F3 !important;color:#1B2023 !important;text-transform:none !important;letter-spacing:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-header .v-btn :is(.v-btn__overlay,.v-btn__underlay){display:none !important;}
+  html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content .product-horizontal-cards,html.hg-new-app body #app #MerchantSearchPage .scheme-merchant-search-content>.tw-grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:16px !important;padding-top:8px !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal{width:auto !important;max-width:none !important;margin:0 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal,html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal:last-child{background:#FFFFFF !important;border-radius:20px !important;border-bottom:0 !important;box-shadow:0 1px 0 #F0EDF5 !important;}
+  html.hg-new-app body #app #MerchantSearchPage .product-card-horizontal>.v-card-text{padding:14px 16px !important;}
 }
 
 /* leaving Filtered Results (html.hgn-ms-leaving, app-new.js): Hyperzod's emptied search page is hidden on the way back */
