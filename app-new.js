@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1818 */
+/* hg-version 2026-10-25-1859 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1753,8 +1753,20 @@
         and the sheet lives outside #app, under body > .v-overlay-container.
      So "a store is open" is decided by the visible store screen itself, never by the address alone, and every store
      rule in app-new.css is scoped to :is(#app,.v-overlay-container), not #app. */
+  /* (2026-10-25, speed) asked up to six times per run, and each time it measured every store page, which makes the
+     phone work out the whole page layout again after the parts before it changed something; now measured once per run */
+  let osMemo, osInTick = false;
   function openStorePage() {
-    const pages = Array.prototype.filter.call(document.querySelectorAll(".scheme-merchant-page"), (p) => p.offsetWidth > 0 && p.getClientRects().length > 0);
+    if (osInTick && osMemo !== undefined) return osMemo;
+    const r = openStorePageNow();
+    if (osInTick) osMemo = r;
+    return r;
+  }
+  /* (2026-10-25, speed) checkVisibility() only needs the page's styles, not its layout (offsetWidth made the phone lay out
+     the whole page first); older phones without it keep the old test */
+  function shown(p) { return p.checkVisibility ? p.checkVisibility() : (p.offsetWidth > 0 && p.getClientRects().length > 0); }
+  function openStorePageNow() {
+    const pages = Array.prototype.filter.call(document.querySelectorAll(".scheme-merchant-page"), shown);
     if (!pages.length) return null;
     const sheet = pages.filter((p) => p.closest(".v-overlay-container")).pop();
     if (sheet) return sheet;
@@ -2845,6 +2857,8 @@
     return false;
   }
   let sfPinning = false;
+  const sfMeasured = new WeakMap(), sfFirst = new WeakMap(), sfRO = new WeakMap();
+  let sfDirty = new WeakSet();
   /* (2026-10-25) in Arabic Swiper keeps s.translate with the opposite sign of the position it works with (minTranslate,
      maxTranslate, setTranslate), so it is read through sfT. Reading it directly put Filter in the wrong place in Arabic
      and pushed the tabs' start space the wrong way (found in the pane: start space -429, Filter on top of the tabs). */
@@ -2855,6 +2869,19 @@
     const s = sw && sw.swiper;
     if (!s || !s.params || s.destroyed) return;
     if (sw.dataset.hgnSob == null) sw.dataset.hgnSob = String(s.params.slidesOffsetBefore || 0);
+    /* (2026-10-25, speed) the measuring below only runs again when something that moves the row changed: other tabs,
+       Filter's text, the screen size or language, or a size change seen by the ResizeObserver. Before, it measured on
+       every run, and each time the phone had to lay out the whole store page again first. */
+    const sig = s.slides.length + "|" + (b.dataset.sig || "") + "|" + (WIDE.matches ? 1 : 0) + "|" + lang() + "|" + (nav.closest(".merchant-mobile-view") ? 1 : 0);
+    if (sfMeasured.get(nav) === sig && sfFirst.get(nav) === s.slides[0] && !sfDirty.has(nav)) return;
+    if (window.ResizeObserver && !sfRO.has(nav)) {
+      const ro = new ResizeObserver(() => { sfDirty.add(nav); schedule(); });
+      ro.observe(nav); ro.observe(b);
+      sfRO.set(nav, ro);
+    }
+    const ro = sfRO.get(nav);
+    if (ro && s.slides[0] && sfFirst.get(nav) !== s.slides[0]) { ro.observe(s.slides[0]); ro.observe(s.slides[s.slides.length - 1]); }
+    sfMeasured.set(nav, sig); sfFirst.set(nav, s.slides[0]); sfDirty.delete(nav);
     /* the row's start: 16px on phones; on computers the page column's edge (the store header's), so Filter lines up
        with the banner and the name above it (2026-10-25) */
     let start = 16;
@@ -2889,6 +2916,21 @@
     };
     if (!sfRides.has(s)) {
       sfRides.add(s);
+      /* (2026-10-25) Hyperzod moves the row to the tab of the section in view, counting its own first section ("Our
+         favourites"), so a store opened with the row one stop in: the first tab was already in view, yet the row slid
+         about 90px and Filter sat half off the screen (Eclerano Kunafa). A move to a tab that is already fully in view
+         is now skipped; a tab out of view still slides in. Swiper's own internal moves are left alone. */
+      const slideTo0 = s.slideTo;
+      s.slideTo = function (i, speed, cb, internal) {
+        try {
+          if (!internal && b.isConnected) {
+            const sl = s.slides && s.slides[i];
+            const nr = nav.getBoundingClientRect(), br = b.getBoundingClientRect(), r = sl && sl.getBoundingClientRect();
+            if (r && r.width && (s.rtlTranslate ? (r.right <= br.left - 4 && r.left >= nr.left + 8) : (r.left >= br.right + 4 && r.right <= nr.right - 8))) return false;
+          }
+        } catch (e) {}
+        return slideTo0.apply(this, arguments);
+      };
       s.on("setTranslate", move);
       s.on("setTransition", (sw2, ms) => { if (b.isConnected) b.style.transitionDuration = (ms || 0) + "ms"; });
     }
@@ -2908,7 +2950,12 @@
           s.update();
           /* update() keeps the old position (found in the pane: the tabs stayed 92px too far to the start); move the row
              by the same amount the start space changed, within the row's ends */
-          sfSet(s, Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s) + (want - prev))));
+          /* (2026-10-25) when the tab in use is the first or second, the row goes to its start: Hyperzod had already
+             slid the row one stop in (it counts its own "Our favourites" section), and keeping that put Filter half off
+             the screen (Eclerano Kunafa) */
+          const act = nav.querySelector(".scheme-category-primary-nav__item.is-active");
+          const ai = act ? Array.prototype.findIndex.call(s.slides, (x) => x.contains(act)) : 0;
+          sfSet(s, ai <= 1 ? s.minTranslate() : Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s) + (want - prev))));
         } catch (e) {}
         move();
       }
@@ -3019,8 +3066,9 @@
       if (bar.dataset.sig !== html) { bar.innerHTML = html; bar.dataset.sig = html; }
       if (!bar.classList.contains("is-on")) requestAnimationFrame(() => bar.classList.add("is-on"));
     } else bar.classList.remove("is-on");
-    bar.tabIndex = n > 0 ? 0 : -1;
-    bar.setAttribute("aria-hidden", n > 0 ? "false" : "true");
+    /* (2026-10-25, speed) written only when they change (they were rewritten on every run) */
+    if (bar.tabIndex !== (n > 0 ? 0 : -1)) bar.tabIndex = n > 0 ? 0 : -1;
+    if (bar.getAttribute("aria-hidden") !== (n > 0 ? "false" : "true")) bar.setAttribute("aria-hidden", n > 0 ? "false" : "true");
   }
 
   /* ---------- CHECKOUT TOP (2026-10-24, "HyperGo Quick Checkout" board 3, chosen by Nouf) ----------
@@ -3061,7 +3109,9 @@
   function renderCheckoutTop() {
     const de = document.documentElement;
     const ck = document.getElementById("checkout");
-    const phone = window.innerWidth < 960;
+    /* (2026-10-25, speed) the screen-width question (WIDE), not window.innerWidth: reading innerWidth makes the phone
+       redo the page layout, and this part runs on every page */
+    const phone = !WIDE.matches;
     /* computers (website, 2026-10-24, Nouf: "u just forgot to apply the checkout to the websites"): the same look in
        Hyperzod's two columns. The address card goes on top of the start column (delivery and payment), next to the
        order column (#CartCard). Found from the DOM: grid > [start column > box with the cards] [end column > #CartCard]. */
@@ -3077,7 +3127,9 @@
        for a delivery address with map coordinates, so without one the checkout stayed Hyperzod's (reported in the app). */
     if (!grid) {
       if (old) old.remove();
-      de.classList.remove("hgn-co", "hgn-co-top");
+      /* (2026-10-25, speed) only when one of them is there: removing a class that isn't there still rewrites <html>'s
+         class, which wakes every watcher on the page and restyles the whole page, on every run on every page */
+      if (de.classList.contains("hgn-co") || de.classList.contains("hgn-co-top")) de.classList.remove("hgn-co", "hgn-co-top");
       return;
     }
     if (!de.classList.contains("hgn-co")) de.classList.add("hgn-co");
@@ -3138,7 +3190,7 @@
         ev.preventDefault();
         /* what Hyperzod's own address line does (its openSelections): open the saved addresses list. On computers,
            Hyperzod's (hidden) Delivery Location card opens its own address list, so that card is tapped instead. */
-        const ac = window.innerWidth >= 960 && document.querySelector("#checkout #AddressCard");
+        const ac = WIDE.matches && document.querySelector("#checkout #AddressCard");
         if (ac) { ac.click(); return; }
         const st = csStore();
         if (st) st.commit("sidePanel", ["addressList", true]);
@@ -3292,8 +3344,8 @@
     const S = csStore();
     const o = S && S.getters && S.getters.getViewOrder;
     const id = m ? decodeURIComponent(m[2]) : "";
-    const ok = m && window.innerWidth < 960 && o && String(o.order_id) === id && !odSeen(id);
-    if (!ok) { if (box) box.remove(); document.documentElement.classList.remove("hgn-done-on"); return; }
+    const ok = m && !WIDE.matches && o && String(o.order_id) === id && !odSeen(id);
+    if (!ok) { if (box) box.remove(); if (document.documentElement.classList.contains("hgn-done-on")) document.documentElement.classList.remove("hgn-done-on"); return; }
     const T = OD_TXT[lang()];
     const da = o.delivery_address;
     const addr = typeof da === "string" ? da : da ? [da.building, da.address].filter(Boolean).join(", ") : "";
@@ -3358,13 +3410,17 @@
     /* renderSearchFav after renderSearchLanding (2026-10-20): it sits above the start screen it draws */
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
-    () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
+    () => { if (isHomePath(currentPath())) renderHome(); else if (document.documentElement.classList.contains("hgn-order-on")) document.documentElement.classList.remove("hgn-order-on"); },
     renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords
   ];
   function tick() {
+    osMemo = undefined;
+    osInTick = true;
     for (let i = 0; i < PARTS.length; i++) {
       try { PARTS[i](); } catch (e) {}
     }
+    osInTick = false;
+    osMemo = undefined;
   }
 
   let timer = null;
@@ -3438,7 +3494,9 @@
       const bareCat = mbc && !mbc.querySelector("#hgn-catpage") && !document.documentElement.classList.contains("hgn-cat-native") && !!catRoute();
       /* at most once per frame (2026-10-20): while Home's data is still loading these stay true, and every change ran a full tick */
       /* (2026-10-24) a new checkout too: Hyperzod's header (the store's name) showed for a moment before ours */
-      const bareCo = window.innerWidth < 960 && !!document.getElementById("checkout") && !document.documentElement.classList.contains("hgn-co");
+      /* (2026-10-25, speed) WIDE, not window.innerWidth: this runs on every change Hyperzod makes while it draws a page, and
+         reading innerWidth made the phone redo the whole page layout each time */
+      const bareCo = !!document.getElementById("checkout") && !WIDE.matches && !document.documentElement.classList.contains("hgn-co");
       if ((bareHeader || bareHome || bareSearch || bareCat || bareCo) && !syncFrame) {
         syncFrame = true;
         requestAnimationFrame(() => { syncFrame = false; });
