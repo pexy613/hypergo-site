@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1922 */
+/* hg-version 2026-10-25-1943 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -507,11 +507,21 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 }
 /* the original plus is painted in the theme purple whatever its colour is set to, so it is swapped for a thin dark one */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn svg{display:none!important;}
+/* (2026-10-25, Nouf: the + "flickers or vanishes" while scrolling, iPhone app) the plus is now a plain picture (a background
+   image) instead of a mask: on the iPhone a masked shape inside a scrolling page can blank out until the scroll stops.
+   The button also keeps its own layer (translateZ, no backface), and Vuetify's press effects are off: a finger moving over
+   the buttons while scrolling lit up their grey overlay and started a ripple, so they blinked. */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn .v-btn__content::before{
-  content:"";display:block;width:16px;height:16px;background:var(--hg-ink); /* Talabat: 15.5pt plus on a 40 button */
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23000' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+  content:"";display:block;width:16px;height:16px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 1.8v10.4M1.8 7h10.4' stroke='%23262626' stroke-width='1.8' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
 }
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn :is(.add-btn,.counter-btn){
+  -webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn{transition:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn :is(.v-btn__overlay,.v-btn__underlay,.v-ripple__container){display:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn :is(.increment-btn,.decrement-btn){-webkit-tap-highlight-color:transparent;}
 
 /* Recommended cards: no card box, name and price under the photo */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .scheme-product-recommendation-section .v-card.card-shadow{
