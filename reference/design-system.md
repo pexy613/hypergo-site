@@ -585,7 +585,8 @@ Parts (app-new.js / app-new.css, Home unless noted):
 - Order card: only while an order is in progress (Hyperzod status 1-4), live from Hyperzod; status pill, route Shop / On the way / Your door for delivery orders; tap opens Hyperzod's order page. Hyperzod's own order strip is hidden on Home while it shows.
 - Little joys: real products (photo, in stock) from the 4 nearest open Gifts and Flowers stores; "delivered free" only when all of them deliver free.
 - Made in Bahrain: shops that joined in the last 14 days (from the store id), night-purple panel, faint five-point serrated edge (the flag motif), count of new shops, cards with the store's cover, logo, category and "Joined N days ago".
-- New tag (green gloss pill r9, 6px in from the bottom-start corner of the tile, 8px on computers): at most 2 category tiles, the ones with the most shops that joined in the last 14 days.
+- New tag (green gloss, flush in the bottom-start corner of the tile, top-end corner r10, word 12px in from the tile edge, 16px on computers, so the corner curve never cuts it): at most 2 category tiles, the ones with the most shops that joined in the last 14 days.
+- Opening veil (app, 2026-10-25): #FFFCF9 full screen with the 38px spinner (4px #EDE7FF, top #5A29DE), same as the website veil; on until the new design is drawn, fades .25s, lifts by itself after 6s (app-footer.js OPENING VEIL).
 - Shop by occasion: ticket cards (photo, perforated stub with notches, category under the title, purple go button); the photo is 3:2 on phones and computers (172x115 / about 324x216), notches on its bottom edge. Export 1200x800.
 - Banner carousel shape (2026-10-25): 2:1 on phones and computers (358x179 / about 664x332), one design shows whole everywhere. Export 1500x750.
 - Stores near you: pale green Free delivery chip when the delivery fee is 0.
