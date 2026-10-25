@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-2024 */
+/* hg-version 2026-10-26-0034 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -507,6 +507,10 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 }
 /* the original plus is painted in the theme purple whatever its colour is set to, so it is swapped for a thin dark one */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn svg{display:none!important;}
+/* (2026-10-26) the button's own word hidden everywhere: the Recommended price text rule (14px for everything inside .price)
+   reached the button too, so in Arabic it read "+أضف" across the photo */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn.add-btn,
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .add-product-btn .add-btn.add-btn .v-btn__content{font-size:0!important;}
 /* (2026-10-25, Nouf: the + "flickers or vanishes" while scrolling, iPhone app) the plus is now a plain picture (a background
    image) instead of a mask: on the iPhone a masked shape inside a scrolling page can blank out until the scroll stops.
    The button also keeps its own layer (translateZ, no backface), and Vuetify's press effects are off: a finger moving over
@@ -594,6 +598,16 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal>.v-card-text>.tw-grid:not(:has(>.pro-card-h))::before{order:1!important;flex:0 0 112px!important;width:112px!important;height:112px!important;align-self:flex-start!important;
   border-radius:16px!important;background:#FFFCF9 var(--hgn-logo) center/56% no-repeat!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;}
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal>.v-card-text>.tw-grid:not(:has(>.pro-card-h)) .price>.tw-relative{top:calc(112px - var(--hgp-inset) - 40px)!important;inset-inline-start:auto!important;inset-inline-end:var(--hgp-inset)!important;}
+/* (2026-10-26) the Recommended / Our favourites tiles too: a product with no photo showed the grey picture icon there */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .scheme-product-recommendation-section .product-card-horizontal>.v-card-text>.tw-grid:not(:has(>.pro-card-h))::before{
+  background:#FFFCF9 var(--hgn-logo) center/56% no-repeat!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;}
+
+/* (2026-10-26) Hyperzod's "View all" under a section that shows only its first 20 products: was small dark capitals that read
+   as plain text; now the soft purple pill of our other secondary buttons */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .scheme-pb-view-all{
+  display:inline-flex!important;align-items:center!important;gap:4px!important;height:38px!important;padding:0 16px!important;margin:12px auto 0!important;
+  border-radius:19px!important;background:#F1ECFF!important;color:#5A29DE!important;font-size:14px!important;font-weight:600!important;text-transform:none!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .scheme-pb-view-all .v-icon{color:#5A29DE!important;caret-color:#5A29DE!important;font-size:20px!important;width:20px!important;height:20px!important;}
 
 /* STORE TOP BUTTONS (2026-10-24, "HyperGo Store Top Buttons" option D, chosen by Nouf): Back, Filter and Search
    without circles: white icons (44px to tap) on a soft dark shade over the top of the banner. Once the page scrolls
@@ -641,6 +655,8 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   /* while searching: products and categories with no match, Recommended / Our favourites hidden; the "no match" line */
   html.hg-new-app.hgn-store.hgn-sq-on body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page [data-hgn-sq="0"],
   html.hg-new-app.hgn-store.hgn-sq-on body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .scheme-product-recommendation-section{display:none!important;}
+  /* (2026-10-26) the categories' product counts are for the whole list, so they are hidden while searching */
+  html.hg-new-app.hgn-store.hgn-sq-on body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .category-name[data-hgn-count]::after{display:none!important;}
   #hgn-sq-none{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:36px 0 8px;}
   #hgn-sq-none p{margin:0;font-size:15px;line-height:20px;color:var(--hg-muted);}
   #hgn-sq-none button{height:38px;padding:0 16px;border:0;border-radius:19px;background:#F1ECFF;color:#5A29DE;font:inherit;font-size:14px;font-weight:600;cursor:pointer;}
@@ -679,7 +695,9 @@ html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.mercha
 html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions.cover-scrolled::before{opacity:0;}
 
 /* the Filter button sits at the start of the category tabs instead (app-new.js, STORE FILTER BY THE CATEGORIES) */
-html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn.tw-relative{display:none !important;}
+/* (2026-10-26) only while our Filter is there (it sits first in the category tabs): a store page without the tabs row kept
+   no Filter at all */
+html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view:has(#ProductCategoriesNav > .hgn-sfilter) .merchant-floating-actions .merchant-floating-btn.tw-relative{display:none !important;}
 /* (2026-10-25, option B of the "HyperGo Store Category Tabs" canvas, chosen by Nouf) Filter scrolls with the tabs, like
    the first tab of the row: the tabs start after it (app-new.js widens the row's start space by Filter's width) and it
    moves with the row as it scrolls, so a tab never goes half under it any more (her screenshot: "door Plants"). The
@@ -1075,6 +1093,11 @@ html.hg-new-app .hgn-mib-n{font-size:14px;line-height:18px;font-weight:700;color
 html.hg-new-app .hgn-mib-c{font-size:12px;line-height:16px;color:#D9CEFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* a Latin store or product name inside the Arabic page: its own direction, so the dots end it on the right side (it was cut at the start) */
 html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-joy-s,.hgn-tk-t){unicode-bidi:plaintext;text-align:right;}
+/* (2026-10-26) the same for the store names in Home's store rows, the Stores page, Search results, category pages, the cart
+   sheet and the checkout header: a long English name in Arabic lost its start ("…tals Flowers") */
+html.hg-new-app[lang^='ar'] :is(.hgn-store-name,.hgn-sp-name,.hgn-sb-name,.hgn-cc-name,.hgn-cs-s,.hgn-co-t2){unicode-bidi:plaintext;text-align:right;}
+/* and the product names on store pages: an English name in Arabic was cut at both ends ("BRUFEN PAEDIATRIC ...00MG/5ML") */
+html.hg-new-app[lang^='ar'] body :is(#app,.v-overlay-container) .scheme-merchant-page .product-name{unicode-bidi:plaintext;text-align:right;}
 html.hg-new-app .hgn-mib-age{align-self:flex-start;margin-top:8px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;white-space:nowrap;
   background:rgba(172,228,170,.16);box-shadow:inset 0 0 0 1px rgba(172,228,170,.4);color:#ACE4AA;font-size:11px;font-weight:700;}
 @media (min-width:960px){

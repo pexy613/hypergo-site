@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1651 */
+/* hg-version 2026-10-26-0020 */
 /* 2026-10-19: every store rule starts with :is(#app,.v-overlay-container) instead of #app (same strength). In the phone app a store tapped on a category page, banner, Featured stores, the cart or a notification opens as a sheet outside #app, under body > .v-overlay-container; rules scoped to #app missed it, so those stores lost the product-row and Recommended-row layout. The website never opens stores as a sheet, so it is unchanged. */
 @keyframes hgspin{to{transform:rotate(360deg)}}
 
@@ -1984,3 +1984,8 @@ html,body,.v-application,.bg-white,.tw-bg-white,.bg-surface{background-color:#FF
 [data-color-scheme="scheme-mtlgeoeh"],[data-color-scheme="scheme-mu83wtft"]{--scheme-background:#FFFCF9!important;}
 /* page-change slide and the 404 page were hard-coded white (white flash between screens) */
 .router-view-slide-in-enter-active,.router-view-slide-in-leave-active,.router-view-slide-out-enter-active,.router-view-slide-out-leave-active,.error-page-404{background-color:#FFFCF9!important;}
+
+/* (2026-10-26) Arabic: Hyperzod's hidden page heading (.tw-sr-only, for screen readers) sits at the right edge with a -1px
+   margin, one pixel outside the page, so the whole page could be dragged 1px sideways. Without the margin it stays inside
+   (it is still hidden: 1px, clipped). */
+html[lang^='ar'] .tw-sr-only{margin:0 !important;}

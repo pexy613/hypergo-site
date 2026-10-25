@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-2327 */
+/* hg-version 2026-10-26-0020 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -2740,6 +2740,9 @@
       "#merchants_by_category .merchant-card .merchant-off,#merchants_by_category .merchant-card .merchant-coupon,#merchants_by_category .merchant-card .merchant-offer-chips{position:static !important;}" +
       ".v-overlay__content:has(>.product-popup.product-model){border-radius:20px !important;}" +
       ".product-popup.product-model #productInfo .product-price,.product-popup.product-model #productInfo .product-category-name{display:none !important;}" +
+      /* (2026-10-26) the price is hidden above because the Add button at the bottom shows it; a closed store has no Add button,
+         so the sheet showed no price at all. Then the price stays (phones and computers). */
+      "html body .v-card.product-popup:not(:has(.v-card-actions)) #productInfo .product-price{display:block !important;}" +
       ".product-popup.product-model #productInfo .product-name{font-size:22px !important;font-weight:700 !important;line-height:1.3 !important;color:#1B2023 !important;margin-bottom:10px !important;}" +
       ".product-popup.product-model #ProductDescription,.product-popup.product-model #ProductDescription *{font-size:14px !important;line-height:20px !important;color:#767676 !important;font-weight:400 !important;}" +
       ".product-popup.product-model #ProductDescription br,.product-popup.product-model #ProductDescription .mmupi-feat-icon{display:none !important;}" +

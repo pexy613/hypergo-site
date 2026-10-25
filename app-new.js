@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-2010 */
+/* hg-version 2026-10-26-0034 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -29,6 +29,16 @@
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 395 456'><path d='" + LOGO_D + "' fill='#5A29DE'/></svg>"
   );
 
+  /* (2026-10-26) a screen that turns wide without reloading (an iPad turned sideways, a browser window made wider): the phone
+     header's own styles stayed on the bar and won over the computer one, so the computer showed the purple phone bar with
+     the phone cart button in its corner. They are taken off once the screen is 960px or wider. */
+  function undoPhoneHeader(root, inner) {
+    if (!root.style.getPropertyValue("background-image")) return;
+    ["position", "top", "padding-top", "background-color", "background-image", "border-radius", "box-shadow", "--hg-wm-op"].forEach((k) => root.style.removeProperty(k));
+    inner.forEach((el) => { if (el) ["background", "box-shadow", "padding", "height", "transition"].forEach((k) => el.style.removeProperty(k)); });
+    const cb = document.getElementById("hg-cart-btn");
+    if (cb) cb.remove();
+  }
   function applyHyperGoHeader() {
 
     const root =
@@ -73,7 +83,7 @@
 
     /* mobile layout only (search row hidden on desktop) — desktop is handled by applyHyperGoDesktop */
     /* media query (2026-10-20): same 960px breakpoint that hides the row, without a style recalc on every run */
-    if (!window.matchMedia("(max-width: 959.98px)").matches) return;
+    if (!window.matchMedia("(max-width: 959.98px)").matches) { undoPhoneHeader(root, [header, toolbar, toolbarContent, searchRow]); return; }
 
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
@@ -1187,6 +1197,9 @@
     const A0 = ATXT[L], free0 = stores.every((m) => storeFee(m) === 0);
     /* (2026-10-25) while the stores' menus load, the section is already there with soft blocks of the same size, so it
        doesn't push Made in Bahrain and the rest down when the products arrive (Nouf's recording); 8 seconds at most */
+    /* (2026-10-26) the 8 seconds count from the start of each wait: the start was never cleared, so after a change of
+       address the section vanished at once while the new stores' menus loaded, then came back (the page jumped) */
+    if (!lists.some((l) => !l)) joyWaitAt = 0;
     if (lists.some((l) => !l)) {
       if (!joyWaitAt) joyWaitAt = Date.now();
       if (Date.now() - joyWaitAt > 8000) return "";
@@ -1310,7 +1323,7 @@
       '<span class="hgn-store-img' + (cover ? "" : " is-logo") + '">' +
       ((cover || logo) ? '<img src="' + esc(cover || logo) + '" alt="" loading="lazy" decoding="async">' : "") +
       '<button type="button" class="hgn-fav' + (on ? " is-on" : "") + '" data-act="fav" data-id="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + esc(on ? t.unfav : t.fav) + '">' + TOP_ICON.heart + "</button></span>" +
-      '<span class="hgn-store-name">' + esc(m.name) + "</span>" +
+      '<span class="hgn-store-name">' + esc(nameOf(m)) + "</span>" +
       ((extra || tags.length || fl) ? '<span class="hgn-tags">' + (extra || "") + (fl ? '<span class="hgn-tag hgn-tag-fee"><bdi>' + esc(fl) + "</bdi></span>" : "") +
         tags.map((c) => '<span class="hgn-tag">' + esc(catLabel(c)) + "</span>").join("") + "</span>" : "") +
       "</a>";
@@ -1337,7 +1350,7 @@
       const meta = [c ? catLabel(c) : "", storeTime(m), fee ? feeLabel(m, d.L) : ""].filter(Boolean).join(" · ");
       return '<a class="hgn-sp-row" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
         '<span class="hgn-sp-img">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
-        '<span class="hgn-sp-txt"><span class="hgn-sp-name">' + esc(m.name) + "</span>" +
+        '<span class="hgn-sp-txt"><span class="hgn-sp-name">' + esc(nameOf(m)) + "</span>" +
         (meta ? '<span class="hgn-sp-meta">' + esc(meta) + "</span>" : "") +
         (storeFee(m) === 0 ? '<span class="hgn-sp-free">' + esc(TXT[d.L].free) + "</span>" : "") + "</span></a>";
     }).join("");
@@ -1677,15 +1690,18 @@
     const S = storeState();
     const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
     if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number") return null;
+    /* (2026-10-26) a failed or empty lookup is tried again after 30s (before: never, so the card kept no time or fee) */
+    if (got === false) return null;
     const rec = sinfoFetched[id] = { data: null };
+    const retry = () => { sinfoFetched[id] = false; setTimeout(() => { if (sinfoFetched[id] === false) delete sinfoFetched[id]; schedule(); }, 30000); };
     const url = "https://api.hyperzod.app/store/v1/search?location%5B%5D=" + sel.latitude + "&location%5B%5D=" + sel.longitude +
       "&q=" + encodeURIComponent(md.name) + "&locale=" + lang() + "&search_type=merchant";
     fetch(url, { headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" } })
       .then((r) => r.json())
       .then((j) => {
         const m = (j && Array.isArray(j.data) ? j.data : []).find((x) => x && (x._id || x.id) === id);
-        if (m) { rec.data = m; schedule(); }
-      }, () => {});
+        if (m) { rec.data = m; schedule(); } else retry();
+      }, retry);
     return null;
   }
   function storeListEntry(id) {
@@ -1722,8 +1738,10 @@
     const S = storeState(), out = {};
     const add = (p) => {
       const id = p && (p._id || p.id), im = p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]);
-      const u = im && (im.thumb_url || im.file_url);
-      if (id && u) out[id] = u;
+      /* (2026-10-25) both addresses, the small one first: some stores' small copies (and sometimes both) are missing on
+         Hyperzod's server; the next one is tried, and with none left the box gets the no-photo look */
+      const u = im ? [im.thumb_url, im.file_url].filter((x, i, a) => x && a.indexOf(x) === i && !badPhoto.has(x)) : [];
+      if (id && u.length) out[id] = u[0];
     };
     try { (S.Merchant.categoryProducts || []).forEach((c) => (c.category_products || []).forEach(add)); } catch (e) {}
     try {
@@ -1736,6 +1754,18 @@
     return out;
   }
   const noPhoto = new WeakMap(); /* photo box -> { id, t }: no photo found at time t (2026-10-20) */
+  /* (2026-10-25) photo addresses that failed to load. Before, a missing photo left our broken picture in the box: the box
+     stayed empty, and global-footer-1.js took the broken picture for a real photo, so no store logo either (UMAMI
+     Restaurant, Dr.7 up). Now the picture is taken out, the next address is tried, then the no-photo look. */
+  const badPhoto = new Set();
+  function photoFailed(ev) {
+    const img = ev.target;
+    badPhoto.add(img.getAttribute("src"));
+    const box = img.closest(".pro-card-h-img");
+    img.remove();
+    if (box) noPhoto.delete(box);
+    schedule();
+  }
   function fillProductPhotos(page) {
     const boxes = page.querySelectorAll(".pro-card-h-img");
     if (!boxes.length) return;
@@ -1764,6 +1794,7 @@
       img.decoding = "async";
       img.loading = "eager"; /* (2026-10-24) was lazy: boxes stayed empty while scrolling, the + alone on them */
       img.setAttribute("data-pid", id);
+      if (!mine) img.addEventListener("error", photoFailed);
       img.src = u;
       if (!mine) host.appendChild(img);
     });
@@ -1838,9 +1869,11 @@
       const tm = entry.delivery_data && entry.delivery_data.time;
       const mm = tm && String(tm).match(/(\d+)/);
       if (mm && +mm[1] > 0 && entry.show_delivery_time !== false) items.push(["clock", mm[1] + T.mins, T.time]); /* 0: not shown (2026-10-24) */
-      const distEl = gutter.querySelector(":scope > .tw-mt-4 span");
-      const dm = distEl && distEl.textContent.match(/([\d.]+)\s*(km|كم)/i);
-      if (dm) items.push(["pin", dm[1] + T.km, T.dist]);
+      /* (2026-10-26) the first part of Hyperzod's line that is a distance (not just the first part), and only when it is
+         believable: without a real address Hyperzod writes thousands of km, which the store lists already hide (storeKm) */
+      let dm = null;
+      gutter.querySelectorAll(":scope > .tw-mt-4 span").forEach((sp) => { if (!dm) dm = sp.textContent.match(/([\d.]+)\s*(km|كم)/i); });
+      if (dm && +dm[1] > 0 && +dm[1] < 100) items.push(["pin", dm[1] + T.km, T.dist]);
       /* the delivery fee, always when Hyperzod gives one (2026-10-24): from the store lists, else from the store itself */
       let fee = storeFee(entry);
       if (fee === null) fee = storeFee(md);
@@ -1868,7 +1901,10 @@
       const h = sec.querySelector(".category-name");
       if (!h) return;
       const n = String(sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").length);
-      if (n !== "0" && h.getAttribute("data-hgn-count") !== n) h.setAttribute("data-hgn-count", n);
+      /* (2026-10-26) no number when the section ends with Hyperzod's "View all" (it shows the first 20 only, so "20" was
+         not the real count, e.g. Health Point Pharmacy), or when it has no products */
+      if (n === "0" || sec.querySelector(".scheme-pb-view-all")) { if (h.hasAttribute("data-hgn-count")) h.removeAttribute("data-hgn-count"); }
+      else if (h.getAttribute("data-hgn-count") !== n) h.setAttribute("data-hgn-count", n);
     });
 
     page.querySelectorAll(".cat-section .product-price, .scheme-product-recommendation-section .product-price").forEach(splitPrice);
@@ -1955,26 +1991,28 @@
   /* products of a store from its Hyperzod menu (page 1), with photo, featured first; loaded once per store */
   const menuCache = {};
   let menuQueue = [], menuBusy = 0;
+  /* (2026-10-26) kept per language: Hyperzod switches language without reloading the page, and the product names stayed in
+     the first language (Little joys, product rows in Search and on the Stores page) */
   function storeProducts(id) {
-    const c = menuCache[id];
+    const c = menuCache[lang() + ":" + id];
     if (c) return c.list;
-    menuCache[id] = { list: null };
-    menuQueue.push(id);
+    menuCache[lang() + ":" + id] = { list: null };
+    menuQueue.push(lang() + ":" + id);
     pumpMenus();
     return null;
   }
   function pumpMenus() {
     while (menuBusy < 3 && menuQueue.length) {
-      const id = menuQueue.shift();
+      const ck = menuQueue.shift(), L = ck.slice(0, 2), id = ck.slice(3);
       menuBusy++;
-      fetch("https://api.hyperzod.app/store/v1/merchant/menu?merchant_id=" + encodeURIComponent(id) + "&locale=" + lang() + "&page=1", {
+      fetch("https://api.hyperzod.app/store/v1/merchant/menu?merchant_id=" + encodeURIComponent(id) + "&locale=" + L + "&page=1", {
         headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" }
       }).then((r) => r.json()).then((j) => {
         const all = [];
         ((j && j.data && j.data.category_products) || []).forEach((c) => (c.category_products || []).forEach((p) => { if (p && prodImg(p) && p.in_stock !== false) all.push(p); }));
         all.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
-        menuCache[id].list = all.slice(0, 10);
-      }, () => { menuCache[id].list = []; }).then(() => { menuBusy--; fillProducts(id); pumpMenus(); });
+        menuCache[ck].list = all.slice(0, 10);
+      }, () => { menuCache[ck].list = []; }).then(() => { menuBusy--; fillProducts(id); pumpMenus(); });
     }
   }
   function prodsHtml(m, list, L) {
@@ -2160,14 +2198,17 @@
   function nearStores(hd) {
     loadNearAll();
     const sm = Array.isArray(window.__hgSearchMerchants) ? window.__hgSearchMerchants : NO_LIST, home = homeStores(hd);
-    if (nearMemo.near === nearAll.list && nearMemo.sm === sm && nearMemo.home === home) return nearMemo.out;
+    /* (2026-10-26) the nearby list only while it is the one for the address chosen now: after a change of address the old
+       address's stores (and their distances) were shown until the new list came in */
+    const near = nearAll.key && nearAll.key === nearKey() ? nearAll.list : NO_LIST;
+    if (nearMemo.near === near && nearMemo.sm === sm && nearMemo.home === home) return nearMemo.out;
     const out = [], seen = {};
-    nearAll.list.concat(sm, home).forEach((m) => {
+    near.concat(sm, home).forEach((m) => {
       const id = m && (m._id || m.id);
       if (id && !seen[id] && m.slug) { seen[id] = true; out.push(m); }
     });
     out.sort((a, b) => storeDist(a) - storeDist(b));
-    nearMemo = { near: nearAll.list, sm: sm, home: home, out: out };
+    nearMemo = { near: near, sm: sm, home: home, out: out };
     return out;
   }
 
@@ -2264,7 +2305,7 @@
     const all = nearStores(hd);
     /* nearby stores still loading (2026-10-22): grey loading rows (as on Search) instead of Hyperzod's old list. Not
        loading at all (no address, or the load failed): Hyperzod's own list stays */
-    if (!nearAll.key) {
+    if (!nearAll.key || nearAll.key !== nearKey()) {
       const k = nearKey();
       if (nearAll.busy || (!late && !(k && nearGaveUp(k)))) wait(); else native();
       return;
@@ -2509,7 +2550,7 @@
         const href = storeHref(m, L), img = storeImg(m, "logo") || storeImg(m, "cover");
         return '<a class="hgn-circ" href="' + esc(href) + '" data-href="' + esc(href) + '"><span class="hgn-circ-img">' +
           (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
-          '<span class="hgn-circ-name">' + esc(m.name) + "</span></a>";
+          '<span class="hgn-circ-name">' + esc(nameOf(m)) + "</span></a>";
       }).join("") + "</div></section>";
   }
 
@@ -3099,7 +3140,8 @@
       hits += n;
     });
     const S = storeState(), cp = S && S.Merchant && S.Merchant.categoryProducts;
-    const more = Array.isArray(cp) && cp.some((c) => c && c.is_paginated);
+    /* (2026-10-26) also when a section ends with "View all": Hyperzod shows only its first 20 products */
+    const more = (Array.isArray(cp) && cp.some((c) => c && c.is_paginated)) || !!page.querySelector(".cat-section .scheme-pb-view-all");
     const ar = lang() === "ar";
     if (hits && !more) { if (none) none.remove(); }
     else if (secs[0]) {
@@ -3485,7 +3527,7 @@
     const html =
       '<div class="hgn-done-in"><span class="hgn-done-ok" role="img" aria-label="' + esc(T.title) + '">' + OD_CHECK + "</span>" +
       '<div class="hgn-done-hd"><h1>' + esc(T.title) + "</h1>" +
-      (o.merchant && o.merchant.name ? '<p>' + esc(T.sent) + " " + esc(o.merchant.name) + "</p>" : "") + "</div>" +
+      (o.merchant && o.merchant.name ? '<p>' + esc(T.sent) + " " + esc(nameOf(o.merchant)) + "</p>" : "") + "</div>" +
       '<section class="hgn-done-card">' + row(T.order, "#" + esc(o.order_id)) + (when ? row(T.when, esc(when)) : "") +
       (addr ? row(T.to, esc(addr), "is-addr") : "") + (total ? row(T.total, total, "is-total") : "") + "</section></div>" +
       '<div class="hgn-done-bt"><button type="button" class="hgn-done-track">' + esc(T.track) + '</button>' +
@@ -3513,24 +3555,32 @@
      "قابل للتخصيص", and the store search field's "يبحث في <store>" ("he searches in") becomes "ابحث في <store>".
      Runs at most twice a second, Arabic only. */
   const AR_WORDS = { "مكان الامر": "تأكيد الطلب", "يضيف": "أضف", "يعدل أو يكيف": "قابل للتخصيص" };
+  /* (2026-10-26) English too: Hyperzod's cart panel on computers said "1 items" */
+  const EN_WORDS = { "1 items": "1 item" };
   let arWordsAt = 0;
+  let arWordsLater = 0;
   function fixArabicWords() {
-    if (!hgIsAr()) return;
+    const WORDS = hgIsAr() ? AR_WORDS : EN_WORDS;
     const now = Date.now();
-    if (now - arWordsAt < 500) return;
+    /* (2026-10-26) a run skipped by the half-second limit comes back once it is over (before: words drawn in that half
+       second, like a product sheet's button, kept Hyperzod's wording until something else changed) */
+    if (now - arWordsAt < 500) { if (!arWordsLater) arWordsLater = setTimeout(() => { arWordsLater = 0; schedule(); }, 520 - (now - arWordsAt)); return; }
     arWordsAt = now;
-    const root = document.getElementById("app");
-    if (!root) return;
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    /* (2026-10-26) the product sheet, cart and other panels live outside #app (Hyperzod's overlay layer), so they are read
+       too: the product sheet's button said "يضيف" ("he adds") instead of "أضف" */
+    const roots = [document.getElementById("app")].concat(Array.prototype.slice.call(document.querySelectorAll("body > .v-overlay-container"))).filter(Boolean);
     const hits = [];
-    while (w.nextNode()) {
-      const n = w.currentNode, t = n.nodeValue;
-      if (t && t.length < 20) { const k = t.trim(); if (AR_WORDS[k]) hits.push([n, k]); }
-    }
-    hits.forEach((h) => { h[0].nodeValue = h[0].nodeValue.replace(h[1], AR_WORDS[h[1]]); });
-    root.querySelectorAll("input[placeholder^='يبحث في ']").forEach((i) => {
-      i.setAttribute("placeholder", "ابحث في " + i.getAttribute("placeholder").slice(8));
+    roots.forEach((root) => {
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      while (w.nextNode()) {
+        const n = w.currentNode, t = n.nodeValue;
+        if (t && t.length < 20) { const k = t.trim(); if (WORDS[k]) hits.push([n, k]); }
+      }
+      root.querySelectorAll("input[placeholder^='يبحث في ']").forEach((i) => {
+        i.setAttribute("placeholder", "ابحث في " + i.getAttribute("placeholder").slice(8));
+      });
     });
+    hits.forEach((h) => { h[0].nodeValue = h[0].nodeValue.replace(h[1], WORDS[h[1]]); });
   }
 
   /* STORE OPENING HEAD START (2026-10-25, Nouf's recording: a store took about 2 seconds to open). Opening a store,

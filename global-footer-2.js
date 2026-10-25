@@ -1,4 +1,4 @@
-/* hg-version 2026-10-20-2326 */
+/* hg-version 2026-10-26-0013 */
 (function(){
   const V="101";
   const CART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z" fill="#111"/></svg>';
@@ -7,10 +7,12 @@
   const href=(m,loc)=>"/"+loc+"/m/"+encodeURIComponent(m.slug)+"/"+(m._id||m.id);
   /* (2026-10-20): Hyperzod's whole saved store ("vuex") is parsed only when its text changed; the cart badge check runs
      every second and parsing the whole store each time was the biggest cost left on the search screen */
-  let cartRaw=null,cartVal=null;
+  let cartRaw=null,cartVal=null,cartAll=0;
   function cartData(){
     try{const raw=localStorage.getItem("vuex")||"{}";if(raw===cartRaw)return cartVal;cartRaw=raw;cartVal=null;
-      const x=JSON.parse(raw),a=x.Cart&&x.Cart.cart,c=Array.isArray(a)?a[0]:a;cartVal=c||null;return cartVal;}catch(e){return null;}
+      const x=JSON.parse(raw),a=x.Cart&&x.Cart.cart,c=Array.isArray(a)?a[0]:a;cartVal=c||null;
+      /* (2026-10-26) the badge counts the items of every store's cart, not only the first store's */
+      cartAll=(Array.isArray(a)?a:[a]).reduce((t,k)=>t+((k&&(k.total_items||k.items_count))||0),0);return cartVal;}catch(e){return null;}
   }
   function searchInput(root){return root.querySelector(".mobile-search-input input")||root.querySelector("input")||document.querySelector("#AppBar .web-main-search input");}
   function setNativeSearch(q){
@@ -47,7 +49,7 @@
     };}
     const label=(document.documentElement.lang||"").startsWith("ar")?"سلة التسوق":"Cart";
     if(b.getAttribute("aria-label")!==label)b.setAttribute("aria-label",label);
-    const c=cartData(),n=c&&(c.total_items||c.items_count||0),badge=b.querySelector(".hg-sc-badge"),count=String(n||"");
+    const c=cartData(),n=c?cartAll:0,badge=b.querySelector(".hg-sc-badge"),count=String(n||"");
     if(b.classList.contains("has-items")!==!!n)b.classList.toggle("has-items",!!n);
     if(badge.textContent!==count)badge.textContent=count;
   }
