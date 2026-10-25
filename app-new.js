@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1922 */
+/* hg-version 2026-10-25-2010 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1655,7 +1655,8 @@
     pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
     bike: '<circle cx="6" cy="16.5" r="3"/><circle cx="18" cy="16.5" r="3"/><path d="M6 16.5l3.5-7h5l3.5 7M9.5 9.5L8 6.5H6M14.5 9.5l1.5-3h2"/>',
     bag: '<path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
-    search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>'
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',
+    close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>'
   };
   function sIcon(k) {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SICON[k] + "</svg>";
@@ -3021,25 +3022,121 @@
     const html = SF_ICON + "<span>" + esc(word) + "</span>" + (n ? '<span class="hgn-sfilter-n">' + esc(n) + "</span>" : "");
     if (b.getAttribute("aria-label") !== label) b.setAttribute("aria-label", label);
     if (b.dataset.sig !== html) { b.innerHTML = html; b.dataset.sig = html; }
-    /* computers (2026-10-25, option A): "Search <store>" at the end of the tabs; it opens the store's own search page */
+    /* computers (2026-10-25, option A): "Search <store>" at the end of the tabs.
+       (2026-10-25, later) a real search field: typing filters this page's products in place (STORE SEARCH IN PLACE
+       below), it no longer opens Hyperzod's separate store search page. */
     let q = nav.querySelector(":scope > .hgn-ssearch");
     if (mob) { if (q) q.remove(); sfRide(nav, b); return; }
     if (!q) {
-      q = document.createElement("button");
-      q.type = "button";
+      q = document.createElement("label");
       q.className = "hgn-ssearch";
-      q.addEventListener("click", (ev) => {
-        ev.preventDefault();
-        const m = currentPath().match(/^\/(en|ar)\/m\/[^/]+\/[^/?#]+/);
-        if (m) go(m[0] + "/search");
+      q.innerHTML = sIcon("search") + '<input type="search" autocomplete="off" spellcheck="false">' +
+        '<button type="button" class="hgn-ssearch-x" hidden>' + sIcon("close") + "</button>";
+      const inp = q.querySelector("input"), x = q.querySelector(".hgn-ssearch-x");
+      inp.addEventListener("input", () => { x.hidden = !inp.value; sqApply(true); });
+      inp.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape" && inp.value) { ev.preventDefault(); inp.value = ""; x.hidden = true; sqApply(true); }
+        if (ev.key === "Enter") ev.preventDefault();
       });
+      x.addEventListener("click", (ev) => { ev.preventDefault(); inp.value = ""; x.hidden = true; sqApply(true); inp.focus(); });
+      /* a category tab while searching: the search is cleared first, so the tab's section is there to scroll to */
+      nav.addEventListener("click", (ev) => {
+        if (!inp.value || !ev.target.closest || !ev.target.closest(".swiper-slide")) return;
+        inp.value = ""; x.hidden = true; sqApply(true);
+      }, true);
       nav.appendChild(q);
     } else if (nav.lastElementChild !== q) nav.appendChild(q);
     const S = storeState(), md = S && S.Merchant && S.Merchant.merchantData;
     const nm = md ? (nameOf(md) || md.name || "") : "";
-    const qh = sIcon("search") + "<span>" + esc((lang() === "ar" ? "ابحث في " : "Search ") + nm) + "</span>";
-    if (q.dataset.sig !== qh) { q.innerHTML = qh; q.dataset.sig = qh; }
+    const ph = (lang() === "ar" ? "ابحث في " : "Search ") + nm;
+    const qi = q.querySelector("input");
+    if (qi && qi.placeholder !== ph) { qi.placeholder = ph; qi.setAttribute("aria-label", ph); }
+    const qx = q.querySelector(".hgn-ssearch-x"), xl = lang() === "ar" ? "مسح البحث" : "Clear search";
+    if (qx && qx.getAttribute("aria-label") !== xl) qx.setAttribute("aria-label", xl);
     sfRide(nav, b);
+  }
+
+  /* ---------- STORE SEARCH IN PLACE (computers, 2026-10-25) ----------
+     The "Search <store>" field at the end of the category tabs filters the store page itself: while something is typed,
+     only products whose name holds the typed words stay, categories with none left are hidden, and so are Recommended
+     and "Our favourites". Nothing typed: the page as it was. Nothing is removed or re-created (the products are only
+     hidden), so "+" and opening a product work as before. When none match: a short line saying so. A store whose
+     categories load more products later (Hyperzod's is_paginated) may hold more than the page shows, so there the line
+     also offers Hyperzod's full store search instead of saying there is nothing. Phones keep the search button. */
+  function sqNorm(t) {
+    return String(t || "").toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآ]/g, "ا")
+      .replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/\s+/g, " ").trim();
+  }
+  function sqSet(el, off) {
+    if (off) { if (el.getAttribute("data-hgn-sq") !== "0") el.setAttribute("data-hgn-sq", "0"); }
+    else if (el.hasAttribute("data-hgn-sq")) el.removeAttribute("data-hgn-sq");
+  }
+  function sqApply(typed) {
+    const root = document.documentElement;
+    const page = root.classList.contains("hgn-store") ? openStorePage() : null;
+    const inp = page && !page.classList.contains("merchant-mobile-view") ? page.querySelector("#ProductCategoriesNav > .hgn-ssearch input") : null;
+    const words = inp ? sqNorm(inp.value).split(" ").filter(Boolean) : [];
+    const on = words.length > 0;
+    if (root.classList.contains("hgn-sq-on") !== on) root.classList.toggle("hgn-sq-on", on);
+    let none = document.getElementById("hgn-sq-none");
+    if (!on) {
+      if (none) none.remove();
+      if (document.querySelector("[data-hgn-sq]")) document.querySelectorAll("[data-hgn-sq]").forEach((el) => el.removeAttribute("data-hgn-sq"));
+      return;
+    }
+    const secs = page.querySelectorAll(".cat-section");
+    let hits = 0;
+    secs.forEach((sec) => {
+      let n = 0;
+      sec.querySelectorAll(".product-card-horizontal,.scheme-merchant-product-grid-card").forEach((c) => {
+        const nm = c.querySelector(".product-name");
+        const t = sqNorm(nm && nm.textContent);
+        const hit = words.every((w) => t.indexOf(w) !== -1);
+        sqSet(c, !hit);
+        if (hit) n++;
+      });
+      sqSet(sec, n === 0);
+      hits += n;
+    });
+    const S = storeState(), cp = S && S.Merchant && S.Merchant.categoryProducts;
+    const more = Array.isArray(cp) && cp.some((c) => c && c.is_paginated);
+    const ar = lang() === "ar";
+    if (hits && !more) { if (none) none.remove(); }
+    else if (secs[0]) {
+      if (!none) {
+        none = document.createElement("div");
+        none.id = "hgn-sq-none";
+        none.innerHTML = "<p></p>";
+      }
+      if (none.nextElementSibling !== secs[0]) secs[0].parentNode.insertBefore(none, secs[0]);
+      const msg = hits ? (ar ? "قد تجد المزيد في كل منتجات المتجر." : "There may be more in the store's full list.")
+        : (ar ? "لا توجد منتجات تطابق \"" + inp.value.trim() + "\"" : "No products match \"" + inp.value.trim() + "\"");
+      const p = none.querySelector("p");
+      if (p.textContent !== msg) p.textContent = msg;
+      let a = none.querySelector("button");
+      if (more && !a) {
+        a = document.createElement("button");
+        a.type = "button";
+        a.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const m = currentPath().match(/^\/(en|ar)\/m\/[^/]+\/[^/?#]+/);
+          if (m) go(m[0] + "/search");
+        });
+        none.appendChild(a);
+      } else if (!more && a) a.remove();
+      const al = ar ? "ابحث في كل المنتجات" : "Search all products";
+      if (a && a.textContent !== al) a.textContent = al;
+    }
+    /* typing far down the page: the list gets shorter and the first results end up behind the bars at the top (the tabs
+       row stays stuck under Hyperzod's top bar), so the page goes back up until they start just under the tabs */
+    if (typed) {
+      const nav = page.querySelector("#ProductCategoriesNav");
+      const first = Array.prototype.find.call(secs, (x) => !x.hasAttribute("data-hgn-sq")) || none;
+      if (nav && first) {
+        const d = first.getBoundingClientRect().top - nav.getBoundingClientRect().bottom - 8;
+        if (d < 0) window.scrollBy(0, d);
+      }
+    }
   }
 
   /* ---------- VIEW CART BAR (2026-10-24, "HyperGo Quick Checkout" board 1) ----------
@@ -3490,7 +3587,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else if (document.documentElement.classList.contains("hgn-order-on")) document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
+    renderStore, renderStoreTags, renderStoreFilter, () => sqApply(false), renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
   ];
   function tick() {
     osMemo = undefined;
@@ -3509,7 +3606,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = ".hgn-sfilter,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = ".hgn-sfilter,.hgn-ssearch,#hgn-sq-none,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);
