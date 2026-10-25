@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1831 */
+/* hg-version 2026-10-25-1700 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -595,9 +595,13 @@ html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.mercha
 
 /* the Filter button sits at the start of the category tabs instead (app-new.js, STORE FILTER BY THE CATEGORIES) */
 html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .merchant-floating-actions .merchant-floating-btn.tw-relative{display:none !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter){display:flex !important;align-items:center !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter) > .product-categories-nav__scroller{flex:1 1 auto;min-width:0;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter{flex:none;position:relative;height:38px;margin:0;margin-inline-start:16px;padding:0 14px 0 12px;border:0;border-radius:19px;gap:6px;
+/* (2026-10-25, option B of the "HyperGo Store Category Tabs" canvas, chosen by Nouf) Filter scrolls with the tabs, like
+   the first tab of the row: the tabs start after it (app-new.js widens the row's start space by Filter's width) and it
+   moves with the row as it scrolls, so a tab never goes half under it any more (her screenshot: "door Plants"). The
+   row is clipped at the screen edges, so Filter slides out of sight with the tabs. */
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter){position:relative !important;overflow:hidden !important;overflow:clip !important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter{flex:none;position:absolute;top:50%;inset-inline-start:16px;z-index:1;height:38px;margin:0;margin-top:-19px;
+  transition-property:transform;transition-duration:0ms;will-change:transform;padding:0 14px 0 12px;border:0;border-radius:19px;gap:6px;
   background:#F1ECFF;color:#5A29DE;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
   font:inherit;font-size:calc(var(--hg-fs) * 14);font-weight:600;white-space:nowrap;} /* (2026-10-24, later) bigger, with its word: the 34px circle was too small */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}

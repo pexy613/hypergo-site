@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1831 */
+/* hg-version 2026-10-25-1700 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2796,6 +2796,38 @@
      soft round purple button, starts the row of category tabs and simply presses Hyperzod's (hidden) one, so its filter
      sheet opens as before. A number on Hyperzod's button (filters in use) is shown on ours too. */
   const SF_ICON = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>';
+  /* Filter rides with the tabs (2026-10-25, option B): Hyperzod's tab row is a Swiper. Its start space
+     (slidesOffsetBefore, 12px) is widened to Filter's width + 8px, so the first tab starts after Filter, and Filter is
+     moved by exactly what the row moves (Swiper's own translate and transition time), so the two scroll as one row. */
+  const sfRides = new WeakSet();
+  function sfRide(nav, b) {
+    const sw = nav.querySelector(".swiper");
+    const s = sw && sw.swiper;
+    if (!s || !s.params || s.destroyed) return;
+    if (sw.dataset.hgnSob == null) sw.dataset.hgnSob = String(s.params.slidesOffsetBefore || 0);
+    const want = 16 + Math.round(b.offsetWidth) + 8;
+    const prev = s.params.slidesOffsetBefore || 0;
+    if (b.offsetWidth > 0 && prev !== want) {
+      s.params.slidesOffsetBefore = want;
+      try {
+        s.update();
+        /* update() keeps the old position (found in the pane: the tabs stayed 92px too far to the start); move the row
+           by the same amount the start space grew, within the row's ends */
+        s.setTranslate(Math.max(s.maxTranslate(), Math.min(s.minTranslate(), s.translate + (want - prev))));
+      } catch (e) {}
+    }
+    const move = () => {
+      if (!b.isConnected || s.destroyed) return;
+      const dx = (s.rtlTranslate ? -1 : 1) * (s.translate - s.minTranslate());
+      b.style.transform = dx ? "translateX(" + Math.round(dx * 10) / 10 + "px)" : "";
+    };
+    if (!sfRides.has(s)) {
+      sfRides.add(s);
+      s.on("setTranslate", move);
+      s.on("setTransition", (sw2, ms) => { if (b.isConnected) b.style.transitionDuration = (ms || 0) + "ms"; });
+    }
+    move();
+  }
   function renderStoreFilter() {
     const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
     const nav = page && page.classList.contains("merchant-mobile-view") ? page.querySelector("#ProductCategoriesNav") : null;
@@ -2814,9 +2846,8 @@
         if (nb) nb.click();
       });
       nav.insertBefore(b, nav.firstChild);
-      const sw = nav.querySelector(".swiper");
-      if (sw && sw.swiper && sw.swiper.update) { try { sw.swiper.update(); } catch (e) {} }
     }
+    sfRide(nav, b);
     const label = native.getAttribute("aria-label") || (lang() === "ar" ? "تصفية" : "Filter");
     const n = (native.textContent || "").replace(/\D+/g, "");
     /* (2026-10-24, later) the word too ("Filter"), with the number of filters in use after it */
