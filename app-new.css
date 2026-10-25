@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-2017 */
+/* hg-version 2026-10-25-2024 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -626,9 +626,11 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch{flex:none;width:260px;height:40px;margin-inline-end:16px;padding:0 14px;border:0;border-radius:20px;background:#F4F2FA;box-shadow:inset 0 0 0 1px var(--hg-line);
     display:flex;align-items:center;gap:8px;font:inherit;font-size:14px;color:var(--hg-muted);cursor:text;text-align:start;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch svg{flex:none;width:16px;height:16px;}
-  /* (2026-10-25, later) a real field: typing filters the page in place (app-new.js, STORE SEARCH IN PLACE); purple ring while typing,
-     the same as the search page's field */
-  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch:focus-within{box-shadow:inset 0 0 0 1px #5A29DE,0 0 0 4px rgba(90,41,222,.12);}
+  /* (2026-10-25, later) a real field: typing filters the page in place (app-new.js, STORE SEARCH IN PLACE). While typing, the
+     pill's hairline simply turns purple. (later the same day) global-footer.css's focus rule for every input also drew a
+     square 3px purple outline around the text inside the pill, on top of a 4px glow: both gone. */
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch:focus-within{box-shadow:inset 0 0 0 1px #5A29DE;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch input:focus-visible{outline:none!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch input{flex:1 1 auto;min-width:0;height:100%;margin:0;padding:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--hg-ink);-webkit-appearance:none;appearance:none;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch input::placeholder{color:var(--hg-muted);opacity:1;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch input::-webkit-search-cancel-button{display:none;}
