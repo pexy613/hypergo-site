@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0108 */
+/* hg-version 2026-10-26-0205 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1080,44 +1080,38 @@ html.hg-new-app .hgn-tk-tag{position:absolute;z-index:1;top:10px;inset-inline-st
   background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#361985;font-size:11px;font-weight:700;letter-spacing:.02em;}
 html.hg-new-app .hgn-tk-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#ACE4AA;box-shadow:0 0 0 2px rgba(172,228,170,.35);}
 
-/* Made in Bahrain (redesign 2026-10-22): night-purple panel with the flag's five-point serrated edge as a faint motif,
-   a count of the new shops, and one card per shop: its own cover photo, logo, category and how long ago it joined */
-html.hg-new-app .hgn-mib{position:relative;overflow:hidden;margin:28px 16px 0;padding:22px 0 18px;border-radius:24px;isolation:isolate;
-  background:radial-gradient(120% 80% at 100% 0%,#5B33C9 0%,rgba(91,51,201,0) 60%),linear-gradient(165deg,#2A1270 0%,#1E0C57 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -12px rgba(30,12,87,.55);}
-html.hg-new-app .hgn-mib-serr{position:absolute;z-index:-1;top:0;bottom:0;inset-inline-end:0;width:84px;opacity:.1;color:#FFFFFF;}
+/* Made in Bahrain (redesign 2026-10-22; brand colours 2026-10-26, design O, chosen by Nouf): deep Blue Magenta panel with the
+   flag's five-point serrated edge in Opus, "Made in" Opus, "Bahrain" Appetite, Satin Deep Black cards with Opus text.
+   Only brand colours; no white. The soft orange (#FF8C66) sits on the dark cards only, never on the purple. */
+html.hg-new-app .hgn-mib{position:relative;overflow:hidden;margin:28px 16px 0;padding:22px 0;border-radius:24px;isolation:isolate;display:flex;flex-direction:column;gap:16px;
+  background:radial-gradient(120% 90% at 100% 0%,#5A29DE 0%,rgba(90,41,222,0) 60%),linear-gradient(165deg,#2D156F 0%,#1B0C43 100%);}
+html.hg-new-app .hgn-mib-serr{position:absolute;z-index:-1;top:0;bottom:0;inset-inline-end:0;width:60px;opacity:.12;color:#CCCBE3;}
 html.hg-new-app .hgn-mib-serr svg{display:block;width:100%;height:100%;}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-mib-serr svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-mib::before{content:"";position:absolute;z-index:-1;inset-inline-start:-60px;bottom:-90px;width:220px;height:220px;border-radius:50%;
-  background:radial-gradient(circle at 50% 50%,rgba(172,228,170,.35),rgba(172,228,170,0) 70%);pointer-events:none;}
-html.hg-new-app .hgn-mib-head{position:relative;padding:0 16px;display:flex;flex-direction:column;gap:6px;}
-html.hg-new-app .hgn-mib-eye{display:inline-flex;align-items:center;gap:6px;font-size:11px;line-height:14px;font-weight:700;letter-spacing:.12em;color:#ACE4AA;}
-html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-mib-eye{letter-spacing:0;font-size:12px;}
-html.hg-new-app .hgn-mib-eye::before{content:"";width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F2FFF0,#ACE4AA 55%,#6FBF6B);box-shadow:0 0 8px rgba(172,228,170,.8);}
-html.hg-new-app #hgn-home .hgn-mib-h{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:26px;line-height:34px;color:#FFFFFF;}
-html.hg-new-app .hgn-mib-ring{padding:0 13px 2px;border-radius:22px;border:2px solid transparent;
-  background:linear-gradient(#2A1270,#2A1270) padding-box,linear-gradient(120deg,#FFFFFF 0%,#ACE4AA 35%,#6FBF6B 55%,#F0FFEE 75%,#ACE4AA 100%) border-box;
-  box-shadow:0 0 18px rgba(172,228,170,.25);}
-html.hg-new-app .hgn-mib-ring span{background:linear-gradient(180deg,#F4FFF2 0%,#ACE4AA 70%);-webkit-background-clip:text;background-clip:text;color:transparent;}
-html.hg-new-app .hgn-mib-sub{font-size:14px;line-height:20px;color:#E4DCFF;}
-html.hg-new-app .hgn-mib-sub b{color:#FFFFFF;font-weight:700;}
-html.hg-new-app .hgn-mib-row{position:relative;display:flex;gap:12px;padding:16px 16px 4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;
+html.hg-new-app .hgn-mib-head{position:relative;padding:0 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;}
+html.hg-new-app .hgn-mib-ht{display:flex;flex-direction:column;gap:2px;min-width:0;}
+html.hg-new-app #hgn-home .hgn-mib-h{margin:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;color:#CCCBE3;}
+html.hg-new-app .hgn-mib-h .hgn-jak{font-size:24px;line-height:30px;}
+html.hg-new-app .hgn-mib-h .hgn-serif{font-size:38px;line-height:34px;color:#ACE4AA;}
+html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-mib-h .hgn-serif{font-size:24px;line-height:30px;}
+html.hg-new-app .hgn-mib-sub{font-size:14px;line-height:20px;color:#CCCBE3;}
+html.hg-new-app .hgn-mib-sub b{color:#ACE4AA;font-weight:700;}
+html.hg-new-app #hgn-home a.hgn-mib-all{display:none;flex:none;height:42px;padding:0 20px;border-radius:21px;background:#ACE4AA;color:#1B2023;font-size:15px;font-weight:700;
+  text-decoration:none;align-items:center;gap:6px;white-space:nowrap;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-mib-all svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-mib-row{position:relative;display:flex;gap:12px;padding:0 16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:16px;
   -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;}
 html.hg-new-app .hgn-mib-row::-webkit-scrollbar{display:none;}
-html.hg-new-app #hgn-home a.hgn-mib-card{position:relative;flex:0 0 150px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
-  text-decoration:none;color:#FFFFFF;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 10px 20px -12px rgba(0,0,0,.5);}
-html.hg-new-app .hgn-mib-cover{position:relative;display:block;height:96px;overflow:hidden;
-  background:radial-gradient(90% 120% at 20% 10%,#8C68F0 0%,#5A29DE 45%,#2A1270 100%);}
-html.hg-new-app .hgn-mib-cover img{display:block;width:100%;height:100%;object-fit:cover;}
-html.hg-new-app .hgn-mib-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(30,12,87,.55),rgba(30,12,87,0) 55%);}
-html.hg-new-app .hgn-mib-logo{position:absolute;z-index:1;top:72px;inset-inline-start:12px;width:42px;height:42px;box-sizing:border-box;border-radius:13px;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FFFFFF,#E9E2FF);border:2px solid #FFFFFF;
-  box-shadow:0 6px 14px rgba(0,0,0,.35);color:#5A29DE;font-size:14px;font-weight:800;}
-html.hg-new-app .hgn-mib-logo img{display:block;width:100%;height:100%;object-fit:cover;}
-html.hg-new-app .hgn-mib-body{display:flex;flex-direction:column;gap:2px;padding:24px 12px 12px;min-width:0;}
-html.hg-new-app .hgn-mib-n{font-size:14px;line-height:18px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-html.hg-new-app .hgn-mib-c{font-size:12px;line-height:16px;color:#D9CEFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app #hgn-home a.hgn-mib-card{flex:0 0 196px;min-width:0;display:flex;flex-direction:column;gap:10px;padding:8px 8px 12px;border-radius:18px;
+  background:#1B2023;color:#CCCBE3;text-decoration:none;scroll-snap-align:start;}
+html.hg-new-app .hgn-mib-pic{display:flex;align-items:center;justify-content:center;height:104px;border-radius:12px;overflow:hidden;background:#29292D;}
+html.hg-new-app .hgn-mib-pic>img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-mib-pic.is-logo{background:#F0EFF7;}
+html.hg-new-app .hgn-mib-pic.is-logo>img{width:64px;height:64px;border-radius:14px;object-fit:contain;}
+html.hg-new-app .hgn-mib-ini{color:#5A29DE;font-size:22px;font-weight:800;}
+html.hg-new-app .hgn-mib-body{display:flex;flex-direction:column;gap:4px;padding:0 4px;min-width:0;}
+html.hg-new-app .hgn-mib-n{font-size:15px;line-height:20px;font-weight:700;color:#CCCBE3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-mib-c{font-size:12px;line-height:16px;min-height:16px;color:#A3A2B6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* a Latin store or product name inside the Arabic page: its own direction, so the dots end it on the right side (it was cut at the start) */
 html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-joy-s,.hgn-tk-t){unicode-bidi:plaintext;text-align:right;}
 /* (2026-10-26) the same for the store names in Home's store rows, the Stores page, Search results, category pages, the cart
@@ -1125,13 +1119,27 @@ html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-joy-s,.hgn-t
 html.hg-new-app[lang^='ar'] :is(.hgn-store-name,.hgn-sp-name,.hgn-sb-name,.hgn-cc-name,.hgn-cs-s,.hgn-co-t2){unicode-bidi:plaintext;text-align:right;}
 /* and the product names on store pages: an English name in Arabic was cut at both ends ("BRUFEN PAEDIATRIC ...00MG/5ML") */
 html.hg-new-app[lang^='ar'] body :is(#app,.v-overlay-container) .scheme-merchant-page .product-name{unicode-bidi:plaintext;text-align:right;}
-html.hg-new-app .hgn-mib-age{align-self:flex-start;margin-top:8px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;white-space:nowrap;
-  background:rgba(172,228,170,.16);box-shadow:inset 0 0 0 1px rgba(172,228,170,.4);color:#ACE4AA;font-size:11px;font-weight:700;}
+html.hg-new-app .hgn-mib-age{align-self:flex-start;margin-top:2px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;white-space:nowrap;
+  background:#323639;color:#CCCBE3;font-size:12px;font-weight:700;}
+html.hg-new-app .hgn-mib-age.is-new{background:#FF8C66;color:#1B2023;}
 @media (min-width:960px){
   html.hg-new-app #hgn-home .hgn-tk{flex:none;width:auto;}
-  html.hg-new-app .hgn-mib{margin:40px 0 0;padding:28px 0 24px;}
-  html.hg-new-app .hgn-mib-head,html.hg-new-app .hgn-mib-row{padding-inline:28px;}
-  html.hg-new-app #hgn-home a.hgn-mib-card{flex-basis:180px;}
+  /* Made in Bahrain on computers: 5 cards in a row and "See all N" */
+  html.hg-new-app .hgn-mib{margin:40px 0 0;padding:30px 28px;gap:22px;}
+  html.hg-new-app .hgn-mib-serr{width:84px;}
+  html.hg-new-app .hgn-mib-head,html.hg-new-app .hgn-mib-row{padding:0;padding-inline-end:64px;}
+  html.hg-new-app .hgn-mib-h .hgn-jak{font-size:30px;line-height:36px;}
+  html.hg-new-app .hgn-mib-h .hgn-serif{font-size:46px;line-height:40px;}
+  html.hg-new-app:is([lang^="ar"],[dir="rtl"]) .hgn-mib-h .hgn-serif{font-size:30px;line-height:36px;}
+  html.hg-new-app .hgn-mib-sub{font-size:15px;line-height:22px;}
+  html.hg-new-app #hgn-home a.hgn-mib-all{display:inline-flex;}
+  html.hg-new-app .hgn-mib-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;overflow:visible;}
+  html.hg-new-app #hgn-home a.hgn-mib-card{padding:10px 10px 14px;border-radius:20px;box-shadow:0 14px 28px -16px rgba(0,0,0,.8);}
+  html.hg-new-app #hgn-home a.hgn-mib-card:nth-child(n+6){display:none;}
+  html.hg-new-app .hgn-mib-pic{height:118px;border-radius:14px;}
+  html.hg-new-app .hgn-mib-n{font-size:16px;}
+  html.hg-new-app .hgn-mib-c{font-size:13px;line-height:18px;min-height:18px;}
+  html.hg-new-app .hgn-mib-age{margin-top:4px;height:24px;padding:0 10px;border-radius:12px;}
 }
 
 /* Stores near you: Free delivery chip (Hyperzod's delivery fee is 0) */
@@ -1165,7 +1173,6 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app #hgn-order-slot{margin:32px 0 0;}
   html.hg-new-app .hgn-joys{margin-top:40px;border-radius:24px;}
   html.hg-new-app .hgn-joy-head,html.hg-new-app .hgn-joy-row{padding-inline:24px;}
-  html.hg-new-app .hgn-mib{margin:40px 0 0;}
 }
 
 /* ================= CHECKOUT ORDER (phones and the app, 2026-10-24, "HyperGo Quick Checkout", chosen by Nouf) =================

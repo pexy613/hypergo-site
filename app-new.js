@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0108 */
+/* hg-version 2026-10-26-0205 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1003,14 +1003,14 @@
   }
   const ATXT = {
     en: { joysA: "Little", joysB: "joys", joysSub: "Gifts and flowers from shops near you", joysFree: "Gifts and flowers, delivered free",
-      mibA: "Made in", mibB: "Bahrain", mibEye: "NEW ON HYPERGO", isNew: "New",
+      mibA: "Made in", mibB: "Bahrain", mibAll: (n) => "See all " + n, isNew: "New",
       mibSub: (n) => "<b>" + n + "</b> local shop" + (n === 1 ? "" : "s") + " joined in the last 2 weeks",
       age: (d) => d <= 0 ? "Joined today" : d === 1 ? "Joined yesterday" : "Joined " + d + " days ago",
       your: "Your order", from: "Your order from ", more: (n) => "+" + n + " more",
       st: { 1: "Order placed", 2: "Being prepared", 3: "Ready, waiting for the rider", 4: "On the way to you" },
       pst: { 3: "Ready for pickup", 4: "Collected" }, route: ["Shop", "On the way", "Your door"] },
     ar: { joysA: "أفراح", joysB: "صغيرة", joysSub: "هدايا وورد من محلات قريبة منك", joysFree: "هدايا وورد، والتوصيل مجاني",
-      mibA: "صُنع في", mibB: "البحرين", mibEye: "جديد على هايبرجو", isNew: "جديد",
+      mibA: "صُنع في", mibB: "البحرين", mibAll: (n) => "عرض الكل (" + n + ")", isNew: "جديد",
       mibSub: (n) => "محلات محلية جديدة خلال آخر أسبوعين: <b>" + n + "</b>",
       age: (d) => d <= 0 ? "انضم اليوم" : d === 1 ? "انضم أمس" : d === 2 ? "انضم قبل يومين" : "انضم قبل " + d + (d <= 10 ? " أيام" : " يومًا"),
       your: "طلبك", from: "طلبك من ", more: (n) => "+" + n + " " + (n === 1 ? "طلب آخر" : "طلبات أخرى"),
@@ -1238,32 +1238,38 @@
       }).join("") + "</div></section>";
   }
 
-  /* Made in Bahrain (redesigned 2026-10-22): the shops near the customer that joined in the last 14 days, nearest
-     first (10 cards at most; the count is all of them). Each card: the store's own cover photo and logo from Hyperzod
-     (a purple gloss and the initials when it has none), its category and how many days ago it joined (from its id). */
+  /* Made in Bahrain (redesigned 2026-10-22; brand colours 2026-10-26, design O, chosen by Nouf): the shops near the
+     customer that joined in the last 14 days, nearest first (10 cards at most; the count is all of them). Deep Blue
+     Magenta panel with the flag's five-point serrated edge in Opus, "Made in" in Opus and "Bahrain" in Appetite.
+     Each card (Satin Deep Black, Opus text): the store's own cover photo (or its logo on Opus when it has none), its
+     category and how long ago it joined; "Joined today" and "Joined yesterday" in the soft orange #FF8C66.
+     Computers show 5 cards and "See all N" (more than 5), which opens all of them: /home?hgn=new. */
   const SERR = '<span class="hgn-mib-serr" aria-hidden="true"><svg viewBox="0 0 84 300" preserveAspectRatio="none"><path fill="currentColor" d="M84 0H30L0 30L30 60L0 90L30 120L0 150L30 180L0 210L30 240L0 270L30 300H84Z"/></svg></span>';
+  const MIB_CHEV = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
   function initials(n) {
     return String(n || "").trim().split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase();
   }
+  function mibStores(hd) { return newStores(hd).filter((m) => m.is_accepting_orders !== false); }
   function mibHtml(hd, L, catMap) {
-    const all = newStores(hd).filter((m) => m.is_accepting_orders !== false);
+    const all = mibStores(hd);
     if (!all.length) return "";
-    const A = ATXT[L], now = Date.now();
-    return '<section class="hgn-mib">' + SERR + '<div class="hgn-mib-head"><span class="hgn-mib-eye">' + esc(A.mibEye) + "</span>" +
-      '<h2 class="hgn-mib-h hgn-jak">' + esc(A.mibA) + '<span class="hgn-mib-ring"><span>' + esc(A.mibB) + "</span></span></h2>" +
+    const A = ATXT[L], now = Date.now(), more = "/" + L + "/home?hgn=new";
+    return '<section class="hgn-mib">' + SERR + '<div class="hgn-mib-head"><div class="hgn-mib-ht">' +
+      '<h2 class="hgn-mib-h"><span class="hgn-jak">' + esc(A.mibA) + '</span><span class="hgn-serif">' + esc(A.mibB) + "</span></h2>" +
       '<span class="hgn-mib-sub">' + A.mibSub(all.length) + "</span></div>" +
+      (all.length > 5 ? '<a class="hgn-mib-all" href="' + esc(more) + '" data-href="' + esc(more) + '">' + esc(A.mibAll(all.length)) + MIB_CHEV + "</a>" : "") + "</div>" +
       '<div class="hgn-mib-row">' + all.slice(0, 10).map((m) => {
         seenStores[m._id || m.id] = m;
         const href = storeHref(m, L), cover = storeImg(m, "cover"), logo = storeImg(m, "logo");
         const c = catMap[(m.merchant_category_ids || [])[0]];
         const name = nameOf(m) || m.name;
         const days = Math.max(0, Math.floor((now - joinedAt(m)) / 864e5));
+        const pic = cover || logo;
         return '<a class="hgn-mib-card" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-          '<span class="hgn-mib-cover' + (cover ? "" : " is-empty") + '">' + (cover ? '<img src="' + esc(cover) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
-          '<span class="hgn-mib-logo">' + (logo ? '<img src="' + esc(logo) + '" alt="" loading="lazy" decoding="async">' : esc(initials(name))) + "</span>" +
+          '<span class="hgn-mib-pic' + (cover ? "" : " is-logo") + '">' + (pic ? '<img src="' + esc(pic) + '" alt="" loading="lazy" decoding="async">' : '<span class="hgn-mib-ini">' + esc(initials(name)) + "</span>") + "</span>" +
           '<span class="hgn-mib-body"><span class="hgn-mib-n">' + esc(name) + "</span>" +
-          (c ? '<span class="hgn-mib-c">' + esc(catLabel(c)) + "</span>" : "") +
-          '<span class="hgn-mib-age">' + esc(A.age(days)) + "</span></span></a>";
+          '<span class="hgn-mib-c">' + (c ? esc(catLabel(c)) : "") + "</span>" +
+          '<span class="hgn-mib-age' + (days <= 1 ? " is-new" : "") + '">' + esc(A.age(days)) + "</span></span></a>";
       }).join("") + "</div></section>";
   }
 
@@ -2357,14 +2363,14 @@
     onHomeClick(e);
   }
 
-  /* ---------- PAGES (2026-10-18): "Stores near you" (See all) and "Favourites" ----------
-     Hyperzod has no page for these, so they open on top of Home: /home?hgn=stores and /home?hgn=favs.
+  /* ---------- PAGES (2026-10-18): "Stores near you" (See all), "Favourites" and Made in Bahrain (See all, 2026-10-26) ----------
+     Hyperzod has no page for these, so they open on top of Home: /home?hgn=stores, /home?hgn=favs and /home?hgn=new.
      Back goes to where the customer came from. */
   let pageSig = "", pageWas = "", pageSt = newListState();
   function pageQuery() {
     const r = curRoute();
     const q = r && r.query && r.query.hgn;
-    return isHomePath(currentPath()) && (q === "stores" || q === "favs") ? q : "";
+    return isHomePath(currentPath()) && (q === "stores" || q === "favs" || q === "new") ? q : "";
   }
   function renderPage() {
     const q = pageQuery();
@@ -2376,7 +2382,7 @@
     if (!q) { if (pg) pg.remove(); pageSig = ""; return; }
     if (!hd) return;
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
-    const list = q === "favs" ? favStoresOf(hd) : nearStores(hd);
+    const list = q === "favs" ? favStoresOf(hd) : q === "new" ? mibStores(hd) : nearStores(hd);
     const favIds = {};
     favList().forEach((f) => { favIds[f.id] = true; });
     const sig = [q, L, JSON.stringify(pageSt), list.map((m) => m._id || m.id).join(",")].join("|"); /* no favourites (2026-10-20): hearts flip in place */
@@ -2393,7 +2399,7 @@
     const body = (q === "favs" && !list.length) ? '<p class="hgn-page-empty">' + esc(t.nofavs) + "</p>"
       : storeListHtml(pageSt, list, L, t, favIds, hd, null, q === "stores");
     pg.innerHTML = '<div class="hgn-page-top"><div class="hgn-page-bar"><button type="button" class="hgn-page-back" data-act="back" aria-label="' + esc(t.back) + '">' + LICON.back + "</button>" +
-      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : t.near) + "</h1></div></div>" + body;
+      '<h1 class="hgn-page-title">' + esc(q === "favs" ? t.favs : q === "new" ? ATXT[L].mibA + " " + ATXT[L].mibB : t.near) + "</h1></div></div>" + body;
     watchProdRows(pg);
   }
   function onPageClick(e) {
