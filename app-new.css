@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1818 */
+/* hg-version 2026-10-25-1859 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -776,7 +776,7 @@ html.hg-new-app #hgn-sland > .hgn-sl-stores .hgn-page-empty{margin-top:40px;}
   html.hg-new-app #hgn-home .hgn-cat-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:16px;padding:0;margin:0;}
   html.hg-new-app #hgn-home .hgn-cat-ring{width:100%;height:auto;aspect-ratio:1/1;max-width:112px;border-radius:28px;margin:0 auto;}
   html.hg-new-app #hgn-home .hgn-cat-ring img{width:calc(100% - 8px);height:calc(100% - 8px);border-radius:24px;}
-  html.hg-new-app #hgn-home .hgn-cat-new{inset-inline-start:8px;bottom:8px;}
+  html.hg-new-app #hgn-home .hgn-cat-new{padding-inline-start:16px;}
   /* (2026-10-24) bigger desktop text gets a line height to match: the phone line heights cut the letters off */
   html.hg-new-app #hgn-home .hgn-cat-name{font-size:14px;line-height:18px;margin-top:10px;}
   html.hg-new-app #hgn-home .hgn-banner{margin:32px 0 0;aspect-ratio:auto;border-radius:0;overflow:visible;background:none;box-shadow:none;}
@@ -900,8 +900,9 @@ html.hg-new-app .hgn-k4-c3{inset-inline-start:34%;bottom:46px;width:6px;height:6
 
 /* New tag on a category tile: a store in it joined in the last 14 days */
 html.hg-new-app .hgn-cat-ring.has-new{position:relative;overflow:hidden;}
-/* (2026-10-25) a small pill inside the tile's rounded corner (it sat in the corner itself, and the curve cut it off) */
-html.hg-new-app .hgn-cat-new{position:absolute;z-index:2;inset-inline-start:6px;bottom:6px;height:18px;padding:0 7px;border-radius:9px;
+/* (2026-10-25, Nouf: back in the corner, "it just needed to actually be in the border") flush in the tile's bottom-start
+   corner again; the word starts further in (12px, 16px on computers) so the corner's curve no longer cuts the "N" */
+html.hg-new-app .hgn-cat-new{position:absolute;z-index:2;inset-inline-start:0;bottom:0;height:18px;padding:0 7px;padding-inline-start:12px;border-start-end-radius:10px;
   background:linear-gradient(180deg,#D9F7D6,#ACE4AA 60%,#93D68F);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
   color:#1B2023;font-size:10.5px;line-height:18px;font-weight:700;letter-spacing:0;white-space:nowrap;}
 /* See all tile: glossy purple */
