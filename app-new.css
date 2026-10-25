@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1720 */
+/* hg-version 2026-10-25-1752 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -86,9 +86,10 @@ html.hg-new-app .hgn-cat:focus-visible .hgn-cat-ring{outline:2px solid #5A29DE;o
 
 /* featured stores banner (C1, 2026-10-18): the store's own banner photo fills a 2:1 card, radius 24
    (2026-10-20: the later banner, photo and dots overrides merged into these first rules) */
-/* (2026-10-21) 5:3 = Talabat's 361x217 banner; the store photo fills it (cover), so its sides are cut a little */
+/* (2026-10-25) 2:1 on phones too, the same shape as on computers and Hyperzod's 1200x600 banners, so one 1500x750 design
+   shows whole everywhere and nothing is cut (it was 5:3, Talabat's 361x217, which cut the sides) */
 html.hg-new-app .hgn-banner{
-  position:relative;margin:24px 16px 0;height:auto;aspect-ratio:5/3;border-radius:16px;overflow:hidden;background:#F4F2FA;
+  position:relative;margin:24px 16px 0;height:auto;aspect-ratio:2/1;border-radius:16px;overflow:hidden;background:#F4F2FA;
   box-shadow:0 10px 24px -14px rgba(27,32,35,.35);
 }
 html.hg-new-app .hgn-slides{
@@ -953,12 +954,14 @@ html.hg-new-app .hgn-joy-p b{font-weight:700;}
 
 /* Shop by occasion, ticket cards (2026-10-22): the stores' own photos (Nouf's Merchants folder) in the repo's
    occasion-photos folder, never the category pictures. Photo on top, a perforated ticket stub under it. */
-html.hg-new-app .hgn-tk{position:relative;flex:0 0 172px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
+/* (2026-10-25) the photo is 3:2 on phones and computers, so one 1200x800 design shows whole everywhere; the stub's two notches
+   sit on the photo's bottom edge, measured from the card's width (it was 124px tall on phones, 150px on computers) */
+html.hg-new-app .hgn-tk{container-type:inline-size;position:relative;flex:0 0 172px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
   text-decoration:none;background:#FFFFFF;box-shadow:0 12px 24px -14px rgba(54,25,133,.45),0 0 0 1px rgba(54,25,133,.06);-webkit-tap-highlight-color:transparent;}
-html.hg-new-app .hgn-tk-pic{position:relative;display:block;height:124px;overflow:hidden;background:#EDE8FB;}
+html.hg-new-app .hgn-tk-pic{position:relative;display:block;height:auto;aspect-ratio:3/2;overflow:hidden;background:#EDE8FB;}
 html.hg-new-app .hgn-tk-pic img{display:block;width:100%;height:100%;object-fit:cover;}
 html.hg-new-app .hgn-tk-pic::after{content:"";position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,0) 38%),linear-gradient(0deg,rgba(30,12,87,.28),rgba(30,12,87,0) 45%);}
-html.hg-new-app .hgn-tk::before,html.hg-new-app .hgn-tk::after{content:"";position:absolute;z-index:2;top:117px;width:14px;height:14px;border-radius:50%;background:var(--hg-bg);box-shadow:inset 0 0 0 1px rgba(54,25,133,.06);}
+html.hg-new-app .hgn-tk::before,html.hg-new-app .hgn-tk::after{content:"";position:absolute;z-index:2;top:calc(100cqw * 2 / 3 - 7px);width:14px;height:14px;border-radius:50%;background:var(--hg-bg);box-shadow:inset 0 0 0 1px rgba(54,25,133,.06);}
 html.hg-new-app .hgn-tk::before{left:-7px;}
 html.hg-new-app .hgn-tk::after{right:-7px;}
 html.hg-new-app .hgn-tk-stub{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:13px 12px 12px 14px;
@@ -1018,8 +1021,6 @@ html.hg-new-app .hgn-mib-age{align-self:flex-start;margin-top:8px;height:22px;pa
   background:rgba(172,228,170,.16);box-shadow:inset 0 0 0 1px rgba(172,228,170,.4);color:#ACE4AA;font-size:11px;font-weight:700;}
 @media (min-width:960px){
   html.hg-new-app #hgn-home .hgn-tk{flex:none;width:auto;}
-  html.hg-new-app #hgn-home .hgn-tk-pic{height:150px;}
-  html.hg-new-app #hgn-home .hgn-tk::before,html.hg-new-app #hgn-home .hgn-tk::after{top:143px;}
   html.hg-new-app .hgn-mib{margin:40px 0 0;padding:28px 0 24px;}
   html.hg-new-app .hgn-mib-head,html.hg-new-app .hgn-mib-row{padding-inline:28px;}
   html.hg-new-app #hgn-home a.hgn-mib-card{flex-basis:180px;}
