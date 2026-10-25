@@ -1,7 +1,68 @@
-/* hg-version 2026-10-25-1745 */
+/* hg-version 2026-10-25-1859 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
+/* OPENING VEIL (app, 2026-10-25, Nouf: "when i first open hypergo app, i get a flash of something maybe an old design").
+   The app first draws Hyperzod's own page and our older look (global-footer.css); the new design (app-new.css and
+   app-new.js, loaded below) only arrives a moment later, so the old look flashed. Now an off-white screen with the
+   purple spinner (the website's opening veil, web-head.css) covers the app until the new design is on screen:
+   app-new.css has loaded, app-new.js has run, and on Home the new Home is drawn (on other pages: the page is there).
+   Then it fades out (html.hg-app-ready). If something never arrives it lifts by itself after 6 seconds.
+   The App Custom HTML Head box can hold the same veil as CSS (body::before, see reference/design-system.md), so it is
+   on screen from the very first paint; this file then lifts that one too. */
+(function () {
+  if (window.__hgAppVeil) return;
+  window.__hgAppVeil = 1;
+  var html = document.documentElement;
+  if (html.classList.contains("hg-app-ready")) return;
+  try {
+    var st = document.createElement("style");
+    st.id = "hg-app-veil-style";
+    st.textContent =
+      "@keyframes hgAppVeilSpin{to{transform:rotate(360deg)}}" +
+      "#hg-app-veil{position:fixed;inset:0;z-index:2147482000;background:#FFFCF9;display:flex;align-items:center;justify-content:center;transition:opacity .25s ease;}" +
+      "#hg-app-veil::after{content:\"\";width:38px;height:38px;box-sizing:border-box;border-radius:50%;border:4px solid #EDE7FF;border-top-color:#5A29DE;animation:hgAppVeilSpin .8s linear infinite;}" +
+      "html.hg-app-ready #hg-app-veil{opacity:0;pointer-events:none;}" +
+      "html.hg-app-ready body::before,html.hg-app-ready body::after{animation:none!important;opacity:0!important;visibility:hidden!important;}";
+    document.head.appendChild(st);
+    var v = document.createElement("div");
+    v.id = "hg-app-veil";
+    v.setAttribute("aria-hidden", "true");
+    html.appendChild(v);
+  } catch (e) {}
+  var started = Date.now(), done = false;
+  /* app-new.css is in effect once its page settings are on <html> (--hg-gutter is only set there) */
+  function cssReady() {
+    try { return getComputedStyle(html).getPropertyValue("--hg-gutter").trim() !== ""; } catch (e) { return true; }
+  }
+  function pageReady() {
+    if (document.getElementById("hg-cs")) return true; /* the coming soon screen is the page */
+    /* a panel Hyperzod opened (the address panel for someone with no address yet, sign in) is what to show */
+    if (document.querySelector(".v-navigation-drawer--active, .v-overlay--active")) return !!window.__hgnSideways;
+    if (!window.__hgnSideways) return false; /* app-new.js has not run yet */
+    if (/^\/(en|ar)(\/home)?\/?$/.test(location.pathname)) return !!document.getElementById("hgn-home");
+    return !!document.querySelector('#app [id^="MultiVendor"], #app [class*="scheme-"]');
+  }
+  function lift() {
+    if (done) return;
+    done = true;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        html.classList.add("hg-app-ready");
+        setTimeout(function () {
+          var el = document.getElementById("hg-app-veil");
+          if (el) el.remove();
+        }, 300);
+      });
+    });
+  }
+  var iv = setInterval(function () {
+    if (done) { clearInterval(iv); return; }
+    /* the page first (plain look-ups), the style read only then, so the check never makes the phone restyle the page */
+    try { if ((pageReady() && cssReady()) || Date.now() - started > 6000) lift(); } catch (e) { lift(); }
+  }, 80);
 })();
 
 /* NO WELCOME PAGE IN THE APP (2026-10-25): Hyperzod sends a first-time visitor (not signed in, no address saved) to its
@@ -54,10 +115,13 @@
     /* GitHub Pages tells phones to keep these files for 10 minutes, so the app could keep showing an older copy after a
        push. A fresh "v" each minute makes the app ask for the newest app-new.css / app-new.js. */
     var V = "?v=" + Math.floor(Date.now() / 60000);
-    var l = document.createElement("link");
-    l.rel = "stylesheet";
-    l.href = BASE + "app-new.css" + V;
-    document.head.appendChild(l);
+    /* (2026-10-25) not twice: the App Custom HTML Head box may already load app-new.css (so it applies from the first paint) */
+    if (!document.querySelector('link[rel="stylesheet"][href*="hypergo-site/app-new.css"]')) {
+      var l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = BASE + "app-new.css" + V;
+      document.head.appendChild(l);
+    }
     var s = document.createElement("script");
     s.src = BASE + "app-new.js" + V;
     s.async = false;
