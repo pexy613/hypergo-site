@@ -1,7 +1,45 @@
-/* hg-version 2026-10-22-1748 */
+/* hg-version 2026-10-25-1745 */
 /* NATIVE APP FLAG: app-only rules in the Global files are scoped to html.hg-native-app (this file loads only in the app). */
 (function () {
   try { document.documentElement.classList.add("hg-native-app"); } catch (e) {}
+})();
+
+/* NO WELCOME PAGE IN THE APP (2026-10-25): Hyperzod sends a first-time visitor (not signed in, no address saved) to its
+   Welcome page (route "welcome", /en or /ar: the page-builder page with "Shop With HyperGo" / "Sell With HyperGo"). In the
+   app we skip it and open Home instead. Home asks for the delivery address itself (Hyperzod opens its address panel when
+   none is saved), and "home" is on Hyperzod's list of pages allowed without an address, so this cannot loop. The page is
+   hidden while the app moves on, so it never flashes. The website keeps its Welcome page; ?via=admin (Hyperzod's page
+   builder preview) is left alone. */
+(function () {
+  if (window.__hgNoWelcome) return;
+  window.__hgNoWelcome = 1;
+  try {
+    var st = document.createElement("style");
+    st.textContent = "html.hg-native-app #WelcomePage{display:none!important}";
+    document.head.appendChild(st);
+  } catch (e) {}
+  var hooked = false;
+  function isWelcome(to) { return !!to && to.name === "welcome" && !(to.query && to.query.via === "admin"); }
+  function toHome(to) {
+    var q = {};
+    for (var k in to.query || {}) if (k !== "via") q[k] = to.query[k];
+    return { name: "home", params: { lang: (to.params && to.params.lang) || "en" }, query: q, replace: true };
+  }
+  function hook() {
+    var r;
+    try { r = document.querySelector("#app").__vue_app__.config.globalProperties.$router; } catch (e) { r = null; }
+    if (!r) return false;
+    if (!hooked) {
+      hooked = true;
+      r.beforeEach(function (to) { if (isWelcome(to)) return toHome(to); });
+    }
+    var cur = r.currentRoute && r.currentRoute.value;
+    if (isWelcome(cur)) r.replace(toHome(cur)).catch(function () {});
+    return true;
+  }
+  if (!hook()) {
+    var n = 0, t = setInterval(function () { if (hook() || ++n > 150) clearInterval(t); }, 100);
+  }
 })();
 
 /* NEW APP HOME (2026-10-15): loads app-new.css and app-new.js, which draw the main page header and the new Home in the app.
