@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1859 */
+/* hg-version 2026-10-25-1922 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1178,12 +1178,25 @@
      loaded and there are at least 3 products. "delivered free" only when every one of those stores delivers free. */
   const JOY_CATS = ["6a9bf0d4288fb9d9e903a7e9", "6a9bee55dda6795f8c065932"];
   const SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><defs><radialGradient id="hgn-lj-g" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#F4FFF2"/><stop offset=".55" stop-color="#ACE4AA"/><stop offset="1" stop-color="#6FBF6B"/></radialGradient></defs><path d="M12 2l2.6 6.9L22 12l-7.4 3.1L12 22l-2.6-6.9L2 12l7.4-3.1Z" fill="url(#hgn-lj-g)"/></svg>';
+  let joyWaitAt = 0;
   function joysHtml(hd, L) {
     const stores = nearStores(hd).filter((m) => m.is_open !== false && m.is_accepting_orders !== false &&
       (m.merchant_category_ids || []).some((c) => JOY_CATS.indexOf(c) !== -1)).slice(0, 4);
     if (!stores.length) return "";
     const lists = stores.map((m) => storeProducts(m._id || m.id));
-    if (lists.some((l) => !l)) return "";
+    const A0 = ATXT[L], free0 = stores.every((m) => storeFee(m) === 0);
+    /* (2026-10-25) while the stores' menus load, the section is already there with soft blocks of the same size, so it
+       doesn't push Made in Bahrain and the rest down when the products arrive (Nouf's recording); 8 seconds at most */
+    if (lists.some((l) => !l)) {
+      if (!joyWaitAt) joyWaitAt = Date.now();
+      if (Date.now() - joyWaitAt > 8000) return "";
+      setTimeout(schedule, 400);
+      const ph = '<span class="hgn-joy is-ph" aria-hidden="true"><span class="hgn-joy-pic"></span><span class="hgn-joy-n"></span><span class="hgn-joy-s"></span><span class="hgn-joy-p"></span></span>';
+      return '<section class="hgn-joys" aria-busy="true"><div class="hgn-joy-head"><h2 class="hgn-joy-h"><span class="hgn-jak">' + esc(A0.joysA) + "</span>" +
+        '<span class="hgn-serif">' + esc(A0.joysB) + "</span>" + SPARK + "</h2>" +
+        '<span class="hgn-joy-sub">' + esc(free0 ? A0.joysFree : A0.joysSub) + "</span></div>" +
+        '<div class="hgn-joy-row">' + ph + ph + ph + "</div></section>";
+    }
     const items = [];
     for (let k = 0; k < 3 && items.length < 10; k++) {
       stores.forEach((m, i) => { const p = lists[i][k]; if (p && items.length < 10) items.push({ m: m, p: p }); });
@@ -1401,6 +1414,15 @@
     if (!inHome && !(WIDE.matches && main)) return;
     const hd = homeData();
     if (!hd || !Array.isArray(hd.merchant_categories)) return;
+
+    /* (2026-10-25, Nouf's screen recording: on opening, "the things move around") Home was drawn before the nearby stores
+       had loaded, then drawn again when they arrived: a shop banner showed first and our campaign banner took its place,
+       and the parts below moved. The first drawing now waits for the nearby stores (2.5 seconds at most); the opening
+       veil (app-footer.js, web-head.css) stays on meanwhile, so Home appears once, complete. */
+    if (!document.getElementById("hgn-home") && !nearReady()) {
+      if (!homeWaitAt) homeWaitAt = Date.now();
+      if (Date.now() - homeWaitAt < 2500) { setTimeout(schedule, 120); return; }
+    }
 
     let box = document.getElementById("hgn-home");
     if (!box) {
@@ -2120,6 +2142,16 @@
     page(1).then(() => { nearAll.list = all; nearAll.key = key; nearAll.fails = 0; nearAll.failKey = ""; },
       () => { nearAll.fails = nearAll.failKey === key ? nearAll.fails + 1 : 1; nearAll.failKey = key; nearAll.failAt = Date.now(); })
       .then(() => { nearAll.busy = false; pageSig = ""; catSig = ""; schedule(); });
+  }
+  /* (2026-10-25) true once the nearby stores for this address are in (or can't load, or there is no address yet) */
+  let homeWaitAt = 0;
+  function nearReady() {
+    loadNearAll();
+    const S = storeState();
+    const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
+    if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number") return true;
+    const key = sel.latitude.toFixed(5) + "," + sel.longitude.toFixed(5) + "|" + lang();
+    return nearAll.key === key || nearAll.failKey === key;
   }
   /* cached until one of its source lists changes (2026-10-20): up to 300 stores were merged and sorted on every run */
   const NO_LIST = [];
@@ -3404,6 +3436,53 @@
     });
   }
 
+  /* STORE OPENING HEAD START (2026-10-25, Nouf's recording: a store took about 2 seconds to open). Opening a store,
+     Hyperzod first asks its server for that store's page layout and only then for the menu, one after the other.
+     Hyperzod keeps each store's layout once it has it (fetchMerchantPage skips a store it already has), so the layout of
+     the stores on the page (Home, Stores near you, category pages, search; in page order, 30 at most) is asked for
+     ahead, two at a time, starting 3 seconds after the app opens; a store being touched goes first. Opening it then
+     waits only for the menu. */
+  const WARM_RE = /\/m\/[^/?#]+\/([0-9a-f]{24})(?:[/?#]|$)/;
+  const warmDone = new Set(), warmQ = [], warmSeen = new WeakSet(), warmFrom = Date.now() + 3000;
+  let warmBusy = 0, warmOn = false, warmAt = 0;
+  function warmId(el) { const m = WARM_RE.exec((el && (el.getAttribute("data-href") || el.getAttribute("href"))) || ""); return m ? m[1] : ""; }
+  function warmStore(id, first) {
+    if (!id || warmDone.has(id) || (!first && warmDone.size >= 30)) return;
+    warmDone.add(id);
+    if (first) warmQ.unshift(id); else warmQ.push(id);
+    warmPump();
+  }
+  function warmPump() {
+    if (Date.now() < warmFrom) { setTimeout(warmPump, warmFrom - Date.now() + 50); return; }
+    const S = csStore();
+    const tid = S && S.getters && S.getters.getBootSettings && S.getters.getBootSettings.tenant_id;
+    if (!tid || typeof S.dispatch !== "function") return;
+    while (warmBusy < 2 && warmQ.length) {
+      const id = warmQ.shift();
+      warmBusy++;
+      Promise.resolve().then(() => S.dispatch("fetchMerchantPage", { tenant_id: tid, merchant_id: id, locale: lang() }))
+        .catch(() => {}).then(() => { warmBusy--; setTimeout(warmPump, 120); });
+    }
+  }
+  function warmStores() {
+    const now = Date.now();
+    if (now - warmAt < 1000) return;
+    warmAt = now;
+    if (!warmOn) {
+      warmOn = true;
+      document.addEventListener("pointerdown", (ev) => {
+        const a = ev.target && ev.target.closest && ev.target.closest('a[href*="/m/"], [data-href*="/m/"]');
+        if (a) warmStore(warmId(a), true);
+      }, true);
+    }
+    document.querySelectorAll('#app a[href*="/m/"], #app [data-href*="/m/"]').forEach((el) => {
+      if (warmSeen.has(el)) return;
+      warmSeen.add(el);
+      warmStore(warmId(el));
+    });
+    if (warmQ.length) warmPump();
+  }
+
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
@@ -3411,7 +3490,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else if (document.documentElement.classList.contains("hgn-order-on")) document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords
+    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
   ];
   function tick() {
     osMemo = undefined;
