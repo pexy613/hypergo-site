@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-2010 */
+/* hg-version 2026-10-25-2017 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -601,13 +601,14 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
    (2026-10-24, later) not waiting for html.hgn-store: while a store loads (going Back to it, for example) Hyperzod's
    white circles showed for a moment first. */
 /* ================= STORE PAGE ON COMPUTERS (website 960px and wider, 2026-10-25) =================
-   Option A of the "HyperGo Website Store Page" canvas, chosen by Nouf: the app's store page, wider. A 240px banner
-   (was a third of the width, ~440px); the 96px logo on its bottom edge with the name (28/800), Open now and the store's
+   Option A of the "HyperGo Website Store Page" canvas, chosen by Nouf: the app's store page, wider. The banner full width
+   at 3:1, about 440px (2026-10-25, option C of the "HyperGo Store Banner on Computers" canvas, chosen by Nouf: the 240px
+   strip showed only the middle third of the 1200x600 banners); the 96px logo on its bottom edge with the name (28/800), Open now and the store's
    tags in one row; the info card with four stats (time, distance, delivery fee, minimum order; app-new.js); the
    category tabs with Filter first and "Search <store>" at the end; the products as the app's rows (photo on the end
    side, 112px), two per row, each a white card. The menu rows' rules above are shared with phones since 2026-10-25. */
 @media (min-width:960px){
-  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 > .cover-image{aspect-ratio:auto!important;height:240px!important;border-radius:20px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 > .cover-image{aspect-ratio:3/1!important;height:auto!important;border-radius:20px!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .merchant-header-img{width:96px!important;height:96px!important;top:-58px!important;border-radius:20px!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div>div{margin-inline-start:112px!important;min-height:52px!important;top:0!important;
     display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-start!important;gap:6px 10px!important;padding-top:10px!important;}
