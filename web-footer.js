@@ -1,4 +1,4 @@
-/* hg-version 2026-10-24-1303 */
+/* hg-version 2026-10-25-1757 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -986,4 +986,130 @@
     st.textContent = "html.hg-dragging,html.hg-dragging *{cursor:grabbing !important;user-select:none !important;}";
     (document.head || document.documentElement).appendChild(st);
   } catch (e) {}
+})();
+
+/* LANGUAGE DROPDOWN ON THE GLOBE (website computers, 960px and wider, 2026-10-25): the globe at the end of the top bar is
+   Hyperzod's menu button (#NavBtn); it opened a side panel whose only item is Language, which then opened the language list.
+   Now the globe opens a small list right under it: English and العربية, the current one purple with a tick. Picking one
+   calls Hyperzod's own language switch (setLocale of its side-menu), the same thing its list did. If that can't be found,
+   the globe opens Hyperzod's panel as before. Closes on a click outside, Escape, scrolling or resizing. */
+(function () {
+  "use strict";
+  if (window.__hgLangDD) return;
+  window.__hgLangDD = 1;
+  var WIDE = window.matchMedia("(min-width: 960px)");
+  var LABEL = { en: "English", ar: "العربية" };
+  var TICK = "<svg aria-hidden='true' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>";
+  var menu = null, btn = null, cmp = null;
+  function store() { try { return document.querySelector("#app").__vue_app__.config.globalProperties.$store; } catch (e) { return null; } }
+  /* Hyperzod's side-menu component (it holds setLocale and the list of languages) */
+  function sideMenu() {
+    if (cmp && !cmp.isUnmounted) return cmp;
+    cmp = null;
+    try {
+      var root = document.querySelector("#app").__vue_app__._container._vnode.component;
+      var seen = new Set();
+      var walk = function (v, d) {
+        if (!v || cmp || d > 400) return;
+        if (v.component) {
+          var c = v.component;
+          if (seen.has(c)) return;
+          seen.add(c);
+          if (c.proxy && typeof c.proxy.setLocale === "function" && Array.isArray(c.proxy.locales)) { cmp = c; return; }
+          walk(c.subTree, d + 1);
+          return;
+        }
+        if (Array.isArray(v.children)) for (var i = 0; i < v.children.length; i++) walk(v.children[i], d + 1);
+        if (v.suspense) walk(v.suspense.activeBranch, d + 1);
+      };
+      walk(root.subTree, 0);
+    } catch (e) {}
+    return cmp;
+  }
+  function cur() {
+    var l = (document.documentElement.getAttribute("lang") || "en").slice(0, 2);
+    return l === "ar" ? "ar" : "en";
+  }
+  function style() {
+    if (document.getElementById("hg-langdd-style")) return;
+    var st = document.createElement("style");
+    st.id = "hg-langdd-style";
+    st.textContent =
+      "#hg-langdd{position:fixed;z-index:20000;min-width:180px;padding:6px;box-sizing:border-box;border-radius:16px;background:#FFFFFF;" +
+        "box-shadow:0 12px 24px -14px rgba(54,25,133,.45),0 0 0 1px rgba(54,25,133,.06);display:flex;flex-direction:column;gap:2px;}" +
+      "#hg-langdd button{display:flex;align-items:center;justify-content:space-between;gap:12px;height:40px;padding:0 12px;border:0;border-radius:10px;" +
+        "background:none;font:inherit;font-size:14px;color:#1B2023;cursor:pointer;text-align:start;}" +
+      "#hg-langdd button:hover,#hg-langdd button:focus-visible{background:#F6F3FD;outline:none;}" +
+      "#hg-langdd button[aria-checked='true']{color:#5A29DE;font-weight:700;}" +
+      "#hg-langdd button[aria-checked='false'] svg{visibility:hidden;}" +
+      "#hg-langdd button[lang='ar']{font-family:inherit;}";
+    document.head.appendChild(st);
+  }
+  function close() {
+    if (menu) { menu.remove(); menu = null; }
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("keydown", onKey, true);
+  }
+  function onKey(e) { if (e.key === "Escape") { close(); if (btn) btn.focus(); } }
+  function place() {
+    if (!menu || !btn) return;
+    var r = btn.getBoundingClientRect();
+    menu.style.top = Math.round(r.bottom + 8) + "px";
+    var rtl = getComputedStyle(btn).direction === "rtl";
+    menu.setAttribute("dir", rtl ? "rtl" : "ltr");
+    if (rtl) { menu.style.left = Math.round(r.left) + "px"; menu.style.right = "auto"; }
+    else { menu.style.right = Math.round(window.innerWidth - r.right) + "px"; menu.style.left = "auto"; }
+  }
+  function open(b) {
+    var sm = sideMenu();
+    if (!sm) return false;
+    style();
+    btn = b;
+    var now = cur();
+    var list = (sm.proxy.locales || []).filter(function (l) { return l && (l.locale === "en" || l.locale === "ar"); });
+    if (!list.length) return false;
+    menu = document.createElement("div");
+    menu.id = "hg-langdd";
+    menu.setAttribute("role", "menu");
+    list.forEach(function (l) {
+      var it = document.createElement("button");
+      it.type = "button";
+      it.setAttribute("role", "menuitemradio");
+      it.setAttribute("lang", l.locale);
+      it.setAttribute("aria-checked", l.locale === now ? "true" : "false");
+      it.innerHTML = "<span>" + LABEL[l.locale] + "</span>" + TICK;
+      it.addEventListener("click", function () {
+        close();
+        if (l.locale === cur()) return;
+        try { sideMenu().proxy.setLocale(l); } catch (e) {}
+      });
+      menu.appendChild(it);
+    });
+    document.body.appendChild(menu);
+    b.setAttribute("aria-expanded", "true");
+    place();
+    document.addEventListener("keydown", onKey, true);
+    var first = menu.querySelector("[aria-checked='true']") || menu.firstChild;
+    if (first) first.focus({ preventScroll: true });
+    return true;
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#AppBar #NavBtn") : null;
+    if (b && WIDE.matches) {
+      if (menu) { e.preventDefault(); e.stopImmediatePropagation(); close(); return; }
+      if (open(b)) { e.preventDefault(); e.stopImmediatePropagation(); try { var s = store(); if (s) s.commit("sidePanel", ["menu", false]); } catch (x) {} }
+      return;
+    }
+    if (menu && !menu.contains(e.target)) close();
+  }, true);
+  window.addEventListener("scroll", function () { if (menu) close(); }, true);
+  window.addEventListener("resize", function () { if (menu) close(); });
+  /* the globe says what it is */
+  setInterval(function () {
+    var b = document.querySelector("#AppBar #NavBtn");
+    if (!b) return;
+    var want = cur() === "ar" ? "اللغة" : "Language";
+    if (b.getAttribute("aria-label") !== want) b.setAttribute("aria-label", want);
+    if (!b.hasAttribute("aria-haspopup")) b.setAttribute("aria-haspopup", "menu");
+  }, 1000);
 })();
