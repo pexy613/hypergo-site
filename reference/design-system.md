@@ -583,7 +583,8 @@ Parts (app-new.js / app-new.css, Home unless noted):
 - Little joys: real products (photo, in stock) from the 4 nearest open Gifts and Flowers stores; "delivered free" only when all of them deliver free.
 - Made in Bahrain: shops that joined in the last 14 days (from the store id), night-purple panel, faint five-point serrated edge (the flag motif), count of new shops, cards with the store's cover, logo, category and "Joined N days ago".
 - New tag (green gloss, bottom-start corner of the tile): at most 2 category tiles, the ones with the most shops that joined in the last 14 days.
-- Shop by occasion: ticket cards (photo, perforated stub with notches, category under the title, purple go button).
+- Shop by occasion: ticket cards (photo, perforated stub with notches, category under the title, purple go button); the photo is 3:2 on phones and computers (172x115 / about 324x216), notches on its bottom edge. Export 1200x800.
+- Banner carousel shape (2026-10-25): 2:1 on phones and computers (358x179 / about 664x332), one design shows whole everywhere. Export 1500x750.
 - Stores near you: pale green Free delivery chip when the delivery fee is 0.
 - Header: gloss gradient `#8640FC` (top 40%) to `#7432EE`; glossy white cart button.
 - Store page: "Our favourites" (Jakarta + serif with a green marker swash; Arabic "مختاراتنا") over Recommended Products; checkout bar purple gloss `#7A4CF5 → #5A29DE → #4519C2`.
