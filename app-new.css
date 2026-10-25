@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0034 */
+/* hg-version 2026-10-26-0108 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1027,6 +1027,33 @@ html.hg-new-app .hgn-joy.is-ph .hgn-joy-n{background:linear-gradient(#EEE8F3,#EE
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-s{height:16px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/50% 10px no-repeat;}
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-p{height:18px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/40% 12px no-repeat;}
 html.hg-new-app .hgn-joy-p b{font-weight:700;}
+/* (2026-10-26, Little joys B lighter, chosen by Nouf) grouped by shop, no card boxes: a header (32px logo r9 on white with a
+   hairline, name 15/700, arrow) and the shop's 3 products in a row (square photo r14, soft shadow, name 12/16 on one line,
+   price 13/16). Phones: 300px groups sliding sideways, 20px apart; computers: 4 groups side by side, 28px apart. */
+html.hg-new-app .hgn-joy-row:has(> .hgn-joy-shop){gap:20px;}
+html.hg-new-app .hgn-joy-shop{flex:0 0 300px;min-width:0;display:flex;flex-direction:column;gap:10px;scroll-snap-align:start;}
+html.hg-new-app #hgn-home a.hgn-joy-sh,html.hg-new-app .hgn-joy-sh{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:var(--hg-ink);}
+html.hg-new-app .hgn-joy-logo{flex:none;width:32px;height:32px;border-radius:9px;overflow:hidden;background:#FFFFFF;box-shadow:inset 0 0 0 1px var(--hg-line);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#5A29DE;}
+html.hg-new-app .hgn-joy-logo img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .hgn-joy-sn{flex:1 1 auto;min-width:0;font-size:15px;line-height:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-joy-chev{flex:none;width:18px;height:18px;color:var(--hg-muted);}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-joy-chev{transform:scaleX(-1);}
+html.hg-new-app .hgn-joy-prods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+html.hg-new-app .hgn-joy-shop .hgn-joy{flex:none;gap:6px;min-width:0;}
+html.hg-new-app .hgn-joy-shop .hgn-joy-pic{width:auto;height:auto;aspect-ratio:1/1;margin:0;border-radius:14px;box-shadow:0 6px 14px -8px rgba(54,25,133,.35);}
+html.hg-new-app .hgn-joy-shop .hgn-joy-n{min-height:0;max-height:none;font-size:12px;line-height:16px;font-weight:400;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app .hgn-joy-shop .hgn-joy-p{margin-top:-4px;font-size:13px;line-height:16px;}
+html.hg-new-app #hgn-home[dir="rtl"] .hgn-joy-shop :is(.hgn-joy-n,.hgn-joy-sn){unicode-bidi:plaintext;text-align:right;}
+/* loading look of the groups */
+html.hg-new-app .hgn-joy-shop.is-ph .hgn-joy-logo{background:#EEE8F3;box-shadow:none;}
+html.hg-new-app .hgn-joy-shop.is-ph .hgn-joy-sn{height:14px;max-width:120px;border-radius:7px;background:#EEE8F3;}
+html.hg-new-app .hgn-joy-shop .hgn-joy.is-ph .hgn-joy-n{height:12px;background:#EEE8F3;border-radius:6px;width:80%;}
+html.hg-new-app .hgn-joy-shop .hgn-joy.is-ph .hgn-joy-p{height:12px;margin-top:0;background:#EEE8F3;border-radius:6px;width:50%;}
+@media (min-width:960px){
+  html.hg-new-app .hgn-joy-row:has(> .hgn-joy-shop){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;overflow:visible;}
+  html.hg-new-app .hgn-joy-shop .hgn-joy-n{font-size:13px;}
+}
 
 /* Shop by occasion, ticket cards (2026-10-22): the stores' own photos (Nouf's Merchants folder) in the repo's
    occasion-photos folder, never the category pictures. Photo on top, a perforated ticket stub under it. */
@@ -1609,3 +1636,39 @@ html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *
   display:inline!important;margin:0!important;padding:0!important;white-space:nowrap!important;}
 html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(p,div,li)+:is(p,div,li)::before{content:" ";}
 html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(br,img,table,hr){display:none!important;}
+
+/* ================= EMPTY CART AND EMPTY REORDER (2026-10-26, canvas "HyperGo Home Sections and Empty Screens", option A of
+   each, chosen by Nouf; app-new.js EMPTY CART AND EMPTY REORDER) =================
+   Hyperzod's grey basket / cardboard box screens hidden; ours: 120px lilac circle with a 52px purple icon, the line 24/800
+   (Plus Jakarta Sans), one sentence 15/22 grey, a 48px purple gloss button (the checkout button's gloss), on computers a
+   second, plain purple link. */
+html.hg-new-app .hgn-empty-host{background:#FFFCF9!important;}
+html.hg-new-app .hgn-empty-host > :not(.hgn-empty){display:none!important;}
+html.hg-new-app .hgn-empty{display:flex;flex-direction:column;min-height:inherit;width:100%;color:var(--hg-ink);}
+html.hg-new-app .hgn-empty-mid{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 32px 24px;text-align:center;}
+html.hg-new-app .hgn-empty-ic{width:120px;height:120px;margin-bottom:8px;border-radius:60px;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#FFFFFF 0%,#F1ECFF 60%,#E4DBFF 100%);}
+html.hg-new-app .hgn-empty-ic svg{width:52px;height:52px;}
+html.hg-new-app .hgn-empty-h{margin:0;font-size:24px;line-height:30px;color:#1B2023;}
+html.hg-new-app .hgn-empty-p{margin:0;max-width:300px;font-size:15px;line-height:22px;color:var(--hg-muted);}
+html.hg-new-app .hgn-empty-go{margin-top:8px;height:48px;padding:0 28px;border:0;border-radius:24px;cursor:pointer;font:inherit;font-size:16px;font-weight:700;color:#FFFFFF;
+  background:linear-gradient(180deg,#7A4CF5,#5A29DE 55%,#4519C2);box-shadow:0 10px 20px -8px rgba(90,41,222,.6);-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-empty-alt{padding:8px 12px;border:0;background:none;cursor:pointer;font:inherit;font-size:15px;font-weight:600;color:#5A29DE;}
+html.hg-new-app .hgn-empty-go:focus-visible,html.hg-new-app .hgn-empty-alt:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
+/* the cart page on phones: the whole screen above the bottom bar, the content in its middle */
+html.hg-new-app #checkout > .hgn-empty-host{height:auto!important;min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
+html.hg-new-app #checkout > .hgn-empty-host > .hgn-empty{min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
+/* the cart panel on computers: Hyperzod's 96px space on top stays */
+html.hg-new-app .scheme-cart-empty.hgn-empty-host{background:transparent!important;}
+/* orders with no orders */
+html.hg-new-app #custom-scroll-orders > .hgn-empty-host{height:auto!important;min-height:calc(100vh - 220px);margin-top:0!important;}
+html.hg-new-app #custom-scroll-orders > .hgn-empty-host > .hgn-empty{min-height:calc(100vh - 220px);}
+html.hg-new-app #custom-scroll-orders:has(> .hgn-empty-host){background:#FFFCF9!important;}
+/* Reorder tab (app and phones): no purple "My Orders" bar, a "Reorder" title instead, cream under the clock */
+html.hg-new-app.hgn-reo-empty .scheme-mobile-page-header{display:none!important;}
+html.hg-new-app.hgn-reo-empty .scheme-profile-page{padding-top:var(--native-status-bar-height,0px)!important;background:#FFFCF9!important;}
+html.hg-new-app.hgn-reo-empty.hg-acct-page .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#FFFCF9!important;}
+html.hg-new-app.hgn-reo-empty #custom-scroll-orders > .hgn-empty-host,html.hg-new-app.hgn-reo-empty #custom-scroll-orders > .hgn-empty-host > .hgn-empty{min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
+html.hg-new-app .hgn-empty-top{padding:24px 16px 0;display:flex;flex-direction:column;gap:4px;text-align:start;}
+html.hg-new-app .hgn-empty-t{margin:0;font-size:28px;line-height:34px;color:#1B2023;}
+html.hg-new-app .hgn-empty-s{margin:0;font-size:14px;line-height:20px;color:var(--hg-muted);}
