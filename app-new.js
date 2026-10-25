@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1700 */
+/* hg-version 2026-10-25-1720 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1632,7 +1632,8 @@
     clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
     bike: '<circle cx="6" cy="16.5" r="3"/><circle cx="18" cy="16.5" r="3"/><path d="M6 16.5l3.5-7h5l3.5 7M9.5 9.5L8 6.5H6M14.5 9.5l1.5-3h2"/>',
-    bag: '<path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/>'
+    bag: '<path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>'
   };
   function sIcon(k) {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SICON[k] + "</svg>";
@@ -1641,6 +1642,28 @@
   function storeState() {
     const g = vueGlobals();
     return g && g.$store && g.$store.state;
+  }
+  /* (2026-10-25) a store opened straight from a link (or on computers) is in none of our lists, so its delivery time and
+     fee were missing from the info card. Its entry is then fetched once from Hyperzod's store search (the same data
+     the Search results use), by the store's name, and matched by id. */
+  const sinfoFetched = {};
+  function storeInfoFetch(md, id) {
+    if (!md || !id || !md.name) return null;
+    const got = sinfoFetched[id];
+    if (got) return got.data;
+    const S = storeState();
+    const sel = S && S.Utils && S.Utils.selectedLocation && S.Utils.selectedLocation.location;
+    if (!sel || typeof sel.latitude !== "number" || typeof sel.longitude !== "number") return null;
+    const rec = sinfoFetched[id] = { data: null };
+    const url = "https://api.hyperzod.app/store/v1/search?location%5B%5D=" + sel.latitude + "&location%5B%5D=" + sel.longitude +
+      "&q=" + encodeURIComponent(md.name) + "&locale=" + lang() + "&search_type=merchant";
+    fetch(url, { headers: { accept: "application/json", "x-tenant": location.host, "x-client-device": "web" } })
+      .then((r) => r.json())
+      .then((j) => {
+        const m = (j && Array.isArray(j.data) ? j.data : []).find((x) => x && (x._id || x.id) === id);
+        if (m) { rec.data = m; schedule(); }
+      }, () => {});
+    return null;
   }
   function storeListEntry(id) {
     const S = storeState();
@@ -1752,7 +1775,7 @@
     const S = storeState();
     const md = (S && S.Merchant && S.Merchant.merchantData) || {};
     const id = md._id || md.id || (page.id || "");
-    const entry = storeListEntry(id) || {};
+    const entry = storeListEntry(id) || storeInfoFetch(md, id) || {};
 
     /* logo for products with no photo */
     const logoImg = hdr.querySelector(".merchant-header-img img");
@@ -1787,7 +1810,8 @@
       let fee = storeFee(entry);
       if (fee === null) fee = storeFee(md);
       if (typeof fee === "number") items.push(["bike", fee === 0 ? T.free : money(fee), T.fee]);
-      else if (typeof md.min_order_amount === "number") items.push(["bag", md.min_order_amount > 0 ? money(md.min_order_amount) : T.nomin, T.min]);
+      /* the minimum order: on phones only when there is no fee to show (three fit), on computers always (2026-10-25) */
+      if ((typeof fee !== "number" || WIDE.matches) && typeof md.min_order_amount === "number") items.push(["bag", md.min_order_amount > 0 ? money(md.min_order_amount) : T.nomin, T.min]);
       const html = items.map((x) => '<span class="hgn-sstat">' + sIcon(x[0]) + '<span class="hgn-sstat-t"><b>' + esc(x[1]) + "</b><small>" + esc(x[2]) + "</small></span></span>").join("");
       let card = gutter.querySelector(":scope > #hgn-sinfo");
       if (!items.length) { if (card) card.remove(); }
@@ -2805,17 +2829,17 @@
     const s = sw && sw.swiper;
     if (!s || !s.params || s.destroyed) return;
     if (sw.dataset.hgnSob == null) sw.dataset.hgnSob = String(s.params.slidesOffsetBefore || 0);
-    const want = 16 + Math.round(b.offsetWidth) + 8;
-    const prev = s.params.slidesOffsetBefore || 0;
-    if (b.offsetWidth > 0 && prev !== want) {
-      s.params.slidesOffsetBefore = want;
-      try {
-        s.update();
-        /* update() keeps the old position (found in the pane: the tabs stayed 92px too far to the start); move the row
-           by the same amount the start space grew, within the row's ends */
-        s.setTranslate(Math.max(s.maxTranslate(), Math.min(s.minTranslate(), s.translate + (want - prev))));
-      } catch (e) {}
+    /* the row's start: 16px on phones; on computers the page column's edge (the store header's), so Filter lines up
+       with the banner and the name above it (2026-10-25) */
+    let start = 16;
+    if (!nav.closest(".merchant-mobile-view")) {
+      const g = document.querySelector("#merchant-header-v2 .storefront-gutter");
+      const nr = nav.getBoundingClientRect(), gr = g && g.getBoundingClientRect();
+      if (gr && gr.width) start = Math.max(16, Math.round(document.documentElement.dir === "rtl" || hgIsAr() ? nr.right - gr.right : gr.left - nr.left));
     }
+    if (b.style.insetInlineStart !== start + "px") b.style.insetInlineStart = start + "px";
+    const q = nav.querySelector(":scope > .hgn-ssearch");
+    if (q && q.style.marginInlineEnd !== start + "px") q.style.marginInlineEnd = start + "px";
     const move = () => {
       if (!b.isConnected || s.destroyed) return;
       const dx = (s.rtlTranslate ? -1 : 1) * (s.translate - s.minTranslate());
@@ -2827,11 +2851,33 @@
       s.on("setTransition", (sw2, ms) => { if (b.isConnected) b.style.transitionDuration = (ms || 0) + "ms"; });
     }
     move();
+    /* the first tab starts 10px after Filter: measured, since the row's own padding differs between phones and computers
+       (Swiper's start space alone put it 48px too far on computers). Filter moves with the row, so the gap is the same at
+       any scroll position. */
+    const sl = s.slides && s.slides[0];
+    if (sl && b.offsetWidth > 0) {
+      const pr = b.getBoundingClientRect(), sr = sl.getBoundingClientRect();
+      const gap = s.rtlTranslate ? pr.left - sr.right : sr.left - pr.right;
+      const prev = s.params.slidesOffsetBefore || 0;
+      const want = Math.round(prev - (gap - 10));
+      if (Math.abs(want - prev) > 1) {
+        s.params.slidesOffsetBefore = want;
+        try {
+          s.update();
+          /* update() keeps the old position (found in the pane: the tabs stayed 92px too far to the start); move the row
+             by the same amount the start space changed, within the row's ends */
+          s.setTranslate(Math.max(s.maxTranslate(), Math.min(s.minTranslate(), s.translate + (want - prev))));
+        } catch (e) {}
+        move();
+      }
+    }
   }
   function renderStoreFilter() {
     const page = document.documentElement.classList.contains("hgn-store") ? openStorePage() : null;
-    const nav = page && page.classList.contains("merchant-mobile-view") ? page.querySelector("#ProductCategoriesNav") : null;
-    const native = page ? page.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative") : null;
+    /* (2026-10-25) computers too: there Hyperzod's store filter is the Filter button in the top bar (#AppBar .filter-btn) */
+    const mob = !!page && page.classList.contains("merchant-mobile-view");
+    const nav = page ? page.querySelector("#ProductCategoriesNav") : null;
+    const native = !page ? null : mob ? page.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative") : document.querySelector("#AppBar .filter-btn");
     document.querySelectorAll(".hgn-sfilter").forEach((b) => { if (!nav || !native || b.parentNode !== nav) b.remove(); });
     if (!nav || !native) return;
     let b = nav.querySelector(":scope > .hgn-sfilter");
@@ -2842,12 +2888,11 @@
       b.addEventListener("click", (ev) => {
         ev.preventDefault();
         const pg = openStorePage();
-        const nb = pg && pg.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative");
+        const nb = pg && (pg.classList.contains("merchant-mobile-view") ? pg.querySelector(".merchant-floating-actions .merchant-floating-btn.tw-relative") : document.querySelector("#AppBar .filter-btn"));
         if (nb) nb.click();
       });
       nav.insertBefore(b, nav.firstChild);
     }
-    sfRide(nav, b);
     const label = native.getAttribute("aria-label") || (lang() === "ar" ? "تصفية" : "Filter");
     const n = (native.textContent || "").replace(/\D+/g, "");
     /* (2026-10-24, later) the word too ("Filter"), with the number of filters in use after it */
@@ -2855,6 +2900,25 @@
     const html = SF_ICON + "<span>" + esc(word) + "</span>" + (n ? '<span class="hgn-sfilter-n">' + esc(n) + "</span>" : "");
     if (b.getAttribute("aria-label") !== label) b.setAttribute("aria-label", label);
     if (b.dataset.sig !== html) { b.innerHTML = html; b.dataset.sig = html; }
+    /* computers (2026-10-25, option A): "Search <store>" at the end of the tabs; it opens the store's own search page */
+    let q = nav.querySelector(":scope > .hgn-ssearch");
+    if (mob) { if (q) q.remove(); sfRide(nav, b); return; }
+    if (!q) {
+      q = document.createElement("button");
+      q.type = "button";
+      q.className = "hgn-ssearch";
+      q.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const m = currentPath().match(/^\/(en|ar)\/m\/[^/]+\/[^/?#]+/);
+        if (m) go(m[0] + "/search");
+      });
+      nav.appendChild(q);
+    } else if (nav.lastElementChild !== q) nav.appendChild(q);
+    const S = storeState(), md = S && S.Merchant && S.Merchant.merchantData;
+    const nm = md ? (nameOf(md) || md.name || "") : "";
+    const qh = sIcon("search") + "<span>" + esc((lang() === "ar" ? "ابحث في " : "Search ") + nm) + "</span>";
+    if (q.dataset.sig !== qh) { q.innerHTML = qh; q.dataset.sig = qh; }
+    sfRide(nav, b);
   }
 
   /* ---------- VIEW CART BAR (2026-10-24, "HyperGo Quick Checkout" board 1) ----------

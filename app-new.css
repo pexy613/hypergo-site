@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1700 */
+/* hg-version 2026-10-25-1720 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -530,26 +530,26 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
 
 /* product rows: no card box, hairline between rows, photo on the end side */
 html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section{padding-top:36px!important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal{
   background:transparent!important;box-shadow:none!important;border-radius:0!important;border-bottom:1px solid var(--hg-line)!important;margin:0!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal:last-child{border-bottom:0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal:last-child{border-bottom:0!important;}
 /* (Talabat menu rows, 2026-10-21) 16 above and below, 112 photo, name 14 semibold, description 14 grey (16 lines), price 14 */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal>.v-card-text{padding:16px 0!important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal>.v-card-text{padding:16px 0!important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .hg-sp-txt{
   display:flex!important;flex-direction:row!important;align-items:stretch!important;gap:16px!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .hg-sp-txt>div:not(.pro-card-h){
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .hg-sp-txt>div:not(.pro-card-h){
   order:0!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:none!important;padding:0!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .pro-card-h{
   order:1!important;flex:0 0 112px!important;width:112px!important;min-width:112px!important;max-width:112px!important;
   height:112px!important;min-height:112px!important;max-height:112px!important;margin:0!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .pro-card-h-img{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .pro-card-h-img{
   width:112px!important;min-width:112px!important;max-width:112px!important;height:112px!important;min-height:112px!important;max-height:112px!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .rec-item-title h4{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .rec-item-title h4{
   font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:600!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;margin:0!important;
 }
 /* (2026-10-22) long product names end with dots after 2 lines. global-footer.css still gave the names the old two-line
@@ -559,14 +559,14 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
   min-height:32px!important;max-height:32px!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-name{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .product-name{
   display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
   min-height:0!important;max-height:40px!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-description{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .product-description{
   margin-top:2px!important;font-size:calc(var(--hg-fs) * 14)!important;line-height:16px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-muted)!important;
 }
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .cat-section .product-card-horizontal .product-price{
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .cat-section .product-card-horizontal .product-price{
   font-size:calc(var(--hg-fs) * 14)!important;line-height:20px!important;font-weight:400!important;letter-spacing:var(--hg-ls)!important;color:var(--hg-ink)!important;
 }
 
@@ -575,6 +575,42 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
    under Hyperzod's cream top bar (.cover-scrolled) the shade fades and the icons turn dark, as before.
    (2026-10-24, later) not waiting for html.hgn-store: while a store loads (going Back to it, for example) Hyperzod's
    white circles showed for a moment first. */
+/* ================= STORE PAGE ON COMPUTERS (website 960px and wider, 2026-10-25) =================
+   Option A of the "HyperGo Website Store Page" canvas, chosen by Nouf: the app's store page, wider. A 240px banner
+   (was a third of the width, ~440px); the 96px logo on its bottom edge with the name (28/800), Open now and the store's
+   tags in one row; the info card with four stats (time, distance, delivery fee, minimum order; app-new.js); the
+   category tabs with Filter first and "Search <store>" at the end; the products as the app's rows (photo on the end
+   side, 112px), two per row, each a white card. The menu rows' rules above are shared with phones since 2026-10-25. */
+@media (min-width:960px){
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 > .cover-image{aspect-ratio:auto!important;height:240px!important;border-radius:20px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .merchant-header-img{width:96px!important;height:96px!important;top:-58px!important;border-radius:20px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div>div{margin-inline-start:112px!important;min-height:52px!important;top:0!important;
+    display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-start!important;gap:6px 10px!important;padding-top:10px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div>div>h1{font-size:28px!important;line-height:34px!important;font-weight:800!important;margin:0!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .hgn-open{align-self:center!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 #MerchantAddress{display:none!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .v-card-text>div>div>div:last-child{flex:0 0 auto!important;margin:0!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:14px 20px!important;background:#FFFFFF!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo b{font-size:15px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo small{font-size:13px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav{display:flex!important;align-items:center!important;gap:16px;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav>.product-categories-nav__scroller{flex:1 1 auto;min-width:0;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch{flex:none;width:260px;height:40px;margin-inline-end:16px;padding:0 14px;border:0;border-radius:20px;background:#F4F2FA;box-shadow:inset 0 0 0 1px var(--hg-line);
+    display:flex;align-items:center;gap:8px;font:inherit;font-size:14px;color:var(--hg-muted);cursor:pointer;text-align:start;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch svg{flex:none;width:16px;height:16px;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .cat-section .product-horizontal-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .cat-section .product-card-horizontal,html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .cat-section .product-card-horizontal:last-child{background:#FFFFFF!important;border-radius:20px!important;border-bottom:0!important;box-shadow:0 1px 0 #F0EDF5!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .cat-section .product-card-horizontal>.v-card-text{padding:14px 16px!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .cat-section .product-card-horizontal .product-description{display:block!important;} /* one line (global rule), hidden on computers before */
+  /* the bar Hyperzod shows on scrolling (logo, name, store search): its search box in our search-pill look */
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #MerchantStickyHeader{box-shadow:0 1px 0 #ECE8F6!important;}
+  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #MerchantStickyHeader .header-search .v-field{background:#F4F2FA!important;border-radius:22px!important;box-shadow:inset 0 0 0 1px var(--hg-line)!important;}
+}
+@media (max-width:959.98px){
+  html.hg-new-app .hgn-ssearch{display:none!important;}
+}
+
 /* the cream top bar (2026-10-24): Hyperzod fades it in with the scroll itself (opacity = (scroll - 40) / 100), so
    between 40 and 140 px it is half see-through and the logo, the store name and the banner show through it; stopping
    there kept it that way (Nouf's recordings: Golden Petals, Ateaya). Now it is fully off, or fully on from 40 px
@@ -599,13 +635,13 @@ html.hg-new-app body :is(#app,.v-overlay-container) .scheme-merchant-page.mercha
    the first tab of the row: the tabs start after it (app-new.js widens the row's start space by Filter's width) and it
    moves with the row as it scrolls, so a tab never goes half under it any more (her screenshot: "door Plants"). The
    row is clipped at the screen edges, so Filter slides out of sight with the tabs. */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav:has(> .hgn-sfilter){position:relative !important;overflow:hidden !important;overflow:clip !important;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter{flex:none;position:absolute;top:50%;inset-inline-start:16px;z-index:1;height:38px;margin:0;margin-top:-19px;
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page #ProductCategoriesNav:has(> .hgn-sfilter){position:relative !important;overflow:hidden !important;overflow:clip !important;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .hgn-sfilter{flex:none;position:absolute;top:50%;inset-inline-start:16px;z-index:1;height:38px;margin:0;margin-top:-19px;
   transition-property:transform;transition-duration:0ms;will-change:transform;padding:0 14px 0 12px;border:0;border-radius:19px;gap:6px;
   background:#F1ECFF;color:#5A29DE;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
   font:inherit;font-size:calc(var(--hg-fs) * 14);font-weight:600;white-space:nowrap;} /* (2026-10-24, later) bigger, with its word: the 34px circle was too small */
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
-html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-mobile-view .hgn-sfilter-n{position:static;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .hgn-sfilter:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
+html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page .hgn-sfilter-n{position:static;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:9px;
   background:#5A29DE;color:#FFFFFF;font-size:11px;font-weight:700;line-height:18px;text-align:center;}
 
 /* VIEW CART BAR (2026-10-24): our own bar (#hgn-vc, app-new.js), Hyperzod's button hidden: it flickered and shook on every add */
