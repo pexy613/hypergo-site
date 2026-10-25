@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1720 */
+/* hg-version 2026-10-25-1818 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2824,6 +2824,32 @@
      (slidesOffsetBefore, 12px) is widened to Filter's width + 8px, so the first tab starts after Filter, and Filter is
      moved by exactly what the row moves (Swiper's own translate and transition time), so the two scroll as one row. */
   const sfRides = new WeakSet();
+  /* (2026-10-25) when every tab fits beside Filter, the row stays at its start and can't be dragged: on a store with few
+     tabs (Eclerano Kunafa, 3 tabs) Swiper still had a few pixels to scroll and opened on its second stop, so Filter sat
+     half off the screen. Returns true when it moved the row back (the move that follows redraws Filter). */
+  function sfPin(s, b) {
+    const nav = b.parentNode;
+    if (!nav || !nav.closest(".merchant-mobile-view")) return false;
+    const sl = s.slides;
+    if (!sl || !sl.length) return false;
+    const dx = (s.rtlTranslate ? -1 : 1) * (sfT(s) - s.minTranslate());
+    const nr = nav.getBoundingClientRect(), lr = sl[sl.length - 1].getBoundingClientRect();
+    if (!nr.width || !lr.width) return false;
+    const fits = s.rtlTranslate ? lr.left - dx >= nr.left + 16 : lr.right - dx <= nr.right - 16;
+    if (s.allowTouchMove === fits) s.allowTouchMove = !fits;
+    if (fits && Math.abs(sfT(s) - s.minTranslate()) > 0.5 && !sfPinning) {
+      sfPinning = true;
+      try { sfSet(s, s.minTranslate()); } finally { sfPinning = false; }
+      return true;
+    }
+    return false;
+  }
+  let sfPinning = false;
+  /* (2026-10-25) in Arabic Swiper keeps s.translate with the opposite sign of the position it works with (minTranslate,
+     maxTranslate, setTranslate), so it is read through sfT. Reading it directly put Filter in the wrong place in Arabic
+     and pushed the tabs' start space the wrong way (found in the pane: start space -429, Filter on top of the tabs). */
+  function sfT(s) { return s.rtlTranslate ? -s.translate : s.translate; }
+  function sfSet(s, t) { s.setTranslate(t); }
   function sfRide(nav, b) {
     const sw = nav.querySelector(".swiper");
     const s = sw && sw.swiper;
@@ -2837,12 +2863,28 @@
       const nr = nav.getBoundingClientRect(), gr = g && g.getBoundingClientRect();
       if (gr && gr.width) start = Math.max(16, Math.round(document.documentElement.dir === "rtl" || hgIsAr() ? nr.right - gr.right : gr.left - nr.left));
     }
-    if (b.style.insetInlineStart !== start + "px") b.style.insetInlineStart = start + "px";
     const q = nav.querySelector(":scope > .hgn-ssearch");
     if (q && q.style.marginInlineEnd !== start + "px") q.style.marginInlineEnd = start + "px";
+    /* computers (2026-10-25): Filter simply sits before the tabs in the row (app-new.css, STORE PAGE ON COMPUTERS), it doesn't
+       ride on the tabs. In Arabic the riding put Filter on top of the first tab: there the whole row fits, so Swiper ignored
+       the start space and the measuring kept pushing it the wrong way. The row starts at the page column's edge. */
+    if (!nav.closest(".merchant-mobile-view")) {
+      if (nav.style.paddingInlineStart !== start + "px") nav.style.setProperty("padding-inline-start", start + "px", "important");
+      if (b.style.transform) b.style.transform = "";
+      if (b.style.insetInlineStart) b.style.insetInlineStart = "";
+      const orig = Number(sw.dataset.hgnSob) || 0;
+      if ((s.params.slidesOffsetBefore || 0) !== orig) {
+        s.params.slidesOffsetBefore = orig;
+        try { s.update(); sfSet(s, Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s)))); } catch (e) {}
+      }
+      return;
+    }
+    if (nav.style.paddingInlineStart) nav.style.removeProperty("padding-inline-start");
+    if (b.style.insetInlineStart !== start + "px") b.style.insetInlineStart = start + "px";
     const move = () => {
       if (!b.isConnected || s.destroyed) return;
-      const dx = (s.rtlTranslate ? -1 : 1) * (s.translate - s.minTranslate());
+      if (sfPin(s, b)) return;
+      const dx = (s.rtlTranslate ? -1 : 1) * (sfT(s) - s.minTranslate());
       b.style.transform = dx ? "translateX(" + Math.round(dx * 10) / 10 + "px)" : "";
     };
     if (!sfRides.has(s)) {
@@ -2866,7 +2908,7 @@
           s.update();
           /* update() keeps the old position (found in the pane: the tabs stayed 92px too far to the start); move the row
              by the same amount the start space changed, within the row's ends */
-          s.setTranslate(Math.max(s.maxTranslate(), Math.min(s.minTranslate(), s.translate + (want - prev))));
+          sfSet(s, Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s) + (want - prev))));
         } catch (e) {}
         move();
       }
@@ -3284,6 +3326,32 @@
     document.documentElement.classList.add("hgn-done-on");
   }
 
+  /* ARABIC WORDING (2026-10-25, Arabic check): a few of Hyperzod's machine-translated words read wrong, so they are
+     replaced where they show: the checkout button "مكان الامر" ("the place of the matter", for Place order) becomes
+     "تأكيد الطلب", the product button "يضيف" ("he adds") becomes "أضف", "يعدل أو يكيف" (for Customizable) becomes
+     "قابل للتخصيص", and the store search field's "يبحث في <store>" ("he searches in") becomes "ابحث في <store>".
+     Runs at most twice a second, Arabic only. */
+  const AR_WORDS = { "مكان الامر": "تأكيد الطلب", "يضيف": "أضف", "يعدل أو يكيف": "قابل للتخصيص" };
+  let arWordsAt = 0;
+  function fixArabicWords() {
+    if (!hgIsAr()) return;
+    const now = Date.now();
+    if (now - arWordsAt < 500) return;
+    arWordsAt = now;
+    const root = document.getElementById("app");
+    if (!root) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const hits = [];
+    while (w.nextNode()) {
+      const n = w.currentNode, t = n.nodeValue;
+      if (t && t.length < 20) { const k = t.trim(); if (AR_WORDS[k]) hits.push([n, k]); }
+    }
+    hits.forEach((h) => { h[0].nodeValue = h[0].nodeValue.replace(h[1], AR_WORDS[h[1]]); });
+    root.querySelectorAll("input[placeholder^='يبحث في ']").forEach((i) => {
+      i.setAttribute("placeholder", "ابحث في " + i.getAttribute("placeholder").slice(8));
+    });
+  }
+
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
@@ -3291,7 +3359,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced
+    renderStore, renderStoreTags, renderStoreFilter, renderViewCart, renderCartSheet, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords
   ];
   function tick() {
     for (let i = 0; i < PARTS.length; i++) {
