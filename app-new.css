@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1859 */
+/* hg-version 2026-10-25-1922 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -958,6 +958,13 @@ html.hg-new-app .hgn-joy-pic::after{content:"";position:absolute;inset:0;backgro
 html.hg-new-app .hgn-joy-n{font-size:14px;line-height:18px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px;max-height:36px;overflow-wrap:anywhere;}
 html.hg-new-app .hgn-joy-s{font-size:12px;line-height:16px;color:var(--hg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-joy-p{font-size:14px;line-height:18px;}
+/* (2026-10-25) Little joys while its products load: the same cards as soft lilac blocks (the store loading lilac #EEE8F3),
+   same sizes, so nothing below moves when the products arrive */
+html.hg-new-app .hgn-joy.is-ph .hgn-joy-pic{background:#EEE8F3;box-shadow:none;}
+html.hg-new-app .hgn-joy.is-ph .hgn-joy-pic::after{display:none;}
+html.hg-new-app .hgn-joy.is-ph .hgn-joy-n{background:linear-gradient(#EEE8F3,#EEE8F3) 0 2px/90% 14px no-repeat,linear-gradient(#EEE8F3,#EEE8F3) 0 20px/60% 14px no-repeat;}
+html.hg-new-app .hgn-joy.is-ph .hgn-joy-s{height:16px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/50% 10px no-repeat;}
+html.hg-new-app .hgn-joy.is-ph .hgn-joy-p{height:18px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/40% 12px no-repeat;}
 html.hg-new-app .hgn-joy-p b{font-weight:700;}
 
 /* Shop by occasion, ticket cards (2026-10-22): the stores' own photos (Nouf's Merchants folder) in the repo's
