@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0205 */
+/* hg-version 2026-10-26-1301 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -2746,8 +2746,12 @@
      (Hyperzod's "last minute" recommendations, its checkout journey): that step is switched off here for every screen,
      so the cart panel on the website goes straight to checkout too. The look is in app-new.css (CART SHEET). */
   const CS_TXT = {
-    en: { title: "Your cart", also: "You may also like", add: "Add" },
-    ar: { title: "سلّتك", also: "قد يعجبك أيضًا", add: "أضف" }
+    en: { title: "Your cart", also: "You may also like", add: "Add",
+      many: "Your carts", shops: (n) => "From " + n + " shops. Each shop is paid on its own.", go: "Checkout", total: "Total",
+      items: (n) => n === 1 ? "1 item" : n + " items" },
+    ar: { title: "سلّتك", also: "قد يعجبك أيضًا", add: "أضف",
+      many: "سلّاتك", shops: (n) => (n === 2 ? "من متجرين" : n <= 10 ? "من " + n + " متاجر" : "من " + n + " متجرًا") + ". يُدفع لكل متجر على حدة.", go: "إتمام الطلب", total: "المجموع",
+      items: (n) => n === 1 ? "منتج واحد" : n === 2 ? "منتجان" : n <= 10 ? n + " منتجات" : n + " منتجًا" }
   };
   function csStore() { const g = vueGlobals(); return g && g.$store; }
   /* Hyperzod's "last minute" step before checkout: off (the recommendations themselves stay on, we show them in the cart) */
@@ -2864,12 +2868,15 @@
     if (!panel) return;
     const L = lang(), T = CS_TXT[L];
     const m = S.getters.getCartMerchant;
-    /* title: "Your cart" and the store's name */
+    /* title: "Your cart" and the store's name; with carts from several shops (Hyperzod's list of shops, 2026-10-26):
+       "Your carts" and how many shops (it showed one shop's name) */
+    const shops = panel.querySelectorAll(".multi-cart-card").length;
     const head = panel.querySelector(":scope > .v-card-title");
     if (head) {
       let h = head.querySelector(".hgn-cs-head");
       if (!h) { h = document.createElement("div"); h.className = "hgn-cs-head"; head.insertBefore(h, head.firstChild); }
-      const html = '<span class="hgn-cs-t">' + esc(T.title) + '</span><span class="hgn-cs-s">' + esc(nameOf(m)) + "</span>";
+      const html = shops ? '<span class="hgn-cs-t hgn-jak">' + esc(T.many) + '</span><span class="hgn-cs-s">' + esc(T.shops(shops)) + "</span>"
+        : '<span class="hgn-cs-t">' + esc(T.title) + '</span><span class="hgn-cs-s">' + esc(nameOf(m)) + "</span>";
       if (h.dataset.sig !== html) { h.innerHTML = html; h.dataset.sig = html; }
     }
     /* You may also like, at the end of the list */
@@ -2880,7 +2887,7 @@
     (((S.getters.getCart || {}).cart_items) || []).forEach((x) => { inCart[x.product_id] = true; });
     const list = (csRec.list || []).filter((p) => p && p._id && !inCart[p._id] && p.in_stock !== false && prodImg(p)).slice(0, 8);
     let sec = body.querySelector(":scope > .hgn-cs-also");
-    if (!list.length) { if (sec) sec.remove(); return; }
+    if (!list.length || shops) { if (sec) sec.remove(); return; }   /* not under the list of shops: it was for one shop only */
     if (!sec) {
       sec = document.createElement("section");
       sec.className = "hgn-cs-also";
@@ -2898,6 +2905,54 @@
       '<span class="hgn-cs-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"><span class="hgn-cs-plus" aria-hidden="true">+</span></span>' +
       '<span class="hgn-cs-pn">' + esc(nameOf(p)) + '</span><span class="hgn-cs-pp">' + csPrice(p) + "</span></button>").join("") + "</div>";
     if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
+  }
+
+  /* CART WITH SEVERAL SHOPS (2026-10-26, "Cart with several shops · H", chosen by Nouf): Hyperzod's list of shops
+     (.multi-cart-card, one per shop's cart, in the order of its carts) on phones, the app and the computer cart panel.
+     Each card: a top row with the logo, the name, how many items and an arrow (tap it to open the shop, Hyperzod's own
+     View Store; the ⋮ menu with Clear stays), photos of the items (4 at most, the 4th shows "+N" when there are more),
+     and a strip at the bottom with the total and one purple Checkout (Hyperzod's own Checkout button, our words).
+     Before: Hyperzod's grey VIEW STORE and black CHECKOUT buttons and "1 items . BHD 9.60". */
+  const MC_CHEV = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  function renderMultiCart() {
+    const cards = document.querySelectorAll(".scheme-cart-panel .multi-cart-card");
+    if (!cards.length) return;
+    const S = csStore();
+    const carts = ((S && S.state.Cart && S.state.Cart.cart) || []).filter((c) => c && c.cart_items && c.cart_items.length);
+    if (carts.length !== cards.length) return;   /* only when each card is known to be its cart */
+    const L = lang(), T = CS_TXT[L];
+    cards.forEach((card, i) => {
+      const c = carts[i], items = c.cart_items;
+      const n = typeof c.total_items === "number" ? c.total_items : items.reduce((a, x) => a + (+x.quantity || 1), 0);
+      const sig = [L, c.merchant_id, n, c.total_amount, items.map((x) => x.product_id + ":" + x.quantity + ":" + (x.item_image_url || "")).join(",")].join("|");
+      const top = card.firstElementChild, who = top && top.firstElementChild, bar = card.lastElementChild;
+      const btn = card.querySelector(".multi-cart-primary");
+      if (!top || !who || !bar || bar === top || !btn) return;
+      card.classList.add("hgn-mc");
+      if (!card.__hgnMc) {
+        card.__hgnMc = true;
+        who.addEventListener("click", () => { const v = card.querySelector(".multi-cart-secondary"); if (v) v.click(); });
+      }
+      if (card.dataset.hgnSig === sig && card.querySelector(".hgn-mc-thumbs") && bar.querySelector(".hgn-mc-total") && btn.querySelector(".hgn-mc-go") && who.querySelector(".hgn-mc-n")) return;
+      card.dataset.hgnSig = sig;
+      let cnt = who.querySelector(".hgn-mc-n");
+      if (!cnt) { cnt = document.createElement("span"); cnt.className = "hgn-mc-n"; who.appendChild(cnt); }
+      cnt.textContent = T.items(n);
+      if (!who.querySelector(".hgn-mc-chev")) { const ch = document.createElement("span"); ch.className = "hgn-mc-chev"; ch.innerHTML = MC_CHEV; who.appendChild(ch); }
+      let th = card.querySelector(".hgn-mc-thumbs");
+      if (!th) { th = document.createElement("div"); th.className = "hgn-mc-thumbs"; }
+      if (th.previousElementSibling !== top) top.after(th);
+      const more = items.length > 4 ? items.length - 3 : 0;
+      th.innerHTML = items.slice(0, more ? 3 : 4).map((x) => '<span class="hgn-mc-th">' + (x.item_image_url
+        ? '<img src="' + esc(x.item_image_url) + '" alt="" loading="lazy" decoding="async">' : esc(String(x.product_name || "").trim().charAt(0).toUpperCase())) + "</span>").join("") +
+        (more ? '<span class="hgn-mc-th is-more">+' + more + "</span>" : "");
+      let tot = bar.querySelector(".hgn-mc-total");
+      if (!tot) { tot = document.createElement("span"); tot.className = "hgn-mc-total"; bar.insertBefore(tot, bar.firstChild); }
+      tot.innerHTML = '<span class="hgn-mc-tl">' + esc(T.total) + '</span><span class="hgn-mc-tv">' + moneyHtml(c.total_amount, true) + "</span>";
+      let go = btn.querySelector(".hgn-mc-go");
+      if (!go) { go = document.createElement("span"); go.className = "hgn-mc-go"; btn.appendChild(go); }
+      go.textContent = T.go;
+    });
   }
 
   /* STORE TAGS (2026-10-24): the tags under a store's name are now separate chips (app-new.css), so the comma Hyperzod
@@ -3725,7 +3780,7 @@
     hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else if (document.documentElement.classList.contains("hgn-order-on")) document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreTags, renderStoreFilter, () => sqApply(false), renderViewCart, renderCartSheet, renderEmptyStates, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
+    renderStore, renderStoreTags, renderStoreFilter, () => sqApply(false), renderViewCart, renderCartSheet, renderMultiCart, renderEmptyStates, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
   ];
   function tick() {
     osMemo = undefined;
@@ -3744,7 +3799,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = ".hgn-sfilter,.hgn-ssearch,#hgn-sq-none,.hgn-empty,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = ".hgn-sfilter,.hgn-ssearch,#hgn-sq-none,.hgn-empty,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,.hgn-mc-n,.hgn-mc-chev,.hgn-mc-thumbs,.hgn-mc-total,.hgn-mc-go,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

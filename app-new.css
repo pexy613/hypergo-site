@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0205 */
+/* hg-version 2026-10-26-1301 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1195,6 +1195,45 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app #checkout #CartCard > div > .tw-flex-col > .similar-items-panel{order:8;}
 }
 
+/* ================= CART WITH SEVERAL SHOPS (2026-10-26, "Cart with several shops · H", chosen by Nouf) =================
+   Hyperzod's list of shops in the cart (phones, the app and the computer cart panel): a card per shop with a top row (logo,
+   name, item count, arrow: they open the shop), photos of the items, and a strip with the total and a purple Checkout.
+   "Your carts" in Plus Jakarta Sans. app-new.js, CART WITH SEVERAL SHOPS. Brand colours only (no white). */
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel .hgn-cs-t.hgn-jak{font-size:22px;line-height:28px;}
+html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-text>div:has(>.multi-cart-card.hgn-mc){padding:8px 0 24px !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc{padding:0 !important;border:0 !important;border-radius:18px !important;background:#FFFCF9 !important;margin:0 0 12px !important;overflow:hidden;
+  display:flex !important;flex-direction:column !important;gap:0 !important;box-shadow:0 0 0 1px #E6E5F1,0 6px 16px -10px rgba(27,32,35,.18) !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:first-child{align-items:center !important;gap:4px;padding:12px 10px 12px 14px;}
+html.hg-new-app[lang^='ar'] .scheme-cart-panel .multi-cart-card.hgn-mc>div:first-child{padding:12px 14px 12px 10px;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:first-child>div:first-child{flex:1 1 auto;min-width:0;margin:0 !important;gap:10px;cursor:pointer;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:first-child>div:first-child>.v-img{flex:none !important;width:32px !important;height:32px !important;max-width:32px !important;border-radius:9px !important;
+  box-shadow:inset 0 0 0 1px #E6E5F1;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc :is(.tw-ml-3,.tw-mr-3){flex:1 1 auto;min-width:0;margin:0 !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc :is(.tw-ml-3,.tw-mr-3)>h2{margin:0 !important;font-size:15px !important;line-height:20px !important;font-weight:700 !important;color:#1B2023 !important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+html.hg-new-app[lang^='ar'] .scheme-cart-panel .multi-cart-card.hgn-mc :is(.tw-ml-3,.tw-mr-3)>h2{unicode-bidi:plaintext;text-align:right;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc :is(.tw-ml-3,.tw-mr-3)>span{display:none !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-n{flex:none;font-size:13px;line-height:16px;color:#5F6365;white-space:nowrap;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-chev{flex:none;display:inline-flex;color:#8D9091;}
+html.hg-new-app[lang^='ar'] .scheme-cart-panel .hgn-mc-chev svg{transform:scaleX(-1);}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .multi-cart-menu-btn{width:28px !important;height:28px !important;background:transparent !important;color:#8D9091 !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-thumbs{display:flex;gap:8px;padding:0 14px 12px;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-th{flex:none;width:56px;height:56px;border-radius:12px;overflow:hidden;background:#E6E5F1;display:flex;align-items:center;justify-content:center;
+  color:#5A29DE;font-size:16px;font-weight:800;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-th img{display:block;width:100%;height:100%;object-fit:cover;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-th.is-more{font-size:15px;color:#1B2023;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:last-child{gap:12px !important;padding:10px 14px;background:#F5F5F9;align-items:center !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:last-child>div:has(.multi-cart-secondary){display:none !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc>div:last-child>div:has(.multi-cart-primary){flex:none;width:auto !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-total{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-tl{font-size:12px;line-height:15px;color:#5F6365;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-tv{display:inline-flex;align-items:baseline;gap:4px;font-size:16px;line-height:20px;font-weight:800;color:#1B2023;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-tv b{font-weight:800;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .multi-cart-primary{width:auto !important;height:40px !important;min-width:0 !important;padding:0 20px !important;border-radius:20px !important;
+  background:#5A29DE !important;color:#F5F5F9 !important;box-shadow:none !important;text-transform:none !important;letter-spacing:0 !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .multi-cart-primary>.v-btn__content{display:none !important;}
+html.hg-new-app .scheme-cart-panel .multi-cart-card.hgn-mc .hgn-mc-go{font-size:14px;line-height:18px;font-weight:700;color:#F5F5F9;}
+
 /* ================= CART SHEET (phones and the app, 2026-10-24, "HyperGo Quick Checkout" board 2) =================
    Hyperzod's phone cart (a full-screen sheet, .scheme-cart-panel) shown as a sheet that slides up over the store and
    stops 96px from the top, the store dimmed behind it (tap there to close). "Your cart" and the store's name on top,
@@ -1205,6 +1244,10 @@ html.hg-new-app .v-dialog--fullscreen:has(.scheme-cart-panel)>.v-overlay__conten
   height:calc(100% - 96px - var(--native-status-bar-height,0px)) !important;max-height:none !important;border-radius:24px 24px 0 0 !important;overflow:hidden !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel{height:100% !important;background:#FFFCF9 !important;border-radius:24px 24px 0 0 !important;
   padding-top:0 !important;}   /* (2026-10-24) the app's status-bar padding left a 54px gap above the handle: the sheet starts below the status bar */
+/* (2026-10-26) the gap was still there in the app: Hyperzod's later stylesheet puts the status-bar padding on the first child of every
+   full-screen sheet with a stronger selector (.v-dialog--fullscreen:not(.native-skip-safe-top) > .v-overlay__content > :first-child),
+   so this one has to be stronger still */
+html.hg-new-app .v-dialog--fullscreen:not(.native-skip-safe-top)>.v-overlay__content>.scheme-cart-panel.scheme-cart-panel{padding-top:0 !important;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel::before{content:"";flex:none;width:40px;height:5px;border-radius:3px;background:#D9D4E5;margin:8px auto 0;}
 html.hg-new-app .v-dialog--fullscreen .scheme-cart-panel>.v-card-title{display:flex !important;align-items:center !important;justify-content:flex-start !important;
   gap:12px;padding:10px 16px 6px !important;min-height:0 !important;font-size:0 !important;line-height:0 !important;}
