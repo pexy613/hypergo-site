@@ -1,4 +1,4 @@
-/* hg-version 2026-10-25-1757 */
+/* hg-version 2026-10-26-1834 */
 /* NEW DESIGN ON THE WEBSITE (2026-10-20): loads app-new.css and app-new.js, the same new design as the app (Home, Search,
    category pages, store pages, Stores near you), on phones and desktop. The app loads the same two files from app-footer.js.
    html.hg-new-app is set right away, so global-footer-1.js stops drawing the old phone header and Home and the loading
@@ -213,180 +213,12 @@
   }
 })();
 
-/* HOME CATEGORY ROW: scroll buttons (website only, desktop widths >= 960px).
-   The row (.hg-cat-icon-grid, set up in global-footer-1.js) is a swipe/trackpad scroller; mouse-only users had no way
-   to move it. Adds one button at the left end and one at the right end. Buttons are placed and scroll PHYSICALLY
-   (left button always moves the row left, right button right), so they stay correct in Arabic/RTL too.
-   Buttons are hidden on mobile widths and when the row doesn't overflow; a button dims when that end is reached.
-   The Vue-owned row itself is never moved or rewrapped - buttons are added next to it and re-added if Vue re-renders. */
-(() => {
-  "use strict";
-  if (window.__hgCatNav) return;
-  window.__hgCatNav = true;
-
-  const STYLE_ID = "hg-catnav-style";
-  const CHEV_L = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const CHEV_R = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-  function addStyle() {
-    if (document.getElementById(STYLE_ID)) return;
-    const st = document.createElement("style");
-    st.id = STYLE_ID;
-    /* matches the "More stores near you" arrows: 36px circle, 1px Opus border, Satin Deep Black chevron.
-       left/right are physical on purpose (see note above). */
-    st.textContent =
-      ".hg-catnav-host{position:relative !important;}" +
-      ".hg-catnav-btn{display:none;position:absolute;z-index:5;width:36px;height:36px;margin-top:-18px;padding:0;align-items:center;justify-content:center;border-radius:50%;border:1px solid #CCCBE3;background:#F7F7FB;color:#1B2023;box-shadow:0 2px 8px rgba(27,32,35,.12);cursor:pointer;transition:opacity .15s ease,border-color .15s ease;}" +
-      ".hg-catnav-btn:hover{border-color:#1B2023;}" +
-      ".hg-catnav-btn[data-dir='left']{left:-6px;}" +
-      ".hg-catnav-btn[data-dir='right']{right:-6px;}" +
-      ".hg-catnav-btn.is-end{opacity:.35;cursor:default;}" +
-      ".hg-catnav-btn.is-end:hover{border-color:#CCCBE3;}" +
-      "@media (min-width:960px){.hg-catnav-host.hg-catnav-on>.hg-catnav-btn{display:flex;}}";
-    document.head.appendChild(st);
-  }
-
-  function edges(grid) {
-    const max = grid.scrollWidth - grid.clientWidth;
-    const sl = grid.scrollLeft;
-    const rtl = getComputedStyle(grid).direction === "rtl";
-    /* Chrome/Safari/Firefox: RTL scrollLeft runs 0 .. -max */
-    const fromLeft = rtl ? sl + max : sl;
-    return { max: max, atLeft: fromLeft <= 1, atRight: fromLeft >= max - 1 };
-  }
-
-  function update(grid) {
-    const host = grid.parentElement;
-    if (!host) return;
-    /* (2026-10-20): the buttons only show at 960px and up, so below that nothing is measured (no forced layout on phones
-       on every page change). Crossing 960px fires resize, which runs this again. Values are written only when they change. */
-    if (!window.matchMedia("(min-width:960px)").matches) return;
-    const btns = host.querySelectorAll(":scope > .hg-catnav-btn");
-    if (btns.length !== 2) return;
-    const e = edges(grid);
-    host.classList.toggle("hg-catnav-on", e.max > 2);
-    const top = (grid.offsetTop + grid.offsetHeight / 2) + "px";
-    btns.forEach((b) => {
-      if (b.style.top !== top) b.style.top = top;
-      const end = b.dataset.dir === "left" ? e.atLeft : e.atRight;
-      b.classList.toggle("is-end", end);
-      const aria = end ? "true" : "false";
-      if (b.getAttribute("aria-disabled") !== aria) b.setAttribute("aria-disabled", aria);
-    });
-  }
-
-  function makeBtn(dir, grid) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "hg-catnav-btn";
-    b.dataset.dir = dir;
-    b.setAttribute("aria-label", dir === "left" ? "Scroll categories left" : "Scroll categories right");
-    b.innerHTML = dir === "left" ? CHEV_L : CHEV_R;
-    b.addEventListener("click", (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const step = Math.max(120, grid.clientWidth * 0.8);
-      grid.scrollBy({ left: dir === "left" ? -step : step, behavior: "smooth" });
-    });
-    return b;
-  }
-
-  function attach() {
-    const grid = document.querySelector("#ProductCategories .hg-cat-icon-grid") || document.querySelector(".hg-cat-icon-grid");
-    if (!grid || !grid.parentElement) return;
-    addStyle();
-    const host = grid.parentElement;
-    host.classList.add("hg-catnav-host");
-    if (host.querySelectorAll(":scope > .hg-catnav-btn").length !== 2) {
-      host.querySelectorAll(":scope > .hg-catnav-btn").forEach((b) => b.remove());
-      host.appendChild(makeBtn("left", grid));
-      host.appendChild(makeBtn("right", grid));
-    }
-    if (!grid.__hgCatNavBound) {
-      grid.__hgCatNavBound = true;
-      grid.addEventListener("scroll", () => update(grid), { passive: true });
-    }
-    update(grid);
-  }
-
-  let queued = false;
-  function schedule() {
-    if (queued) return;
-    queued = true;
-    requestAnimationFrame(() => {
-      queued = false;
-      try { attach(); } catch (e) { /* never break the page */ }
-    });
-  }
-
-  function start() {
-    schedule();
-    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
-    window.addEventListener("resize", schedule, { passive: true });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start, { once: true });
-  } else {
-    start();
-  }
-})();
-
-/* HOME "BRANDS NEAR YOU": tiles fill the full section width (website only).
-   The section is generated by global-footer-1.js (#hg-cat-rows .hg-brand-grid). Its desktop layout used fixed 86px tiles,
-   so 7 columns only covered the left part of the section. Here the same grid gets fluid columns instead:
-   desktop 7 per row (same 2-row, column-by-column placement as before, so the brands keep their exact positions),
-   tablet 5 per row, phone 4 per row (reading order = the existing brand order). Tiles stay square, logos scale with
-   the tile and are fully contained (never stretched or cropped), names scale up slightly.
-   Tile style (radius, light border), title, subtitle and brand order are not touched. */
-(() => {
-  "use strict";
-  if (window.__hgBrandsFill) return;
-  window.__hgBrandsFill = true;
-
-  const STYLE_ID = "hg-brands-fill-style";
-  const S = "#hg-cat-rows .hg-sec ";
-
-  function addStyle() {
-    if (document.getElementById(STYLE_ID)) return;
-    const st = document.createElement("style");
-    st.id = STYLE_ID;
-    st.textContent =
-      /* phone: 4 per row, wrapping grid (was a 2-row sideways scroller) */
-      S + ".hg-brand-grid{grid-auto-flow:row;grid-template-rows:none;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-columns:auto;gap:16px 12px;overflow:visible;scroll-snap-type:none;}" +
-      S + ".hg-brand{width:auto;min-width:0;}" +
-      S + ".hg-brand-img{width:100%;height:auto;aspect-ratio:1/1;}" +
-      /* !important only to beat global-footer.css ("calc(100% + 6px) auto !important"), which crops tall logos */
-      "html body " + S + ".hg-brand-img{background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;}" +
-      S + ".hg-brand-name{font-size:11.5px;margin-top:7px;}" +
-      /* tablet: 5 per row */
-      "@media (min-width:600px){" + S + ".hg-brand-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:18px 16px;}" + S + ".hg-brand-name{font-size:12.5px;}}" +
-      /* desktop: 7 per row, 2 rows filled column by column exactly like before */
-      "@media (min-width:960px){" + S + ".hg-brand-grid{grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-template-columns:repeat(7,minmax(0,1fr));gap:22px 20px;}" + S + ".hg-brand-name{font-size:13.5px;margin-top:9px;}}";
-    document.head.appendChild(st);
-  }
-
-  function start() {
-    try { addStyle(); } catch (e) { /* never break the page */ }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start, { once: true });
-  } else {
-    start();
-  }
-})();
-
 /* PAGE-LOAD VEIL: release (website only). The veil itself lives in web-head.css so it is on screen from the first paint.
-   This lifts it once the page is really showing our design:
-   - Hyperzod has rendered the page and its content has stopped arriving for a moment (the page settles),
-   - global-footer.css has loaded and global-footer-1.js has run (its #hg-extra-style exists),
-   - on the home page: the category row has been placed by our code (.hg-cat-icon-grid) and, when a delivery
-     location is set, the new home sections (#hg-cat-rows) are built. With no location they are never built, so
-     html.hg-native-nearby is set to let the default list show (see web-head.css).
-   Hard cap: the veil is always lifted after 8s, so a slow or failed request never leaves visitors stuck.
-   (v2: v1 only checked whether "Nearby Merchants" existed yet, so the veil lifted before the home sections had even
-   been drawn; the default content then showed until our code replaced it.) */
+   It lifts once the page is really showing our design: Hyperzod has rendered the page and its content has stopped
+   arriving for a moment, global-footer.css and global-footer-1.js are in, app-new.js has drawn the page at least once
+   (2026-10-26: the veil used to lift before app-new.js had loaded, so Hyperzod's own layout showed for a moment), and on
+   Home our new Home (#hgn-home) is drawn. Hard cap: the veil is always lifted after 8s, so a slow or failed request never
+   leaves visitors stuck. */
 (() => {
   "use strict";
   if (window.__hgWebVeil) return;
@@ -394,7 +226,6 @@
 
   const root = document.documentElement;
   const CAP_MS = 8000;
-  const NATIVE_CAP_MS = 12000;
   const QUIET_MS = 250;
   const started = Date.now();
   let lastChange = Date.now();
@@ -416,33 +247,12 @@
     return !!document.querySelector('#app [id^="MultiVendor"], #app [class*="scheme-"], #MainFooter');
   }
 
-  /* true / false once the store knows; null while it doesn't yet */
-  function hasLocation() {
-    try {
-      const app = document.querySelector("#app");
-      const store = app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$store;
-      const u = store && store.state && store.state.Utils;
-      if (!u) return null;
-      const loc = u.selectedLocation && u.selectedLocation.location;
-      return !!(loc && typeof loc.latitude === "number");
-    } catch (e) { return null; }
-  }
-
   function homeReady() {
-    if (!isHomeRoute()) return true;
-    if (!document.getElementById("MultiVendorHome")) return false;
-    /* (2026-10-20) the new design: ready once its Home is drawn (the old category row and sections are not built any more) */
-    if (root.classList.contains("hg-new-app")) return !!document.getElementById("hgn-home");
-    const grid = document.querySelector('#ProductCategories [class*="tw-grid-cols-8"][class*="lg:tw-grid-cols-13"]');
-    if (grid && !grid.classList.contains("hg-cat-icon-grid")) return false;
-    if (document.getElementById("hg-cat-rows")) return true;
-    const has = hasLocation();
-    if (has === false) { root.classList.add("hg-native-nearby"); return !!document.getElementById("NearbyMerchants"); }
-    return false;
+    return !isHomeRoute() || !!document.getElementById("hgn-home");
   }
 
   function ready() {
-    return pageRendered() && globalCssReady() && !!document.getElementById("hg-extra-style") &&
+    return pageRendered() && globalCssReady() && !!document.getElementById("hg-extra-style") && window.__hgnTicks > 0 &&
       homeReady() && Date.now() - lastChange >= QUIET_MS;
   }
 
@@ -480,19 +290,7 @@
     setTimeout(release, CAP_MS);
     /* stylesheets finishing and quiet periods don't mutate the DOM - keep re-checking */
     const iv = setInterval(() => {
-      if (done) {
-        /* (2026-10-20) the new design draws its own Home: nothing to watch after the veil */
-        if (root.classList.contains("hg-new-app")) { clearInterval(iv); if (mo) mo.disconnect(); return; }
-        /* after the veil: if the new home sections still aren't there, stop holding the default list back */
-        if (Date.now() - started > NATIVE_CAP_MS || document.getElementById("hg-cat-rows")) {
-          if (!document.getElementById("hg-cat-rows") && isHomeRoute()) root.classList.add("hg-native-nearby");
-          clearInterval(iv);
-          if (mo) mo.disconnect();
-        } else if (hasLocation() === false) {
-          root.classList.add("hg-native-nearby");
-        }
-        return;
-      }
+      if (done) { clearInterval(iv); if (mo) mo.disconnect(); return; }
       check();
     }, 100);
     check();
@@ -686,211 +484,6 @@
     }).observe(document.documentElement, { childList: true, subtree: true });
   } catch (e) {}
   queue();
-})();
-
-/* HOME CATEGORY PHOTOS (website, 2026-10-18): the category row uses our own cut-out product photos (the same ones as the
-   app, stored in the repo's cat-photos folder) on a pink-lavender tile, with the category name under the tile.
-   The tile is matched by the image's alt text (the category name Hyperzod puts there). A category not listed keeps
-   Hyperzod's own image. Only the image address and our own classes/label are changed; the Vue-owned row is not moved. */
-(() => {
-  "use strict";
-  if (window.__hgCatPhotos) return;
-  window.__hgCatPhotos = true;
-
-  const BASE = "https://pexy613.github.io/hypergo-site/cat-photos/";
-  const BY_NAME = {
-    "food": ["food", "Food"], "مطاعم": ["food", "Food"],
-    "retail": ["retail-trade", "Retail Trade"], "retail trade": ["retail-trade", "Retail Trade"], "تسوق": ["retail-trade", "Retail Trade"],
-    "flowers": ["flowers", "Flowers"], "ورد": ["flowers", "Flowers"],
-    "beauty": ["beauty", "Beauty"], "تجميل": ["beauty", "Beauty"],
-    "electronics": ["electronics", "Electronics"], "إلكترونيات": ["electronics", "Electronics"],
-    "perfumes": ["perfumes", "Perfumes"], "عطور": ["perfumes", "Perfumes"],
-    "fashion": ["fashion", "Fashion"], "أزياء": ["fashion", "Fashion"],
-    "pharmacy": ["pharmacies", "Pharmacies"], "pharmacies": ["pharmacies", "Pharmacies"], "صيدليات": ["pharmacies", "Pharmacies"],
-    "groceries": ["groceries", "Groceries"], "grocery": ["groceries", "Groceries"], "سوبرماركت": ["groceries", "Groceries"],
-    "pets": ["pets", "Pets"], "حيوانات أليفة": ["pets", "Pets"],
-    "nutrition": ["nutrition", "Nutrition"], "تغذية": ["nutrition", "Nutrition"],
-    "party stores": ["party-stores", "Party Stores"], "party": ["party-stores", "Party Stores"], "حفلات وبالونات": ["party-stores", "Party Stores"],
-    "baby care": ["baby-care", "Baby Care"], "مستلزمات الأطفال": ["baby-care", "Baby Care"],
-    "gifts": ["gifts", "Gifts"], "gift shop": ["gifts", "Gifts"], "هدايا": ["gifts", "Gifts"],
-    "toys": ["toys", "Toys"], "ألعاب": ["toys", "Toys"],
-    "sports": ["sports", "Sports"], "رياضة": ["sports", "Sports"],
-    "home goods": ["home-goods", "Home Goods"], "home": ["home-goods", "Home Goods"], "مستلزمات المنزل": ["home-goods", "Home Goods"]
-  };
-  const STYLE_ID = "hg-catph-style";
-  function isAr() { return (document.documentElement.lang || "").toLowerCase().startsWith("ar"); }
-  function addStyle() {
-    if (document.getElementById(STYLE_ID)) return;
-    const st = document.createElement("style");
-    st.id = STYLE_ID;
-    st.textContent =
-      "html body #ProductCategories .hg-cat-icon-grid>.hg-catph{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 !important;}" +
-      "html body #ProductCategories .hg-cat-icon-grid>.hg-catph:active{transform:scale(.97);}" +
-      "html body #ProductCategories .hg-catph .hg-catph-box{position:relative;display:flex !important;align-items:center;justify-content:center;background:#DFC4F3 !important;border-radius:14px !important;}" +
-      "html body #ProductCategories .hg-catph .hg-catph-box::after{content:'';position:absolute;inset-inline:22%;bottom:9%;height:8%;border-radius:50%;background:rgba(52,26,118,.28);filter:blur(4px);}" +
-      "html body #ProductCategories .hg-catph img{position:relative;z-index:1;width:60% !important;height:60% !important;margin-top:-4%;object-fit:contain !important;border-radius:0 !important;background:none !important;}" +
-      "html body #ProductCategories .hg-catph .hg-catph-name{display:block;width:100%;margin-top:6px;font-size:12px;line-height:1.3;font-weight:550;color:#1B2023;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}";
-    document.head.appendChild(st);
-  }
-  function apply() {
-    const imgs = document.querySelectorAll("#ProductCategories .hg-cat-icon-grid img");
-    if (!imgs.length) return;
-    addStyle();
-    imgs.forEach((img) => {
-      const hit = BY_NAME[String(img.getAttribute("alt") || "").replace(/\s+/g, " ").trim().toLowerCase()];
-      if (!hit) return;
-      const url = BASE + hit[0] + ".webp";
-      if (img.getAttribute("src") !== url) img.setAttribute("src", url);
-      const box = img.parentElement;
-      if (box && !box.classList.contains("hg-catph-box")) box.classList.add("hg-catph-box");
-      const card = img.closest(".hg-cat-icon-grid>*");
-      if (!card) return;
-      if (!card.classList.contains("hg-catph")) card.classList.add("hg-catph");
-      let name = card.querySelector(":scope>.hg-catph-name");
-      if (!name) {
-        name = document.createElement("span");
-        name.className = "hg-catph-name";
-        card.appendChild(name);
-      }
-      /* (2026-10-20): in Arabic the label is written in Arabic right away (same words the translation block used), instead of
-         English first and translated a frame later */
-      const label = (isAr() && typeof window.__hgWebAr === "function" && window.__hgWebAr(hit[1])) || hit[1];
-      if (name.getAttribute("data-en") !== hit[1] || name.textContent !== label) { name.setAttribute("data-en", hit[1]); name.textContent = label; }
-    });
-  }
-  let queued = false;
-  function queue() {
-    if (queued) return;
-    queued = true;
-    setTimeout(() => { queued = false; try { apply(); } catch (e) {} }, 120);
-  }
-  try {
-    new MutationObserver((recs) => {
-      for (const r of recs) {
-        const t = r.target;
-        if (t && t.nodeType === 1 && t.closest && t.closest(".hg-catph-name")) continue;
-        queue();
-        return;
-      }
-    }).observe(document.documentElement, { childList: true, subtree: true });
-    /* (2026-10-20): the label's language follows a language switch */
-    new MutationObserver(queue).observe(document.documentElement, { attributes: true, attributeFilter: ["lang", "dir"] });
-  } catch (e) {}
-  queue();
-})();
-
-/* STORE SEARCH IN PLACE (website, 2026-10-24): the search bar in the store's top bar (#MerchantStickyHeader, shown on
-   desktop store pages once you scroll) searches inside the store page itself.
-   Hyperzod puts an invisible click layer over that bar that opens its separate store search screen ("merchant-search").
-   That layer is made click-through, so a click goes straight into Hyperzod's own field. While text is in the field, the
-   store page shows only the products whose name holds every word typed (capitals, Arabic alef/ya/ta marbuta forms and
-   accents are ignored); categories with no match and Recommended Products are hidden, the menu is scrolled into view, and
-   a line says when nothing matches. Clearing the field shows the whole store again. Nothing is removed or moved: the
-   products are only hidden, so the "+" button and opening a product work as before. */
-(() => {
-  "use strict";
-  if (window.__hgStoreSearch) return;
-  window.__hgStoreSearch = true;
-  const CSS =
-    "#MerchantStickyHeader .tw-w-full.tw-relative>.tw-absolute.tw-cursor-pointer{pointer-events:none !important;}" +
-    ".scheme-merchant-page .hg-ss-hide{display:none !important;}" +
-    ".scheme-merchant-page.hg-ss-on .page-builder-section-surface:has(.scheme-product-recommendation-section){display:none !important;}" +
-    /* the top bar shows only while the page is scrolled down to the menu (Hyperzod's #anchor): while searching the page
-       stays tall enough to stay there, and the gap under #anchor keeps the results clear of the top bar and the tabs */
-    ".scheme-merchant-page.hg-ss-on #merchant-content{min-height:100vh;}" +
-    ".scheme-merchant-page.hg-ss-on #anchor{height:var(--hg-ss-gap,150px);}" +
-    /* the count next to a category name is the whole category, not the matches: hidden while searching */
-    "html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page.hg-ss-on .cat-section .category-name[data-hgn-count]::after{display:none !important;}" +
-    "#hg-ss-empty{padding:48px 16px;text-align:center;color:#1B2023;font-size:16px;font-weight:600;line-height:1.4;}";
-  function addStyle() {
-    if (document.getElementById("hg-ss-style")) return;
-    const st = document.createElement("style");
-    st.id = "hg-ss-style";
-    st.textContent = CSS;
-    (document.head || document.documentElement).appendChild(st);
-  }
-  function norm(s) {
-    return String(s || "").toLowerCase().normalize("NFKD")
-      .replace(/[\u0300-\u036f\u064b-\u065f\u0670\u0640]/g, "")
-      .replace(/[\u0622\u0623\u0625\u0671]/g, "\u0627").replace(/\u0649/g, "\u064a").replace(/\u0629/g, "\u0647")
-      .replace(/\s+/g, " ").trim();
-  }
-  function field() { return document.getElementById("headerSearchProducts"); }
-  let lastQ = "";
-  function apply() {
-    const inp = field();
-    const page = (inp && inp.closest(".scheme-merchant-page")) || document.querySelector(".scheme-merchant-page");
-    if (!page) return;
-    const q = norm(inp ? inp.value : "");
-    const on = !!q;
-    if (!on && !page.classList.contains("hg-ss-on")) { lastQ = ""; return; }
-    addStyle();
-    page.classList.toggle("hg-ss-on", on);
-    const content = page.querySelector("#merchant-content");
-    let found = 0;
-    const words = q.split(" ");
-    page.querySelectorAll(".cat-section").forEach((sec) => {
-      let shown = 0;
-      sec.querySelectorAll(".product-card-horizontal, .scheme-merchant-product-grid-card").forEach((card) => {
-        const nameEl = card.querySelector(".product-name");
-        const name = norm(nameEl ? nameEl.textContent : "");
-        const hit = !on || words.every((w) => name.indexOf(w) !== -1);
-        card.classList.toggle("hg-ss-hide", !hit);
-        if (hit) shown++;
-      });
-      sec.classList.toggle("hg-ss-hide", on && !shown);
-      found += shown;
-    });
-    let empty = document.getElementById("hg-ss-empty");
-    if (on && !found && content) {
-      if (!empty) {
-        empty = document.createElement("div"); empty.id = "hg-ss-empty";
-        const anchor = content.querySelector("#anchor");
-        if (anchor) anchor.insertAdjacentElement("afterend", empty); else content.insertBefore(empty, content.firstChild);
-      }
-      const raw = String(inp.value).trim();
-      const txt = (document.documentElement.lang || "").indexOf("ar") === 0
-        ? "\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u062a\u062c\u0627\u062a \u062a\u0637\u0627\u0628\u0642 \u00ab" + raw + "\u00bb"
-        : "No products match \u201c" + raw + "\u201d";
-      if (empty.textContent !== txt) empty.textContent = txt;
-    } else if (empty) empty.remove();
-    /* a new search: scroll to the top of the menu (just past #anchor, so the top bar and its search field stay on screen) */
-    const anchor = content && content.querySelector("#anchor");
-    if (on && q !== lastQ && anchor) {
-      const bar = document.getElementById("MerchantStickyHeader");
-      const tabs = page.querySelector("#mobileStickyHeader");
-      const barH = (bar && bar.getBoundingClientRect().height) || 96;
-      page.style.setProperty("--hg-ss-gap", Math.round(barH + (tabs ? tabs.getBoundingClientRect().height : 0) + 16) + "px");
-      const y = Math.ceil(anchor.getBoundingClientRect().top + window.scrollY) + 1;
-      if (Math.abs(window.scrollY - y) > 2) window.scrollTo({ top: y });
-    }
-    lastQ = on ? q : "";
-  }
-  let timer = 0;
-  function queue(ms) {
-    clearTimeout(timer);
-    timer = setTimeout(() => { try { apply(); } catch (e) {} }, ms);
-  }
-  document.addEventListener("input", (ev) => { if (ev.target && ev.target.id === "headerSearchProducts") queue(150); }, true);
-  /* Hyperzod's clear (x) button empties the field without an input event */
-  document.addEventListener("click", (ev) => {
-    const t = ev.target;
-    if (t && t.closest && t.closest("#MerchantStickyHeader .v-field__clearable")) queue(60);
-  }, true);
-  /* products drawn later (another store opened, more products loaded) follow the search still in the field */
-  try {
-    new MutationObserver((recs) => {
-      const inp = field();
-      if (!(inp && inp.value) && !document.querySelector(".scheme-merchant-page.hg-ss-on")) return;
-      for (const r of recs) {
-        const t = r.target;
-        if (t && t.nodeType === 1 && t.closest && t.closest("#hg-ss-empty")) continue;
-        queue(150);
-        return;
-      }
-    }).observe(document.documentElement, { childList: true, subtree: true });
-  } catch (e) {}
-  addStyle();
 })();
 
 /* TOP BAR SEARCH ON A STORE PAGE (website, 2026-10-24): the purple top bar's search field (#navSearchBar) opened
@@ -1104,12 +697,4 @@
   }, true);
   window.addEventListener("scroll", function () { if (menu) close(); }, true);
   window.addEventListener("resize", function () { if (menu) close(); });
-  /* the globe says what it is */
-  setInterval(function () {
-    var b = document.querySelector("#AppBar #NavBtn");
-    if (!b) return;
-    var want = cur() === "ar" ? "اللغة" : "Language";
-    if (b.getAttribute("aria-label") !== want) b.setAttribute("aria-label", want);
-    if (!b.hasAttribute("aria-haspopup")) b.setAttribute("aria-haspopup", "menu");
-  }, 1000);
 })();

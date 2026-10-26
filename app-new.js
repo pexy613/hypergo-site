@@ -1,12 +1,12 @@
-/* hg-version 2026-10-26-1658 */
+/* hg-version 2026-10-26-1834 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
-   gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
-   every other screen, the desktop header, the Account page and the bottom nav are still drawn by the old code.
+   gets a wide layout in app-new.css). The computer top bar, the Account page, the bottom nav and the forms are drawn by
+   global-footer-1.js.
    Contents:
-   1. KEPT: the main page header (purple header, "Deliver to", cart, search bar, watermark, rotating search text, address
-      language) and everything it needs, copied UNCHANGED from global-footer-1.js.
-   2. NEW: Home screen (category grid, featured stores banner, Stores near you).
+   1. The phone page header (purple header, "Deliver to", cart, search bar, watermark, rotating search text, address
+      language).
+   2. Home, Search, category pages, store pages, Stores near you, cart, checkout and the empty screens.
    Global, every merchant. English and Arabic (RTL mirrors). */
 (function () {
   "use strict";
@@ -14,7 +14,7 @@
   window.__hgNewApp = true;
   document.documentElement.classList.add("hg-new-app");
 
-  /* ================= 1. KEPT FROM global-footer-1.js: MAIN PAGE HEADER (copied unchanged) ================= */
+  /* ================= 1. PHONE PAGE HEADER ================= */
   /* SHAPES — HyperGo arrow icon */
   const LOGO_D = "M0.1 0.1 L0.0 143.6 L0.5 144.4 L221.2 144.2 L222.0 144.6 L222.1 145.8 L221.8 147.0 L221.2 147.8 L220.8 149.9 L220.2 150.6 L219.9 152.4 L219.1 153.6 L218.9 155.0 L218.2 156.0 L217.9 157.5 L217.1 158.9 L216.9 160.0 L216.1 161.2 L215.9 162.4 L215.1 163.5 L214.8 165.0 L214.2 165.6 L213.9 166.9 L213.1 168.0 L212.9 169.0 L212.0 170.5 L211.9 171.2 L211.5 171.6 L210.9 173.2 L210.0 174.6 L209.9 175.2 L209.5 175.6 L208.8 177.4 L208.4 177.8 L207.9 179.1 L207.2 179.9 L205.6 183.1 L205.1 183.6 L204.9 184.5 L204.1 185.5 L203.9 186.2 L203.2 187.0 L202.8 188.1 L202.2 188.6 L202.0 189.4 L201.1 190.5 L200.9 191.2 L198.0 195.5 L197.8 196.1 L197.1 196.8 L197.0 197.2 L196.0 198.5 L194.8 200.6 L193.1 202.6 L193.0 203.1 L191.1 205.5 L190.8 206.2 L183.0 216.2 L177.9 222.2 L174.0 226.5 L165.8 234.9 L159.6 240.6 L153.4 246.0 L146.1 251.8 L141.5 255.0 L140.4 256.0 L138.5 257.1 L137.9 257.8 L133.2 260.9 L130.8 262.4 L130.2 262.9 L129.5 263.1 L128.4 264.0 L127.9 264.1 L127.0 264.9 L126.5 265.0 L125.4 265.9 L124.6 266.1 L124.1 266.6 L123.0 267.1 L122.2 267.8 L121.0 268.2 L120.2 268.9 L119.2 269.2 L118.2 270.0 L117.6 270.1 L117.1 270.6 L115.6 271.2 L115.2 271.6 L113.8 272.2 L113.2 272.8 L111.9 273.2 L111.4 273.8 L110.5 274.0 L109.4 274.8 L108.5 275.0 L107.4 275.8 L105.8 276.4 L105.1 276.9 L104.1 277.1 L103.0 277.9 L102.0 278.1 L101.1 278.8 L99.9 279.1 L98.6 279.9 L97.9 280.0 L96.1 281.0 L95.2 281.1 L92.0 282.8 L90.5 283.1 L89.2 283.9 L88.0 284.1 L87.0 284.8 L85.5 285.1 L84.2 285.9 L82.8 286.1 L81.4 286.9 L80.0 287.1 L79.0 287.8 L77.1 288.1 L76.0 288.8 L74.6 289.0 L72.2 290.0 L71.5 290.0 L69.0 291.0 L67.9 291.1 L66.2 291.9 L64.5 292.1 L63.1 292.8 L61.0 293.1 L59.1 293.9 L57.6 294.0 L55.0 294.9 L53.1 295.1 L50.9 295.9 L48.6 296.1 L46.1 296.9 L43.8 297.1 L41.2 297.9 L38.5 298.1 L35.6 298.9 L32.5 299.1 L29.2 299.9 L24.5 300.2 L21.4 300.9 L16.5 301.1 L10.5 301.9 L2.0 302.1 L0.2 302.4 L0.0 303.0 L0.0 455.5 L0.4 455.9 L9.8 455.6 L19.0 455.0 L26.8 454.8 L33.1 454.0 L38.4 453.8 L43.4 453.0 L47.5 452.8 L51.9 452.0 L55.5 451.8 L59.2 451.0 L62.4 450.8 L65.6 450.0 L68.0 449.9 L71.8 449.0 L74.4 448.8 L77.0 448.0 L79.5 447.8 L82.1 447.0 L84.5 446.8 L87.0 446.0 L89.1 445.8 L91.9 444.9 L93.5 444.8 L95.6 444.0 L98.0 443.6 L99.5 443.0 L101.4 442.8 L102.9 442.1 L105.2 441.8 L107.0 441.0 L108.9 440.8 L110.6 440.0 L112.2 439.8 L113.9 439.0 L115.2 438.9 L116.9 438.1 L118.8 437.8 L120.9 436.9 L122.1 436.8 L123.6 436.0 L124.9 435.8 L126.1 435.1 L128.2 434.6 L129.0 434.1 L131.0 433.6 L132.1 433.0 L133.4 432.8 L134.8 432.0 L136.1 431.8 L137.5 431.0 L139.0 430.6 L140.0 430.0 L141.2 429.8 L142.5 429.0 L144.0 428.6 L145.0 428.0 L146.1 427.8 L149.6 426.0 L150.8 425.8 L152.0 425.0 L153.2 424.6 L153.9 424.1 L155.2 423.8 L156.6 422.9 L157.1 422.9 L158.8 421.9 L159.1 421.9 L160.9 420.9 L161.2 420.9 L164.0 419.5 L164.6 419.0 L166.0 418.5 L166.9 417.9 L167.2 417.9 L170.2 416.1 L171.5 415.6 L172.2 415.0 L173.4 414.6 L173.9 414.1 L175.2 413.6 L175.8 413.1 L177.1 412.5 L177.6 412.0 L178.5 411.8 L179.6 410.9 L180.2 410.8 L180.8 410.2 L182.1 409.6 L182.6 409.1 L183.4 408.9 L184.5 408.0 L185.2 407.8 L186.1 407.0 L187.0 406.6 L187.5 406.1 L191.5 403.8 L192.4 403.0 L193.2 402.6 L199.5 398.1 L200.1 397.9 L208.4 391.8 L219.4 382.8 L228.1 374.8 L236.1 366.8 L243.6 358.8 L250.9 350.4 L252.0 348.8 L254.4 346.0 L254.9 345.1 L255.5 344.6 L256.0 345.0 L256.1 345.4 L256.0 441.4 L256.5 442.4 L394.4 442.5 L394.9 441.8 L394.8 0.1Z";
 
@@ -84,6 +84,11 @@
     /* mobile layout only (search row hidden on desktop) — desktop is handled by applyHyperGoDesktop */
     /* media query (2026-10-20): same 960px breakpoint that hides the row, without a style recalc on every run */
     if (!window.matchMedia("(max-width: 959.98px)").matches) { undoPhoneHeader(root, [header, toolbar, toolbarContent, searchRow]); return; }
+
+    /* (2026-10-26) this runs on every pass; when the header's parts and texts are the ones styled last time, nothing below
+       would change, so only the cart badge is kept in step (each full run rewrote about a hundred inline styles) */
+    const parts = [root, header, toolbar, toolbarContent, searchRow, search, control, field, fieldInput, filter, location, logo];
+    if (hdrLast && hdrLastTxt === hdrSig(root, location) && root.style.getPropertyValue("background-image") && parts.every((el, i) => el === hdrLast[i])) { syncCartBadge(); return; }
 
     /* header scrolls away with the page (native: sticky, top -57px) */
     root.style.setProperty("position", "relative", "important");
@@ -389,6 +394,12 @@
 
     ensureRotatingPlaceholder(field, { left: 41, size: 16, weight: 400 });
 
+    hdrLast = parts;
+    hdrLastTxt = hdrSig(root, location); /* measured after our own label, icon, cart and rotating text were added */
+  }
+  let hdrLast = null, hdrLastTxt = "";
+  function hdrSig(root, location) {
+    return root.getElementsByTagName("*").length + "|" + (location ? location.textContent : "") + "|" + hgIsAr();
   }
 
   /* WATERMARK: big outlined HyperGo icon in the mobile/app header, fades in on scroll */
@@ -630,6 +641,7 @@
   const PH_INTERVAL = 4000;
   let phIndex = 0;
   let phTimer = null;
+  const phSaved = {};
 
   function phCategories() {
     const ar = hgIsAr();
@@ -650,7 +662,9 @@
         });
       }
       if (names.length) {
-        try { localStorage.setItem(key, JSON.stringify(names)); } catch (e) {}
+        /* (2026-10-26) saved only when the list changed (it was written every 4 seconds) */
+        const js = JSON.stringify(names);
+        if (phSaved[key] !== js) { phSaved[key] = js; try { localStorage.setItem(key, js); } catch (e) {} }
       }
     }
     if (!names.length) {
@@ -849,12 +863,11 @@
       });
     }
     if (btn.parentNode !== root) root.appendChild(btn);
-    syncCartBadge();
-    if (!window._hgCartTimer) window._hgCartTimer = setInterval(syncCartBadge, 1000);
+    syncCartBadge(); /* (2026-10-26) on every pass instead of a 1-second timer that never stopped */
   }
   /* (2026-10-20) removed ensureHeaderExtraStyle and tagNativeNav: global-footer-1.js injects the same filter-button rules
      (hg-extra-style, checked identical) and tags the bottom tabs (applyHyperGoNav) in the app */
-  /* ================= END OF KEPT CODE ================= */
+  /* ================= END OF THE PHONE PAGE HEADER ================= */
 
 
   /* ================= 2. NEW LAYOUT ================= */
@@ -1692,7 +1705,6 @@
   function sIcon(k) {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SICON[k] + "</svg>";
   }
-  function isStorePath(p) { return /^\/(en|ar)\/m\/[^/]+\/[^/]+\/?$/.test(p); }
   function storeState() {
     const g = vueGlobals();
     return g && g.$store && g.$store.state;
@@ -2318,7 +2330,6 @@
     ar: { n1: " متجر قريب منك", n: " متاجر قريبة منك", sort: "ترتيب: ", closed: "مغلق" }
   };
   const CICON = {
-    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
     sliders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>'
   };
   let catSig = "", catSt = newListState(), catWas = "", catPath = "", catT0 = 0;
@@ -3916,8 +3927,10 @@
     }
     osInTick = false;
     osMemo = undefined;
+    window.__hgnTicks = (window.__hgnTicks || 0) + 1; /* the website's loading veil waits for the first pass (web-footer.js) */
   }
 
+  const STORE_PATH = /^\/(en|ar)\/m\/[^/]+\/[0-9a-f]{24}\/?$/;
   let timer = null;
   function schedule() {
     if (timer) return;
@@ -3979,7 +3992,8 @@
       if (!relevant(recs)) return;
       /* header or Home just (re)created, e.g. coming Back to Home: draw it before the next paint, so nothing flashes */
       const hdr = document.getElementById("MultiVendorHeaderRoot");
-      const bareHeader = hdr && !hdr.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row");
+      /* (2026-10-26) phones only: on a computer the bar never gets the phone colour, so this was true on every change */
+      const bareHeader = hdr && !WIDE.matches && !hdr.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row");
       const bareHome = document.getElementById("MultiVendorHome") && !document.getElementById("hgn-home") && isHomePath(currentPath());
       /* (2026-10-20) a new Search screen too (e.g. Back from a store): its header and start screen were drawn 40ms late */
       const sr = document.getElementById("MultiVendorSearch");
@@ -3992,7 +4006,9 @@
       /* (2026-10-25, speed) WIDE, not window.innerWidth: this runs on every change Hyperzod makes while it draws a page, and
          reading innerWidth made the phone redo the whole page layout each time */
       const bareCo = !!document.getElementById("checkout") && !WIDE.matches && !document.documentElement.classList.contains("hgn-co");
-      if ((bareHeader || bareHome || bareSearch || bareCat || bareCo) && !syncFrame) {
+      /* (2026-10-26) a store page that is not in our look yet: it showed in Hyperzod's own look for a frame or two (40ms) */
+      const bareStore = !document.documentElement.classList.contains("hgn-store") && STORE_PATH.test(currentPath()) && !!document.querySelector(".scheme-merchant-page");
+      if ((bareHeader || bareHome || bareSearch || bareCat || bareCo || bareStore) && !syncFrame) {
         syncFrame = true;
         requestAnimationFrame(() => { syncFrame = false; });
         tick();
@@ -4000,7 +4016,7 @@
       }
       schedule();
     }).observe(document.body, { childList: true, subtree: true });
-    setInterval(schedule, 1500);
+    setInterval(() => { if (!document.hidden) schedule(); }, 1500); /* (2026-10-26) not while the app or tab is in the background */
   }
 
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);

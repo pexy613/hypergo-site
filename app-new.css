@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1658 */
+/* hg-version 2026-10-26-1834 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -33,15 +33,9 @@ html.hg-new-app:is([lang^="ar"],[dir="rtl"]){--hg-ls:0em;} /* Arabic letters are
 /* the whole app (Hyperzod's own screens too) in the phone's font */
 html.hg-new-app body,html.hg-new-app :is(#app,.v-application,.v-overlay-container){font-family:var(--hg-font)!important;}
 
-/* ---------- KEPT (main page header): rule copied unchanged from global-footer.css ---------- */
+/* header cart button (phone) */
 @media (max-width:959.98px){
-  #hg-cart-btn svg path{
-    fill:#111!important;
-    stroke:none!important;
-  }
-  #hg-cart-btn{
-    color:#111!important;
-  }
+  #hg-cart-btn{color:#111!important;}
 }
 
 /* ---------- NEW: shared ---------- */
@@ -56,7 +50,8 @@ html.hg-new-app #hgn-home a{color:inherit;text-decoration:none;}
 html.hg-new-app #hgn-home img{display:block;}
 
 /* old Home content is replaced by #hgn-home (the bottom nav and the Account page stay as they are) */
-html.hg-new-app body #app #MultiVendorHome{background:#FFFCF9!important;overscroll-behavior-y:none;} /* !important: beats the old Home white (hg-home-v88, global-footer-1.js) */
+html.hg-new-app body #app #MultiVendorHome{background:#FFFCF9!important;overscroll-behavior-y:none;}
+html.hg-new-app body:has(#MultiVendorHome),html.hg-new-app #app:has(#MultiVendorHome){background:#FFFCF9!important;} /* the page behind Home (moved from global-footer-1.js, 2026-10-26) */
 html.hg-new-app #MultiVendorHome>main.v-main{display:none!important;}
 html.hg-new-app #MultiVendorHome>#MainFooter{display:none!important;}
 
@@ -211,7 +206,6 @@ html.hg-new-app #hgn-sfav .hgn-circ-name{font-size:var(--hg-label-size);letter-s
 html.hg-new-app #hgn-sfav + #hgn-sland > .hgn-sl-sec:first-child{margin-top:var(--hg-sec-gap);}
 html.hg-new-app .hgn-tag{background:#F4F2FA;box-shadow:none;color:#4A4E54;}
 
-
 /* ---------- CHOSEN 2026-10-18 (round 2 previews): banner A2, Stores page B3 + chips, Search favourites D2 ---------- */
 /* banner C1 (2026-10-18): the store's own banner, no shade or text on it; Shop pill bottom end, dots bottom start */
 html.hg-new-app .hgn-shop-c1{position:absolute;bottom:10px;inset-inline-end:10px;height:34px;padding-inline-start:13px;padding-inline-end:4px;gap:7px;font-size:calc(var(--hg-fs) * 14);
@@ -227,7 +221,6 @@ html.hg-new-app .hgn-circ{flex:0 0 66px;min-width:0;display:flex;flex-direction:
 html.hg-new-app .hgn-circ-img{width:62px;height:62px;border-radius:31px;overflow:hidden;background:#F4F2FA;box-shadow:0 0 0 2px #F1EEFC;}
 html.hg-new-app .hgn-circ-img img{width:100%;height:100%;object-fit:cover;}
 html.hg-new-app .hgn-circ-name{width:100%;font-size:11.5px;line-height:1.2;font-weight:550;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-
 
 /* ---------- STORE LIST LAYOUT (2026-10-18, from Nouf's example): Stores near you page, Favourites page, Search results ---------- */
 html.hg-new-app #hgn-sres{font-family:var(--hg-font);color:#1B2023;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;margin:0;}
@@ -289,7 +282,6 @@ html.hg-new-app .hgn-sb-ph{flex:0 0 139px;height:139px;border-radius:16px;backgr
 html.hg-new-app .hgn-sres-loading{display:flex;flex-direction:column;gap:14px;padding:16px;}
 html.hg-new-app .hgn-sres-loading span{height:76px;border-radius:16px;background:#F4F2FA;}
 
-
 /* ---------- CATEGORY PAGE (2026-10-18, from "HyperGo App Redesign", 5 · Category) ---------- */
 html.hg-new-app.hgn-cat-on #merchants_by_category > :not(#hgn-catpage){display:none!important;}
 /* (2026-10-22) Hyperzod's own (old) list stays hidden from its first frame, before our page is drawn, and shows only when
@@ -327,9 +319,6 @@ html.hg-new-app .hgn-cc-img{position:relative;display:block;height:180px;border-
 html.hg-new-app .hgn-cc-img img{width:100%;height:100%;object-fit:cover;}
 html.hg-new-app .hgn-cc-img.is-logo img{object-fit:contain;padding:28px;}
 html.hg-new-app .hgn-cc.is-closed .hgn-cc-img img{filter:grayscale(.6);opacity:.75;}
-html.hg-new-app .hgn-cc-time{position:absolute;top:12px;inset-inline-start:12px;display:flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:12px;
-  background:rgba(255,255,255,.94);color:var(--hg-ink);font-size:calc(var(--hg-fs) * 12);font-weight:600;letter-spacing:var(--hg-ls);box-shadow:0 4px 12px rgba(27,32,35,.12);}
-html.hg-new-app .hgn-cc-time svg{width:13px;height:13px;flex:none;}
 html.hg-new-app .hgn-cc-closed{position:absolute;top:12px;inset-inline-end:12px;display:flex;align-items:center;height:24px;padding:0 8px;border-radius:12px;background:var(--hg-ink);color:#FFFFFF;font-size:calc(var(--hg-fs) * 12);font-weight:600;letter-spacing:var(--hg-ls);}
 html.hg-new-app .hgn-cc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;}
 html.hg-new-app .hgn-cc-name{min-width:0;font-size:calc(var(--hg-fs) * 16);line-height:20px;font-weight:600;letter-spacing:var(--hg-ls);color:var(--hg-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -342,8 +331,6 @@ html.hg-new-app .hgn-cc-mi{display:inline-flex;align-items:center;gap:4px;}
 html.hg-new-app .hgn-cc-mi svg{width:15px;height:15px;flex:none;}
 html.hg-new-app .hgn-cc-fee{font-weight:600;color:var(--hg-ink);}
 html.hg-new-app .hgn-cc-fee.is-free{color:#2E7D32;}
-html.hg-new-app .hgn-cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-html.hg-new-app .hgn-cc-tag{height:24px;padding:0 8px;border-radius:12px;background:#FFFCF9;box-shadow:inset 0 0 0 1px var(--hg-line);color:var(--hg-muted);font-size:calc(var(--hg-fs) * 12);font-weight:500;letter-spacing:var(--hg-ls);display:inline-flex;align-items:center;}
 
 @media (prefers-reduced-motion:reduce){
   html.hg-new-app .hgn-dot{transition:none;}
@@ -1016,14 +1003,12 @@ html.hg-new-app .hgn-joy-pic{position:relative;width:146px;height:146px;margin-b
 html.hg-new-app .hgn-joy-pic img{display:block;width:100%;height:100%;object-fit:cover;}
 html.hg-new-app .hgn-joy-pic::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%);pointer-events:none;}
 html.hg-new-app .hgn-joy-n{font-size:14px;line-height:18px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px;max-height:36px;overflow-wrap:anywhere;}
-html.hg-new-app .hgn-joy-s{font-size:12px;line-height:16px;color:var(--hg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-joy-p{font-size:14px;line-height:18px;}
 /* (2026-10-25) Little joys while its products load: the same cards as soft lilac blocks (the store loading lilac #EEE8F3),
    same sizes, so nothing below moves when the products arrive */
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-pic{background:#EEE8F3;box-shadow:none;}
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-pic::after{display:none;}
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-n{background:linear-gradient(#EEE8F3,#EEE8F3) 0 2px/90% 14px no-repeat,linear-gradient(#EEE8F3,#EEE8F3) 0 20px/60% 14px no-repeat;}
-html.hg-new-app .hgn-joy.is-ph .hgn-joy-s{height:16px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/50% 10px no-repeat;}
 html.hg-new-app .hgn-joy.is-ph .hgn-joy-p{height:18px;background:linear-gradient(#EEE8F3,#EEE8F3) 0 3px/40% 12px no-repeat;}
 html.hg-new-app .hgn-joy-p b{font-weight:700;}
 /* (2026-10-26, Little joys B lighter, chosen by Nouf) grouped by shop, no card boxes: a header (32px logo r9 on white with a
@@ -1075,9 +1060,6 @@ html.hg-new-app .hgn-tk-go{grid-column:2;grid-row:1 / span 2;width:32px;height:3
   background:linear-gradient(160deg,#8C68F0,#5A29DE 55%,#4519C2);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(90,41,222,.35);}
 html.hg-new-app .hgn-tk-go svg{width:13px;height:13px;}
 html.hg-new-app #hgn-home[dir="rtl"] .hgn-tk-go svg{transform:scaleX(-1);}
-html.hg-new-app .hgn-tk-tag{position:absolute;z-index:1;top:10px;inset-inline-start:10px;height:22px;padding:0 9px;border-radius:11px;display:inline-flex;align-items:center;gap:5px;
-  background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#361985;font-size:11px;font-weight:700;letter-spacing:.02em;}
-html.hg-new-app .hgn-tk-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#ACE4AA;box-shadow:0 0 0 2px rgba(172,228,170,.35);}
 
 /* Made in Bahrain (redesign 2026-10-22; brand colours 2026-10-26, design O, chosen by Nouf): deep Blue Magenta panel with the
    flag's five-point serrated edge in Opus, "Made in" Opus, "Bahrain" Appetite, Satin Deep Black cards with Opus text.
@@ -1112,7 +1094,7 @@ html.hg-new-app .hgn-mib-body{display:flex;flex-direction:column;gap:4px;padding
 html.hg-new-app .hgn-mib-n{font-size:15px;line-height:20px;font-weight:700;color:#CCCBE3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-mib-c{font-size:12px;line-height:16px;min-height:16px;color:#A3A2B6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* a Latin store or product name inside the Arabic page: its own direction, so the dots end it on the right side (it was cut at the start) */
-html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-joy-s,.hgn-tk-t){unicode-bidi:plaintext;text-align:right;}
+html.hg-new-app #hgn-home[dir="rtl"] :is(.hgn-mib-n,.hgn-mib-c,.hgn-tk-t){unicode-bidi:plaintext;text-align:right;}
 /* (2026-10-26) the same for the store names in Home's store rows, the Stores page, Search results, category pages, the cart
    sheet and the checkout header: a long English name in Arabic lost its start ("…tals Flowers") */
 html.hg-new-app[lang^='ar'] :is(.hgn-store-name,.hgn-sp-name,.hgn-sb-name,.hgn-cc-name,.hgn-cs-s,.hgn-co-t2){unicode-bidi:plaintext;text-align:right;}

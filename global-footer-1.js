@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-0020 */
+/* hg-version 2026-10-26-1834 */
 /* COMING SOON SCREEN + HIDDEN TEAM ENTRY (2026-10-22, design B1; app and website): HyperGo isn't open to the public yet,
    so the app and the website open on a "coming soon" screen. It shows no password field: the team holds the HyperGo logo
    for 3 seconds, a "Team access" sheet slides up, and the team password unlocks that phone or browser for 24 hours
@@ -214,15 +214,10 @@
 })();
 
 (function () {
-  /* NEW DESIGN (app 2026-10-15, website 2026-10-20): the phone header and Home are drawn by app-new.js / app-new.css
-     (loaded by app-footer.js in the app and by web-footer.js on the website, which set html.hg-new-app). So wherever the
-     new design is on, this file skips its own phone header and Home code; the desktop header, every other screen, the
-     Account page and the bottom nav are still drawn here. */
-  /* (2026-10-20): this file runs before app-footer.js adds hg-native-app, so the first applyAll() ran the website code in the
-     app. window.ReactNativeWebView (set by the phone app before page scripts) makes the check right from the start. */
-  const hgIsApp = () => document.documentElement.classList.contains("hg-native-app") || !!window.ReactNativeWebView;
-  /* (2026-10-20): the new design is on: in the app, or on the website (html.hg-new-app, set by the loader in web-footer.js) */
-  const hgNewDesign = () => hgIsApp() || document.documentElement.classList.contains("hg-new-app");
+  /* The phone header and Home are drawn by app-new.js (loaded by app-footer.js in the app and web-footer.js on the website).
+     This file draws the computer top bar, the Account page, the bottom nav, forms and the other shared fixes.
+     (2026-10-26) the old phone header, old Home, pull-to-refresh and old View cart bar are removed: this file runs before
+     web-footer.js, so on the website their first pass ran and the old design flashed in. */
   /* (2026-10-20): one shared phone-width query instead of a new matchMedia() on every call */
   const hgMobileMQ = window.matchMedia("(max-width: 959.98px)");
 
@@ -231,377 +226,14 @@
 
   const svgUri = (svg) => "data:image/svg+xml," + encodeURIComponent(svg);
 
-  /* big outline watermark (header, fades in on scroll) */
+  /* big outline logo (the Account page's header card) */
   const LOGO_OUTLINE = svgUri(
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -8 411 472'><path d='" + LOGO_D + "' fill='none' stroke='#fff' stroke-width='6' stroke-linejoin='round'/></svg>"
   );
-  /* small filled icon used by the rotating search placeholder */
+  /* small filled icon used by the rotating search placeholder (computer top bar) */
   const LOGO_FILLED = svgUri(
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 395 456'><path d='" + LOGO_D + "' fill='#5A29DE'/></svg>"
   );
-
-  function applyHyperGoHeader() {
-
-    const root =
-      document.querySelector("#MultiVendorHeaderRoot");
-
-    const header =
-      document.querySelector("#MultiVendorHeader");
-
-    const toolbar =
-      header?.querySelector("header.v-toolbar");
-
-    const toolbarContent =
-      header?.querySelector(".v-toolbar__content");
-
-    const searchRow =
-      document.querySelector(".home-mobile-search-row");
-
-    const search =
-      document.querySelector(".home-mobile-search-input");
-
-    const control =
-      search?.querySelector(".v-input__control");
-
-    const field =
-      search?.querySelector(".v-field");
-
-    const fieldInput =
-      search?.querySelector(".v-field__input");
-
-    const filter =
-      document.querySelector("#MobileSearchFilterBtn");
-
-    const location =
-      document.querySelector("#CurrentLocationBtn");
-
-    const logo =
-      document.querySelector(
-        '#MultiVendorHeader [aria-label="Mobile site logo"]'
-      );
-
-    if (!root || !searchRow) return;
-
-    /* mobile layout only (search row hidden on desktop) — desktop is handled by applyHyperGoDesktop */
-    if (getComputedStyle(searchRow).display === "none") return;
-
-    /* (2026-10-20): skip the ~60 style writes below when the header is unchanged since the last full run: same elements,
-       same number of inner elements, same address text, and our inline styles still in place. Any re-render re-runs it. */
-    const hdrSig = [root, header, toolbar, toolbarContent, searchRow, search, control, field, fieldInput, filter, location, logo];
-    const hdrSigTxt = root.getElementsByTagName("*").length + "|" + (location ? location.textContent : "") + "|" + hgIsAr();
-    if (
-      hdrLast && hdrLastTxt === hdrSigTxt && hdrSig.every((el, i) => el === hdrLast[i]) &&
-      root.style.getPropertyValue("background-color") && (!field || field.style.getPropertyValue("border-radius"))
-    ) { hgSyncPhOpacity(field); hgStartCartTimer(); return; }
-
-    /* header scrolls away with the page (native: sticky, top -57px) */
-    root.style.setProperty("position", "relative", "important");
-    root.style.setProperty("top", "0px", "important");
-
-    /* darker grey search placeholder via the theme's own variable */
-    root.style.setProperty("--scheme-header-search-placeholder", "#1F2430");
-
-
-    /* TOP HEADER — ONE LAYER ON THE ROOT, FLAT PURPLE, STRAIGHT BOTTOM EDGE, ROUNDED BOTTOM CORNERS
-       (tested in Console: root carries color + edge once,
-       inner layers transparent, so there is no seam) */
-
-    root.style.setProperty("background-color", "#8640FC", "important");
-    root.style.setProperty("background-image", "none", "important");
-    root.style.setProperty("border-radius", "0 0 26px 26px", "important");
-    root.style.setProperty("box-shadow", "none", "important");
-
-    ensureWatermark(root);
-    ensureHeaderCart(root);
-
-    [header, toolbar, toolbarContent, searchRow].forEach(el => {
-      if (!el) return;
-      el.style.setProperty("background", "transparent", "important");
-      el.style.setProperty("box-shadow", "none", "important");
-    });
-
-
-    /* SEARCH AREA — extra bottom space so the purple continues below search */
-
-    searchRow.style.setProperty("padding", "10px 16px 30px", "important");
-
-
-    /* FILTER: Hyperzod's own filter button, restyled as a tiny icon at the end of the search pill (see hg-extra-style) */
-
-    if (filter) {
-
-      filter.style.removeProperty("display");
-
-    }
-
-
-    /* REMOVE LOGO
-       Exact parent-removal method that worked in preview. */
-
-    if (logo?.parentElement) {
-
-      logo.parentElement.style.setProperty(
-        "display",
-        "none",
-        "important"
-      );
-
-    }
-
-
-    /* LOCATION TEXT WHITE */
-
-    if (location) {
-
-      location.style.setProperty("top", "2px", "important");
-
-      location.style.setProperty(
-        "color",
-        "#FFFFFF",
-        "important"
-      );
-
-      location.style.setProperty(
-        "font-size",
-        "14px",
-        "important"
-      );
-
-      location.style.setProperty(
-        "font-weight",
-        "400",
-        "important"
-      );
-
-      location
-        .querySelectorAll("*")
-        .forEach(el => {
-
-          el.style.setProperty(
-            "color",
-            "#FFFFFF",
-            "important"
-          );
-
-          el.style.setProperty(
-            "font-weight",
-            "400",
-            "important"
-          );
-
-        });
-
-    }
-
-
-    /* "DELIVER TO" LABEL
-       Adds a separate label before Hyperzod's dynamic name and never edits
-       Hyperzod's own text. Only runs when an address is set
-       (name + address line both exist). */
-
-    if (location) {
-
-      const sp = (el, p, v) => el && el.style.setProperty(p, v, "important");
-      const locRow = location.firstElementChild;
-      const svgs = locRow ? locRow.querySelectorAll("svg") : [];
-      const pin = svgs[0];
-      const chevron = svgs[1];
-      const nameEl = locRow ? locRow.querySelector("span.text") : null;
-      const subEl = location.children[1];
-
-      sp(pin && pin.querySelector("path"), "fill", "#FFFFFF");
-      sp(chevron && chevron.querySelector("path"), "stroke", "#FFFFFF");
-      sp(chevron && chevron.querySelector("path"), "fill", "none");
-
-      if (locRow && nameEl && subEl) {
-
-        let label = locRow.querySelector(".hg-deliver-label");
-
-        if (!label) {
-          label = hgMakeDeliverLabel();
-          locRow.insertBefore(label, nameEl);
-        }
-
-        sp(pin && pin.querySelector("path"), "fill", "#FFFFFF");
-        sp(locRow, "max-width", "none");
-
-        sp(label, "color", "#FFFFFF");
-        sp(label, "font-size", "14px");
-        sp(label, "font-weight", "400");
-        sp(label, "white-space", "nowrap");
-        sp(label, "margin-inline-start", "4px");
-
-        sp(nameEl, "color", "#FFFFFF");
-        sp(nameEl, "font-size", "14px");
-        sp(nameEl, "font-weight", "700");
-
-        const chevPath = chevron && chevron.querySelector("path");
-        sp(chevPath, "stroke", "#FFFFFF");
-        sp(chevPath, "fill", "none");
-
-        sp(subEl, "color", "#FFFFFF");
-
-      }
-
-    }
-
-
-    /* SEARCH — 36PX */
-
-    [search, control, field].forEach(el => {
-
-      if (!el) return;
-
-      el.style.setProperty(
-        "height",
-        "36px",
-        "important"
-      );
-
-      el.style.setProperty(
-        "min-height",
-        "36px",
-        "important"
-      );
-
-      el.style.setProperty(
-        "max-height",
-        "36px",
-        "important"
-      );
-
-    });
-
-
-    if (field) {
-
-      field.style.setProperty(
-        "position",
-        "relative",
-        "important"
-      );
-
-      field.style.setProperty(
-        "background",
-        "#FFFFFF",
-        "important"
-      );
-
-      field.style.setProperty(
-        "border-radius",
-        "18px",
-        "important"
-      );
-
-      field.style.setProperty(
-        "border",
-        "1px solid rgba(27,32,35,.10)",
-        "important"
-      );
-
-      field.style.setProperty(
-        "overflow",
-        "hidden",
-        "important"
-      );
-
-    }
-
-
-    if (fieldInput) {
-
-      fieldInput.style.setProperty(
-        "height",
-        "36px",
-        "important"
-      );
-
-      fieldInput.style.setProperty(
-        "min-height",
-        "36px",
-        "important"
-      );
-
-      fieldInput.style.setProperty(
-        "padding",
-        hgIsAr() ? "0 38px 0 12px" : "0 12px 0 38px",
-        "important"
-      );
-
-      fieldInput.style.setProperty(
-        "font-size",
-        "14px",
-        "important"
-      );
-
-      fieldInput.style.setProperty(
-        "line-height",
-        "36px",
-        "important"
-      );
-
-    }
-
-
-    /* REMOVE HYPERZOD RIGHT SEARCH ICON */
-
-    search
-      ?.querySelectorAll(
-        ".v-field__append-inner, .v-field__prepend-inner"
-      )
-      .forEach(el => {
-
-        el.style.setProperty(
-          "display",
-          "none",
-          "important"
-        );
-
-      });
-
-
-    /* LEFT SEARCH ICON
-       SVG magnifier, bounding box centred on the middle of the round left end
-       (pill is 36px tall: centre = 18px from the left edge, 17px inside the 1px border). */
-
-    if (
-      field &&
-      !field.querySelector(".hg-search-icon")
-    ) {
-
-      const icon = document.createElement("span");
-      icon.className = "hg-search-icon";
-      icon.style.cssText =
-        "position:absolute;left:8px;top:50%;width:18px;height:18px;" +
-        "transform:translateY(-50%);z-index:20;pointer-events:none;display:block;";
-      icon.innerHTML =
-        "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 16 16' style='display:block'>" +
-        "<circle cx='6.9' cy='6.9' r='4.9' fill='none' stroke-width='1.8' style='stroke:#2A2F38'/>" +
-        "<path d='M10.6 10.6L14 14' stroke-width='1.8' stroke-linecap='round' style='stroke:#2A2F38'/></svg>";
-      field.appendChild(icon);
-
-    }
-
-
-    /* Arabic: mirror the icon to the right */
-    const hgIcon = field && field.querySelector(".hg-search-icon");
-    if (hgIcon) {
-      if (hgIsAr()) {
-        hgIcon.style.left = "auto";
-        hgIcon.style.right = "8px";
-      }
-    }
-
-    /* ROTATING PLACEHOLDER: "Search Items" -> categories */
-
-    ensureRotatingPlaceholder(field, { left: 38, size: 14, weight: 400 });
-
-    /* (2026-10-20): remember what was styled (measured after our own label/icon/overlay/cart were added) */
-    hdrLast = [root, header, toolbar, toolbarContent, searchRow, search, control, field, fieldInput, filter, location, logo];
-    hdrLastTxt = root.getElementsByTagName("*").length + "|" + (location ? location.textContent : "") + "|" + hgIsAr();
-  }
-  let hdrLast = null, hdrLastTxt = "";
-
 
   /* (2026-10-20): the one thing a full header run also kept in sync: the rotating text hides while the search field has a value */
   function hgSyncPhOpacity(field) {
@@ -610,14 +242,6 @@
     const o = inp.value ? "0" : "1";
     if (ov.style.opacity !== o) ov.style.opacity = o;
     if (!phTimer) phTimer = setInterval(phTick, PH_INTERVAL);
-  }
-
-  /* (2026-10-20): one builder for the "Deliver to" label (was written twice, mobile + desktop) */
-  function hgMakeDeliverLabel() {
-    const label = document.createElement("span");
-    label.className = "hg-deliver-label";
-    label.textContent = hgIsAr() ? "التوصيل إلى" : "Deliver to";
-    return label;
   }
 
   /* DESKTOP HEADER (width >= 960) — tested in Console, same approach:
@@ -854,6 +478,7 @@
       if (nb) {
         const lt = ar ? "اللغة" : "Language";
         if (nb.getAttribute("aria-label") !== lt) { nb.setAttribute("aria-label", lt); nb.title = lt; }
+        if (!nb.hasAttribute("aria-haspopup")) nb.setAttribute("aria-haspopup", "menu"); /* it opens the language list (web-footer.js) */
       }
 
       /* (2026-10-20): remember what was checked (measured after our links/placeholder were added) */
@@ -861,46 +486,6 @@
       deskLastTxt = hgDeskSig(bar);
     } catch (e) {}
   }
-
-  /* WATERMARK: big outlined HyperGo icon in the mobile/app header, fades in on scroll */
-
-  function ensureWatermark(root) {
-    if (!document.getElementById("hg-wm-style")) {
-      const st = document.createElement("style");
-      st.id = "hg-wm-style";
-      st.textContent =
-        '#MultiVendorHeaderRoot::before{content:"";position:absolute;right:6px;bottom:-24px;width:190px;height:190px;' +
-        'background:url("' + LOGO_OUTLINE + '") no-repeat center/contain;' +
-        'opacity:var(--hg-wm-op,0);pointer-events:none;z-index:-1;' +
-        /* crop to the purple banner: the logo hangs 24px below the banner, so its bottom 24px and the part outside the
-           banner's rounded corner (26px radius, logo sits 6px in from the edge) are cut off */
-        'clip-path:inset(0 0 24px 0 round 0 0 20px 0);}';
-      document.head.appendChild(st);
-    }
-    updateWatermark(root);
-  }
-
-  function updateWatermark(root) {
-    if (!root || !hgMobileMQ.matches) return;
-    const scrolled = Math.max(0, -root.getBoundingClientRect().top);
-    root.style.setProperty("--hg-wm-op", String(Math.min(1, scrolled / 50) * 0.55));
-  }
-
-  let wmTicking = false;
-  document.addEventListener(
-    "scroll",
-    () => {
-      if (hgNewDesign()) return; /* (2026-10-20): app-new.js runs its own copy of this listener with the new design */
-      if (wmTicking) return;
-      wmTicking = true;
-      requestAnimationFrame(() => {
-        wmTicking = false;
-        updateWatermark(document.getElementById("MultiVendorHeaderRoot"));
-      });
-    },
-    { capture: true, passive: true }
-  );
-
 
   /* ROTATING SEARCH PLACEHOLDER
      "Search for" + a word that cycles "All your needs" -> every home category every 4s.
@@ -912,218 +497,6 @@
   function hgIsAr() {
     const de = document.documentElement;
     return (de.lang || "").toLowerCase().indexOf("ar") === 0 || de.dir === "rtl";
-  }
-
-  /* ADDRESS LANGUAGE
-     The saved delivery location keeps the language it was picked in (Google names the place in the app language at that moment),
-     so after switching language the header still shows the old one ("Deliver to Tower السنابس،" in English).
-     Fix: ask Google (same key the app already uses) for that exact spot in both languages, pair up the place names
-     (area, city, country, road...) and swap them in the header. Pairs are cached on the phone per spot, so it is instant after the first time. */
-  const LOC_KEY = "hg_geo1_";
-  let locPairs = [];
-  const locDone = {};
-  const locBusy = {};
-  let locTries = 0, locLastTry = 0, mapsKey = null, mapsKeyTry = 0;
-
-  /* (2026-10-20): locStore() merged into acStore() (identical) */
-  function locKeyOf(la, ln) { return la.toFixed(3) + "," + ln.toFixed(3); }
-  function findLL(o, d) {
-    if (!o || typeof o !== "object" || d > 4) return null;
-    const num = (k) => { const v = o[k]; const n = typeof v === "number" ? v : (typeof v === "string" && v.trim() !== "" ? parseFloat(v) : NaN); return isFinite(n) ? n : null; };
-    const la = num("lat") !== null ? num("lat") : num("latitude");
-    const ln = num("lng") !== null ? num("lng") : (num("lon") !== null ? num("lon") : num("longitude"));
-    if (la !== null && ln !== null && (la !== 0 || ln !== 0)) return [la, ln];
-    const c = o.coordinates;
-    if (Array.isArray(c) && c.length === 2 && isFinite(c[0]) && isFinite(c[1])) return [Number(c[1]), Number(c[0])];
-    for (const k in o) {
-      const r = findLL(o[k], d + 1);
-      if (r) return r;
-    }
-    return null;
-  }
-  function locCoords() {
-    const out = [], seen = {};
-    const st = acStore();
-    if (!st) return out;
-    const add = (o) => {
-      const ll = findLL(o, 0);
-      if (!ll || Math.abs(ll[0]) > 90 || Math.abs(ll[1]) > 180) return;
-      const k = locKeyOf(ll[0], ll[1]);
-      if (!seen[k]) { seen[k] = 1; out.push(ll); }
-    };
-    ["getSelectedLocation", "getSelectedAddress", "getDeliveryAddress", "getCurrentAddress"].forEach((g) => {
-      try { add(st.getters[g]); } catch (e) {}
-    });
-    if (!out.length) {
-      try { for (const k in st.state) { if (/location|address/i.test(k)) add(st.state[k]); } } catch (e) {}
-    }
-    return out;
-  }
-  function getMapsKey() {
-    if (mapsKey) return mapsKey;
-    if (Date.now() - mapsKeyTry < 30000) return null;
-    mapsKeyTry = Date.now();
-    try {
-      const m = JSON.stringify(acStore().state).match(/AIza[0-9A-Za-z_-]{20,}/);
-      if (m) mapsKey = m[0];
-    } catch (e) {}
-    return mapsKey;
-  }
-  function addPairs(list) {
-    const have = {};
-    locPairs.forEach((p) => { have[p[0]] = 1; });
-    (list || []).forEach((p) => { if (p && p[0] && p[1] && !have[p[0]]) { have[p[0]] = 1; locPairs.push(p); } });
-  }
-  function buildPairs(ar, en) {
-    const byId = {};
-    en.forEach((r) => { byId[r.place_id] = r; });
-    const seen = {}, out = [];
-    ar.forEach((ra) => {
-      const re = byId[ra.place_id];
-      if (!re) return;
-      ra.address_components.forEach((ca) => {
-        const t = ca.types[0];
-        if (t === "plus_code" || t === "postal_code") return;
-        const ce = re.address_components.filter((c) => c.types[0] === t)[0];
-        if (!ce) return;
-        const a = ca.long_name, e = ce.long_name;
-        if (!/[ء-ي]/.test(a) || !/[A-Za-z]/.test(e) || seen[a]) return;
-        seen[a] = 1;
-        out.push([a, e]);
-      });
-    });
-    return out;
-  }
-  function locFetch(la, ln) {
-    const key = locKeyOf(la, ln);
-    if (locDone[key] || locBusy[key]) return;
-    try {
-      const c = localStorage.getItem(LOC_KEY + key);
-      if (c) { addPairs(JSON.parse(c)); locDone[key] = 1; return; }
-    } catch (e) {}
-    const k = getMapsKey();
-    if (!k) return;
-    const now = Date.now();
-    if (now - locLastTry < (locTries >= 3 ? 60000 : 4000)) return;
-    locTries++;
-    locLastTry = now;
-    locBusy[key] = 1;
-    const get = (lang) => fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + la + "," + ln + "&language=" + lang + "&key=" + k).then((r) => r.json());
-    Promise.all([get("ar"), get("en")]).then((r) => {
-      if (r[0].status !== "OK" || r[1].status !== "OK") throw new Error("geo");
-      const pairs = buildPairs(r[0].results, r[1].results);
-      addPairs(pairs);
-      locDone[key] = 1;
-      locTries = 0;
-      try { localStorage.setItem(LOC_KEY + key, JSON.stringify(pairs)); } catch (e) {}
-      delete locBusy[key];
-      applyLocLang();
-    }).catch(() => { delete locBusy[key]; });
-  }
-  function locSwap(s, ar) {
-    const from = ar ? 1 : 0, to = ar ? 0 : 1;
-    let out = s, changed = false;
-    locPairs.slice().sort((x, y) => y[from].length - x[from].length).forEach((p) => {
-      const src = p[from].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const re = ar ? new RegExp("(^|[^A-Za-z])(" + src + ")(?![A-Za-z])", "gi") : new RegExp("(^|[^\\u0621-\\u064A])(" + src + ")(?![\\u0621-\\u064A])", "g");
-      out = out.replace(re, (m, pre) => { changed = true; return pre + p[to]; });
-    });
-    if (changed && !ar) out = out.replace(/،/g, ",").replace(/[,\s]+$/, "");
-    return out;
-  }
-  function applyLocLang() {
-    const els = document.querySelectorAll("#CurrentLocationBtn");
-    if (!els.length) return;
-    const ar = hgIsAr();
-    const foreign = ar ? /[A-Za-z]/ : /[ء-ي]/;
-    const nodes = [];
-    els.forEach((el) => {
-      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      let n;
-      while ((n = w.nextNode())) {
-        if (foreign.test(n.nodeValue) && !(n.parentNode && n.parentNode.closest && n.parentNode.closest(".hg-deliver-label"))) nodes.push(n);
-      }
-    });
-    if (!nodes.length) return;
-    locCoords().forEach((ll) => locFetch(ll[0], ll[1]));
-    if (!locPairs.length) return;
-    nodes.forEach((n) => {
-      const v = locSwap(n.nodeValue, ar);
-      if (v !== n.nodeValue) n.nodeValue = v;
-    });
-  }
-
-  /* HOME: NEARBY MERCHANTS — brand logo instead of their cover banner
-     The card only ever renders the merchant's cover photo, never the logo, so the logo has to be read straight out of
-     Vue's component data (Vue production hides instances, same walk-the-vnode-tree trick as findHome() below) and
-     swapped into the <img> by hand. Scoped to #NearbyMerchants only - the merchant's own shop page is untouched and
-     keeps showing their cover banner as normal. */
-  /* (2026-10-20): one Vue-tree walker (was written twice: here and in pull-to-refresh's findHome) */
-  function findVueComponent(test, maxDepth) {
-    const app = document.getElementById("app");
-    const seen = new Set();
-    let hit = null;
-    function walk(inst, d) {
-      if (!inst || hit || seen.has(inst) || d > maxDepth) return;
-      seen.add(inst);
-      if (test(inst)) { hit = inst; return; }
-      walkVN(inst.subTree, d + 1);
-    }
-    function walkVN(vn, d) {
-      if (!vn || hit) return;
-      if (vn.component) walk(vn.component, d);
-      if (vn.suspense) walkVN(vn.suspense.activeBranch, d + 1);
-      if (Array.isArray(vn.children)) vn.children.forEach((ch) => walkVN(ch, d + 1));
-    }
-    if (app && app._vnode) walkVN(app._vnode, 0);
-    return hit;
-  }
-  function findVueComponentByName(name) {
-    return findVueComponent((inst) => inst.type && inst.type.name === name, 120);
-  }
-  function getMerchantLogoUrl(item, proxy) {
-    const L = item && item.images && item.images.logo;
-    if (!L) return null;
-    /* the site's own image resolver (CDN sizing etc.) - same one the cards already use for the cover photo */
-    try {
-      if (proxy && typeof proxy.imgToDisplay === "function") {
-        const u = proxy.imgToDisplay(L, false, true, null);
-        if (u) return u;
-      }
-    } catch (e) {}
-    if (typeof L === "string") return L;
-    return L.image_url || L.url || L.src || null;
-  }
-  const nearbyMQ = hgMobileMQ;
-  function applyNearbyLogos() {
-    if (!nearbyMQ.matches) return;
-    const root = document.getElementById("NearbyMerchants");
-    if (!root) return;
-    const cards = root.querySelectorAll(".merchant-card[data-merchant-id]:not([data-hg-logo])");
-    if (!cards.length) return;
-    const c = findVueComponentByName("nearby-merchants");
-    const list = c && c.proxy && Array.isArray(c.proxy.merchants) ? c.proxy.merchants : null;
-    if (!list || !list.length) return;
-    const byId = {};
-    list.forEach((m) => {
-      const id = m && (m._id || m.merchant_id);
-      if (id) byId[String(id)] = m;
-    });
-    cards.forEach((card) => {
-      const id = card.getAttribute("data-merchant-id");
-      const item = byId[id];
-      const url = item && getMerchantLogoUrl(item, c.proxy);
-      if (!url) {
-        /* data may still be settling (image not uploaded through, or not loaded yet) - retry a few times, then give up and leave the cover photo showing */
-        const tries = (parseInt(card.getAttribute("data-hg-logo-tries") || "0", 10)) + 1;
-        card.setAttribute("data-hg-logo-tries", String(tries));
-        if (tries >= 15) card.setAttribute("data-hg-logo", "1");
-        return;
-      }
-      card.setAttribute("data-hg-logo", "1");
-      const img = card.querySelector(".cover-img img, .cover-img .v-img__img");
-      if (img) img.src = url;
-    });
   }
 
   /* ARABIC CATEGORY NAMES
@@ -1197,17 +570,6 @@
     hits.forEach((n) => {
       const t = arCat(n.nodeValue);
       if (t && n.nodeValue.trim() !== t) n.nodeValue = n.nodeValue.replace(n.nodeValue.trim(), t);
-    });
-  }
-
-  function applyArabicCategories() {
-    if (!hgIsAr()) return;
-    document.querySelectorAll(".scheme-collection-grid h4").forEach((h) => {
-      h.childNodes.forEach((n) => {
-        if (n.nodeType !== 3) return;
-        const t = arCat(n.nodeValue);
-        if (t && n.nodeValue.trim() !== t) n.nodeValue = n.nodeValue.replace(n.nodeValue.trim(), t);
-      });
     });
   }
 
@@ -1383,7 +745,6 @@
     if (!phTimer) phTimer = setInterval(phTick, PH_INTERVAL);
   }
 
-
   /* ================= BOTTOM NAV + CART IN THE HEADER (mobile / app) =================
      - Bottom nav: white bar, soft top shadow, purple active item with a light purple pill,
        one consistent icon set (masks, follow the text colour), Cart item hidden.
@@ -1485,69 +846,6 @@
       }
     });
   }
-
-  /* (2026-10-20): the 1s badge timer stops while our cart button is not on the page and starts again with it.
-     Only the timer this file started is stopped (app-new.js shares the window._hgCartTimer slot). */
-  let hgCartTimer = null;
-  function hgStartCartTimer() {
-    if (!window._hgCartTimer) { hgCartTimer = window._hgCartTimer = setInterval(syncCartBadge, 1000); syncCartBadge(); }
-  }
-  function syncCartBadge() {
-    const btn = document.getElementById("hg-cart-btn");
-    if (!btn) {
-      if (hgCartTimer && window._hgCartTimer === hgCartTimer) { clearInterval(hgCartTimer); window._hgCartTimer = hgCartTimer = null; }
-      return;
-    }
-    const badge = btn.querySelector(".hg-cart-badge");
-    const nb = document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] .v-badge__badge");
-    const on = !!nb && nb.style.display !== "none";
-    const txt = nb ? nb.textContent.trim() : "";
-    if (badge.textContent !== (on ? txt : "")) badge.textContent = on ? txt : "";
-    badge.classList.toggle("on", on);
-    badge.classList.toggle("num", on && !!txt);
-  }
-
-  function ensureHeaderCart(root) {
-    if (!root) return;
-
-    if (!document.getElementById("hg-cart-style")) {
-      const st = document.createElement("style");
-      st.id = "hg-cart-style";
-      st.textContent =
-        "#hg-cart-btn{position:absolute;right:16px;top:calc(var(--native-status-bar-height,0px) + 7px);width:38px;height:38px;border-radius:50%;" +
-        "background:rgba(255,255,255,.18) !important;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;z-index:10000;" +
-        "cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}" +
-        "#hg-cart-btn:active{background:rgba(255,255,255,.3) !important;}" +
-        "html[lang^='ar'] #hg-cart-btn{right:auto;left:16px;}" +
-        "html[lang^='ar'] #MultiVendorHeaderRoot::before{right:auto;left:6px;clip-path:inset(0 0 24px 0 round 0 0 0 20px);}" +
-        "#hg-cart-btn .hg-cart-badge{position:absolute;top:0;right:0;box-sizing:border-box;width:11px;height:11px;border-radius:50%;background:#FF3B4E;" +
-        "border:2px solid #8640FC;display:none;}" +
-        "#hg-cart-btn .hg-cart-badge.on{display:block;}" +
-        "#hg-cart-btn .hg-cart-badge.num{top:-3px;right:-3px;width:auto;min-width:17px;height:17px;padding:0 3px;border-radius:9px;text-align:center;" +
-        "font-size:10px !important;line-height:13px !important;font-weight:700 !important;color:#fff !important;}";
-      document.head.appendChild(st);
-    }
-
-    let btn = document.getElementById("hg-cart-btn");
-    if (!btn) {
-      btn = document.createElement("button");
-      btn.id = "hg-cart-btn";
-      btn.type = "button";
-      btn.setAttribute("aria-label", hgIsAr() ? "\u0627\u0644\u0633\u0644\u0629" : "Cart");
-      btn.innerHTML =
-        "<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' style='display:block'>" +
-        "<path d='M7 8V7a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 .92l1 12A2 2 0 0 1 19 23H5a2 2 0 0 1-2-2.08l1-12A1 1 0 0 1 5 8h2Zm2 0h6V7a3 3 0 0 0-6 0v1Z' fill='#111'/></svg>" +
-        "<span class='hg-cart-badge'></span>";
-      btn.addEventListener("click", () => {
-        const nb = document.querySelector("#MultiVendorBottomNav .classic-nav-item[data-hg-nav='cart'] button");
-        if (nb) nb.click();
-      });
-    }
-    if (btn.parentNode !== root) root.appendChild(btn);
-    syncCartBadge();
-    hgStartCartTimer();
-  }
-
 
   /* ================= OUR OWN NOISE (observer trim, 2026-10-08) =================
      Changes inside these never matter to our whole-page observers: the rotating search placeholder (.hg-ph, swaps its word
@@ -2221,7 +1519,11 @@
     fixArabicForms();
   }
 
-  /* EXTRA STYLES (mobile/app): back button on My Orders (when opened from Account) + Talabat-style search page */
+  /* EXTRA STYLES: back button on My Orders (when opened from Account), the phone header's filter button, Hyperzod's own
+     search, category, store and product screens where ours don't replace them.
+     (2026-10-26) rules of the old design that the new design (app-new.css) fully overrides, or whose elements no longer
+     exist (old Home, pull-to-refresh, old View cart bar), are removed: each one was checked on Home, Stores near you,
+     Search, a category, two stores, a product, the cart and the Account pages, phone and computer, English and Arabic. */
   function ensureExtraStyle() {
     if (document.getElementById("hg-extra-style")) return;
     const st = document.createElement("style");
@@ -2232,14 +1534,6 @@
     const SEARCH_IC = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E\")";
     const ARROW = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M12 19l-7-7 7-7'/%3E%3C/svg%3E\")";
     st.textContent =
-      /* v80: HyperGo's brand guide explicitly bans pure white (#FFFFFF) and pure black (#000000) for
-         UI surfaces/text - "Global Constraint: Pure White and Pure Black typography, icons, and UI elements
-         are strictly banned." The whole app currently sits on a literal #FFFFFF background (confirmed live:
-         both <body> and Vuetify's .v-application compute to rgb(255,255,255)), which is a big part of the
-         "black and white, choking" feeling. Replacing with the brand's own Opus color at its lightest
-         documented tint (#FAFAFC, Opus 90% tint) - close enough to white to change nothing about legibility,
-         but on-brand and noticeably warmer than stark white. Not gated to mobile - applies everywhere. */
-      "body,.v-application{background-color:#FAFAFC !important;}" +
       "@media (max-width:959.98px){" +
       /* orders back button */
       "#hg-orders-back{position:absolute;inset-inline-start:8px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:75;padding:0;margin:0;-webkit-tap-highlight-color:transparent;cursor:pointer;}" +
@@ -2251,16 +1545,6 @@
       "#app .scheme-mobile-page-header .back-btn svg{display:none !important;}" +
       "html[lang^='ar'] #hg-orders-back::before,html[lang^='ar'] #app .scheme-mobile-page-header .back-btn::before{transform:scaleX(-1);}" +
       "#app .scheme-mobile-page-header__surface:has(>#hg-orders-back){position:relative !important;}" +
-      /* Home: no over-scroll above the header; own pull-to-refresh below it */
-      "#MultiVendorHome{overscroll-behavior-y:none;}" +
-      "#hg-ptr{position:absolute;left:0;right:0;height:0;overflow:hidden;display:none;pointer-events:none;z-index:0;opacity:0;}" +
-      "#hg-ptr .hg-goo{position:absolute;left:50%;top:50%;width:60px;height:24px;margin:-12px 0 0 -30px;overflow:visible;opacity:.85;}" +
-      "#hg-ptr .hg-goo circle{fill:#8B62F1;}" +
-      "#hg-ptr.hg-loading .hg-goo circle{animation:hgGoo 1.8s ease-in-out infinite backwards;}" +
-      "#hg-ptr.hg-done .hg-goo circle{transition:transform .25s ease;}" +
-      "#hg-ptr.hg-loading .hg-goo .g1{animation-delay:.24s;}" +
-      "#hg-ptr.hg-loading .hg-goo .g2{animation-delay:.48s;}" +
-      "@keyframes hgGoo{0%{transform:translateX(0);}25%{transform:translateX(13px);}75%{transform:translateX(-13px);}100%{transform:translateX(0);}}" +
       /* home header: native filter button, minimal - just a small icon at the end of the search pill */
       "#app .home-mobile-search-row #MobileSearchFilterBtn{display:inline-flex !important;position:absolute !important;inset-inline-end:16px;top:10px;width:42px !important;min-width:0 !important;height:36px !important;margin:0 !important;padding:0 !important;background:transparent !important;border:0 !important;box-shadow:none !important;border-radius:0 18px 18px 0 !important;color:#5A29DE !important;z-index:4;-webkit-tap-highlight-color:transparent;}" +
       "html[dir='rtl'] #app .home-mobile-search-row #MobileSearchFilterBtn,html[lang^='ar'] #app .home-mobile-search-row #MobileSearchFilterBtn{border-radius:18px 0 0 18px !important;}" +
@@ -2268,78 +1552,17 @@
       "#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__overlay,#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__underlay{display:none !important;}" +
       "#app .home-mobile-search-row #MobileSearchFilterBtn svg{display:none !important;}" +
       "#app .home-mobile-search-row #MobileSearchFilterBtn .v-btn__content::after{content:'';display:block;width:18px;height:18px;background:#5A29DE;-webkit-mask:" + TUNE_IC + " center/contain no-repeat;mask:" + TUNE_IC + " center/contain no-repeat;}" +
-      "#app .home-mobile-search-input .v-field__input{padding-inline-end:48px !important;}" +
-      /* search page: compact Talabat-sized header - round back button beside a slim pill with the search icon inside */
-      S + "{background:#FFFCF9 !important;}" +
       /* v75: restored, matching v57 exactly */
-      "html.hg-search-page .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#8640FC !important;}" +
       S + ".scheme-global-search-mobile-header{background:#8640FC !important;margin-left:-16px !important;margin-right:-16px !important;padding:11px 16px !important;border-radius:0 0 22px 22px !important;box-shadow:none !important;border-bottom:0 !important;}" +
-      S + ".mobile-search-input .v-input__control{padding-inline-start:38px !important;}" +
       S + ".mobile-search-input .v-field{display:flex !important;align-items:center;min-height:38px !important;height:38px !important;background:#FFFCF9 !important;border:0 !important;border-radius:999px !important;box-shadow:none !important;overflow:visible !important;padding:0 12px !important;}" +
       S + ".mobile-search-input .v-field__overlay,html body [data-color-scheme] #MultiVendorSearch .mobile-search-input .v-field__outline{display:none !important;}" +
-      S + ".mobile-search-input .v-field__prepend-inner{position:absolute !important;inset-inline-start:-42px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0 !important;margin:0 !important;display:flex !important;align-items:center;justify-content:center;background:transparent;border:0;border-radius:0;box-sizing:border-box;}" +
-      S + ".mobile-search-input .v-field__prepend-inner .v-icon{width:22px !important;height:22px !important;font-size:22px !important;display:flex !important;align-items:center;justify-content:center;}" +
-      S + ".mobile-search-input .v-field__prepend-inner .v-icon svg{display:none !important;}" +
-      S + ".mobile-search-input .v-field__prepend-inner .v-icon::before{content:'';display:block;width:22px;height:22px;background:#FFFCF9;-webkit-mask:" + ARROW + " center/contain no-repeat;mask:" + ARROW + " center/contain no-repeat;}" +
-      "html[lang^='ar'] " + S.replace("html body ", "body ") + ".mobile-search-input .v-field__prepend-inner .v-icon::before{transform:scaleX(-1);}" +
       S + ".mobile-search-input .v-field__append-inner{order:-1;padding:0 8px 0 0 !important;margin:0 !important;display:flex;align-items:center;}" +
-      "html[lang^='ar'] " + S.replace("html body ", "body ") + ".mobile-search-input .v-field__append-inner{padding:0 0 0 8px !important;}" +
       S + ".mobile-search-input .v-field__append-inner svg{display:none !important;}" +
       S + ".mobile-search-input .v-field__append-inner>div::before{content:'';display:block;width:18px;height:18px;background:#6B7280;-webkit-mask:" + SEARCH_IC + " center/contain no-repeat;mask:" + SEARCH_IC + " center/contain no-repeat;}" +
       S + ".mobile-search-input .v-field__field{flex:1 1 auto;min-width:0;height:38px;}" +
-      S + ".mobile-search-input .v-field__input{min-height:38px !important;height:38px !important;padding:0 !important;font-size:14px !important;font-weight:400 !important;color:#262A33 !important;}" +
       S + ".mobile-search-input input::placeholder{color:#8A8F95 !important;opacity:1 !important;}" +
       /* categories: compact swipeable 2-row strip of round images instead of one huge grid */
-      S + ".hg-search-tabs{display:none !important;}" +
-      S + ".recent-searches{width:100% !important;max-width:none !important;padding:2px 0 32px !important;}" +
-      S + ".recent-searches>div:has(+ .tw-grid),html body [data-color-scheme] #MultiVendorSearch .recent-searches .recent-search-heading{height:auto !important;margin:26px 0 16px !important;padding:0 18px !important;color:#000 !important;font-family:inherit !important;font-size:17px !important;line-height:1.2 !important;font-weight:600 !important;text-transform:none !important;}" +
       S + "[class*='Axiforma'],html body [data-color-scheme] #MultiVendorSearch input{font-family:inherit !important;}" +
-      S + ".recent-searches>div:has(+ .tw-grid)>div,html body [data-color-scheme] #MultiVendorSearch .recent-searches .recent-search-heading>div{font-size:17px !important;font-weight:600 !important;text-transform:none !important;font-family:inherit !important;}" +
-      S + ".recent-searches .tw-grid{display:grid !important;grid-auto-flow:column !important;grid-template-columns:none !important;grid-template-rows:repeat(2,auto) !important;grid-auto-columns:68px !important;gap:14px 4px !important;overflow-x:auto !important;overflow-y:hidden !important;padding:2px 18px 8px !important;justify-content:start !important;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain;}" +
-      S + ".recent-searches .tw-grid::-webkit-scrollbar{display:none;}" +
-      S + ".recent-searches .tw-grid>div{display:flex;flex-direction:column;align-items:center;width:68px;-webkit-tap-highlight-color:transparent;}" +
-      S + ".recent-searches .tw-grid .category-img{width:58px !important;height:58px !important;flex:0 0 58px;border-radius:50% !important;padding:0 !important;box-shadow:0 1px 6px rgba(60,30,140,.12);}" +
-      S + ".recent-searches .tw-grid .category-img img,html body [data-color-scheme] #MultiVendorSearch .recent-searches .tw-grid .category-img .v-img{width:100% !important;height:100% !important;object-fit:cover !important;}" +
-      S + ".recent-searches .tw-grid>div>div:last-child{font-size:11.5px !important;line-height:1.25 !important;margin-top:5px !important;color:#262A33;font-weight:500;width:68px;padding:0 2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-align:center;}" +
-      /* HOME: Nearby merchants - 2 rows, scrolls sideways, brand logo tile instead of the tall cover banner.
-         Tile shrunk 112px->80px and padding/radius/gaps cut down to read tighter (closer to Keeta's density).
-         object-fit switched from contain to cover: for a normal square logo this looks identical to contain
-         (no cropping happens when the image already fills the box), but for a merchant whose "logo" is actually
-         a wide banner-shaped file (confirmed real example: Master Muscles, a 376x176 SVG) it now fills the tile
-         and crops the sides instead of floating small in a sea of white space. */
-      "#NearbyMerchants .merchant-card-list{display:grid !important;grid-auto-flow:column !important;grid-template-rows:repeat(2,auto) !important;grid-auto-columns:80px !important;gap:16px 12px !important;overflow-x:auto !important;overflow-y:hidden !important;padding:0 16px 4px !important;margin:0 !important;-webkit-overflow-scrolling:touch;scrollbar-width:none;}" +
-      "#NearbyMerchants .merchant-card-list::-webkit-scrollbar{display:none;}" +
-      "#NearbyMerchants .merchant-card-list>.v-col{width:80px !important;max-width:80px !important;flex:0 0 80px !important;padding:0 !important;}" +
-      /* Hyperzod's own scoped CSS puts container-type:inline-size + width:100% on .merchant-card, which inside
-         our 80px grid track was computing down to ~56px wide (height stayed a correct 80px) - tiles came out
-         tall and narrow instead of square. Force the width explicitly so it can't shrink like that. */
-      "#NearbyMerchants .merchant-card{display:block !important;width:80px !important;max-width:80px !important;}" +
-      "#NearbyMerchants .merchant-card .cover-img{width:80px !important;height:80px !important;border-radius:14px !important;background:#f5f5f5 !important;padding:0 !important;box-sizing:border-box !important;}" +
-      "#NearbyMerchants .merchant-card .cover-img img,#NearbyMerchants .merchant-card .cover-img .v-img__img{object-fit:cover !important;border-radius:14px !important;}" +
-      "#NearbyMerchants .merchant-card .merchant-card-body{padding:10px 1px 0 !important;}" +
-      "#NearbyMerchants .merchant-card .merchant-card-title{font-size:12px !important;line-height:15px !important;}" +
-      "#NearbyMerchants .merchant-card .merchant-card-info{font-size:10px !important;line-height:13px !important;margin-top:1px !important;}" +
-      "#NearbyMerchants .merchant-card #AverageRating{font-size:10px !important;margin-top:1px !important;}" +
-      "#NearbyMerchants .merchant-card #AverageRating span{font-size:10px !important;}" +
-      "#NearbyMerchants .merchant-card .merchant-image-pill,#NearbyMerchants .merchant-card .merchant-sponsored-tag,#NearbyMerchants .merchant-card .merchant-off,#NearbyMerchants .merchant-card .merchant-coupon,#NearbyMerchants .merchant-card .merchant-offer-chips{display:none !important;}" +
-      /* HOME: category icon grid ("Food/Electronics/Nutrition/..."), native Hyperzod block, id="ProductCategories" - tighten its gap/padding to match */
-      "#ProductCategories{margin-top:8px !important;margin-bottom:8px !important;}" +
-      "#ProductCategories>.tw-px-4{padding-bottom:0 !important;}" +
-      "#ProductCategories .tw-grid{gap:14px !important;}" +
-      "#ProductCategories .tw-aspect-square{border-radius:12px !important;}" +
-      "#ProductCategories .tw-h-10{height:28px !important;margin-top:4px !important;}" +
-      /* HOME: Recommended for you - compact rows (thumbnail left, info right) instead of tall stacked cards.
-         NOTE: the real rendered wrapper does NOT have id="MerchantRecommendations" - Hyperzod's page-builder
-         gives it a numeric id (e.g. id="130857") and puts the component name in the class instead
-         (class="... MerchantRecommendation--130857"). Match on that class substring so this keeps working
-         no matter what numeric section id this block gets. */
-      "[class*='MerchantRecommendation--'] .merchant-card-list{margin:0 !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card-list>.v-col{padding:0 !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card{display:flex !important;flex-direction:row !important;align-items:center !important;gap:16px !important;padding:16px 16px !important;margin:0 !important;border-radius:0 !important;border-bottom:1px solid rgba(27,32,35,.08) !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card-list>.v-col:last-child .merchant-card{border-bottom:0 !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card .cover-img{width:84px !important;height:84px !important;min-width:84px !important;flex:0 0 84px !important;border-radius:14px !important;box-shadow:0 2px 6px rgba(0,0,0,.10) !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card .merchant-card-body{flex:1 1 auto !important;min-width:0 !important;padding:0 !important;}" +
-      "[class*='MerchantRecommendation--'] .merchant-card .merchant-image-pill,[class*='MerchantRecommendation--'] .merchant-card .merchant-sponsored-tag,[class*='MerchantRecommendation--'] .merchant-card .merchant-off,[class*='MerchantRecommendation--'] .merchant-card .merchant-coupon{display:none !important;}" +
       /* SEARCH RESULTS: the "Merchants" tab (search bar -> type a query -> Merchants tab) - same compact-row
          treatment as Recommended for you (uniform thumbnail size, divider lines between rows) but keeping the
          rating stars, delivery fee and discount/offer chips VISIBLE since they're already colored natively and
@@ -2375,7 +1598,6 @@
       /* category page, matched to the home "More stores near you" list + account-style purple header */
       "@media (max-width:959.98px){" +
       /* v75: restored, matching v57 exactly */
-      "html:has(#merchants_by_category) .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#8640FC !important;}" +
       "#merchants_by_category>.scheme-mobile-page-header{background:#8640FC !important;border-radius:0 0 22px 22px;box-shadow:0 6px 18px rgba(90,41,222,.18) !important;}" +
       "#merchants_by_category>.scheme-mobile-page-header .scheme-mobile-page-header__surface{background:transparent !important;box-shadow:none !important;}" +
       "#merchants_by_category>.scheme-mobile-page-header h1{color:#fff !important;font-size:17px !important;font-weight:700 !important;text-transform:capitalize !important;-webkit-font-smoothing:antialiased;white-space:nowrap;max-width:calc(100% - 112px);overflow:hidden;text-overflow:ellipsis;}" +
@@ -2393,7 +1615,6 @@
          floating 40px white round back button, plain 20px title + 14px grey description, no top price (the Add button
          shows the live total incl. options/add-ons), 50px outlined stepper + 50px purple "Add item" pill. */
       "@media (max-width:959.98px){" +
-      "html body .v-bottom-sheet__content>.v-card.product-popup{background:#FFFCF9 !important;}" +
       "html body .v-card.product-popup>.v-card-title{position:absolute !important;top:0;left:0;right:0;z-index:5;height:0 !important;min-height:0 !important;padding:0 !important;overflow:visible !important;background:transparent !important;background-color:transparent !important;box-shadow:none !important;pointer-events:none;}" +
       "html body .v-card.product-popup>.v-card-title>div{display:none !important;}" +
       "html body .v-card.product-popup>.v-card-title>.v-btn{pointer-events:auto;position:absolute !important;top:calc(var(--native-status-bar-height,0px) + 12px) !important;left:16px !important;right:auto !important;transform:none !important;margin:0 !important;width:40px !important;height:40px !important;min-width:40px !important;min-height:40px !important;border-radius:50% !important;background:#FFFCF9 !important;border:1px solid #E5E5E5 !important;box-shadow:none !important;}" +
@@ -2405,18 +1626,15 @@
          under the status bar, with the back button floating on it */
       "html body .v-overlay.v-overlay .v-overlay__content>.v-card.product-popup:first-child{padding-top:0 !important;}" +
       /* v75: restored, matching v57 exactly */
-      "html:has(.v-overlay--active .product-popup) .native-status-bar-bg,html:has(.v-overlay--active .product-popup) .native-under-sheet-status-cover{background-color:transparent !important;}" +
       "html body .v-card.product-popup .product-image-slider,html body .v-card.product-popup .product-image-slider .v-card{background:#FFFCF9 !important;}" +
       "html body .v-card.product-popup #productInfo .product-category-name,html body .v-card.product-popup #productInfo .product-price,html body .v-card.product-popup .v-card-text>hr{display:none !important;}" +
       "html body .v-card.product-popup #productInfo .product-name{font-size:20px !important;font-weight:700 !important;line-height:1.3 !important;color:#1B2023 !important;margin:6px 0 8px !important;-webkit-line-clamp:unset;}" +
-      "html body .v-card.product-popup #ProductDescription,html body .v-card.product-popup #ProductDescription *{font-size:14px !important;line-height:20px !important;color:#767676 !important;font-weight:400 !important;}" +
       "html body .v-card.product-popup #ProductDescription br,html body .v-card.product-popup #ProductDescription .mmupi-feat-icon{display:none !important;}" +
       "html body .v-card.product-popup #ProductDescription .mmupi-feat{display:block !important;margin:0 !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app{padding:12px 16px 24px 20px !important;gap:20px !important;border-top:1px solid #F2F2F2;background:#FFFCF9 !important;}" +
       "html[lang^='ar'] body .v-card.product-popup #add_to_cart_hide_from_mobile_app{padding:12px 20px 24px 16px !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child{width:128px !important;height:52px !important;border-radius:999px !important;border:1px solid #E5E5E5 !important;background:#FFFCF9 !important;overflow:hidden;justify-content:space-between !important;padding:0 6px !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn{height:50px !important;border-radius:0 !important;background:transparent !important;}" +
-      "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn .v-btn__overlay{opacity:0 !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn:first-child *{color:#9E9E9E !important;fill:#9E9E9E !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child .v-btn:last-child *{color:#5A29DE !important;fill:#5A29DE !important;}" +
       "html body .v-card.product-popup #add_to_cart_hide_from_mobile_app>div:first-child input{font-size:16px !important;font-weight:600 !important;color:#1B2023 !important;}" +
@@ -2432,25 +1650,11 @@
          22px section titles, 2-col grid on #F5F5F5 tiles with 40px white + button.
          Also: space under the home "More stores near you" list so the last store clears the bottom nav. */
       "@media (max-width:959.98px){" +
-      "#hg-cat-rows{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2{box-shadow:none !important;background:transparent !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .merchant-header-img{top:0 !important;width:62px !important;height:62px !important;border:1px solid #E5E5E5 !important;border-radius:12px !important;box-shadow:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .header-content{background:transparent !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .header-content .v-card-text>div{margin:0 !important;padding:0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .header-content .v-card-text>div>div{margin-inline-start:74px !important;padding:0 !important;top:0 !important;min-height:62px !important;display:flex;flex-direction:column;justify-content:center;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .store-name{font-size:20px !important;font-weight:700 !important;line-height:1.25 !important;color:#1B2023 !important;letter-spacing:-.01em;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 #MerchantAddress{display:none !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .header-content .v-card-text>div>div>div:last-child{font-size:14px !important;font-weight:400 !important;color:#767676 !important;margin-top:4px;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4 span{font-weight:500 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div>div::before{content:none !important;display:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .merchant-floating-actions:not(.cover-scrolled) .merchant-floating-btn{background:#FFFCF9 !important;color:#1B2023 !important;box-shadow:0 0 0 1px #E5E5E5 !important;backdrop-filter:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-heading,.scheme-merchant-page.merchant-mobile-view h3.category-name{font-size:22px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:18px !important;padding-bottom:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav{border-bottom:1px solid #E5E5E5 !important;}" +
-      /* v77: the circle was stretching into an oval on some stores - width/min-width were pinned to 30px but
-         height had no min-height/max-height partner, the same flex-item auto-size gap found twice already this
-         session on .pro-card-h (v58/v60): a flex or inline-flex box (this button, or Vuetify's own .v-btn
-         internals) can expand past its declared height if nothing stops it. Pinning height fully now, same as
-         width, so it can't stretch either way. */
       /* v78: the stretched-oval "+" was still happening in sections whose exact ancestor markup we hadn't seen -
          confirmed via Adam's own DevTools inspect that the native button carries Tailwind "tw-h-[32px]" for
          height but NO width utility at all, so its width is whatever the padding+icon add up to - never square
@@ -2525,15 +1729,12 @@
          whole photo is on screen (its top part behind the see-through status bar). On the website the status-bar
          height is 0, so nothing changes there. */
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2>div:first-child{aspect-ratio:auto !important;height:200px !important;border-radius:0 0 24px 24px;margin:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2>.storefront-gutter{position:relative;margin:0 !important;padding:16px 16px 18px !important;min-height:0 !important;background:#FFFCF9;}" +
-      ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4{margin:12px 0 0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div{justify-content:flex-start !important;margin:0 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div{gap:0 6px;row-gap:2px;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>div>div{background:none !important;padding:0 !important;border-radius:0 !important;font-size:14px !important;color:#5C5C5C !important;}" +
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4 span,.scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4 div{color:#5C5C5C !important;font-weight:500 !important;font-size:14px !important;}" +
       /* cover sits under the phone status bar: no white strip over it, and no pull-down bounce at the top */
       /* v75: restored, matching v57 exactly */
-      "html:has(.scheme-merchant-page.merchant-mobile-view) .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:transparent !important;}" +
       ".scheme-merchant-page.merchant-mobile-view{overscroll-behavior-y:none !important;}" +
       /* merchant tagline: plain grey line under the info, no bordered box; first letter capital */
       ".scheme-merchant-page.merchant-mobile-view #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4{padding:0 !important;margin-top:10px !important;}" +
@@ -2544,8 +1745,6 @@
       ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-order-warning{border-radius:8px !important;padding:0 10px !important;box-shadow:0 2px 8px rgba(0,0,0,.12) !important;background:#FFF3E5 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-merchant-order-warning__text{font-size:13px !important;font-weight:600 !important;color:#9A4508 !important;}" +
       ".scheme-merchant-page.merchant-mobile-view .scheme-product-recommendation-section{margin-top:30px !important;margin-bottom:0 !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav a.scheme-category-primary-nav__item{font-size:14px !important;font-weight:500 !important;color:#5C5C5C !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view #ProductCategoriesNav a.scheme-category-primary-nav__item.is-active{color:#5A29DE !important;font-weight:600 !important;}" +
       "}" +
       /* ALL SIZES: every product tile is a perfect square (tall photos are cropped), and name + price sit right under it
          (no stretched gap when a neighbour has a longer name).
@@ -2565,79 +1764,9 @@
          v78: de-scoped from ".scheme-merchant-page" for the same reason as the grid-card block above - this card
          shows up outside a single shop's own page too, and per Adam it must be fixed everywhere, not per-shop. */
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card){box-shadow:none !important;border:0 !important;background:transparent !important;margin:0 !important;height:auto !important;min-height:0 !important;align-self:start !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card)>.v-card-text{padding:0 !important;height:auto !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .v-card-text>.tw-grid{display:flex !important;flex-direction:column-reverse !important;justify-content:flex-end !important;gap:10px !important;height:auto !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .v-card-text>.tw-grid>div{width:100% !important;padding:0 !important;height:auto !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .tw-justify-between{justify-content:flex-start !important;height:auto !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .rec-item-title{max-width:none !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img{position:relative !important;width:100% !important;height:0 !important;padding-bottom:100% !important;aspect-ratio:auto !important;margin:0 !important;border:0 !important;border-radius:14px !important;background:#F5F5F5 !important;overflow:hidden !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-cursor-pointer{position:absolute !important;inset:0 !important;height:100% !important;width:100% !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img .v-responsive{height:100% !important;width:100% !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img .v-responsive__sizer{padding-bottom:0 !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img img{object-fit:cover !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{left:auto !important;right:10px !important;bottom:10px !important;transform:none !important;z-index:2;}" +
-      "html[lang^='ar'] :is(.product-card-horizontal,.product-horizontal-cards>.v-card) .pro-card-h-img>.tw-absolute{right:auto !important;left:10px !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-product-btn{padding:0 !important;margin:0 !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn{width:29px !important;height:29px !important;min-width:29px !important;min-height:29px !important;padding:0 !important;border-radius:50% !important;background:#FFFCF9 !important;box-shadow:0 1px 4px rgba(0,0,0,.10) !important;font-size:0 !important;border:0 !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn svg{width:13px !important;height:13px !important;margin:0 !important;color:#5A29DE !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .add-btn svg *{stroke:#5A29DE !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .product-name{font-size:16px !important;font-weight:400 !important;color:#1B2023 !important;line-height:1.3 !important;margin:0 !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .product-description{display:none !important;}" +
-      ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price{margin-top:6px !important;}" +
       ":is(.product-card-horizontal,.product-horizontal-cards>.v-card) .price *{font-size:16px !important;font-weight:500 !important;color:#1B2023 !important;}" +
-      /* IN-STORE PRODUCT LIST (mobile, stores set to Hyperzod's "list" layout - the common case): compact single-column
-         rows instead of a 2-up grid of big square tiles - bigger photo left (fixed size), name/description/price on the
-         right with a tight photo-to-text gap and clear breathing room between the description and price. Only
-         ".cat-section .product-horizontal-cards.merchant-list-view" (the tabbed product listing) is touched -
-         "Recommended Products" uses a different container (".scheme-product-recommendation-section") and keeps its own
-         horizontal-scroll square-tile style, untouched.
-         Real DOM (confirmed live, not assumed): the add-to-cart button is NOT a sibling of the text block - it's nested
-         INSIDE .pro-card-h-img itself (Vuetify renders it absolutely positioned, centered under the photo, bleeding
-         below the photo's bottom edge by design for the square-tile layout). Left alone, that bleed is what was
-         reading as "dead space" between the photo and the text: the button floats in open space to the photo's right
-         instead of sitting on the photo. Fixed by pinning it fully inside the photo's bottom-right corner instead.
-         v60: measured the live row (not eyeballed) and found two more bugs behind the still-visible gap and the
-         cramped price:
-         1) .pro-card-h (the OUTER photo wrapper, not .pro-card-h-img which is the actual 108x108 image box inside
-            it) was only constrained with width/height, no min/max-width - so its flex-item auto-minimum-width (driven
-            by its own inner content) rendered it ~156px wide, ~48px wider than the 108px image sitting inside it.
-            That 48px of invisible wrapper padding, plus the 10px flex gap, is what was still reading as "dead space"
-            between the visible photo and the text (same min/max bug pattern as the earlier height fix, just on the
-            width axis this time). Pinning min-width/max-width to 108px too collapses the wrapper onto the image.
-         2) The text column (name/description/price) already ships its own "flex flex-col justify-between h-full"
-            Tailwind classes - built to pin the name to the top and the price to the bottom of the row - but our
-            tw-grid row had align-items:center, which sizes that column to its own content height instead of
-            stretching it to match the 108px photo. With no extra height to distribute, justify-content:space-between
-            had nothing to do, so the price just sat directly under the description. Switching to align-items:stretch
-            lets that column fill the full 108px and its own space-between do what it was already built to do. */
-      /* Vuetify's v-img sets an inline padding-bottom % on its own internal sizer div based on the actual photo's
-         aspect ratio (e.g. a tall product photo -> a tall sizer), and that in turn drives a dynamic min-height on
-         this wrapper - taller than our fixed box whenever a photo isn't square, which is what was overriding a plain
-         height (min-height always wins over height when it's the bigger of the two). Pin min/max too, and clip the
-         now-oversized inner sizer so nothing pokes out past the box. */
-      /* Add button: pin fully inside the photo's bottom-right corner (was centered and bleeding below the photo,
-         which is what got clipped into a stray floating shape by the overflow:hidden above and read as clutter/dead
-         space between the photo and the text). Also strip its wrapper's built-in padding/negative-margin so it sits
-         flush in the corner instead of offset. */
-      /* No manual margin-top here anymore - the column's own justify-content:space-between (freed up above) now
-         does the work of pushing the price to the bottom of the row on its own. */
-      /* CHECKOUT BAR: native floating pill (small, centered, gap below it, no price) -> full-width bar flush to the
-         very bottom, purple gradient, rounded only on the top edge (reads as pinned, not floating). Own content is
-         hidden and our .hg-co-bar (built in applyCheckoutBar()) takes over the whole clickable area - the button's
-         own click handler is untouched, only what's painted inside it changes. */
-      ".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar{position:fixed !important;left:0 !important;right:0 !important;bottom:0 !important;top:auto !important;width:100% !important;max-width:100% !important;transform:none !important;border-radius:18px 18px 0 0 !important;height:auto !important;min-height:60px !important;padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px)) 18px !important;display:flex !important;align-items:center !important;justify-content:center !important;background:linear-gradient(135deg,#6C35F0,#5A29DE) !important;box-shadow:0 -6px 24px rgba(90,41,222,.28) !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar .v-btn__prepend,.scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar .v-btn__content{display:none !important;}" +
-      ".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar .v-btn__overlay,.scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill.hg-checkout-bar .v-btn__underlay{border-radius:inherit !important;}" +
-      ".hg-co-bar{display:flex !important;align-items:center !important;justify-content:space-between !important;width:100%;position:relative;z-index:1;}" +
-      ".hg-co-left{display:flex;align-items:center;gap:10px;}" +
-      ".hg-co-cart{position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#fff;}" +
-      ".hg-co-cart svg{width:21px;height:21px;}" +
-      ".hg-co-badge{position:absolute;top:-8px;right:-9px;min-width:17px;height:17px;padding:0 4px;background:#FFFCF9;color:#5A29DE;font-size:10.5px;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1;box-sizing:border-box;}" +
-      ".hg-co-label{color:#fff;font-weight:700;font-size:15px;}" +
-      ".hg-co-right{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;}" +
-      ".hg-co-strike{color:rgba(255,255,255,.62);font-size:11px;text-decoration:line-through;}" +
-      ".hg-co-price{color:#fff;font-weight:800;font-size:16.5px;}" +
-      "html[lang^='ar'] .hg-co-badge{right:auto;left:-9px;}" +
       /* SORT & FILTERS sheet: our tokens (18px bold title, purple active tab + indicator, 11.5px uppercase label, 50px rows,
          purple radios, pill Clear/Apply). STORE "- 1 +" after tapping +: white pill with purple -/+ and a dark number (was white on white) */
       "html body [data-color-scheme] .scheme-filter-host{border-radius:22px 22px 0 0 !important;overflow:hidden !important;}" +
@@ -2647,10 +1776,8 @@
       "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-divider{background:#F0F0F0 !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-rail{background:#FAFAFA !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-tab{padding:0 14px !important;}" +
-      "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-tab span:last-child{font-size:14px !important;font-weight:500 !important;color:#5C5C5C !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-tab--active{background:#FFFCF9 !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-tab--active span:last-child{color:#5A29DE !important;font-weight:600 !important;}" +
-      "html body [data-color-scheme] .scheme-filter-panel .scheme-filter-active-indicator{background:#5A29DE !important;width:3px !important;border-radius:2px !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .filter-sheet__content .tw-uppercase{font-size:11.5px !important;letter-spacing:.08em !important;color:#8A849C !important;font-weight:600 !important;margin-bottom:6px !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .filter-row{min-height:50px !important;border-bottom:1px solid #F0F0F0 !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .filter-row:last-child{border-bottom:0 !important;}" +
@@ -2658,11 +1785,9 @@
       "html body [data-color-scheme] .scheme-filter-panel .v-selection-control__input .v-icon{color:#C9C3D9 !important;opacity:1 !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .v-selection-control--dirty .v-selection-control__input .v-icon{color:#5A29DE !important;}" +
       "html body [data-color-scheme] .scheme-filter-panel .v-selection-control--dirty .v-label{font-weight:600 !important;}" +
-      "html body [data-color-scheme] .scheme-filter-panel .v-selection-control__input::before{opacity:0 !important;}" +
       "html body [data-color-scheme] .scheme-filter-footer{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)) !important;border-top:1px solid #F0F0F0 !important;gap:12px !important;}" +
       "html body [data-color-scheme] .scheme-filter-footer .v-btn{height:50px !important;border-radius:999px !important;font-size:15px !important;font-weight:600 !important;letter-spacing:0 !important;text-transform:none !important;box-shadow:none !important;}" +
       "html body [data-color-scheme] .scheme-filter-footer .scheme-filter-clear{border:1px solid #E5E5E5 !important;color:#1B2023 !important;background:#FFFCF9 !important;}" +
-      "html body [data-color-scheme] .scheme-filter-footer .scheme-filter-clear .v-btn__overlay,html body [data-color-scheme] .scheme-filter-footer .scheme-filter-apply .v-btn__overlay{opacity:0 !important;}" +
       "html body [data-color-scheme] .scheme-filter-footer .scheme-filter-apply{background:#5A29DE !important;color:#fff !important;border:0 !important;}" +
       "html body [data-color-scheme] .scheme-filter-footer .scheme-filter-apply *{color:#fff !important;}" +
       "html body [data-color-scheme] .scheme-merchant-page .counter-btn{--counter-w:104px;width:104px !important;height:40px !important;border-radius:999px !important;background:#FFFCF9 !important;box-shadow:0 2px 8px rgba(0,0,0,.16) !important;justify-content:space-between !important;padding:0 4px !important;margin-inline-start:auto;}" +
@@ -2670,8 +1795,6 @@
       "html body [data-color-scheme] .scheme-merchant-page .counter-btn svg,html body [data-color-scheme] .scheme-merchant-page .counter-btn svg *{color:#5A29DE !important;stroke:#5A29DE !important;}" +
       "html body [data-color-scheme] .scheme-merchant-page .counter-btn .counter-input{background:transparent !important;color:#1B2023 !important;font-size:15px !important;font-weight:700 !important;width:auto !important;flex:1 !important;}" +
       "html body [data-color-scheme] .scheme-merchant-page .counter-btn .counter-input *{color:#1B2023 !important;}" +
-      "html body .scheme-merchant-page .pro-card-h-img>.tw-absolute:has(.counter-btn){left:auto !important;right:10px !important;transform:none !important;}" +
-      "html body .scheme-merchant-page .pro-card-h-img>.tw-absolute .add-product-btn:has(.counter-btn){padding:0 !important;margin:0 !important;}" +
       /* desktop: our header scrolls away, so the sticky category bar must stick to the very top until Hyperzod's own
          store bar (#MerchantStickyHeader, 96px) appears - otherwise it floated 64px down with products showing above it */
       "@media (min-width:960px){.scheme-merchant-page:not(.merchant-mobile-view) #mobileStickyHeader{top:0 !important;background:#FFFCF9 !important;}" +
@@ -2681,13 +1804,6 @@
          store page: contained 1200x320 banner (20px corners), 88px logo, 28px name, tabs under the info, Recommended under the tabs,
          5-col product tiles; category pages: purple title band + 3-col list rows; product modal: no top price, pill Add Item bar. */
       "@media (min-width:960px){" +
-      "#hg-cat-rows{max-width:1200px;margin:8px auto 40px !important;padding:0 24px 40px !important;box-sizing:border-box;}" +
-      "#hg-cat-rows .hg-cr-h{padding:0 !important;}" +
-      "#hg-cat-rows .hg-cr-t{font-size:22px !important;}" +
-      "#hg-cat-rows .hg-cr-s,#hg-cat-rows .hg-cr-s.two{grid-auto-flow:row !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;grid-template-rows:none !important;grid-auto-columns:auto !important;overflow:visible !important;padding:2px 0 4px !important;gap:18px !important;}" +
-      "#hg-cat-rows .hg-ml{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;padding:0 !important;}" +
-      "#hg-cat-rows .hg-ml>.hg-cr-t{grid-column:1/-1;}" +
-      "#hg-cat-rows .hg-mr:last-child{border-bottom:1px solid #F0F0F0;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view){display:flex !important;flex-direction:column !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view)>*{flex:none;width:100%;order:9;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view)>.scheme-merchant-products-section{display:contents !important;}" +
@@ -2701,28 +1817,18 @@
          at 3:1 (about 1200x400): only a thin strip at the top and bottom of a 2:1 image is trimmed, the middle (logo, text) stays.
          !important on height, min-height, max-height, max-width and margin only to beat the earlier fixed height and any Hyperzod
          size on .cover-image. */
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.cover-image{height:auto !important;min-height:0 !important;max-height:none !important;aspect-ratio:3/1;width:100%;max-width:none !important;margin:0 !important;border-radius:20px;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.cover-image img{object-fit:cover !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2>.storefront-gutter{padding:20px 0 0 !important;min-height:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .merchant-header-img{top:0 !important;width:88px !important;height:88px !important;border:1px solid #E5E5E5 !important;border-radius:16px !important;box-shadow:none !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content{background:transparent !important;margin:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div{margin:0 !important;padding:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div>div{margin-inline-start:104px !important;padding:0 !important;top:0 !important;min-height:88px !important;display:flex;flex-direction:column;justify-content:center;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .store-name{font-size:28px !important;font-weight:700 !important;line-height:1.25 !important;color:#1B2023 !important;letter-spacing:-.01em;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 #MerchantAddress{display:none !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .header-content .v-card-text>div>div>div:last-child{font-size:15px !important;font-weight:400 !important;color:#767676 !important;margin-top:4px;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4{margin:14px 0 0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>div:first-child{margin:0 !important;gap:0 8px;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4 span,.scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4 div{color:#5C5C5C !important;font-weight:500 !important;font-size:15px !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4{padding:0 !important;margin-top:8px !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4>div{border:0 !important;background:none !important;border-radius:0 !important;padding:0 !important;text-align:start !important;font-weight:400 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-header-v2 .storefront-gutter>.tw-mt-4>.tw-px-4>div::first-letter{text-transform:uppercase;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav{border-bottom:1px solid #E5E5E5 !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav .product-categories-nav__scroller{padding-inline:max(var(--hg-gut,48px),calc((100% - var(--hg-page,1600px)) / 2)) !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav a.scheme-category-primary-nav__item{font-size:15px !important;font-weight:500 !important;color:#5C5C5C !important;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav a.scheme-category-primary-nav__item.is-active{color:#5A29DE !important;font-weight:600 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section,.scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter{max-width:var(--hg-page,1600px);margin-left:auto !important;margin-right:auto !important;padding-left:var(--hg-gut,48px) !important;padding-right:var(--hg-gut,48px) !important;box-sizing:content-box;}" +
-      ".scheme-merchant-page:not(.merchant-mobile-view) #merchant-content>.storefront-gutter>div{padding-left:0 !important;padding-right:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-section{margin-top:44px !important;margin-bottom:0 !important;}" +
       ".scheme-merchant-page:not(.merchant-mobile-view) .scheme-product-recommendation-heading,.scheme-merchant-page:not(.merchant-mobile-view) h3.category-name{font-size:26px !important;font-weight:700 !important;color:#1B2023 !important;letter-spacing:-.01em;margin-bottom:22px !important;padding-bottom:0 !important;}" +
       "#merchants_by_category .v-container{max-width:1248px !important;}" +
@@ -2752,7 +1858,6 @@
       ".product-popup.product-model .v-card-actions{padding:12px 20px !important;gap:16px !important;border-top:1px solid #F2F2F2 !important;}" +
       ".product-popup.product-model .v-card-actions>div:first-child{width:127px !important;height:50px !important;border-radius:999px !important;border:1px solid #E5E5E5 !important;background:#FFFCF9 !important;overflow:hidden;justify-content:space-between !important;padding:0 6px !important;}" +
       ".product-popup.product-model .v-card-actions>div:first-child .v-btn{height:48px !important;background:transparent !important;}" +
-      ".product-popup.product-model .v-card-actions>div:first-child .v-btn .v-btn__overlay{opacity:0 !important;}" +
       ".product-popup.product-model .v-card-actions>div:first-child .v-btn:first-child *{color:#9E9E9E !important;fill:#9E9E9E !important;}" +
       ".product-popup.product-model .v-card-actions>div:first-child .v-btn:last-child *{color:#5A29DE !important;fill:#5A29DE !important;}" +
       ".product-popup.product-model .v-card-actions>div:first-child input{font-size:17px !important;font-weight:600 !important;color:#1B2023 !important;}" +
@@ -2762,28 +1867,6 @@
       "}";
     document.head.appendChild(st);
 
-    /* v88 HOME BASE — screenshot-tuned spacing, category labels and white canvas
-       (2026-10-20): website only - the Home selectors start with :where(html:not(.hg-new-app)), which adds no specificity, so the
-       website is unchanged and the app's new Home (app-new.css) no longer has to beat them. The page canvas colour
-       (body/#app on Home) stays for both, so the app's background does not change. The v81-v87 clean-up loop was removed. */
-    if (!document.getElementById("hg-home-v88")) {
-      const H = ":where(html:not(.hg-new-app)) ";
-      const home = document.createElement("style");
-      home.id = "hg-home-v88";
-      home.textContent =
-        "body:has(#MultiVendorHome),#app:has(#MultiVendorHome)," + H + "#MultiVendorHome," + H + "#MultiVendorHome .page-builder-section-surface," + H + "#ProductCategories{background:#FFFCF9 !important;}" +
-        "@media (max-width:959.98px){" +
-        H + "#MultiVendorHome{background:#FFFCF9 !important;color:#1B2023 !important;}" +
-        H + "#MultiVendorHome .page-builder-section-surface{margin-bottom:32px !important;}" +
-        H + "#ProductCategories{margin:6px 0 24px !important;padding-top:2px !important;}" +
-        H + "#ProductCategories>.tw-px-4{padding-left:16px !important;padding-right:16px !important;padding-bottom:0 !important;}" +
-        H + "#ProductCategories .tw-grid{gap:9px 10px !important;}" +
-        H + "#ProductCategories .tw-aspect-square{border-radius:11px !important;background:transparent !important;box-shadow:none !important;overflow:hidden !important;}" +
-        H + "#ProductCategories .tw-h-10{display:block !important;height:auto !important;min-height:0 !important;margin-top:5px !important;font-size:11px !important;line-height:13px !important;font-weight:650 !important;color:#1B2023 !important;text-align:center !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}" +
-        H + "#MultiVendorHome .v-divider{border-color:#EAE7EE !important;}" +
-        "}";
-      document.head.appendChild(home);
-    }
   }
 
   /* purple status strip + purple bar on the search page (mobile/app) */
@@ -2800,26 +1883,6 @@
     else if (mobile && cl.contains("hg-search-page") && Date.now() - hgSearchSeenAt < 600 &&
       !document.querySelector("#MultiVendorHome, .scheme-merchant-page, .scheme-profile-page, .scheme-merchant-search-page")) on = true;
     if (cl.contains("hg-search-page") !== on) cl.toggle("hg-search-page", on);
-  }
-
-  /* search page (English): friendlier section title.
-     (2026-10-20): the text is changed in place (Vue keeps its own text node), and it also runs from the pre-paint account
-     observer when the search screen is (re)built, so "Categories" no longer flashes first when going Back to Search. */
-  function hgSearchHeading() {
-    const root = document.getElementById("MultiVendorSearch");
-    if (!root || hgIsAr()) return;
-    const h = root.querySelector(".recent-searches>div:has(+ .tw-grid)>div") || root.querySelector(".recent-searches>div:has(+ .tw-grid)");
-    if (h && h.children.length === 0 && /^\s*(shop by categor(y|ies)|categories)\s*$/i.test(h.textContent) && h.textContent.trim() !== "Shop by category") {
-      const texts = Array.prototype.filter.call(h.childNodes, (n) => n.nodeType === 3);
-      const main = texts.find((n) => n.nodeValue.trim()) || texts[0];
-      if (!main) { h.textContent = "Shop by category"; return; }
-      texts.forEach((n) => { if (n !== main && n.nodeValue) n.nodeValue = ""; });
-      main.nodeValue = "Shop by category";
-    }
-  }
-  function applySearchPage() {
-    syncSearchClass();
-    hgSearchHeading();
   }
 
   /* MY ORDERS opened from Account has no back button (Hyperzod treats it as a root tab) -> add one */
@@ -2868,421 +1931,7 @@
     { passive: true }
   );
 
-  /* SEARCH PAGE back button: it sits inside the search field, so Vuetify focuses the input on press. On iPhone that pops the keyboard
-     toolbar (arrows + Done) and flashes the screen before the page changes. Stop that press reaching Vuetify; the tap itself still goes back. */
-  document.addEventListener(
-    "mousedown",
-    (e) => {
-      const t = e.target;
-      if (t && t.closest && t.closest("#MultiVendorSearch .mobile-search-input .v-field__prepend-inner")) e.stopPropagation();
-    },
-    true
-  );
-
-  /* PULL TO REFRESH (Home): the header never moves. Pulling down at the top slides the HyperGo logo along under the header
-     (following the finger, smoothed); at the end the home content reloads IN PLACE (no page reload) while the logo drifts
-     back and forth on a faint line; then everything eases away. Deliberately soft and slow. */
-  (function initPullToRefresh() {
-    const FINGER = 230;      /* px of finger travel until the refresh starts (a deliberate pull, not a nudge) */
-    const GAP = 30;          /* px the content is pushed down to make room for the goo */
-    const MIN_LOAD = 700;    /* ms the loading state is shown at least, so it never flashes by */
-    let st = null, busy = false, ind = null;
-    const cur = { s: 0, p: 0 }, tgt = { s: 0, p: 0 };
-    let raf = 0, last = 0, tau = 90, wantTrigger = false, closing = false;
-
-    function els() {
-      if (hgNewDesign()) return null; /* the new Home (app-new.js) has no pull-to-refresh yet */
-      const home = document.getElementById("MultiVendorHome");
-      if (!home) return null;
-      const hdr = document.getElementById("MultiVendorHeaderRoot");
-      const main = home.querySelector(":scope > main");
-      return home && hdr && main ? { home, hdr, main } : null;
-    }
-    function overlayOpen() {
-      return !!document.querySelector(".v-overlay--active, .scheme-side-panel--open, #hg-lang-veil");
-    }
-    function ensureInd(e) {
-      if (!ind || !ind.isConnected) {
-        ind = document.createElement("div");
-        ind.id = "hg-ptr";
-        ind.innerHTML =
-          '<svg class="hg-goo" viewBox="0 0 60 24" width="60" height="24" aria-hidden="true"><defs>' +
-          '<filter id="hg-goo-f" filterUnits="userSpaceOnUse" x="0" y="0" width="60" height="24" color-interpolation-filters="sRGB">' +
-          '<feGaussianBlur in="SourceGraphic" stdDeviation="2"/>' +
-          '<feColorMatrix mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8"/></filter></defs>' +
-          '<g filter="url(#hg-goo-f)"><circle class="g0" cx="30" cy="12" r="1"/><circle class="g1" cx="30" cy="12" r="1"/><circle class="g2" cx="30" cy="12" r="1"/></g></svg>';
-      }
-      if (ind.parentNode !== e.home) e.home.insertBefore(ind, e.main);
-      ind.style.top = e.hdr.getBoundingClientRect().bottom - e.home.getBoundingClientRect().top + e.home.scrollTop + "px";
-      ind.style.display = "block";
-      return ind;
-    }
-    function paint(e, s, p) {
-      ensureInd(e);
-      /* Vuetify puts a .2s transition on v-main: keep only the opacity fade, movement is smoothed here.
-         (2026-10-20): the per-frame zoom read is gone; no zoom is set on v-main any more (HG_ZOOM removed). */
-      e.main.style.transition = "opacity .5s ease";
-      e.main.style.transform = s > 0.1 ? "translate3d(0," + s.toFixed(2) + "px,0)" : "";
-      ind.style.height = Math.max(0, s).toFixed(2) + "px";
-      ind.style.opacity = String(Math.max(0, Math.min(1, (s - 8) / 20)));
-      /* a small piece of goo: grows and stretches a little as you pull; while loading the CSS animation moves the three drops */
-      const cs = ind.querySelectorAll("circle");
-      const r = (1 + 2.4 * p).toFixed(2);
-      for (let i = 0; i < cs.length; i++) {
-        cs[i].setAttribute("r", r);
-        if (!ind.classList.contains("hg-loading")) cs[i].style.transform = "translateX(" + ((i === 1 ? 1 : i === 2 ? -1 : 0) * p * 3.5).toFixed(2) + "px)";
-      }
-    }
-    function tick(now) {
-      raf = 0;
-      const e = els();
-      if (!e) { cur.s = cur.p = tgt.s = tgt.p = 0; closing = false; if (ind) ind.style.display = "none"; return; }
-      const dt = Math.min(48, now - (last || now)); last = now;
-      const k = 1 - Math.exp(-dt / tau);
-      cur.s += (tgt.s - cur.s) * k;
-      cur.p += (tgt.p - cur.p) * k;
-      if (Math.abs(tgt.s - cur.s) < 0.08) cur.s = tgt.s;
-      if (Math.abs(tgt.p - cur.p) < 0.002) cur.p = tgt.p;
-      paint(e, cur.s, cur.p);
-      if (wantTrigger && cur.p >= 0.985) { wantTrigger = false; doRefresh(e); }
-      if (cur.s !== tgt.s || cur.p !== tgt.p) { raf = requestAnimationFrame(tick); return; }
-      last = 0;
-      if (tgt.s === 0 && !busy) {           /* fully closed: clean up */
-        e.main.style.transform = ""; e.main.style.opacity = ""; e.main.style.transition = "";
-        if (ind) { ind.style.display = "none"; ind.classList.remove("hg-loading"); ind.classList.remove("hg-done"); }
-        closing = false;
-      }
-    }
-    function go(s, p, t) {
-      tgt.s = s; tgt.p = p; tau = t;
-      if (!raf) { last = 0; raf = requestAnimationFrame(tick); }
-    }
-    function findHome() {
-      /* Vue (production) hides component instances; reach the home component through the mounted vnode tree */
-      const isHome = (inst) => inst.type && inst.type.methods && inst.type.methods.getHomeData;
-      const home = document.getElementById("MultiVendorHome");
-      let c = home && home.__vueParentComponent;
-      for (let i = 0; c && i < 10; i++, c = c.parent) {
-        if (isHome(c)) return c;
-      }
-      return findVueComponent(isHome, 90); /* (2026-10-20): shared walker */
-    }
-    function doRefresh(e) {
-      busy = true; closing = false;
-      ensureInd(e);
-      ind.classList.add("hg-loading");
-      ind.querySelectorAll("circle").forEach((c) => { c.style.transform = ""; });   /* the CSS animation takes over */
-      e.main.style.opacity = ".9";
-      go(GAP, 1, 200);
-      const t0 = Date.now();
-      let p = Promise.resolve();
-      try {
-        const c = findHome();
-        if (c && c.proxy && c.proxy.selectedLocation && typeof c.proxy.getHomeData === "function") {
-          p = Promise.resolve(c.proxy.getHomeData(c.proxy.selectedLocation));
-        }
-      } catch (err) { p = Promise.resolve(); }
-      let done = false;
-      const finish = () => {
-        if (done) return; done = true;
-        setTimeout(() => {
-          const e2 = els();
-          busy = false; closing = true;
-          /* reload finished: stop the goo animation right away (drops merge back together) and ease everything away */
-          if (ind) {
-            ind.classList.remove("hg-loading"); ind.classList.add("hg-done");
-            ind.querySelectorAll("circle").forEach((c) => { c.style.transform = "translateX(0)"; });
-          }
-          if (e2) e2.main.style.opacity = "1";
-          go(0, 0, 130);
-          if (!e2 && ind) ind.style.display = "none";
-        }, Math.max(0, MIN_LOAD - (Date.now() - t0)));
-      };
-      p.then(finish, finish);
-      setTimeout(finish, 9000);
-    }
-
-    const app = document.getElementById("app");
-    if (!app) return;
-    /* (2026-10-20): not with the new design - its touchmove listener below is non-passive and made every scroll wait for the
-       main thread, while doing nothing there (els() returns null with the new Home). */
-    if (hgNewDesign()) return;
-    app.addEventListener("touchstart", (ev) => {
-      st = null;
-      if (busy || closing || ev.touches.length !== 1) return;
-      const e = els();
-      if (!e || !e.home.contains(ev.target) || overlayOpen()) return;
-      st = { x: ev.touches[0].clientX, y: e.home.scrollTop <= 0 ? ev.touches[0].clientY : null, active: false };
-    }, { passive: true });
-    app.addEventListener("touchmove", (ev) => {
-      if (!st || busy) return;
-      const e = els();
-      if (!e) { st = null; return; }
-      const t = ev.touches[0];
-      if (e.home.scrollTop > 0) { if (st.active) { st.active = false; wantTrigger = false; go(0, 0, 90); } st.y = null; return; }
-      if (st.y === null) { st.y = t.clientY; return; }
-      const dy = t.clientY - st.y, dx = Math.abs(t.clientX - st.x);
-      if (!st.active && (dy < 10 || dx > dy)) return;
-      if (dy <= 0) { if (st.active) { st.active = false; wantTrigger = false; go(0, 0, 90); } return; }
-      st.active = true;
-      if (ev.cancelable) ev.preventDefault();   /* stops the native rubber-band: the header stays put */
-      const progress = Math.min(1, dy / FINGER);
-      const ease = 1 - Math.pow(1 - progress, 1.6);   /* gap opens gently, then settles */
-      go(GAP * ease, progress, 90);
-      if (progress >= 1) { wantTrigger = true; st = null; }
-    }, { passive: false });
-    const end = () => {
-      if (st && st.active && !busy) { wantTrigger = false; closing = true; go(0, 0, 170); }
-      st = null;
-    };
-    app.addEventListener("touchend", end, { passive: true });
-    app.addEventListener("touchcancel", end, { passive: true });
-  })();
-
-  /* HOME: one horizontal row per merchant category (Talabat-style), replacing the long "Nearby Merchants" list.
-     Data comes from Hyperzod's own home data in the store (state.homeData: merchants + merchant_categories),
-     so no extra API calls. Rows follow the category sort order; empty categories are skipped. */
-  function hgCatStyle() {
-    const current = document.getElementById("hg-cat-style");
-    if (current && current.dataset.v === "93") return;
-    if (current) current.remove();
-    const st = document.createElement("style");
-    st.id = "hg-cat-style";
-    st.dataset.v = "93";
-    st.textContent =
-      "#NearbyMerchants.hg-cat-hidden{display:none !important;}" +
-      ".hg-rec-hidden{display:none !important;}" +
-      "#hg-cat-rows{margin:4px 0 38px;background:#FFFCF9;font-family:inherit;color:#1B2023;}" +
-      "#hg-cat-rows *{box-sizing:border-box;}" +
-      "#hg-cat-rows a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;}" +
-      /* HOME HERO (polished): layered purple gradient with sheen + darker text edge, soft gradient circles cropped by the edge,
-         glass logo tiles (2-4deg tilt, equal spacing, slight overlap), frosted chips, Opus text, gentle fade-in. Mirrors in RTL. */
-      "@keyframes hgHeroIn{from{opacity:0}to{opacity:1}}" +
-      "#hg-cat-rows .hg-hero{position:relative;overflow:hidden;isolation:isolate;margin:4px 16px 30px;padding:24px 20px 20px;min-height:168px;border-radius:20px;background:radial-gradient(120% 90% at 20% -10%,rgba(204,203,227,.10),rgba(204,203,227,0) 55%),linear-gradient(115deg,rgba(204,203,227,0) 34%,rgba(204,203,227,.07) 46%,rgba(204,203,227,.13) 50%,rgba(204,203,227,.07) 54%,rgba(204,203,227,0) 66%),linear-gradient(90deg,rgba(34,14,110,.42) 0%,rgba(34,14,110,0) 38%),linear-gradient(120deg,#4D22C7 0%,#5A29DE 45%,#6C35E8 72%,#8640FC 100%);color:#EEEDF7;box-shadow:inset 0 0 0 1px rgba(204,203,227,.20),inset 0 1px 0 rgba(238,237,247,.28),0 12px 28px -14px rgba(52,22,150,.55);animation:hgHeroIn .7s ease-out both;}" +
-      "html[dir='rtl'] #hg-cat-rows .hg-hero{background:radial-gradient(120% 90% at 80% -10%,rgba(204,203,227,.10),rgba(204,203,227,0) 55%),linear-gradient(245deg,rgba(204,203,227,0) 34%,rgba(204,203,227,.07) 46%,rgba(204,203,227,.13) 50%,rgba(204,203,227,.07) 54%,rgba(204,203,227,0) 66%),linear-gradient(270deg,rgba(34,14,110,.42) 0%,rgba(34,14,110,0) 38%),linear-gradient(240deg,#4D22C7 0%,#5A29DE 45%,#6C35E8 72%,#8640FC 100%);}" +
-      "#hg-cat-rows .hg-hero:before{content:'';position:absolute;z-index:0;width:100px;height:100px;border-radius:50%;inset-inline-end:-42px;top:-50px;background:radial-gradient(circle at 32% 30%,#FF9A5E 0%,#FF6A2A 45%,#FF4000 78%,#E23A04 100%);box-shadow:inset 0 -8px 18px rgba(120,20,0,.22),0 0 40px rgba(255,64,0,.22);opacity:.92;}" +
-      "#hg-cat-rows .hg-hero:after{content:'';position:absolute;z-index:0;width:100px;height:100px;border-radius:50%;inset-inline-end:24px;bottom:-62px;background:radial-gradient(circle at 36% 28%,#D6F4D4 0%,#ACE4AA 50%,#8DD08B 100%);box-shadow:inset 0 6px 14px rgba(238,237,247,.18),0 0 36px rgba(172,228,170,.22);opacity:.9;}" +
-      "#hg-cat-rows .hg-hero-copy{position:relative;z-index:2;max-width:86%;}" +
-      "#hg-cat-rows .hg-hero-k{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CCCBE3;margin-bottom:8px;}" +
-      "#hg-cat-rows .hg-hero-h{font-size:28px;font-weight:700;line-height:1.08;letter-spacing:-.025em;color:#EEEDF7;max-width:280px;text-shadow:0 1px 1px rgba(27,14,80,.28),0 8px 24px rgba(27,14,80,.30);}" +
-      "#hg-cat-rows .hg-hero-p{font-size:14px;line-height:1.4;margin-top:10px;color:#CCCBE3;max-width:260px;}" +
-      "html[dir='rtl'] #hg-cat-rows :is(.hg-hero-k,.hg-hero-h){letter-spacing:0;}" +
-      "#hg-cat-rows .hg-hero-links{position:relative;z-index:3;display:flex;gap:8px;overflow-x:auto;margin-top:18px;padding:2px 0 3px;scrollbar-width:none;}" +
-      "#hg-cat-rows .hg-hero-links::-webkit-scrollbar{display:none;}" +
-      "#hg-cat-rows .hg-hero-link{flex:0 0 auto;display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:999px;background:rgba(204,203,227,.16);border:1px solid rgba(204,203,227,.42);box-shadow:inset 0 1px 0 rgba(238,237,247,.20);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);font-size:12.5px;font-weight:600;line-height:1;color:#EEEDF7;transition:background-color .2s ease,border-color .2s ease,transform .2s ease;}" +
-      "@media (hover:hover){#hg-cat-rows .hg-hero-link:hover{background:rgba(204,203,227,.30);border-color:rgba(238,237,247,.65);transform:translateY(-1px);}}" +
-      "#hg-cat-rows .hg-hero-logos{position:relative;z-index:2;display:flex;align-items:center;width:max-content;height:64px;margin-top:18px;padding-inline-start:2px;}" +
-      "#hg-cat-rows .hg-hero-logos:before{content:'';position:absolute;z-index:-1;inset:-70% -35%;border-radius:50%;background:radial-gradient(closest-side,rgba(214,212,240,.38),rgba(204,203,227,.12) 55%,rgba(204,203,227,0));pointer-events:none;}" +
-      "#hg-cat-rows .hg-hero-logo{position:relative;flex:0 0 auto;width:54px;height:54px;padding:6px;border-radius:14px;background-color:#EFEEF7;background-origin:content-box;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid rgba(250,250,254,.75);box-shadow:inset 0 1px 0 rgba(250,250,254,.95),0 1px 2px rgba(27,14,80,.18),0 6px 14px -4px rgba(27,14,80,.30),0 16px 30px -12px rgba(27,14,80,.40);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){transform:rotate(-3deg);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(2){margin-inline-start:-6px;transform:rotate(3deg);z-index:1;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){margin-inline-start:-6px;transform:rotate(-2deg);}" +
-      "#hg-cat-rows .hg-sec{margin:0 0 32px;}" +
-      "#hg-cat-rows .hg-sec.soft{padding:2px 0 4px;background:#FFFCF9;}" +
-      "#hg-cat-rows .hg-sec-h{display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-bottom:12px;gap:12px;}" +
-      "#hg-cat-rows .hg-sec-title{font-size:17.5px;font-weight:760;line-height:1.18;letter-spacing:-.018em;}" +
-      "#hg-cat-rows .hg-sec-sub{font-size:11.5px;color:#77727F;margin-top:3px;}" +
-      "#hg-cat-rows .hg-all{flex:0 0 auto;color:#5A29DE;font-size:12px;font-weight:750;white-space:nowrap;padding:5px 9px;border-radius:999px;background:#F6F2FF;border:1px solid #E9E0FF;line-height:1;}" +
-      "#hg-cat-rows .hg-all:after{content:'' !important;display:none !important;}" +
-      "#hg-cat-rows .hg-feature-rail{display:flex;gap:11px;overflow-x:auto;padding:1px 16px 3px;scroll-snap-type:x mandatory;scroll-padding-inline:16px;scrollbar-width:none;}" +
-      "#hg-cat-rows .hg-feature-rail::-webkit-scrollbar,#hg-cat-rows .hg-brand-grid::-webkit-scrollbar{display:none;}" +
-      "#hg-cat-rows .hg-feature{flex:0 0 158px;scroll-snap-align:start;background:#FFFCF9;border:1px solid #ECEAEF;border-radius:15px;overflow:hidden;box-shadow:0 1px 2px rgba(27,32,35,.02);}" +
-      "#hg-cat-rows .hg-feature-img{height:100px;background:#F7F7F8 center/cover no-repeat;}" +
-      "#hg-cat-rows .hg-feature-body{padding:8px 9px 9px;min-height:54px;}" +
-      "#hg-cat-rows .hg-feature-name{font-size:12.5px;font-weight:710;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      "#hg-cat-rows .hg-meta{font-size:11.5px;color:#77727F;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      "#hg-cat-rows .hg-meta .dot{margin:0 4px;color:#AAA4B0;}" +
-      "#hg-cat-rows .hg-brand-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:68px;gap:13px 11px;overflow-x:auto;padding:1px 16px 3px;scroll-snap-type:x mandatory;scroll-padding-inline:16px;scrollbar-width:none;}" +
-      "#hg-cat-rows .hg-brand{width:68px;text-align:center;scroll-snap-align:start;}" +
-      "#hg-cat-rows .hg-brand-img{width:68px;height:68px;border-radius:14px;background-color:#FFFCF9;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid #ECEAEF;box-shadow:0 1px 2px rgba(27,32,35,.018);}" +
-      "#hg-cat-rows .hg-brand-name{font-size:10px;font-weight:650;line-height:1.2;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      "#hg-cat-rows .hg-cat-block{position:relative;margin:0 0 31px;padding:0 0 2px;}" +
-      /* (2026-10-20): RTL - accent bar on the start side (was left:0 in Arabic too); same look in English */
-      "#hg-cat-rows .hg-cat-block:before{content:'';position:absolute;inset-inline-start:0;top:-10px;width:3px;height:30px;border-radius:0;border-start-end-radius:4px;border-end-end-radius:4px;background:#5A29DE;opacity:.82;}" +
-      "#hg-cat-rows .hg-cat-block + .hg-cat-block{border-top:1px solid #F2F0F3;padding-top:24px;}" +
-      "#hg-cat-rows .hg-cat-block + .hg-cat-block:before{top:14px;}" +
-      "#hg-cat-rows .hg-logo-rail{display:flex;gap:12px;overflow-x:auto;padding:1px 16px 3px 18px;scroll-snap-type:x mandatory;scroll-padding-inline:18px;scrollbar-width:none;}" +
-      "#hg-cat-rows .hg-logo-card{flex:0 0 88px;min-width:88px;scroll-snap-align:start;text-align:center;display:flex;flex-direction:column;align-items:center;}" +
-      "#hg-cat-rows .hg-logo-img{width:88px;height:88px;flex:0 0 88px;border-radius:15px;background-color:#FFFCF9;background-position:center;background-size:contain;background-repeat:no-repeat;border:1px solid #ECEAEF;box-shadow:0 1px 2px rgba(27,32,35,.018);}" +
-      "#hg-cat-rows .hg-logo-name{display:block;width:88px;max-width:88px;height:27px;font-size:10.5px;font-weight:680;line-height:13px;margin-top:6px;white-space:normal;overflow:hidden;text-overflow:clip;text-align:center;}" +
-      "#hg-cat-rows .hg-compact-rail{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,64px);grid-auto-columns:216px;gap:8px 10px;overflow-x:auto;padding:1px 16px 3px 18px;scroll-snap-type:x mandatory;scroll-padding-inline:18px;scrollbar-width:none;}" +
-      "#hg-cat-rows .hg-compact{display:flex;height:64px;border:1px solid #ECEAEF;border-radius:12px;background:#FFFCF9;overflow:hidden;scroll-snap-align:start;box-shadow:0 1px 2px rgba(27,32,35,.018);}" +
-      "#hg-cat-rows .hg-compact-img{flex:0 0 64px;width:64px;height:64px;background:#FFFCF9 center/contain no-repeat;border-inline-end:1px solid #F0EEF2;}" +
-      "#hg-cat-rows .hg-compact-body{min-width:0;align-self:center;padding:0 10px;}" +
-      "#hg-cat-rows .hg-compact-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      "#hg-cat-rows .hg-more{margin:2px 0 0;padding-top:2px;}" +
-      "#hg-cat-rows .hg-more .hg-sec-h{padding:0 16px;margin-bottom:14px;align-items:center;}" +
-      /* "More stores near you": one horizontal scroll row, ~2.3 cards visible on mobile, 3.3 tablet, 4.3 desktop */
-      "#hg-cat-rows .hg-more-nav{display:none;}" +
-      "#hg-cat-rows .hg-more-rail{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:1px 16px 4px;scroll-snap-type:x mandatory;scroll-padding-inline:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}" +
-      "#hg-cat-rows .hg-more-rail::-webkit-scrollbar{display:none;}" +
-      "#hg-cat-rows .hg-row{flex:0 0 calc((100% - 8px) / 2.3);scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;min-width:0;padding:16px 12px 14px;border:1px solid #CCCBE3;border-radius:16px;background:transparent;color:#1B2023;text-decoration:none;box-sizing:border-box;}" +
-      "#hg-cat-rows .hg-row-img{flex:0 0 auto;width:84px;height:84px;border-radius:16px;background:transparent center/contain no-repeat;border:1px solid #CCCBE3;}" +
-      "#hg-cat-rows .hg-row-body{width:100%;min-width:0;}" +
-      "#hg-cat-rows .hg-row-name{font-size:14px;font-weight:700;line-height:1.25;color:#1B2023;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;}" +
-      "#hg-cat-rows .hg-row .hg-meta{color:rgba(27,32,35,.68);}" +
-      "#hg-cat-rows .hg-row .hg-meta .dot{color:rgba(27,32,35,.4);}" +
-      "#hg-cat-rows .hg-row-cat{font-size:11.5px;color:rgba(27,32,35,.55);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}" +
-      "@media (min-width:600px){#hg-cat-rows .hg-row{flex-basis:calc((100% - 20px) / 3.3);}#hg-cat-rows .hg-row-img{width:96px;height:96px;}}" +
-      ".hg-cat-icon-grid{display:grid !important;grid-auto-flow:column !important;grid-template-columns:none !important;grid-template-rows:repeat(2,minmax(0,1fr)) !important;grid-auto-columns:calc((100% - 30px)/4) !important;gap:9px 10px !important;overflow-x:auto !important;overflow-y:hidden !important;scroll-snap-type:x mandatory !important;scroll-padding-inline:16px !important;-webkit-overflow-scrolling:touch;scrollbar-width:none;}" +
-      ".hg-cat-icon-grid::-webkit-scrollbar{display:none;}" +
-      ".hg-cat-icon-grid>*{scroll-snap-align:start;border-radius:14px !important;padding:5px 5px 6px !important;box-sizing:border-box !important;background:#FFFCF9 !important;border:1px solid #ECE9EF !important;box-shadow:0 1px 2px rgba(27,32,35,.018) !important;}" +
-      ".hg-cat-icon-grid>*:active{background:#F7F5FA !important;transform:scale(.985);}" +
-      ".hg-cat-icon-grid img{border-radius:12px !important;}" +
-      "@media (min-width:960px){" +
-      ".hg-cat-icon-grid{grid-template-rows:none !important;grid-auto-columns:98px !important;gap:12px !important;}" +
-      "#hg-cat-rows{max-width:1240px;margin:16px auto 50px;padding:0 20px;}" +
-      "#hg-cat-rows .hg-hero{margin:10px 0 36px;min-height:220px;padding:40px 44px 36px;border-radius:24px;}" +
-      "#hg-cat-rows .hg-hero:before{width:190px;height:190px;inset-inline-end:-70px;top:-86px;}" +
-      "#hg-cat-rows .hg-hero:after{width:150px;height:150px;inset-inline-end:120px;bottom:-96px;}" +
-      "#hg-cat-rows .hg-hero-copy{max-width:58%;}" +
-      "#hg-cat-rows .hg-hero-k{font-size:12.5px;margin-bottom:12px;}" +
-      "#hg-cat-rows .hg-hero-h{font-size:42px;max-width:520px;}" +
-      "#hg-cat-rows .hg-hero-p{font-size:17px;margin-top:12px;max-width:480px;}" +
-      "#hg-cat-rows .hg-hero-links{gap:10px;margin-top:26px;}" +
-      "#hg-cat-rows .hg-hero-link{height:42px;padding:0 18px;font-size:14px;}" +
-      "#hg-cat-rows .hg-hero-logos{position:absolute;display:block;padding:0;inset-inline-end:90px;top:50%;margin-top:-76px;width:152px;height:152px;}" +
-      "#hg-cat-rows .hg-hero-logos:before{inset:-55%;}" +
-      "#hg-cat-rows .hg-hero-logo{position:absolute;margin:0;width:80px;height:80px;padding:10px;border-radius:20px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(1){inset-inline-end:72px;top:0;transform:rotate(-3deg);}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(2){inset-inline-end:0;top:36px;}" +
-      "#hg-cat-rows .hg-hero-logo:nth-child(3){inset-inline-end:72px;top:72px;transform:rotate(2deg);}" +
-      "#hg-cat-rows .hg-sec,#hg-cat-rows .hg-cat-block{margin-bottom:40px;}" +
-      "#hg-cat-rows .hg-sec.soft{border-radius:0;padding:6px 0 8px;}" +
-      "#hg-cat-rows .hg-sec-h{padding:0 4px;margin-bottom:16px;}" +
-      "#hg-cat-rows .hg-sec.soft .hg-sec-h{padding:0 24px;}" +
-      "#hg-cat-rows .hg-sec-title{font-size:22px;}" +
-      "#hg-cat-rows .hg-feature-rail,#hg-cat-rows .hg-logo-rail,#hg-cat-rows .hg-compact-rail{padding-left:4px;padding-right:4px;}" +
-      "#hg-cat-rows .hg-sec.soft .hg-brand-grid{padding-left:24px;padding-right:24px;}" +
-      "#hg-cat-rows .hg-feature{flex-basis:208px;}" +
-      "#hg-cat-rows .hg-feature-img{height:132px;}" +
-      "#hg-cat-rows .hg-brand-grid{grid-template-rows:repeat(2,auto);grid-auto-columns:86px;gap:16px 16px;}" +
-      "#hg-cat-rows .hg-brand,#hg-cat-rows .hg-brand-img{width:86px;}" +
-      "#hg-cat-rows .hg-brand-img{height:86px;}" +
-      "#hg-cat-rows .hg-logo-card{flex-basis:108px;}" +
-      /* 2026-10-08: flex-basis too. The tile sits in a vertical flex column, where the phone rule's "flex:0 0 88px" sets its
-         HEIGHT, so on desktop it was 108 wide x 88 tall and square logos showed with white bars at the sides. */
-      "#hg-cat-rows .hg-logo-img{width:108px;height:108px;flex-basis:108px;}" +
-      "#hg-cat-rows .hg-compact-rail{grid-template-rows:repeat(2,74px);grid-auto-columns:286px;}" +
-      "#hg-cat-rows .hg-compact{height:74px;}" +
-      "#hg-cat-rows .hg-compact-img{width:74px;height:74px;flex-basis:74px;}" +
-      "#hg-cat-rows .hg-more{margin-left:4px;margin-right:4px;max-width:none;}" +
-      "#hg-cat-rows .hg-more .hg-sec-h{padding:0;margin-bottom:16px;}" +
-      "#hg-cat-rows .hg-more-nav{display:flex;gap:8px;flex:0 0 auto;}" +
-      "#hg-cat-rows .hg-more-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid #CCCBE3;background:transparent;color:#1B2023;cursor:pointer;}" +
-      "#hg-cat-rows .hg-more-btn:hover{border-color:#1B2023;}" +
-      "html[dir='rtl'] #hg-cat-rows .hg-more-btn svg{transform:scaleX(-1);}" +
-      "#hg-cat-rows .hg-more-rail{gap:16px;padding:1px 0 4px;scroll-padding-inline:0;}" +
-      "#hg-cat-rows .hg-row{flex-basis:calc((100% - 64px) / 4.3);padding:20px 16px 18px;gap:12px;border-radius:18px;}" +
-      "#hg-cat-rows .hg-row-img{width:108px;height:108px;border-radius:18px;}" +
-      "#hg-cat-rows .hg-row-name{font-size:15px;}" +
-      "}";
-    document.head.appendChild(st);
-  }
   function hgEsc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-  /* all merchants for the selected location, from the same API the category pages use (paged, 20 per page) */
-  const hgCat = { key: "", list: null, busy: false, failAt: 0 };
-  const HG_CAT_RETRY = 30000; /* (2026-10-20): wait 30s after a failed fetch (it used to retry back-to-back with no limit) */
-  function hgCatFetch(key, loc, locale) {
-    hgCat.busy = true;
-    const H = { "content-type": "application/json", accept: "application/json", "x-tenant": location.host, "x-client-device": "web" };
-    let all = [];
-    const page = (p) => fetch("https://api.hyperzod.app/store/v1/search/merchant/nearby", {
-      method: "POST", headers: H,
-      body: JSON.stringify({ user_location: loc, filters: [], sort_by: [], page: p, locale: locale })
-    }).then((r) => r.json()).then((j) => {
-      const d = j && j.data;
-      const list = Array.isArray(d) ? d : (d && Array.isArray(d.data) ? d.data : []);
-      all = all.concat(list);
-      if (list.length && p < 15) return page(p + 1);
-    });
-    page(1).then(() => { hgCat.key = key; hgCat.list = all; return true; }, () => { hgCat.failAt = Date.now(); return false; })
-      .then((ok) => { hgCat.busy = false; if (ok) applyCategoryRows(); });
-  }
-  function hgKm(m) {
-    const t = String(m.user_to_merchant_distance || "");
-    const v = parseFloat(t);
-    return isNaN(v) ? null : v;
-  }
-  function hgHideRec() {
-    document.querySelectorAll("[class*='MerchantRecommendation--']").forEach((r) => {
-      const sec = r.closest(".page-builder-section-surface") || r;
-      if (!sec.classList.contains("hg-rec-hidden")) sec.classList.add("hg-rec-hidden");
-    });
-  }
-  /* HOME PAGE CATEGORY ICON GRID: was a plain wrapping grid (4 columns x 4 rows on mobile - the whole thing dumped
-     on screen at once, one column count per breakpoint via Tailwind's own xs:/lg:/xl: classes). Adam wants it
-     swipeable instead - 4 icons on top, 4 on the bottom, swipe right for the next 8 - and the same idea on desktop
-     as a single swipeable row. Rather than hardcoding positions for exactly 16 icons (fragile if Adam adds/removes
-     categories later in Hyperzod admin), this computes the placement from however many icons actually exist, so it
-     keeps working if that count changes. Explicit grid-row/grid-column placement is used (not grid-auto-flow, which
-     would fill column-by-column - i.e. pair icon 1 with icon 2 top-to-bottom in the same column - instead of
-     keeping the original reading order intact within each 4-wide page). */
-  function applyHomeCategoryGrid() {
-    const grid = document.querySelector(
-      '[class*="tw-grid-cols-8"][class*="xs:tw-grid-cols-4"][class*="lg:tw-grid-cols-13"]'
-    );
-    if (!grid) return;
-    if (!grid.classList.contains("hg-cat-icon-grid")) grid.classList.add("hg-cat-icon-grid");
-    const kids = Array.from(grid.children);
-    const isDesktop = window.innerWidth >= 960;
-    kids.forEach((el, i) => {
-      if (isDesktop) {
-        /* single swipeable row - natural order, left to right */
-        el.style.setProperty("grid-row", "1", "important");
-        el.style.setProperty("grid-column", String(i + 1), "important");
-      } else {
-        /* 4 wide x 2 tall pages, filled in reading order within each page */
-        const perPage = 8;
-        const withinPage = i % perPage;
-        const page = Math.floor(i / perPage);
-        const row = Math.floor(withinPage / 4);
-        const col = page * 4 + (withinPage % 4);
-        el.style.setProperty("grid-row", String(row + 1), "important");
-        el.style.setProperty("grid-column", String(col + 1), "important");
-      }
-    });
-  }
-  let hgCatGridResizeTimer = null;
-  window.addEventListener(
-    "resize",
-    () => {
-      if (hgNewDesign()) return; /* (2026-10-20): the native Home is hidden with the new design; applyAll skips this too */
-      clearTimeout(hgCatGridResizeTimer);
-      hgCatGridResizeTimer = setTimeout(applyHomeCategoryGrid, 120);
-    },
-    { passive: true }
-  );
-
-  function hgImg(m, kind) {
-    const im=m&&m.images;if(!im)return "";const logo=im.logo&&(im.logo.image_url||im.logo.image_thumb_url),cover=im.cover&&(im.cover.image_url||im.cover.image_thumb_url);return kind==="cover"?(cover||logo||""):(logo||cover||"");
-  }
-  function hgMetaHtml(m,ar){const bits=[],rating=parseFloat(m&&m.average_rating);if(!isNaN(rating)&&rating>0)bits.push("&#9733; "+rating.toFixed(1));if(m&&m.delivery_data&&parseFloat(m.delivery_data.time)>0){let t=String(m.delivery_data.time);if(ar)t=t.replace(/(\d)\s*mins?\b/i,"$1 "+String.fromCharCode(1583,1602,1610,1602,1577));bits.push("<bdi>"+hgEsc(t)+"</bdi>");}const km=hgKm(m);if(km!=null&&km<100)bits.push("<bdi>"+km.toFixed(1)+(ar?" &#1603;&#1605;":" km")+"</bdi>");return bits.join('<span class="dot">&#8226;</span>');}
-  function hgMerchantHref(m,loc){return "/"+loc+"/m/"+encodeURIComponent(m.slug)+"/"+(m._id||m.id);}
-  function hgCategoryHref(c,loc){const slug=String(c.name||"").toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06ff]+/g,"-").replace(/^-|-$/g,"")||"category";return "/"+loc+"/m-category/"+encodeURIComponent(slug)+"/"+c.id+"?categoryCollection=true";}
-  function applyCategoryRows(){
-    if(hgNewDesign())return; /* (2026-10-20): old website Home only; the fetch callback also calls this, so the guard lives here */
-    try{
-      const nearby=document.getElementById("NearbyMerchants"),st=acStore(),S=st&&st.state,hd=S&&S.homeData;if(!nearby||!hd||!Array.isArray(hd.merchant_categories))return;
-      const sel=S.Utils&&S.Utils.selectedLocation&&S.Utils.selectedLocation.location;if(!sel||typeof sel.latitude!=="number")return;
-      const ar=hgIsAr(),loc=ar?"ar":"en",key=sel.latitude.toFixed(5)+","+sel.longitude.toFixed(5)+"|"+loc;
-      if(hgCat.key!==key){if(!hgCat.busy&&Date.now()-hgCat.failAt>HG_CAT_RETRY)hgCatFetch(key,[sel.latitude,sel.longitude],loc);return;}
-      const merchants=(hgCat.list||[]).slice().sort((a,b)=>{const x=hgKm(a),y=hgKm(b);return(x==null?1e9:x)-(y==null?1e9:y);});window.__hgSearchMerchants=merchants;
-      const MAIN=["6a9beeebdda6795f8c065933","6a9bee55dda6795f8c065932","6a9beef4dda6795f8c065934","6a9bee60288fb9d9e903a7e2","6a9bef06288fb9d9e903a7e3"],allCats=hd.merchant_categories,cats=MAIN.map(id=>allCats.find(c=>c.id===id)).filter(Boolean);
-      const sig=key+"|"+merchants.length+"|"+cats.map(c=>c.id).join(",")+"|v92";let box=document.getElementById("hg-cat-rows");
-      if(box&&box.dataset.sig===sig&&box.nextElementSibling===nearby){if(!nearby.classList.contains("hg-cat-hidden"))nearby.classList.add("hg-cat-hidden");hgHideRec();return;}hgCatStyle();
-      const catMap={};allCats.forEach(c=>{catMap[c.id]=c.name;});const inCat=c=>merchants.filter(m=>(m.merchant_category_ids||[]).includes(c.id));const allLink=c=>'<a class="hg-all" href="'+hgCategoryHref(c,loc)+'">'+(ar?"&#1593;&#1585;&#1590; &#1575;&#1604;&#1603;&#1604;":"See all")+"</a>";
-      const heroLogos=merchants.filter(m=>hgImg(m,"logo")).slice(0,3);let html='<section class="hg-hero"><div class="hg-hero-copy"><div class="hg-hero-k">'+(ar?"&#1607;&#1575;&#1610;&#1576;&#1585;&#1602;&#1608; &#1575;&#1604;&#1576;&#1581;&#1585;&#1610;&#1606;":"HYPERGO BAHRAIN")+'</div><div class="hg-hero-h">'+(ar?"&#1603;&#1604; &#1605;&#1575; &#1578;&#1581;&#1578;&#1575;&#1580;&#1607;&#1548; &#1601;&#1610; &#1605;&#1603;&#1575;&#1606; &#1608;&#1575;&#1581;&#1583;":"Bahrain, all in one place.")+'</div><div class="hg-hero-p">'+(ar?"&#1571;&#1603;&#1604;&#1548; &#1608;&#1585;&#1583;&#1548; &#1573;&#1604;&#1603;&#1578;&#1585;&#1608;&#1606;&#1610;&#1575;&#1578;&#1548; &#1589;&#1610;&#1583;&#1604;&#1610;&#1575;&#1578; &#1608;&#1571;&#1603;&#1579;&#1585;.":"Food, flowers, tech, pharmacy and more.")+'</div></div>';
-      if(cats.length)html+='<div class="hg-hero-links">'+cats.slice(0,4).map(c=>'<a class="hg-hero-link" href="'+hgCategoryHref(c,loc)+'">'+hgEsc(c.name)+"</a>").join("")+"</div>";
-      if(heroLogos.length)html+='<div class="hg-hero-logos">'+heroLogos.map(m=>'<span class="hg-hero-logo" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></span>').join("")+"</div>";html+="</section>";
-      let featured=merchants.filter(m=>(m.is_featured||m.is_sponsored)&&hgImg(m,"cover"));if(featured.length<4){const used=new Set(featured.map(m=>m._id||m.id));merchants.filter(m=>hgImg(m,"cover")&&!used.has(m._id||m.id)).slice(0,6-featured.length).forEach(m=>featured.push(m));}featured=featured.slice(0,6);
-      if(featured.length){html+='<section class="hg-sec"><div class="hg-sec-h"><div><div class="hg-sec-title">'+(ar?"&#1575;&#1603;&#1578;&#1588;&#1601; &#1575;&#1604;&#1602;&#1585;&#1610;&#1576; &#1605;&#1606;&#1603;":"Discover near you")+'</div><div class="hg-sec-sub">'+(ar?"&#1605;&#1578;&#1575;&#1580;&#1585; &#1605;&#1582;&#1578;&#1575;&#1585;&#1577; &#1576;&#1575;&#1604;&#1602;&#1585;&#1576; &#1605;&#1606;&#1603;":"A quick look at stores around you")+'</div></div></div><div class="hg-feature-rail">';featured.forEach(m=>{const meta=hgMetaHtml(m,ar);html+='<a class="hg-feature" href="'+hgMerchantHref(m,loc)+'"><div class="hg-feature-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"cover"))+'&quot;)"></div><div class="hg-feature-body"><div class="hg-feature-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+"</div></a>";});html+="</div></section>";}
-      const brands=merchants.filter(m=>hgImg(m,"logo")).slice(0,14);if(brands.length){html+='<section class="hg-sec soft"><div class="hg-sec-h"><div><div class="hg-sec-title">'+(ar?"&#1605;&#1578;&#1575;&#1580;&#1585; &#1602;&#1585;&#1610;&#1576;&#1577; &#1605;&#1606;&#1603;":"Brands near you")+'</div><div class="hg-sec-sub">'+(ar?"&#1578;&#1589;&#1601;&#1581; &#1576;&#1587;&#1585;&#1593;&#1577; &#1581;&#1587;&#1576; &#1575;&#1604;&#1605;&#1578;&#1580;&#1585;":"Jump straight into a store")+'</div></div></div><div class="hg-brand-grid">';brands.forEach(m=>{html+='<a class="hg-brand" href="'+hgMerchantHref(m,loc)+'"><div class="hg-brand-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></div><div class="hg-brand-name">'+hgEsc(m.name)+"</div></a>";});html+="</div></section>";}
-      cats.forEach((c,i)=>{const list=inCat(c).slice(0,10);if(!list.length)return;const mode=i===0||i===2?"feature":(i===3?"compact":"logo");html+='<section class="hg-cat-block"><div class="hg-sec-h"><div class="hg-sec-title">'+hgEsc(c.name)+"</div>"+allLink(c)+"</div>";if(mode==="feature"){html+='<div class="hg-feature-rail">';list.forEach(m=>{const meta=hgMetaHtml(m,ar);html+='<a class="hg-feature" href="'+hgMerchantHref(m,loc)+'"><div class="hg-feature-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"cover"))+'&quot;)"></div><div class="hg-feature-body"><div class="hg-feature-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+"</div></a>";});html+="</div>";}else if(mode==="logo"){html+='<div class="hg-logo-rail">';list.forEach(m=>{html+='<a class="hg-logo-card" href="'+hgMerchantHref(m,loc)+'"><div class="hg-logo-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></div><div class="hg-logo-name">'+hgEsc(m.name)+"</div></a>";});html+="</div>";}else{html+='<div class="hg-compact-rail">';list.forEach(m=>{const meta=hgMetaHtml(m,ar);html+='<a class="hg-compact" href="'+hgMerchantHref(m,loc)+'"><div class="hg-compact-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></div><div class="hg-compact-body"><div class="hg-compact-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+"</div></a>";});html+="</div>";}html+="</section>";});
-      const rest=[],seen={};merchants.forEach(m=>{const id=m._id||m.id,ids=m.merchant_category_ids||[];if(seen[id]||ids.some(x=>MAIN.includes(x)))return;seen[id]=true;rest.push(m);});if(rest.length){html+='<section class="hg-more"><div class="hg-sec-h"><div class="hg-sec-title">'+(ar?"&#1575;&#1604;&#1605;&#1586;&#1610;&#1583; &#1605;&#1606; &#1575;&#1604;&#1605;&#1578;&#1575;&#1580;&#1585; &#1575;&#1604;&#1602;&#1585;&#1610;&#1576;&#1577;":"More stores near you")+'</div><div class="hg-more-nav"><button type="button" class="hg-more-btn" data-dir="-1" aria-label="Previous"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" class="hg-more-btn" data-dir="1" aria-label="Next"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div><div class="hg-more-rail">';rest.forEach(m=>{const meta=hgMetaHtml(m,ar),cn=(m.merchant_category_ids||[]).map(x=>catMap[x]).filter(Boolean).join(", ");html+='<a class="hg-row" href="'+hgMerchantHref(m,loc)+'"><div class="hg-row-img" style="background-image:url(&quot;'+hgEsc(hgImg(m,"logo"))+'&quot;)"></div><div class="hg-row-body"><div class="hg-row-name">'+hgEsc(m.name)+'</div>'+(meta?'<div class="hg-meta">'+meta+"</div>":"")+(cn?'<div class="hg-row-cat">'+hgEsc(cn)+"</div>":"")+"</div></a>";});html+="</div></section>";}
-      if(!html)return;if(!box){box=document.createElement("div");box.id="hg-cat-rows";box.addEventListener("click",e=>{const nb=e.target.closest(".hg-more-btn");if(nb){const sec=nb.closest(".hg-more"),r=sec&&sec.querySelector(".hg-more-rail");if(r){const rtl=getComputedStyle(r).direction==="rtl";r.scrollBy({left:(+nb.dataset.dir||1)*(rtl?-1:1)*r.clientWidth*0.8,behavior:"smooth"});}return;}const a=e.target.closest("a[href]");if(!a)return;const app=document.querySelector("#app"),r=app&&app.__vue_app__&&app.__vue_app__.config.globalProperties.$router;if(r){e.preventDefault();r.push(a.getAttribute("href"));}});}box.innerHTML=html;box.dataset.sig=sig;if(box.nextElementSibling!==nearby)nearby.parentNode.insertBefore(box,nearby);nearby.classList.add("hg-cat-hidden");hgHideRec();
-    }catch(e){}
-  }
 
   /* MERCHANT CARDS (all lists): Hyperzod prints "km" with no number for merchants without a map location, "0" for a missing
      time and thousands of km for a 0,0 location. Hide those parts (and a leading dot) instead of showing junk. */
@@ -3412,102 +2061,6 @@
     });
   }
 
-  /* CHECKOUT BAR: Hyperzod's native "floating cart" button is a small rounded pill that hovers with a gap
-     above the bottom edge, centered, no price shown (just "Checkout • N"). Redesigned as a full-width bar
-     pinned flush to the very bottom - a HyperGo-branded combination of Talabat's cart-icon+count-badge and
-     Keeta's bold, prominent price - rather than either one copied outright.
-     The button itself is left alone functionally (same element, same click handler -> /checkout?cart_id=...,
-     untouched), only restyled: its native icon+text content is hidden and our own markup is layered in
-     as a sibling, since Vue re-renders that native content reactively and fighting it would be fragile.
-     The one piece Hyperzod's own DOM doesn't expose here is the price. It doesn't need a network call for
-     that, though: the live cart total is already kept in localStorage under the "vuex" key (Cart.cart[0]),
-     written there by Hyperzod itself and rehydrated on page load - confirmed live, with and without a
-     reload - so reading it is just a plain localStorage read, no interception needed. */
-  /* (2026-10-20): parsed once (was twice), and not parsed again while the stored text is unchanged */
-  let hgCartRaw = null, hgCartVal = null;
-  /* (2026-10-24) the store page's bar shows THIS store's cart: with carts from several stores it read the first one
-     (another store's total, e.g. BHD 4.50 on a store where the cart held BHD 1.60). Read from Hyperzod's live store,
-     the cart whose items belong to the store on screen; only when that can't be read, the saved copy as before. */
-  function hgReadCart() {
-    try {
-      const S = document.querySelector("#app").__vue_app__.config.globalProperties.$store;
-      const md = S.state.Merchant && S.state.Merchant.merchantData;
-      const carts = S.state.Cart && S.state.Cart.cart;
-      if (md && md.merchant_id && Array.isArray(carts)) {
-        const c = carts.find((x) => x && ((x.cart_items && x.cart_items[0] && x.cart_items[0].merchant_id === md.merchant_id) || x.merchant_id === md.merchant_id));
-        if (!c || typeof c.total_amount !== "number") return null;
-        return { total: c.total_amount, count: c.total_items || 0, discount: c.discount_amount || 0 };
-      }
-    } catch (e) {}
-    try {
-      const raw = localStorage.getItem("vuex");
-      if (!raw) return null;
-      if (raw === hgCartRaw) return hgCartVal;
-      hgCartRaw = raw;
-      hgCartVal = null;
-      const v = JSON.parse(raw);
-      const cart = v.Cart && v.Cart.cart;
-      const c = Array.isArray(cart) ? cart[0] : cart;
-      if (!c || typeof c.total_amount !== "number") return null;
-      hgCartVal = { total: c.total_amount, count: c.total_items || 0, discount: c.discount_amount || 0 };
-      return hgCartVal;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function hgFmtMoney(num) {
-    const isAr = hgIsAr();
-    const T = isAr ? "د.ب.‏" : "BHD";
-    const NB = " ";
-    const n = Number(num).toLocaleString("en-US", {useGrouping:false, minimumFractionDigits:2, maximumFractionDigits:3});
-    return isAr ? n + NB + T : T + NB + n;
-  }
-
-  const HG_CART_SVG =
-    '<svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#hgcartclip)">' +
-    '<path d="M14.2502 12.75C13.0127 12.75 12.0059 13.7568 12.0059 14.9944C12.0059 16.2319 13.0127 17.2388 14.2502 17.2388C15.4878 17.2388 16.4946 16.2319 16.4946 14.9944C16.4946 13.7568 15.4878 12.75 14.2502 12.75ZM14.2502 15.8921C13.7551 15.8921 13.3525 15.4895 13.3525 14.9944C13.3525 14.4993 13.7551 14.0966 14.2502 14.0966C14.7454 14.0966 15.148 14.4993 15.148 14.9944C15.148 15.4895 14.7454 15.8921 14.2502 15.8921Z" fill="currentColor"></path>' +
-    '<path d="M17.8569 4.0724C17.7294 3.90924 17.5339 3.81407 17.3268 3.81407H4.1562L3.5502 1.27859C3.47771 0.975611 3.2068 0.761719 2.89527 0.761719H0.673316C0.301431 0.761684 0 1.06312 0 1.435C0 1.80689 0.301431 2.10832 0.673316 2.10832H2.36381L4.55209 11.2646C4.62459 11.5678 4.8955 11.7814 5.20702 11.7814H15.6884C15.9979 11.7814 16.2677 11.5705 16.3419 11.2702L17.9804 4.64918C18.03 4.44812 17.9844 4.23556 17.8569 4.0724ZM15.1616 10.4348H5.73848L4.47802 5.16071H16.4665L15.1616 10.4348Z" fill="currentColor"></path>' +
-    '<path d="M6.10376 12.75C4.86619 12.75 3.85938 13.7568 3.85938 14.9944C3.85938 16.2319 4.86622 17.2388 6.10376 17.2388C7.34131 17.2388 8.34815 16.2319 8.34815 14.9944C8.34815 13.7568 7.34131 12.75 6.10376 12.75ZM6.10376 15.8921C5.60865 15.8921 5.20601 15.4895 5.20601 14.9944C5.20601 14.4993 5.60865 14.0966 6.10376 14.0966C6.59887 14.0966 7.00152 14.4993 7.00152 14.9944C7.00152 15.4895 6.59887 15.8921 6.10376 15.8921Z" fill="currentColor"></path>' +
-    '</g><defs><clipPath id="hgcartclip"><rect width="18" height="18" fill="white"></rect></clipPath></defs></svg>';
-
-  function applyCheckoutBar() {
-    if (hgNewDesign()) return; /* (2026-10-24) the new design draws its own View cart bar (app-new.js, VIEW CART BAR) */
-    const btn = document.querySelector(".scheme-merchant-page.merchant-mobile-view button.v-btn--fixed.rounded-pill");
-    if (!btn) return;
-    if (!btn.classList.contains("hg-checkout-bar")) btn.classList.add("hg-checkout-bar");
-    let bar = btn.querySelector(".hg-co-bar");
-    if (!bar) {
-      bar = document.createElement("span");
-      bar.className = "hg-co-bar";
-      bar.innerHTML =
-        '<span class="hg-co-left"><span class="hg-co-cart">' + HG_CART_SVG + '<span class="hg-co-badge"></span></span>' +
-        '<span class="hg-co-label"></span></span>' +
-        '<span class="hg-co-right"><span class="hg-co-strike"></span><span class="hg-co-price"></span></span>';
-      btn.appendChild(bar);
-    }
-    const cart = hgReadCart();
-    const count = cart ? cart.count : (parseInt((btn.querySelector(".v-btn__content")?.textContent || "").replace(/\D+/g, ""), 10) || 0);
-    const isAr = hgIsAr();
-    const write=(el,value)=>{if(el.textContent!==value)el.textContent=value;};
-    write(bar.querySelector(".hg-co-badge"), String(count));
-    write(bar.querySelector(".hg-co-label"), isAr ? "عرض السلة" : "View cart"); /* (2026-10-24) the bar opens the cart sheet now (app-new.js, CART SHEET) */
-    const priceEl = bar.querySelector(".hg-co-price");
-    const strikeEl = bar.querySelector(".hg-co-strike");
-    if (cart) {
-      write(priceEl, hgFmtMoney(cart.total));
-      if (cart.discount > 0) {
-        write(strikeEl, hgFmtMoney(cart.total + cart.discount));
-        strikeEl.style.display = "";
-      } else {
-        strikeEl.style.display = "none";
-      }
-    } else {
-      write(priceEl, "");
-      strikeEl.style.display = "none";
-    }
-  }
-
   /* (2026-10-20): the long v75/v76 notes about the removed JS status-bar code were deleted; the status bar is plain CSS
      (the "v75: restored" rules in the style blocks above). */
 
@@ -3610,15 +2163,8 @@
 
   function applyAll() {
     ensureExtraStyle();
-    if (!hgNewDesign()) applyHyperGoHeader();
     applyHyperGoDesktop();
     applyHyperGoNav();
-    /* old design only (2026-10-20): app-new.js runs its own identical copy before paint; both ran, with two caches */
-    if (!hgNewDesign()) applyLocLang();
-    /* (2026-10-20): old design only - both target the native Home (#NearbyMerchants, .scheme-collection-grid), which app-new.css
-       hides (#MultiVendorHome>main.v-main); app-new.js translates the category names it reads itself */
-    if (!hgNewDesign()) applyNearbyLogos();
-    if (!hgNewDesign()) applyArabicCategories();
     applyArabicSearchPage();
     applyHyperGoAccount();
     applyHyperGoLanguage();
@@ -3626,22 +2172,17 @@
     syncOrdersNav();
     syncOrdersBack();
     applyProductAddLabel();
-    if (!hgNewDesign()) applyCategoryRows();
-    if (!hgNewDesign()) applyHomeCategoryGrid();
     applyMerchantInfoClean();
     applyNoImagePlaceholder();
-    applyCheckoutBar();
-    applySearchPage();
+    syncSearchClass();
     applyCustomerExperience();
     if (renderObserver) renderObserver.takeRecords();
   }
-
 
   let renderObserver = null;
   applyAll();
   applyCurrency();
   fixTypos(document.body); /* (2026-10-20): first full pass (later passes run on changed parts, in curFlush) */
-
 
   let renderTimer = null;
 
@@ -3668,7 +2209,6 @@
     }
   );
   renderObserver.observe(document.documentElement, {attributes:true,attributeFilter:["lang","dir"]});
-
 
   /* LANGUAGE SWITCH VEIL: Hyperzod tears the app down and rebuilds it in the new language (blank flash, a few seconds
      on slow phones). Cover that with a calm loading screen and lift it once the new language has rendered and settled. */
@@ -3736,19 +2276,11 @@
     syncSearchClass();
     /* home header: style it the moment it is (re)created (e.g. coming Back from Search) so the default white header never flashes */
     const hdrRoot = document.getElementById("MultiVendorHeaderRoot");
-    if (!hgNewDesign() && hdrRoot && !hdrRoot.style.getPropertyValue("background-color") && document.querySelector(".home-mobile-search-row")) { applyHyperGoHeader(); applyLocLang(); }
     /* bottom nav: restyle the moment it is (re)created so the default nav never shows */
     const nav = document.getElementById("MultiVendorBottomNav");
     if (nav && nav.querySelector(".classic-nav-item:not([data-hg-nav])")) applyHyperGoNav();
     if (langNeedsFix()) applyHyperGoLanguage();
     if (document.documentElement.classList.contains("hg-orders-acct")) syncOrdersBack();
-    /* (2026-10-20): pre-paint search fixes when the search screen is (re)built (English heading, Arabic category names) */
-    const sr = document.querySelector("#MultiVendorSearch .recent-searches");
-    if (sr && !sr.hasAttribute("data-hg-done") && sr.querySelector(".tw-grid > *")) {
-      sr.setAttribute("data-hg-done", "1");
-      hgSearchHeading();
-      applyArabicSearchPage(sr);
-    }
     const ed = [...document.querySelectorAll(".scheme-address-editor")].find(isVisible);
     const epp = document.querySelector(".scheme-edit-profile-panel");
     if (ed || epp) {

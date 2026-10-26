@@ -3,7 +3,7 @@
 
 Generated from the repo code (pexy613/hypergo-site) on 2026-10-05. It describes what exists in the code today, not a target, except section 9 (decided target looks), section 10a (approved standards) and section 10b (open decisions).
 
-Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-footer-1.js (2026-10-05-1428) · **GF2** = global-footer-2.js · **GL** = global-launch.js · **WH** = web-head.css · **WC** = web-custom.css · **WF** = web-footer.js · **AF** = app-footer.js. Words in brackets are runtime style ids (e.g. GF1 (extra) = `hg-extra-style`, (cat) = `hg-cat-style`, (home88) = `hg-home-v88`, (acct), (lang), (forms), (nav), (cart), (wm), (ph), (rtl); GL (launch); WF (catnav), (brands-fill), (sp)). `Lnnn` = line number in that file. "Mobile" = `max-width:959.98px` (some rules use `959px`), "Desktop" = `min-width:960px`. Global = website + app.
+Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-footer-1.js (2026-10-05-1428) · **GF2** = global-footer-2.js · **GL** = global-launch.js · **WH** = web-head.css · **WC** = web-custom.css · **WF** = web-footer.js · **AF** = app-footer.js. Words in brackets are runtime style ids (e.g. GF1 (extra) = `hg-extra-style`, (acct), (lang), (forms), (nav), (ph), (rtl), (desk); app-new.js (cart), (wm); GL (launch); WF (sp), (langdd)). 2026-10-26: (cat), (home88), (catnav), (brands-fill), the search discovery box, pull-to-refresh and the old store checkout bar are removed with the old design. `Lnnn` = line number in that file. "Mobile" = `max-width:959.98px` (some rules use `959px`), "Desktop" = `min-width:960px`. Global = website + app.
 
 ---
 
@@ -15,7 +15,7 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | `#8640FC` | Mobile home header root (inline), search header, account header + hero, category page header + desktop title band, address editor header, status strip (search/account/category/address pages) | GF1 L75, L376, (extra) L1761/L1864/L2304, (acct) L1262/L1267/L1274, (forms) L1577/L1604; GF.css L37-38; AF L50 |
 | `#5A29DE` | App `html` + `body` background (inline !important, app only) | AF L13, L19 |
 | `#FAFAFC` | `body,.v-application` everywhere | GF1 (extra) L1724 |
-| `#FFFFFF` / `#fff` | Home canvas (`#MultiVendorHome`, `#ProductCategories`, `#hg-cat-rows`), search page, cards, account page, sheets, launch section | GF1 (home88) L2346, (cat) L2631; GF.css L36, L880; GL L48 |
+| `#FFFFFF` / `#fff` | Search page, cards, account page, sheets, launch section | GF.css L36, L880; GL L48 |
 | `#FAF9FC` | Desktop profile page | GF.css L1434 |
 | `#F7F3FF` | Desktop profile user-details box | GF.css L1441 |
 | `#F8F5FF` | Selected language card | GF.css L1467; GF1 (lang) L1508 |
@@ -26,7 +26,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | `#F6F6F8` | Search page field | GF.css L41 |
 | `#FFF3E5` | "Not accepting orders" box | GF1 (extra) L2072 |
 | Hero gradient `linear-gradient(120deg,#4D22C7 0%,#5A29DE 45%,#6C35E8 72%,#8640FC 100%)` + overlays `rgba(204,203,227,.10)`, `rgba(204,203,227,.07)`, `rgba(204,203,227,.13)`, `rgba(204,203,227,0)`, `rgba(34,14,110,.42)`, `rgba(34,14,110,0)` | Home hero | GF1 (cat) L2637 |
-| `linear-gradient(135deg,#6C35F0,#5A29DE)` | Store checkout bar (mobile) | GF1 (extra) L2180 |
 | `linear-gradient(180deg,#efeaff 0%,#d9d0fd 100%)` | Launch card | GL L53 |
 | `rgba(255,255,255,.58)` | Launch glass tiles | GL L72 |
 
@@ -43,7 +42,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | `#767676` | Merchant info, store subtitle, popup description | GF1 (extra) L1872, L1898, L1927 |
 | `#5C5C5C` | Store tagline/meta, category tabs, filter tabs | GF1 (extra) L2060, L2075, L2202 |
 | `#8A8A8A` | Product description (row layout) | GF.css L711, L843; GF1 (extra) L2023 |
-| `#817B88` | Search discovery subtitle | GF.css L61, L922 |
 | `#8A849C` | Uppercase group labels, account value, field labels | GF1 L1293, L1316, L1620, L2206 |
 | `#5B5670` | Form labels | GF1 (forms) L1586, L1637 |
 | `#6B7280` | Bottom-nav inactive, search-field icon | GF1 (nav) L1040, (extra) L1773 |
@@ -157,8 +155,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Hero paragraph | 14px / 1.4 | 17px | GF1 (cat) L2644, L2716 |
 | Home section title `.hg-sec-title` | 17.5px / 760 / 1.18 / -.018em | 22px | GF1 (cat) L2659, L2729 |
 | Home section subtitle | 11.5px | same | GF1 (cat) L2660 |
-| Search discovery title | 17px / 720 / 1.2 / -.012em | 20px / 700 / 1.2 | GF.css L60, L911-917 |
-| Search discovery subtitle | 11.5px | 13px / 1.35 | GF.css L61, L919-924 |
 | Store name | 20px / 700 / 1.25 / -.01em | 28px / 700 / 1.25 | GF1 (extra) L1925, L2257 |
 | Store subtitle line | 14px / 400 | 15px / 400 | GF1 (extra) L1927, L2259 |
 | Store section title | see CONFLICT 6 | 26px / 700 / -.01em | GF1 (extra) L2273 |
@@ -180,7 +176,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Logo card name | 10.5px / 680 / 13px | same | GF1 (cat) L2682 |
 | Compact card name | 13px / 700 | same | GF1 (cat) L2687 |
 | "More stores" card name | 14px / 700 / 1.25 | 15px | GF1 (cat) L2697, L2751 |
-| Category tile label | 11px / 650 / 13px | — | GF1 (home88) L2354 |
 | Search category circle label | 11.5px / 500 / 1.25 | — | GF1 (extra) L1788; GF.css L55 |
 | Bottom-nav label | 9.5px / 1.2 (Arabic 10.5px / 1.6) | — | GF1 (nav) L1046-1047 |
 | Account hero greeting / name / sub | 12px / 1.3 ; 22px / 700 / 1.25 / -.01em (guest 19px) ; 12px / 1.4 | — | GF1 (acct) L1278-1281 |
@@ -196,18 +191,16 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 
 ## 3. Spacing and layout
 
-**Side gutters (mobile):** 16px is used on almost every block (home section heads/rails `padding:0 16px`, search 16px, category row `scroll-padding-inline:16px`, `#ProductCategories>.tw-px-4` 16px) — GF1 (cat) L2658, L2663; GF1 (home88) L2351; GF.css L104-111. Exceptions: 18px start padding on `.hg-logo-rail` / `.hg-compact-rail` (GF1 (cat) L2679, L2683) and on search circles in GF1 (extra) L1783 (later GF.css L106 sets 16px); account list 20px (GF1 (acct) L1287); edit-profile sheet 22px (GF1 (forms) L1582-1584); home hero `margin:4px 16px 30px` (GF1 (cat) L2637).
+**Side gutters (mobile):** 16px is used on almost every block (home section heads/rails `padding:0 16px`, search 16px, category row `scroll-padding-inline:16px`, — GF.css L104-111. Exceptions: 18px start padding on search circles in GF1 (extra) L1783 (later GF.css L106 sets 16px); account list 20px (GF1 (acct) L1287); edit-profile sheet 22px (GF1 (forms) L1582-1584); home hero `margin:4px 16px 30px` (GF1 (cat) L2637).
 
 **Search page canvas (mobile):** `width:calc(100vw + 32px)`, `margin-left:-16px`, `margin-right:0` (GF.css L1113-1120); app Arabic `margin-right:-16px` (GF.css L1776). Header `min-height:76px` (L1515).
 
 **Max content widths (desktop)**
 | Block | Value | File |
 |---|---|---|
-| Home sections `#hg-cat-rows` | 1240px, padding 0 20px **and** 1200px, padding 0 24px 40px | GF1 (cat) L2709; (extra) L2235 — CONFLICT 9 |
 | Website home placeholder | 1240px | WH L305 |
 | Page column (website desktop, 2026-10-24) | up to 1600px wide, 48px sides: `--hg-page:1600px; --hg-gut:48px` (app-new.css desktop block); Home, Search start screen + category tabs (was an 840px column; Hyperzod's 1200px `#MultiVendorSearch>.v-container` uncapped), Search results, category page, Stores near you, store page header/tabs/menu and the header bar all use `padding-inline:max(var(--hg-gut),calc((100% - var(--hg-page)) / 2))` or the same as max-width + padding. Was 1200px, 24px or 32px sides | app-new.css (desktop); GF1 store rules, `applyHyperGoDesktop()` |
 | Desktop title line heights (website, 2026-10-24) | category page h1 28px / 34px, Stores near you title 26px / 32px, Home headings 22px / 28px, Home tile names 14px / 18px (the phone line heights cut the bigger desktop text off) | app-new.css desktop block |
-| Search discovery | 1180px, then 1350px, then none | GF.css L147, L888, L1051 — CONFLICT 10 |
 | Profile pages | 1260px, padding 30px 28px 60px, sidebar 300px, gap 28px | GF.css L1435-1437 |
 | Category list page | 1248px | GF1 (extra) L2303 |
 | Fixed checkout bar | 1200px, padding 10px 20px | GF.css L1400 |
@@ -235,11 +228,7 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 **Gaps between sections**
 | Where | Mobile | Desktop | File |
 |---|---|---|---|
-| `#hg-cat-rows` block | margin 4px 0 38px | 16px auto 50px (cat) / 8px auto 40px !important (extra) | GF1 L2631, L2709, L2235 |
 | `.hg-sec` / `.hg-cat-block` | 0 0 32px / 0 0 31px; next block border-top + padding-top 24px | 40px | GF1 (cat) L2656, L2675-2677, L2725 |
-| Home page-builder sections | margin-bottom 32px | — | GF1 (home88) L2349 |
-| `#ProductCategories` | 6px 0 24px (home88) vs 8px top/bottom (extra) | — | GF1 L2350, L1811 |
-| Search discovery section | 22px 0 30px, later 14px 0 24px | 30px 0 38px | GF.css L58, L108, L901 |
 | Store Recommended section | margin-top 30px | 44px | GF1 (extra) L2074, L2272 |
 | Bottom padding for nav (home) | `calc(96px + env(safe-area-inset-bottom,0px))` | — | GF1 (extra) L1919 |
 
@@ -248,8 +237,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 |---|---|---|---|
 | Category icons | 2 rows, columns `calc((100% - 30px) / 4)`, gap 9px 10px, swipe, snap | 1 row, 98px columns, gap 12px | WH L225-259; GF1 (cat) L2702-2708 |
 | Discover / feature rail | cards 158px, gap 11px | 208px | GF1 (cat) L2663-2665, L2732 |
-| Brands near you | 2-row scroller, 68px columns, gap 13px 11px | 86px, gap 16px 16px | GF1 (cat) L2671, L2734 |
-| Brands near you (website override) | 4 cols, gap 16px 12px (600px+: 5 cols, 18px 16px) | 7 cols, 2 rows, gap 22px 20px | WF (brands-fill) L442-451 |
 | Logo rail | 88px cards, gap 12px | 108px | GF1 (cat) L2679-2680, L2737 |
 | Compact rail | 2 rows x 64px, 216px columns, gap 8px 10px | 74px rows, 286px columns | GF1 (cat) L2683, L2739 |
 | More stores near you | card `calc((100% - 8px) / 2.3)`, gap 12px (600px+: `calc((100% - 20px) / 3.3)`) | `calc((100% - 64px) / 4.3)`, gap 16px | GF1 (cat) L2692-2701, L2748-2749 |
@@ -278,7 +265,6 @@ Legend: **GF.css** = global-footer.css (2026-10-04-2003) · **GF1** = global-foo
 | Desktop search pill | 21px (42px tall) | GF1 L428 |
 | Search page field | 999px | GF1 (extra) L1763; GF.css L1330 (focus) |
 | Form fields | 14px | GF1 (forms) L1587, L1617 |
-| Category tile / its image | 14px / 12px (also `.tw-aspect-square` 12px then 11px) | WH L241, L248; GF1 (cat) L2704-2706, (extra) L1814, (home88) L2353 |
 | Home hero | 20px (desktop 24px) | GF1 (cat) L2637, L2710 |
 | Hero logo tile | 14px (desktop 20px) | GF1 (cat) L2652, L2721 |
 | Feature card / logo card image | 15px | GF1 (cat) L2665, L2681 |
@@ -321,7 +307,6 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 | `0 2px 10px rgba(60,30,140,.06)` | Language card | GF1 (lang) L1507 |
 | `0 -6px 24px rgba(27,32,35,.07)` | Bottom nav | GF1 (nav) L1040 |
 | `0 -8px 24px rgba(27,32,35,.07)` / `.08` | Cart panel footer / fixed checkout bar, address footer | GF.css L1391, L1399; GF1 L1642 |
-| `0 -6px 24px rgba(90,41,222,.28)` | Store checkout bar | GF1 (extra) L2180 |
 | `0 6px 18px rgba(90,41,222,.18)` | Account/category headers | GF1 (acct) L1268, (extra) L1864 |
 | `0 8px 22px rgba(90,41,222,.2)` | Address editor header | GF1 (forms) L1604 |
 | `0 6px 18px rgba(40,10,120,.22)` | Address search field | GF1 (forms) L1613 |
@@ -349,11 +334,8 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 
 **Search page header (mobile)** — see CONFLICT 3. GF.css: flex, gap 10px, `#8640FC`, padding `12px 16px 20px`, radius `0 0 24px 24px`, min-height 76px, sticky under status bar; cart 40px circle `#fff`, border `#E7E5EA`, badge `#FF4000` 17px, 10px / 800 (L37-49, L1515). App only: pinned-header shift variables, no field loading bar (GF.css L1696-1706).
 
-**Category icons (home)** — tile radius 14px, padding `5px 5px 6px`, `#fff`, border `1px solid #ECE9EF`, shadow `0 1px 2px rgba(27,32,35,.018)`, image radius 12px, pressed `#F7F5FA` + `scale(.985)`; label 11px / 650 / 13px `#1B2023` (WH L239-248; GF1 (cat) L2704-2706; (home88) L2354). Website desktop: 36px arrow buttons, `#F7F7FB`, border `#CCCBE3` (WF (catnav)).
 
-**Chips** — Recent searches `.hg-sd-chip`: border `#E7E3EA`, `#fff`, radius 11px, padding 8px 11px, 12px / 620 (desktop: min-height 38px, padding 9px 14px, radius 12px, 14px / 600). Suggestion chips `.pop`: radius 999px, padding 7px 11px, border `#E5E2E8`, 11.5px, "↗" prefix `#5A29DE` 12px / 700 (desktop border `#DDD7E8`, 14px) — GF.css L64-65, L113-115, L938-967. Hero links: 36px tall (desktop 42px), padding 0 14px, 999px, `rgba(204,203,227,.16)`, border `rgba(204,203,227,.42)`, blur(10px) — GF1 (cat) L2648.
 
-**Brand / merchant cards** — Home "Brands near you" `.hg-brand-img` 68px (desktop 86px; website fluid 1/1), radius 14px, `#fff`, border `#ECEAEF`. Logo rail `.hg-logo-img` 88px (desktop 108px), radius 15px. Compact card 64px tall (74px), radius 12px. "More stores near you" `.hg-row`: transparent, border `1px solid #CCCBE3`, radius 16px, centered 84px logo (600px+: 96px; desktop 108px). Feature card 158px, image 100px tall (desktop 132px) `#F7F7F8`. Search "Brands near you" `.hg-sd-brand-img` 72px / radius 14px (desktop 96px / 16px), border `#E9E6EC`. Logo background sizes: CONFLICT 13.
 
 **Product cards** — Store pages, search, recommended: see CONFLICTS 7, 8, 11. Common pieces: square image, `object-fit:cover`; name max 2 lines (`-webkit-line-clamp:2`); description hidden on tiles, 1 line on rows; borderless.
 
@@ -367,7 +349,6 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 - "+" add: CONFLICT 12.
 - Primary purple: `#5A29DE`, white text; sizes/radii in section 4; disabled `#E6E1EC` / `#D6D0E3` with `#676171`.
 - Product popup: stepper 127 x 50px, radius 999px, border `#E5E5E5`; "Add item" 50px, radius 999px, `#5A29DE`, 15px / 600 (GF1 (extra) L1903-1911, L2325-2333).
-- Store checkout bar (mobile): full-width, min-height 60px, radius `18px 18px 0 0`, gradient `#6C35F0 → #5A29DE`, label 15px / 700, price 16.5px / 800 (GF1 (extra) L2180-2192).
 - "View all" / "See all": CONFLICT 14.
 - More-stores arrows (desktop): 36px circle, border `#CCCBE3`, hover border `#1B2023` (GF1 (cat) L2745-2746).
 - "Become a Vendor": not in our code; in reference/home.html (snapshot) it is Hyperzod's own inline style: background `rgb(0, 0, 0)`, text `rgb(255, 255, 255)`, `tw-rounded-lg tw-border-2 tw-px-8 tw-py-3.5 tw-text-sm tw-font-semibold`. GL's download button copies that look (comment GL L89).
@@ -406,7 +387,7 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 | `hgLaunchFlip` (from translateY(-45%) scale(.9), opacity 0) | .45s `cubic-bezier(.2,.9,.3,1.2)` | Countdown digits | GL L75-76 |
 | `hgLaunchGlow` (shadow pulse) | 2s ease-in-out infinite | Seconds tile | GL L80-81 |
 | Launch bar width | 1.2s ease | Progress bar | GL L84 |
-| Reduced motion | `animation:none; transition:none` | `.hg-wm,.hg-ptr-logo,.hg-feature,.hg-logo-card,.hg-sd-chip,.hg-lang-card` and rails; `#hg-launch *`; placeholder sweep skipped | GF.css L1496-1499; GL L95; GF1 L859-860 |
+| Reduced motion | `animation:none; transition:none` | `.hg-wm` and the banner slider; `#hg-launch *`; placeholder sweep skipped | GF.css L1496-1499; GL L95; GF1 L859-860 |
 
 ---
 
@@ -431,12 +412,12 @@ Card borders are 1px hairlines (colors in section 1). Exceptions: language card 
 
 ## 8. Differences between the website and the app (code only)
 
-- **Website-only files:** WH (Arabic font stack; page-load veil; home category row and "Nearby Merchants" placeholders from first paint), WC (Arabic footer labels), WF (Arabic text translation; category-row arrow buttons at ≥960px; "Brands near you" fluid 4/5/7-column grid; store sections `hg-sp-*` grid; veil release).
+- **Website-only files:** WH (Arabic font stack; page-load veil), WC (Arabic footer labels), WF (Arabic text translation; store sections `hg-sp-*` grid; veil release; computer language list; drag to scroll).
 - **App-only file:** AF — sets `html.hg-native-app`; paints `html`/`body` `#5A29DE` (inline !important); drives the status strip (purple at rest on Home, fades to white on scroll, stays `rgb(134,64,252)` on Search). Temporary diagnostics in AF (`TEMP-DIAGNOSTIC` hgdiag panel, `TEMP-ERUDA` Eruda loader) are not part of the design.
 - **App-only rules inside Global files (`html.hg-native-app`):** search header shift variables, no field loading bar, native category grid stays while typing, result-shaped loading skeleton, header container `min-height:100vh`, Arabic `margin-right:-16px` (GF.css L1690-1778); launch "Download HyperGo" hidden (GL L94, L166); GF2 never pins the search header and starts live search through the page address in the app (GF2 L128-136, L187-195).
 - **Desktop vs mobile layout (both platforms, by width):** the desktop header (`#AppBar`, ≥960px) only exists at desktop widths; the mobile header + watermark + header cart run only when the mobile search row is visible (GF1 L60-61). Most store-page rules are split by `.merchant-mobile-view` vs `:not(.merchant-mobile-view)`; GF.css v99+ rules are viewport-based because, per its comment, Hyperzod "does not reliably add .merchant-mobile-view to every mobile shop renderer" (GF.css L151-153).
 - **Status-bar rules:** `.native-status-bar-bg` purple/transparent rules sit in Global CSS/JS (GF.css L38; GF1 L1262, L1577, L1760, L1863, L1894, L2064); AF describes this strip as "the app's own strip element" (AF L48).
-- **Background:** website body `#FAFAFC` (GF1 (extra)) / home `#FFFFFF` (home88); app adds `#5A29DE` on `html`/`body` (AF) — CONFLICT 5.
+- **Background:** page `#FFFCF9` (app-new.css, also behind Home); app adds `#5A29DE` on `html`/`body` (AF) — CONFLICT 5.
 
 ---
 
@@ -458,7 +439,7 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
 1. **Purple for headers vs brand primary** · RESOLVED (10a #1)
    - `#8640FC`: mobile home header, desktop AppBar, search/account/category/address headers, status strip (GF1 L75, L376, L1761, L1267; GF.css L37; AF L50).
    - `#5A29DE`: buttons/accents; app `html`/`body` background (AF L13, L19); category accent bar.
-   - Gradients add `#4D22C7`, `#6C35E8` (hero), `#6C35F0` (checkout bar), `#8B62F1` (pull-to-refresh), launch `#3b1fa8`/`#5b3fd0`/`#7c3aed` (GL).
+   - Gradients add `#4D22C7`, `#6C35E8` (hero), launch `#3b1fa8`/`#5b3fd0`/`#7c3aed` (GL).
 2. **Header bottom-corner radius** · RESOLVED (10a #2)
    - 26px: mobile home header (GF1 L77), account hero (GF1 (acct) L1274).
    - 24px: desktop AppBar (GF1 L391), search header (GF.css L37, L1039), address editor (GF1 (forms) L1604), store cover (GF1 (extra) L2055).
@@ -470,7 +451,7 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
 4. **Main text color** · RESOLVED (10a #4): `#1B2023` (most), `#262A33` (inputs, account rows, labels), `#302C35` (chips), `#000` (edit-profile title, address h2, search heading — GF1 L1583, L1614, L1780), `#111` (cart icon).
 5. **Page background** · RESOLVED (10a #5)
    - `#FAFAFC` on `body,.v-application`, all sizes (GF1 (extra) L1724).
-   - `#FFFFFF` on home (`body:has(#MultiVendorHome)`, `#MultiVendorHome`, sections) (GF1 (home88) L2346) and search (GF.css L36, L881).
+   - `#FFFFFF` on search (GF.css L36, L881).
    - `#5A29DE` on app `html`/`body`, inline !important (AF L11-20).
 6. **Store section title (mobile)** · RESOLVED (10a #6)
    - 22px / 700, margin-bottom 18px (GF1 (extra) L1931).
@@ -491,7 +472,6 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
 9. **Home sections container (desktop)** · RESOLVED (10a #9)
    - `max-width:1240px; margin:16px auto 50px; padding:0 20px` (GF1 (cat) L2709).
    - `max-width:1200px; margin:8px auto 40px !important; padding:0 24px 40px !important` (GF1 (extra) L2235). Margin/padding here carry !important; the hg-cat-style values do not.
-10. **Search discovery width (desktop)** · RESOLVED (10a #10): 1180px (GF.css L147) → 1350px !important (L888) → `max-width:none!important; margin-inline:0` (L1051, later in the file).
 11. **Search result product cards** · RESOLVED (10a #11)
     - 146px tiles, name 13px / 600 / 1.28-1.3, price 13px / 650, image radius 14px `#F7F7F8` (GF.css L79-90, L126-135).
     - Queried (`.hg-has-query`): 136px tiles, name min-height 34px, price 13px / 18px, later weight 700; image `#fff` with border `#EEECEF` (GF.css L1235-1281, L1637-1654).
@@ -502,24 +482,20 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
     - Store/filtered pages: border `1px solid #EEE9F6`, shadow `0 2px 6px rgba(34,18,78,.08)` (GF.css L1412-1415).
     - Offset from image corner: 8px (GF.css L333-335; GF1 L1942, L1951), 10px (GF1 L2112, L2286, L2293), 4px (GF.css L733-735; GF1 L2018-2020, L2168).
 13. **Logo background size** · RESOLVED (10a #13)
-    - `.hg-brand-img`: `calc(100% + 6px) calc(100% + 6px)` (GF1 (cat) L2673); `calc(100% + 6px) auto !important` (GF.css L481); `contain !important` desktop (GF.css L455-459, earlier in file); website `contain !important` (WF (brands-fill) L446, comment: "only to beat global-footer.css").
-    - `.hg-logo-img`: `calc(100% + 8px) calc(100% + 8px)` (GF1 (cat) L2681); `calc(100% + 8px) auto !important` (GF.css L476); `contain !important` desktop (GF.css L455).
     - Search brands and merchant thumbs: `contain` (GF.css L68, L1208); Nearby merchant logo `object-fit:cover` (GF1 L1803).
 14. **"View all" / "See all"** · RESOLVED (10a #14)
     - Home `.hg-all`: pill, 12px / 750, padding 5px 9px, `#F6F2FF`, border `#E9E0FF` (GF1 (cat) L2661).
     - Search v97: transparent, 12px / 700, height 30px, no border (GF.css L144).
     - Search queried v94: pill 34px, padding 0 14px, 13px / 700, `#F6F2FF`, border `#E9E0FF`, 999px (GF.css L1657-1679).
     - Search group link: 13px `#5A29DE` (GF.css L1418-1419); native `[class*='view-all']` 12px, min-height 36px (GF.css L101).
-15. **Cart / count badges** · RESOLVED (10a #15): header dot `#FF3B4E` 11px with `#8640FC` ring, number 10px / 700 (GF1 (cart)); search cart `#FF4000`, 10px / 800, line-height 17px (GF.css L48); checkout bar `#fff` + `#5A29DE`, 10.5px / 800 (GF1 L2187).
+15. **Cart / count badges** · RESOLVED (10a #15): header dot `#FF3B4E` 11px with `#8640FC` ring, number 10px / 700 (GF1 (cart)); search cart `#FF4000`, 10px / 800, line-height 17px (GF.css L48).
 16. **Danger red** · RESOLVED (10a #16): `#E5384F` (log out, errors, delete) vs `#FF3B4E` (cart badge).
 17. **Secondary (grey) text** · RESOLVED (10a #17): `#77727F`, `#767676`, `#5C5C5C`, `#8A8A8A`, `#817B88`, `#8A849C`, `#6B7280`, `#73707A`, `rgba(27,32,35,.68)` — each listed in section 1.
 18. **Hairline divider color** · RESOLVED (10a #18): `#EEECEF`, `#F0F0F0`, `#E5E5E5`, `#EAE4F5`, `#ECE9EF`, `#ECEAEF`, `#F2F2F2`, `#F0EBFA`, `#EEE9F6`, `#EAE7EE`, `#F2F0F3`, `rgba(27,32,35,.08)` — section 1.
 19. **Product image backing** · RESOLVED (10a #19): `#F5F5F5` (GF1, WF (sp)), `#F7F7F8` (GF.css), `#fff` + border `#EEECEF` (search queried), `#f5f5f5` (Nearby tile).
-20. **Category icon tile image radius / gaps** · RESOLVED (10a #20): image 12px (WH L248; GF1 (cat) L2706); `.tw-aspect-square` 12px (GF1 (extra) L1814) then 11px (GF1 (home88) L2353); `.tw-grid` gap 14px (extra L1813) then 9px 10px (home88 L2352); label `.tw-h-10` height 28px (extra L1815) then `auto`, 11px (home88 L2354). hg-home-v88 is appended right after hg-extra-style in `ensureExtraStyle()` (GF1 L2342-2357).
 21. **Merchant list thumbnails** · RESOLVED (10a #21): 84px (Recommended for you, GF1 L1825), 76px (search merchants tab and category page, L1837, L1853), 72px (category page mobile override L1870; desktop L2308; search GF.css L74), 68px radius 13px (queried search GF.css L1201-1207), 80px (Nearby, L1802).
 22. **Search category circles row** · RESOLVED (10a #22): padding 2px 18px 8px, gap 14px 4px, heading 17px / 600 `#000` (GF1 (extra) L1780-1783) vs padding 16px, column-gap 10px, row-gap 18px, heading 18px / 760, margin 22px 0 14px (GF.css L51-52, L105-106, L1134-1137).
 23. **Primary button radius / shadow** · RESOLVED (10a #23): 13px + `0 7px 18px rgba(90,41,222,.18)` (account/checkout), 14px + `0 8px 18px rgba(90,41,222,.2)` (cart), 12px + `0 6px 16px rgba(90,41,222,.18)` (desktop cart-btn), 16px + `0 8px 20px rgba(90,41,222,.28)` (sheets), 999px + none (popup add, filter footer), 8px black (launch).
-24. **Search chip radius** · RESOLVED (10a #24): 11px mobile vs 12px desktop for `.hg-sd-chip`; popular chips 999px (GF.css L64, L947, L114, L958).
 25. **Arabic font stack** · RESOLVED (10a #25): `"IBM Plex Sans Arabic", Arial, sans-serif` (WH) vs `'IBM Plex Sans Arabic','Noto Sans Arabic',sans-serif` (GL L79).
 26. **Focus indicator** · RESOLVED (10a #26): outline `3px solid #5A29DE` offset 3px (GF.css L1324) vs search pill `0 0 0 2px rgba(90,41,222,.38)` (L1330) vs form fields `0 0 0 4px rgba(90,41,222,.12)` + `#5A29DE` border (GF1 (forms) L1590, L1635).
 27. **Product popup name** · RESOLVED (10a #27): 20px (mobile bottom sheet, GF1 L1897) vs 22px (desktop modal, L2318).
@@ -530,7 +506,7 @@ Store and merchant logos: fit fully inside their box (`contain`) everywhere, on 
 
 These apply to a component only when a future change touches that component. Do not restyle code to match them, and don't mass-edit files.
 
-1. Header purple: _Approved standard. The code may not match yet._ `#8640FC` for every header; `#5A29DE` for buttons and accents. Gradients only on their own features (hero, checkout bar, pull-to-refresh, launch). Evidence: `#8640FC` in all 19 header rules, web and app; `#5A29DE` accent in 72 places.
+1. Header purple: _Approved standard. The code may not match yet._ `#8640FC` for every header; `#5A29DE` for buttons and accents. Gradients only on their own features (hero, checkout bar, launch). Evidence: `#8640FC` in all 19 header rules, web and app; `#5A29DE` accent in 72 places.
 2. Header bottom corners: _Approved standard. The code may not match yet._ 24px (replaces 26px and 22px). Evidence: 6 rules (desktop AppBar, search header, address editor, store cover).
 3. Search header and field (mobile): _Approved standard. The code may not match yet._ the GF.css set (L37-45, L1515): padding 12px 16px 20px, field 44px `#F6F6F8` with `1px solid #E7E5EA`, back button 36px white circle, arrow `#1B2023` 18px, input 15px, min-height 76px; greys follow #17. Evidence: newer, written to override the older set; 4+ search rules.
 4. Main text color: no standard (Nouf: no change). Values as in the code today: `#1B2023` (most), `#262A33` (inputs, account rows, labels), `#302C35` (chips), `#000` (edit-profile title, address h2, search heading), `#111` (cart icon).
@@ -539,7 +515,6 @@ These apply to a component only when a future change touches that component. Do 
 7. Store product card (mobile): _Approved standard. The code may not match yet._ 2-column tile grid, gap 28px 12px, image radius 14px on `#F5F5F5`, name 16px / 400 / 1.3, price 16px / 500, no borders. Evidence: matches the section 9 target; v102 rows go against it.
 8. Recommended Products (mobile): _Approved standard. The code may not match yet._ 171px cards, gap 20px, image radius 14px `#F5F5F5`, name 16px / 400, price 16px / 500. Evidence: same card values as the target grid (if section 9 covers Recommended, it becomes a wrapping grid).
 9. Home sections container (desktop): _Approved standard. The code may not match yet._ max-width 1200px, margin 8px auto 40px, padding 0 24px 40px. Evidence: has !important, so it is what shows today.
-10. Search discovery width (desktop): _Approved standard. The code may not match yet._ max-width none (full width), margin-inline 0. Evidence: last rule in GF.css with !important.
 11. Search result product cards: _Approved standard. The code may not match yet._ 146px tiles, name 13px / 600, price 13px / 650, image radius 14px, backing per #19. Evidence: discovery set has the most rules (GF.css L79-135).
 12. "+" add button: _Approved standard. The code may not match yet._ 29px white circle (was 30px; on 2026-10-05 every "+" was made 1px smaller, so the other size is now 33px), svg 13px, shadow `0 1px 4px rgba(0,0,0,.10)`, no border, 8px from the image corner. Evidence: 30px in 4 rules vs 3; 8px offset in 3 rules.
 13. Logo sizing: _Approved standard. The code may not match yet._ Decided target: logos fit fully inside the box (`contain`) everywhere, website and app, never cropped (also in section 9). Evidence: desktop and website already use `contain`; mobile `calc(100% + 6px/8px)` crops.
@@ -549,7 +524,6 @@ These apply to a component only when a future change touches that component. Do 
 17. Secondary grey text: _Approved standard. The code may not match yet._ `#5C5C5C` (replaces `#77727F`, `#767676`, `#8A8A8A`, `#817B88`, `#8A849C`, `#6B7280`, `#73707A`, `rgba(27,32,35,.68)`). Evidence: most uses (8), on store pages, darkest so easiest to read.
 18. Hairline divider: _Approved standard. The code may not match yet._ `#EEECEF` (replaces the other 11). Evidence: 51 uses; next is `#F0F0F0` with 9.
 19. Product image backing: _Approved standard. The code may not match yet._ `#F5F5F5`. Evidence: 9 uses vs 6; used in the target store grid.
-20. Category icon tiles: _Approved standard. The code may not match yet._ hg-home-v88 values: image radius 11px, gap 9px 10px, label height auto, 11px. Evidence: loads after hg-extra-style, so home shows it today.
 21. Merchant list thumbnails: _Approved standard. The code may not match yet._ 72px. Evidence: 3 rules (category mobile, category desktop, search); others 1-2.
 22. Search category circles row: _Approved standard. The code may not match yet._ the GF.css set: padding 16px, column-gap 10px, row-gap 18px, heading 18px / 760, margin 22px 0 14px. Evidence: 4 rules; matches #3.
 23. Primary button: _Approved standard. The code may not match yet._ radius 13px, shadow `0 7px 18px rgba(90,41,222,.18)` (replaces 12, 14, 16px). The launch section keeps its own look. Evidence: account and checkout, the main button screens.
