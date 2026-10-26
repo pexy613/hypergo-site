@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1301 */
+/* hg-version 2026-10-26-1402 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -933,6 +933,41 @@
     return "/" + L + "/m-category/" + encodeURIComponent(slug) + "/" + (c.id || c._id) + "?categoryCollection=true";
   }
   function storeHref(m, L) { return "/" + L + "/m/" + encodeURIComponent(m.slug) + "/" + (m._id || m.id); }
+  /* Home's categories (switched on, in Hyperzod's order), its category tiles (4 per row; 7 + "See all" when there are
+     more than 8; "See all" opens the Search page) and its Shop by occasion ticket cards. Also used by the empty cart
+     and empty Reorder screens (2026-10-26). */
+  function homeCats(hd) {
+    return ((hd && hd.merchant_categories) || []).filter((c) => c && c.status !== false && c.status !== 0)
+      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  }
+  function catTilesHtml(cats, L, newCats) {
+    const idOf = (x) => x._id || x.id, many = cats.length > 8;
+    let html = (many ? cats.slice(0, 7) : cats).map((c) => {
+      const href = catHref(c, L), photo = catPhoto(c), img = photo || c.image, isNew = newCats && newCats[idOf(c)];
+      return '<a class="hgn-cat' + (photo ? " hgn-cat-photo" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
+        '<span class="hgn-cat-ring' + (isNew ? " has-new" : "") + '">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") +
+        (isNew ? '<span class="hgn-cat-new">' + esc(ATXT[L].isNew) + "</span>" : "") + "</span>" +
+        '<span class="hgn-cat-name">' + esc(catLabel(c)) + "</span></a>";
+    }).join("");
+    if (many) {
+      const allHref = "/" + L + "/search";
+      html += '<a class="hgn-cat hgn-cat-all" href="' + esc(allHref) + '" data-href="' + esc(allHref) + '">' +
+        '<span class="hgn-cat-ring">' + MARK + "</span>" + '<span class="hgn-cat-name">' + esc(TXT[L].seeAll) + "</span></a>";
+    }
+    return html;
+  }
+  /* ticket card (2026-10-22): the photo, then a perforated stub with the occasion, its category and a go button.
+     A card whose category is missing or switched off is left out. */
+  function occCardsHtml(catMap, L) {
+    return OCCASIONS.map((o) => ({ o, c: catMap[o.cat] })).filter((x) => x.c && x.c.status !== false && x.c.status !== 0).map(({ o, c }) => {
+      const href = catHref(c, L);
+      return '<a class="hgn-tk" href="' + esc(href) + '" data-href="' + esc(href) + '" aria-label="' + esc(o[L] + ", " + catLabel(c)) + '">' +
+        '<span class="hgn-tk-pic"><img src="' + esc(OCC_IMG_BASE + o.img + ".webp") + '" alt="" loading="lazy" decoding="async"></span>' +
+        '<span class="hgn-tk-stub"><span class="hgn-tk-t hgn-jak">' + esc(o[L]) + "</span>" +
+        '<span class="hgn-tk-s">' + esc(catLabel(c)) + "</span>" +
+        '<span class="hgn-tk-go">' + GO_ARROW + "</span></span></a>";
+    }).join("");
+  }
   function storeImg(m, kind) {
     const im = m && m.images, x = im && im[kind];
     return (x && (x.image_url || x.image_thumb_url)) || "";
@@ -1244,7 +1279,8 @@
      Each card (Satin Deep Black, Opus text): the store's own cover photo (or its logo on Opus when it has none), its
      category and how long ago it joined; "Joined today" and "Joined yesterday" in the soft orange #FF8C66.
      Computers show 5 cards and "See all N" (more than 5), which opens all of them: /home?hgn=new. */
-  const SERR = '<span class="hgn-mib-serr" aria-hidden="true"><svg viewBox="0 0 84 300" preserveAspectRatio="none"><path fill="currentColor" d="M84 0H30L0 30L30 60L0 90L30 120L0 150L30 180L0 210L30 240L0 270L30 300H84Z"/></svg></span>';
+  const SERR_SVG = '<svg viewBox="0 0 84 300" preserveAspectRatio="none"><path fill="currentColor" d="M84 0H30L0 30L30 60L0 90L30 120L0 150L30 180L0 210L30 240L0 270L30 300H84Z"/></svg>';
+  const SERR = '<span class="hgn-mib-serr" aria-hidden="true">' + SERR_SVG + "</span>";
   const MIB_CHEV = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
   function initials(n) {
     return String(n || "").trim().split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase();
@@ -1461,8 +1497,7 @@
     else if (box.nextElementSibling !== main) main.insertAdjacentElement("beforebegin", box);
 
     const ar = hgIsAr(), L = ar ? "ar" : "en", t = TXT[L];
-    const cats = hd.merchant_categories.filter((c) => c && c.status !== false && c.status !== 0)
-      .slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    const cats = homeCats(hd);
     const feat = featuredStores(hd);
     const idOf = (x) => x._id || x.id;
     /* Stores near you leaves out the stores already in the banner, so the two never repeat each other */
@@ -1485,27 +1520,8 @@
 
     let html = "";
 
-    /* category grid: 4 per row; 7 categories + "See all" when there are more than 8 */
-    const many = cats.length > 8;
-    const shown = many ? cats.slice(0, 7) : cats;
     html += '<section class="hgn-cats" aria-label="' + esc(t.cats) + '"><div class="hgn-cat-grid">';
-    shown.forEach((c) => {
-      const href = catHref(c, L);
-      const photo = catPhoto(c);
-      const img = photo || c.image;
-      html += '<a class="hgn-cat' + (photo ? " hgn-cat-photo" : "") + '" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-        '<span class="hgn-cat-ring' + (newCats[idOf(c)] ? " has-new" : "") + '">' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' : "") +
-        (newCats[idOf(c)] ? '<span class="hgn-cat-new">' + esc(ATXT[L].isNew) + "</span>" : "") + "</span>" +
-        '<span class="hgn-cat-name">' + esc(catLabel(c)) + "</span></a>";
-    });
-    /* "See all" opens the Search page, which lists every category ("Shop by category") */
-    if (many) {
-      const allHref = "/" + L + "/search";
-      html += '<a class="hgn-cat hgn-cat-all" href="' + esc(allHref) + '" data-href="' + esc(allHref) + '">' +
-        '<span class="hgn-cat-ring">' + MARK + "</span>" +
-        '<span class="hgn-cat-name">' + esc(t.seeAll) + "</span></a>";
-    }
-    html += "</div></section>";
+    html += catTilesHtml(cats, L, newCats) + "</div></section>";
 
     /* banner (C1, chosen 2026-10-18): the store's own banner photo as it is (it already shows the store's name and logo,
        so we add no text on it), with only a small "Shop now" pill in the corner. Slides = the stores in the Featured collection (Hyperzod page builder), then
@@ -1542,19 +1558,8 @@
 
     /* Shop by occasion (O4, chosen 2026-10-19, in place of Popular right now): purple cards, each opens a Hyperzod category.
        A card whose category is missing or switched off is left out. */
-    const occ = OCCASIONS.map((o) => ({ o, c: catMap[o.cat] })).filter((x) => x.c && x.c.status !== false && x.c.status !== 0);
-    if (occ.length) {
-      html += '<section class="hgn-occs"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.occ) + '</h2></div><div class="hgn-occ-row">' +
-        occ.map(({ o, c }) => {
-          const href = catHref(c, L);
-          /* ticket card (2026-10-22): the photo, then a perforated stub with the occasion, its category and a go button */
-          return '<a class="hgn-tk" href="' + esc(href) + '" data-href="' + esc(href) + '" aria-label="' + esc(o[L] + ", " + catLabel(c)) + '">' +
-            '<span class="hgn-tk-pic"><img src="' + esc(OCC_IMG_BASE + o.img + ".webp") + '" alt="" loading="lazy" decoding="async"></span>' +
-            '<span class="hgn-tk-stub"><span class="hgn-tk-t hgn-jak">' + esc(o[L]) + "</span>" +
-            '<span class="hgn-tk-s">' + esc(catLabel(c)) + "</span>" +
-            '<span class="hgn-tk-go">' + GO_ARROW + "</span></span></a>";
-        }).join("") + "</div></section>";
-    }
+    const occCards = occCardsHtml(catMap, L);
+    if (occCards) html += '<section class="hgn-occs"><div class="hgn-head"><h2 class="hgn-h2">' + esc(t.occ) + '</h2></div><div class="hgn-occ-row">' + occCards + "</div></section>";
 
     /* Stores near you: Hyperzod's nearest stores, tags = the store's own Hyperzod categories */
     /* shown as one white panel with category filters (E, chosen 2026-10-19), not a sideways row; See all opens the full list */
@@ -1961,6 +1966,8 @@
       g.$router.afterEach(() => schedule());
       if (g.$router.beforeEach) {
         g.$router.beforeEach((to, from) => {
+          /* (2026-10-26) the Reorder tab with no orders known: Hyperzod's page is hidden at once, ours draws next (EMPTY CART AND EMPTY REORDER) */
+          if (to && reoTabEmpty(to.path)) document.documentElement.classList.add("hgn-reo-pre");
           if (from && to && /\/m\/[^/]+\/[^/]+\/search\/?$/.test(from.path || "") && to.path !== from.path) {
             document.documentElement.classList.add("hgn-ms-leaving");
             msLeaveAt = Date.now();
@@ -3698,51 +3705,93 @@
     if (warmQ.length) warmPump();
   }
 
-  /* ---------- EMPTY CART AND EMPTY REORDER (2026-10-26, "HyperGo Home Sections and Empty Screens" canvas, option A of
-     each, chosen by Nouf) ----------
-     Hyperzod's own empty screens (a grey basket, a cardboard box) are replaced by ours: a soft lilac circle with our purple
-     icon, a bold line, one short sentence and a purple button. Three places:
-     - the cart panel on computers (.scheme-cart-empty, in Hyperzod's side panel);
-     - the cart page on phones and in the app (/checkout with an empty cart);
-     - the orders page with no orders (Reorder tab, and My Orders from Account). Opened from the Reorder tab in the app or
-       on a phone, the purple "My Orders" bar with its back arrow goes too and the page starts with a "Reorder" title.
-     Hyperzod's own elements stay in the page, only hidden, so nothing else of theirs changes. */
-  const EMPTY_TXT = {
-    en: { cartH: "Your cart is empty", cartP: "Add something from a shop near you and it will show up here.", cartGo: "Browse stores near you", cartAlt: "Search HyperGo",
-      ordH: "No orders yet", ordP: "When you order, your shops show up here so you can order again in one tap.", ordGo: "Start shopping",
-      reoT: "Reorder", reoS: "Your past orders, ready to order again" },
-    ar: { cartH: "سلتك فارغة", cartP: "أضف شيئاً من متجر قريب منك وسيظهر هنا.", cartGo: "تصفح المتاجر القريبة", cartAlt: "ابحث في HyperGo",
-      ordH: "لا توجد طلبات بعد", ordP: "عندما تطلب، تظهر متاجرك هنا لتطلب مرة أخرى بلمسة واحدة.", ordGo: "ابدأ التسوق",
-      reoT: "إعادة الطلب", reoS: "طلباتك السابقة، جاهزة لتطلبها مرة أخرى" }
+  /* ---------- EMPTY CART AND EMPTY REORDER (2026-10-26, canvas "HyperGo Home Sections and Empty Screens", design P2,
+     chosen by Nouf: "it just doesnt look.. premium. like our homepage") ----------
+     The look of Home: the purple of the Home banners with the flag's serrated edge, our 3D gift, bouquet and balloons
+     (the repo's occasion-cutouts pictures), "Nothing to reorder" / "Your cart is" in Plus Jakarta Sans with an Instrument
+     Serif italic word in Appetite, and the "Shop now" style button. Under it something to tap: Home's Shop by occasion
+     cards (Reorder) or Home's category tiles (cart). "Start shopping" opens the Search page (it opened Home); "Browse
+     stores near you" opens Stores near you.
+     - Phones and the app: a full screen of our own (#hgn-pz) over Hyperzod's page, above the bottom bar, purple from the
+       top of the screen (under the clock).
+       Reorder tab: ours shows from the first moment (html.hgn-reo-pre hides Hyperzod's page as the tab is opened), so
+       Hyperzod's purple "My Orders" bar, its grey loading bars and its cardboard box no longer flash. Its words show once
+       Hyperzod has found no orders; with orders, ours goes and Hyperzod's list shows.
+       Cart page: once Hyperzod shows its empty cart.
+     - Computers (cart panel), and My Orders opened from Account: the same as a card inside Hyperzod's empty block. */
+  const PZ_CUT = "https://pexy613.github.io/hypergo-site/occasion-cutouts/";
+  const PZ_TXT = {
+    en: { reoT: "Reorder", reoA: "Nothing to reorder", reoB: "yet.", reoP: "When you order, your shops show up here so you can order again in one tap.",
+      cartT: "Your cart", cartA: "Your cart is", cartB: "empty.", cartP: "Add something from a shop near you and it will show up here.",
+      go: "Start shopping", stores: "Browse stores near you", cats: "Shop by category" },
+    ar: { reoT: "إعادة الطلب", reoA: "لا توجد طلبات", reoB: "بعد.", reoP: "عندما تطلب، تظهر متاجرك هنا لتطلب مرة أخرى بلمسة واحدة.",
+      cartT: "سلّتك", cartA: "سلتك", cartB: "فارغة.", cartP: "أضف شيئاً من متجر قريب منك وسيظهر هنا.",
+      go: "ابدأ التسوق", stores: "تصفح المتاجر القريبة", cats: "تسوّق حسب الفئة" }
   };
-  const EMPTY_IC = {
-    bag: '<svg viewBox="0 0 24 24" fill="none" stroke="#5A29DE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
-    reo: '<svg viewBox="0 0 24 24" fill="none" stroke="#5A29DE" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-13.7 5.6"/><path d="M4 12a8 8 0 0 1 13.7-5.6"/><path d="M17.7 3.2v3.2h-3.2"/><path d="M6.3 20.8v-3.2h3.2"/></svg>'
-  };
-  let emptyClicks = false;
-  function emptyHtml(kind, reo) {
-    const L = lang(), T = EMPTY_TXT[L] || EMPTY_TXT.en, cart = kind === "cart";
-    return (reo ? '<div class="hgn-empty-top"><h1 class="hgn-empty-t hgn-jak">' + esc(T.reoT) + '</h1><p class="hgn-empty-s">' + esc(T.reoS) + "</p></div>" : "") +
-      '<div class="hgn-empty-mid"><span class="hgn-empty-ic">' + (cart ? EMPTY_IC.bag : EMPTY_IC.reo) + "</span>" +
-      '<h2 class="hgn-empty-h hgn-jak">' + esc(cart ? T.cartH : T.ordH) + "</h2>" +
-      '<p class="hgn-empty-p">' + esc(cart ? T.cartP : T.ordP) + "</p>" +
-      '<button type="button" class="hgn-empty-go" data-go="' + (cart ? "stores" : "home") + '">' + esc(cart ? T.cartGo : T.ordGo) + "</button>" +
-      (cart ? '<button type="button" class="hgn-empty-alt" data-go="search">' + esc(T.cartAlt) + "</button>" : "") + "</div>";
+  const PZ_ALT = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  function pzHtml(kind, page) {
+    const L = lang(), T = PZ_TXT[L] || PZ_TXT.en, reo = kind === "orders";
+    const pics = reo ? ["gifts", "flowers", "party-stores"] : ["gifts", "flowers"];
+    const hd = homeData();
+    let more = "";
+    if (hd && Array.isArray(hd.merchant_categories)) {
+      const inner = reo ? occCardsHtml(catMapOf(hd), L) : catTilesHtml(homeCats(hd), L, null);
+      if (inner) more = '<section class="hgn-pz-more"><h3 class="hgn-pz-h3 hgn-jak">' + esc(reo ? TXT[L].occ : T.cats) + "</h3>" +
+        (reo ? '<div class="hgn-occ-row">' : '<div class="hgn-cat-grid">') + inner + "</div></section>";
+    }
+    return '<section class="hgn-pz-top"><span class="hgn-pz-serr" aria-hidden="true">' + SERR_SVG + "</span>" +
+      (page ? '<h1 class="hgn-pz-t hgn-jak">' + esc(reo ? T.reoT : T.cartT) + "</h1>" : "") +
+      '<div class="hgn-pz-art n' + pics.length + '" aria-hidden="true">' + pics.map((p, i) => '<img class="hgn-pz-img p' + (i + 1) + '" src="' + PZ_CUT + p + '.webp" alt="" decoding="async">').join("") + "</div>" +
+      '<div class="hgn-pz-txt"><h2 class="hgn-pz-h"><span class="hgn-jak">' + esc(reo ? T.reoA : T.cartA) + '</span><span class="hgn-serif">' + esc(reo ? T.reoB : T.cartB) + "</span></h2>" +
+      '<p class="hgn-pz-p">' + esc(reo ? T.reoP : T.cartP) + "</p>" +
+      '<div class="hgn-pz-acts"><button type="button" class="hgn-pz-go" data-go="search">' + esc(T.go) + '<span class="hgn-pz-arrow">' + GO_ARROW + "</span></button>" +
+      (reo ? "" : '<button type="button" class="hgn-pz-alt" data-go="stores">' + esc(T.stores) + PZ_ALT + "</button>") + "</div></div></section>" + more;
   }
-  function emptyFill(host, kind, reo) {
+  /* the card inside Hyperzod's own empty block (computers, My Orders from Account); its other children are hidden */
+  function pzFill(host, kind) {
     if (!host.classList.contains("hgn-empty-host")) host.classList.add("hgn-empty-host");
     let box = host.querySelector(":scope > .hgn-empty");
     if (!box) { box = document.createElement("div"); host.insertBefore(box, host.firstChild); }
-    const cls = "hgn-empty is-" + kind + (reo ? " is-reo" : "");
+    const cls = "hgn-empty hgn-pz is-card is-" + kind;
     if (box.className !== cls) box.className = cls;
-    const html = emptyHtml(kind, reo), sig = lang() + "|" + kind + "|" + (reo ? 1 : 0);
-    if (box.dataset.sig !== sig) { box.innerHTML = html; box.dataset.sig = sig; }
+    box.setAttribute("dir", hgIsAr() ? "rtl" : "ltr");
+    const html = pzHtml(kind, false);
+    if (box.__hgHtml !== html) { box.__hgHtml = html; box.innerHTML = html; }
   }
+  /* the full screen (phones, the app) */
+  function pzScreen(kind, wait) {
+    const root = document.documentElement;
+    let el = document.getElementById("hgn-pz");
+    if (!kind) {
+      if (el) el.remove();
+      if (root.classList.contains("hgn-pz-on")) root.classList.remove("hgn-pz-on");
+      return;
+    }
+    if (!el) { el = document.createElement("div"); el.id = "hgn-pz"; document.body.appendChild(el); }
+    const cls = "hgn-pz is-page is-" + kind + (wait ? " is-wait" : "");
+    if (el.className !== cls) el.className = cls;
+    el.setAttribute("dir", hgIsAr() ? "rtl" : "ltr");
+    const html = pzHtml(kind, true);
+    if (el.__hgHtml !== html) { el.__hgHtml = html; el.innerHTML = html; }
+    if (!root.classList.contains("hgn-pz-on")) root.classList.add("hgn-pz-on");
+  }
+  /* Hyperzod's own empty block: a heading and its button */
+  function hzEmpty(sel) {
+    return [...document.querySelectorAll(sel)].find((h) => h.querySelector(":scope > h2") && h.querySelector(".rate-order-btn")) || null;
+  }
+  const ORDERS_PATH = /\/profile\/orders\/?$/;
+  /* the Reorder tab on a phone or in the app, with no orders known yet */
+  function reoTabEmpty(path) {
+    if (WIDE.matches || !ORDERS_PATH.test(path || "") || document.documentElement.classList.contains("hg-orders-acct")) return false;
+    const S = csStore(), O = S && S.state.Orders;
+    return !!O && !((O.myOrders || []).length);
+  }
+  let pzClicks = false;
   function renderEmptyStates() {
-    if (!emptyClicks) {
-      emptyClicks = true;
+    if (!pzClicks) {
+      pzClicks = true;
       document.addEventListener("click", (ev) => {
-        const b = ev.target && ev.target.closest && ev.target.closest(".hgn-empty [data-go]");
+        const b = ev.target && ev.target.closest && ev.target.closest(".hgn-pz [data-go], .hgn-pz [data-href]");
         if (!b) return;
         ev.preventDefault();
         const L = lang(), k = b.getAttribute("data-go");
@@ -3750,27 +3799,20 @@
         const panel = b.closest(".v-navigation-drawer");
         const x = panel && panel.querySelector(".v-card-title .v-btn");
         if (x) x.click();
-        go("/" + L + (k === "stores" ? "/home?hgn=stores" : k === "search" ? "/search" : "/home"));
+        go(k ? "/" + L + (k === "stores" ? "/home?hgn=stores" : "/search") : b.getAttribute("data-href"));
       });
     }
-    /* 1. cart panel (computers) */
-    document.querySelectorAll(".scheme-cart-empty").forEach((h) => emptyFill(h, "cart", false));
-    /* 2. cart page (phones, app): Hyperzod's empty block is the page surface with a heading and its button */
-    document.querySelectorAll("#checkout > .hpz-page-surface").forEach((h) => {
-      if (h.querySelector(":scope > h2") && h.querySelector(".rate-order-btn")) emptyFill(h, "cart", false);
-    });
-    /* 3. orders with no orders */
-    const root = document.documentElement;
-    let reo = false;
-    if (/\/profile\/orders\/?$/.test(currentPath())) {
-      document.querySelectorAll("#custom-scroll-orders > div").forEach((h) => {
-        if (!h.querySelector(":scope > h2") || !h.querySelector(".rate-order-btn")) return;
-        const r = !WIDE.matches && !root.classList.contains("hg-orders-acct");
-        emptyFill(h, "orders", r);
-        if (r) reo = true;
-      });
-    }
-    if (root.classList.contains("hgn-reo-empty") !== reo) root.classList.toggle("hgn-reo-empty", reo);
+    const root = document.documentElement, path = currentPath();
+    /* computers: the cart panel */
+    document.querySelectorAll(".scheme-cart-empty").forEach((h) => pzFill(h, "cart"));
+    /* phones and the app: the full screen */
+    let kind = "", wait = false;
+    if (reoTabEmpty(path)) { kind = "orders"; wait = !hzEmpty("#custom-scroll-orders > div"); }
+    else if (!WIDE.matches && /\/checkout\/?$/.test(path) && hzEmpty("#checkout > .hpz-page-surface")) kind = "cart";
+    pzScreen(kind, wait);
+    if (root.classList.contains("hgn-reo-pre") !== (kind === "orders")) root.classList.toggle("hgn-reo-pre", kind === "orders");
+    /* My Orders from Account, and orders on computers: the card */
+    if (!kind && ORDERS_PATH.test(path)) { const h = hzEmpty("#custom-scroll-orders > div"); if (h) pzFill(h, "orders"); }
   }
 
   /* each part runs on its own (2026-10-18): before, one error in any part (for example the header on a screen it
@@ -3799,7 +3841,7 @@
   }
 
   /* + #hgn-sland, #hgn-shead and both cart buttons (2026-10-20): changes inside our own boxes never need a re-run */
-  const NOISE = ".hgn-sfilter,.hgn-ssearch,#hgn-sq-none,.hgn-empty,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,.hgn-mc-n,.hgn-mc-chev,.hgn-mc-thumbs,.hgn-mc-total,.hgn-mc-go,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
+  const NOISE = ".hgn-sfilter,.hgn-ssearch,#hgn-sq-none,.hgn-empty,#hgn-done,#hgn-vc,.hgn-co-sum,.hgn-co-oh,.hgn-co-tiph,.hgn-co-bill,.hgn-cs-also,#hgn-pz,.hgn-mc-n,.hgn-mc-chev,.hgn-mc-thumbs,.hgn-mc-total,.hgn-mc-go,#hgn-co-addr,.hgn-co-title,.hgn-co-instr,#hgn-page,#hgn-sres,#hgn-catpage,#hgn-sfav,.hgn-acct-fav,#hgn-sinfo,.hgn-open,.hgn-thumb,.hg-ph,#hgn-home,#hgn-sland,#hgn-stabs,#hgn-shead,#hg-cart-btn,#hg-search-cart";
   function relevant(recs) {
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i], el = r.target && (r.target.nodeType === 1 ? r.target : r.target.parentNode);

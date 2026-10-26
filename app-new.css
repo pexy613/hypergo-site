@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1301 */
+/* hg-version 2026-10-26-1402 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1687,38 +1687,61 @@ html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *
 html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(p,div,li)+:is(p,div,li)::before{content:" ";}
 html body :is(#app,.v-overlay-container) .product-description:not(#productInfo *) :is(br,img,table,hr){display:none!important;}
 
-/* ================= EMPTY CART AND EMPTY REORDER (2026-10-26, canvas "HyperGo Home Sections and Empty Screens", option A of
-   each, chosen by Nouf; app-new.js EMPTY CART AND EMPTY REORDER) =================
-   Hyperzod's grey basket / cardboard box screens hidden; ours: 120px lilac circle with a 52px purple icon, the line 24/800
-   (Plus Jakarta Sans), one sentence 15/22 grey, a 48px purple gloss button (the checkout button's gloss), on computers a
-   second, plain purple link. */
+/* ================= EMPTY CART AND EMPTY REORDER (2026-10-26, canvas "HyperGo Home Sections and Empty Screens", design P2,
+   chosen by Nouf; app-new.js EMPTY CART AND EMPTY REORDER) =================
+   Phones and the app: a full screen (#hgn-pz) with a purple top like the Home banners (radial #7B54E5 over #4821B2 → #2D156F →
+   #1B0C43, bottom corners 32, the flag's serrated edge in Opus at 10%), the title in Opus, our 3D pictures, "Nothing to
+   reorder" / "Your cart is" Plus Jakarta Sans 800 30/36 Opus + "yet." / "empty." Instrument Serif italic 42 Appetite, the
+   sentence 15/22 Opus, a 48px #F5F5F9 pill with a 36px Blue Magenta arrow circle, then Home's occasion cards or category
+   tiles. Computers and My Orders from Account: the same as a card (radius 24). Brand colours only. */
 html.hg-new-app .hgn-empty-host{background:#FFFCF9!important;}
 html.hg-new-app .hgn-empty-host > :not(.hgn-empty){display:none!important;}
-html.hg-new-app .hgn-empty{display:flex;flex-direction:column;min-height:inherit;width:100%;color:var(--hg-ink);}
-html.hg-new-app .hgn-empty-mid{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0 32px 24px;text-align:center;}
-html.hg-new-app .hgn-empty-ic{width:120px;height:120px;margin-bottom:8px;border-radius:60px;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 35% 30%,#FFFFFF 0%,#F1ECFF 60%,#E4DBFF 100%);}
-html.hg-new-app .hgn-empty-ic svg{width:52px;height:52px;}
-html.hg-new-app .hgn-empty-h{margin:0;font-size:24px;line-height:30px;color:#1B2023;}
-html.hg-new-app .hgn-empty-p{margin:0;max-width:300px;font-size:15px;line-height:22px;color:var(--hg-muted);}
-html.hg-new-app .hgn-empty-go{margin-top:8px;height:48px;padding:0 28px;border:0;border-radius:24px;cursor:pointer;font:inherit;font-size:16px;font-weight:700;color:#FFFFFF;
-  background:linear-gradient(180deg,#7A4CF5,#5A29DE 55%,#4519C2);box-shadow:0 10px 20px -8px rgba(90,41,222,.6);-webkit-tap-highlight-color:transparent;}
-html.hg-new-app .hgn-empty-alt{padding:8px 12px;border:0;background:none;cursor:pointer;font:inherit;font-size:15px;font-weight:600;color:#5A29DE;}
-html.hg-new-app .hgn-empty-go:focus-visible,html.hg-new-app .hgn-empty-alt:focus-visible{outline:2px solid #5A29DE;outline-offset:2px;}
-/* the cart page on phones: the whole screen above the bottom bar, the content in its middle */
-html.hg-new-app #checkout > .hgn-empty-host{height:auto!important;min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
-html.hg-new-app #checkout > .hgn-empty-host > .hgn-empty{min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
-/* the cart panel on computers: Hyperzod's 96px space on top stays */
-html.hg-new-app .scheme-cart-empty.hgn-empty-host{background:transparent!important;}
-/* orders with no orders */
-html.hg-new-app #custom-scroll-orders > .hgn-empty-host{height:auto!important;min-height:calc(100vh - 220px);margin-top:0!important;}
-html.hg-new-app #custom-scroll-orders > .hgn-empty-host > .hgn-empty{min-height:calc(100vh - 220px);}
+html.hg-new-app .scheme-cart-empty.hgn-empty-host{background:transparent!important;height:auto!important;}
+html.hg-new-app #custom-scroll-orders > .hgn-empty-host{height:auto!important;margin-top:0!important;}
 html.hg-new-app #custom-scroll-orders:has(> .hgn-empty-host){background:#FFFCF9!important;}
-/* Reorder tab (app and phones): no purple "My Orders" bar, a "Reorder" title instead, cream under the clock */
-html.hg-new-app.hgn-reo-empty .scheme-mobile-page-header{display:none!important;}
-html.hg-new-app.hgn-reo-empty .scheme-profile-page{padding-top:var(--native-status-bar-height,0px)!important;background:#FFFCF9!important;}
-html.hg-new-app.hgn-reo-empty.hg-acct-page .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:#FFFCF9!important;}
-html.hg-new-app.hgn-reo-empty #custom-scroll-orders > .hgn-empty-host,html.hg-new-app.hgn-reo-empty #custom-scroll-orders > .hgn-empty-host > .hgn-empty{min-height:calc(100svh - 80px - var(--native-status-bar-height,0px));}
-html.hg-new-app .hgn-empty-top{padding:24px 16px 0;display:flex;flex-direction:column;gap:4px;text-align:start;}
-html.hg-new-app .hgn-empty-t{margin:0;font-size:28px;line-height:34px;color:#1B2023;}
-html.hg-new-app .hgn-empty-s{margin:0;font-size:14px;line-height:20px;color:var(--hg-muted);}
+html.hg-new-app #hgn-pz{position:fixed;inset:0;z-index:40;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#FFFCF9;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));box-sizing:border-box;}
+html.hg-new-app.hgn-reo-pre .scheme-profile-page{visibility:hidden!important;}
+html.hg-new-app.hgn-pz-on .native-status-bar-bg:not(.native-status-bar-scrim):not(.native-status-bar-scrim-hold){background-color:transparent!important;}
+html.hg-new-app .hgn-pz{color:#1B2023;}
+html.hg-new-app .hgn-pz-top{position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;box-sizing:border-box;color:#CCCBE3;
+  background:radial-gradient(90% 60% at 70% 30%,#7B54E5 0%,rgba(123,84,229,0) 60%),linear-gradient(170deg,#4821B2 0%,#2D156F 55%,#1B0C43 100%);}
+html.hg-new-app #hgn-pz .hgn-pz-top{min-height:470px;border-radius:0 0 32px 32px;padding:calc(var(--native-status-bar-height,0px) + 16px) 20px 24px;}
+html.hg-new-app .hgn-pz.is-card{width:100%;padding:16px;box-sizing:border-box;}
+html.hg-new-app .hgn-pz.is-card .hgn-pz-top{min-height:400px;border-radius:24px;padding:20px;}
+html.hg-new-app .hgn-pz.is-card .hgn-pz-art{width:100%;max-width:440px;}
+html.hg-new-app .hgn-pz-serr{position:absolute;z-index:-1;top:0;bottom:0;inset-inline-end:0;width:44px;opacity:.1;color:#CCCBE3;}
+html.hg-new-app .hgn-pz-serr svg{display:block;width:100%;height:100%;}
+html.hg-new-app .hgn-pz[dir="rtl"] .hgn-pz-serr svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-pz-t{margin:0;font-size:17px;line-height:22px;color:#CCCBE3!important;}
+html.hg-new-app .hgn-pz-art{position:relative;flex:1 1 auto;min-height:190px;margin:6px -4px 0;}
+html.hg-new-app .hgn-pz-img{position:absolute;display:block;height:auto;mix-blend-mode:screen;pointer-events:none;user-select:none;}
+html.hg-new-app .hgn-pz-art.n3 .p1{width:46%;max-width:190px;inset-inline-start:0;top:20px;transform:rotate(-8deg);}
+html.hg-new-app .hgn-pz-art.n3 .p2{width:54%;max-width:220px;left:50%;top:0;transform:translateX(-46%);}
+html.hg-new-app .hgn-pz-art.n3 .p3{width:42%;max-width:170px;inset-inline-end:0;top:30px;transform:rotate(8deg);}
+html.hg-new-app .hgn-pz-art.n2 .p1{width:62%;max-width:240px;left:50%;top:0;transform:translateX(-62%) rotate(-6deg);}
+html.hg-new-app .hgn-pz-art.n2 .p2{width:40%;max-width:160px;inset-inline-end:2%;top:34px;transform:rotate(10deg);}
+html.hg-new-app .hgn-pz-txt{position:relative;display:flex;flex-direction:column;gap:10px;transition:opacity .25s;}
+html.hg-new-app .hgn-pz.is-wait .hgn-pz-txt{opacity:0;pointer-events:none;}
+/* !important: Hyperzod colours every heading on its pages ([data-color-scheme] :is(h1, h2, h3 ...)) */
+html.hg-new-app .hgn-pz-h{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;color:#CCCBE3!important;}
+html.hg-new-app .hgn-pz-h .hgn-jak{font-size:30px;line-height:36px;}
+html.hg-new-app .hgn-pz-h .hgn-serif{font-size:42px;line-height:40px;color:#ACE4AA;}
+html.hg-new-app :is([lang^="ar"],[dir="rtl"]) .hgn-pz-h .hgn-serif{font-size:30px;line-height:36px;}
+html.hg-new-app .hgn-pz-p{margin:0;max-width:300px;font-size:15px;line-height:22px;color:#CCCBE3;}
+html.hg-new-app .hgn-pz-acts{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-top:6px;}
+html.hg-new-app .hgn-pz-go{height:48px;padding:0 6px;padding-inline-start:22px;border:0;border-radius:24px;background:#F5F5F9;color:#1B2023;font:inherit;font-size:15px;font-weight:700;
+  display:inline-flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 10px 24px -12px rgba(9,4,22,.8);-webkit-tap-highlight-color:transparent;}
+html.hg-new-app .hgn-pz-arrow{flex:none;width:36px;height:36px;border-radius:18px;background:#5A29DE;color:#F5F5F9;display:inline-flex;align-items:center;justify-content:center;}
+html.hg-new-app .hgn-pz-arrow svg{width:15px;height:15px;}
+html.hg-new-app .hgn-pz[dir="rtl"] .hgn-pz-arrow svg,html.hg-new-app .hgn-pz[dir="rtl"] .hgn-pz-alt svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-pz-alt{padding:4px 0;border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:#CCCBE3;display:inline-flex;align-items:center;gap:4px;cursor:pointer;}
+html.hg-new-app .hgn-pz-alt svg{width:14px;height:14px;}
+html.hg-new-app .hgn-pz-go:focus-visible,html.hg-new-app .hgn-pz-alt:focus-visible{outline:2px solid #ACE4AA;outline-offset:2px;}
+html.hg-new-app .hgn-pz-more{display:flex;flex-direction:column;gap:12px;padding:22px 16px 0;}
+html.hg-new-app .hgn-pz.is-card .hgn-pz-more{padding:20px 0 0;}
+html.hg-new-app .hgn-pz-h3{margin:0;font-size:18px;line-height:24px;color:#1B2023!important;}
+html.hg-new-app .hgn-pz .hgn-occ-row{margin:0 -16px;padding:0 16px 8px;}
+html.hg-new-app .hgn-pz.is-card .hgn-occ-row{margin:0;padding:0 0 8px;}
+html.hg-new-app .hgn-pz[dir="rtl"] .hgn-tk-go svg{transform:scaleX(-1);}
+html.hg-new-app .hgn-pz[dir="rtl"] .hgn-tk-t{unicode-bidi:plaintext;text-align:right;}
