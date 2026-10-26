@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1402 */
+/* hg-version 2026-10-26-1658 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). global-footer-1.js skips its own phone header and Home code wherever this runs;
@@ -1267,7 +1267,7 @@
           '<span class="hgn-joy-sn">' + esc(nm) + "</span>" + CHEV + "</a>" +
           '<div class="hgn-joy-prods">' + ps.map((p) =>
             '<a class="hgn-joy" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-            '<span class="hgn-joy-pic"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"></span>' +
+            '<span class="hgn-joy-pic"><img src="' + esc(prodImg(p)) + '"' + fullAttr(p) + ' alt="" loading="lazy" decoding="async"></span>' +
             '<span class="hgn-joy-n">' + esc(nameOf(p)) + "</span>" +
             '<span class="hgn-joy-p">' + prodPrice(p) + "</span></a>").join("") + "</div></div>";
       }).join("") + "</div></section>";
@@ -1759,7 +1759,7 @@
       /* (2026-10-25) both addresses, the small one first: some stores' small copies (and sometimes both) are missing on
          Hyperzod's server; the next one is tried, and with none left the box gets the no-photo look */
       const u = im ? [im.thumb_url, im.file_url].filter((x, i, a) => x && a.indexOf(x) === i && !badPhoto.has(x)) : [];
-      if (id && u.length) out[id] = u[0];
+      if (id && u.length) out[id] = { u: u[0], full: u[1] || "" };   /* (2026-10-26) the full photo sharpens it (SHARP PRODUCT PHOTOS) */
     };
     try { (S.Merchant.categoryProducts || []).forEach((c) => (c.category_products || []).forEach(add)); } catch (e) {}
     try {
@@ -1803,7 +1803,7 @@
       const np = noPhoto.get(box);
       if (np && np.id === id && Date.now() - np.t < 3000) return;
       if (!photos) photos = productPhotos();
-      const u = photos[id];
+      const ph = photos[id], u = ph && ph.u;
       if (!u) { if (mine) mine.remove(); noPhoto.set(box, { id: id, t: Date.now() }); return; }
       const host = box.querySelector(".v-responsive") || box;
       const img = mine || document.createElement("img");
@@ -1814,6 +1814,8 @@
       img.setAttribute("data-pid", id);
       if (!mine) img.addEventListener("error", photoFailed);
       img.src = u;
+      img.removeAttribute("data-hg-obs");
+      if (ph.full) img.setAttribute("data-hg-full", ph.full); else img.removeAttribute("data-hg-full");
       if (!mine) host.appendChild(img);
     });
   }
@@ -1948,6 +1950,45 @@
 
   /* ---------- running it ---------- */
   let routerHooked = false;
+  /* HEAVY PRODUCT DESCRIPTIONS (2026-10-26, Nouf: "when i search go to r-toys, the app refreshes itself"). Some shops'
+     product descriptions carry pictures and YouTube players from their old website (R-toys: 186 pictures up to
+     2539 x 1654 from redfanbh.com and 106 YouTube players in one store). Hyperzod puts every description in the store
+     page, so 48 YouTube players and 80 big pictures loaded at once, unseen (the list hides them); that is more than an
+     iPhone allows a page, and the app reloads it. Their sources are now parked (data-hg-src) as Hyperzod receives the
+     products, so they never load in the lists; inside the product window (#productInfo) they are put back. */
+  const MEDIA_TAG = /<(img|iframe|video|audio|source|embed)\b[^>]*>/gi;
+  /* every text in the products (the description and its translations), at any depth */
+  function parkMedia(x, d) {
+    if (!x || typeof x !== "object" || d > 9) return;
+    if (Array.isArray(x)) { x.forEach((y) => parkMedia(y, d + 1)); return; }
+    Object.keys(x).forEach((k) => {
+      const v = x[k];
+      if (typeof v === "string") {
+        if (v.indexOf("<") !== -1 && MEDIA_TAG.test(v)) x[k] = v.replace(MEDIA_TAG, (t) => t.replace(/\s(src|srcset)\s*=/gi, " data-hg-$1="));
+        MEDIA_TAG.lastIndex = 0;
+      } else if (v && typeof v === "object") parkMedia(v, d + 1);
+    });
+  }
+  let mediaHooked = false;
+  function hookMedia() {
+    if (mediaHooked) return;
+    const S = csStore();
+    if (!S || !S.subscribe) return;
+    mediaHooked = true;
+    /* runs right after Hyperzod stores the products and before it draws them */
+    S.subscribe((m) => { if (m && /Products$|ecommend/i.test(m.type || "")) parkMedia(m.payload, 0); });
+    const st = S.state.Merchant;
+    if (st) parkMedia([st.categoryProducts, st.searchedProducts, st.categoryPageProducts], 0);
+    if (S.state.Recommendations) parkMedia(S.state.Recommendations.merchant_recommendations, 0);   /* the store's Recommended products */
+  }
+  function unparkMedia() {
+    document.querySelectorAll("#productInfo [data-hg-src], #productInfo [data-hg-srcset]").forEach((el) => {
+      ["src", "srcset"].forEach((a) => {
+        const v = el.getAttribute("data-hg-" + a);
+        if (v !== null) { el.setAttribute(a, v); el.removeAttribute("data-hg-" + a); }
+      });
+    });
+  }
   /* LEAVING A STORE'S SEARCH PAGE (2026-10-24): on the way back from Filtered Results, Hyperzod first redraws that page
      empty ("Search In Undefined", Relevance) and only then shows the store, so an old-looking page flashed (Nouf's
      screen recording). The page is hidden as soon as the way back starts; the class goes once it is gone (3s at most). */
@@ -2000,9 +2041,41 @@
     const tr = o && Array.isArray(o.language_translation) && o.language_translation.find((x) => x && x.key === "name" && x.locale === lang());
     return (tr && tr.value) || (o && o.name) || "";
   }
+  function prodImgObj(p) { return p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]); }
   function prodImg(p) {
-    const im = p && Array.isArray(p.product_images) && (p.product_images.find((x) => x && x.is_cover) || p.product_images[0]);
+    const im = prodImgObj(p);
     return (im && (im.thumb_url || im.file_url)) || "";
+  }
+  /* SHARP PRODUCT PHOTOS (2026-10-26, Nouf: the product pictures in the rows "are extremely low quality"). Hyperzod's small
+     copy of a product photo is 150 x 150, shown 112 to 146px wide: blurry on a phone screen (it needs 3 times that). The
+     small copy still shows first (fast), and the full photo (800 x 800 on Hyperzod) takes its place once the picture
+     comes near the screen and has loaded, so only the photos on and near the screen are large at any time. */
+  function prodFull(p) {
+    const im = prodImgObj(p), f = im && im.file_url;
+    return f && f !== prodImg(p) ? f : "";
+  }
+  function fullAttr(p) { const f = prodFull(p); return f ? ' data-hg-full="' + esc(f) + '"' : ""; }
+  let sharpObs = null;
+  function sharpenPhotos() {
+    const imgs = document.querySelectorAll("img[data-hg-full]:not([data-hg-obs])");
+    if (!imgs.length) return;
+    if (!("IntersectionObserver" in window)) return;
+    if (!sharpObs) {
+      sharpObs = new IntersectionObserver((ents) => {
+        ents.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const img = e.target, f = img.getAttribute("data-hg-full");
+          sharpObs.unobserve(img);
+          if (!f || badPhoto.has(f)) return;
+          const pre = new Image();
+          pre.decoding = "async";
+          pre.onload = () => { if (img.getAttribute("data-hg-full") === f) { img.src = f; img.removeAttribute("data-hg-full"); } };
+          pre.onerror = () => { badPhoto.add(f); };
+          pre.src = f;
+        });
+      }, { rootMargin: "300px 300px" });
+    }
+    imgs.forEach((img) => { img.setAttribute("data-hg-obs", ""); sharpObs.observe(img); });
   }
   function prodPrice(p) { /* (2026-10-21) html: "BHD" + <b>amount</b> */
     const v = p && (p.product_pricing ? p.product_pricing.price_display : p.price_display);
@@ -2013,10 +2086,13 @@
   let menuQueue = [], menuBusy = 0;
   /* (2026-10-26) kept per language: Hyperzod switches language without reloading the page, and the product names stayed in
      the first language (Little joys, product rows in Search and on the Stores page) */
+  /* (2026-10-26) one key for every reader: fillProducts and storeBlock still read menuCache[id] after the language was
+     added to the key, so the product rows on "Stores near you" (and the other store lists) stayed grey placeholders */
+  function menuKey(id) { return lang() + ":" + id; }
   function storeProducts(id) {
-    const c = menuCache[lang() + ":" + id];
+    const c = menuCache[menuKey(id)];
     if (c) return c.list;
-    menuCache[lang() + ":" + id] = { list: null };
+    menuCache[menuKey(id)] = { list: null };
     menuQueue.push(lang() + ":" + id);
     pumpMenus();
     return null;
@@ -2039,13 +2115,13 @@
     if (!list) return '<span class="hgn-sb-ph"></span><span class="hgn-sb-ph"></span><span class="hgn-sb-ph"></span>';
     const href = storeHref(m, L);
     return list.map((p) => '<a class="hgn-sb-p" href="' + esc(href) + '" data-href="' + esc(href) + '">' +
-      '<span class="hgn-sb-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"></span>' +
+      '<span class="hgn-sb-pi"><img src="' + esc(prodImg(p)) + '"' + fullAttr(p) + ' alt="" loading="lazy" decoding="async"></span>' +
       '<span class="hgn-sb-pn">' + esc(nameOf(p)) + "</span>" +
       '<span class="hgn-sb-pp">' + prodPrice(p) + "</span></a>").join("");
   }
   /* a store's product row arrived: put it into every list showing that store */
   function fillProducts(id) {
-    const c = menuCache[id];
+    const c = menuCache[menuKey(id)];
     document.querySelectorAll('.hgn-sb-prods[data-id="' + cssEsc(id) + '"]').forEach((row) => {
       const m = seenStores[id];
       if (!m || !c || !c.list) return;
@@ -2079,7 +2155,7 @@
     const on = !!favIds[id];
     /* products load only when the store comes near the screen (watchProdRows), never all stores at once:
        a page of 80+ stores would otherwise ask Hyperzod for 80+ menus in one go */
-    const cached = menuCache[id];
+    const cached = menuCache[menuKey(id)];
     const list = prods !== undefined ? prods : (cached ? cached.list : null);
     const wait = prods === undefined && !cached;
     return '<div class="hgn-sb">' +
@@ -2909,7 +2985,7 @@
     if (sec.parentNode !== body || sec.nextSibling) body.appendChild(sec);
     const html = '<h3 class="hgn-cs-h">' + esc(T.also) + '</h3><div class="hgn-cs-row">' + list.map((p) =>
       '<button type="button" class="hgn-cs-p" data-pid="' + esc(p._id) + '" aria-label="' + esc(T.add + " " + nameOf(p)) + '">' +
-      '<span class="hgn-cs-pi"><img src="' + esc(prodImg(p)) + '" alt="" loading="lazy" decoding="async"><span class="hgn-cs-plus" aria-hidden="true">+</span></span>' +
+      '<span class="hgn-cs-pi"><img src="' + esc(prodImg(p)) + '"' + fullAttr(p) + ' alt="" loading="lazy" decoding="async"><span class="hgn-cs-plus" aria-hidden="true">+</span></span>' +
       '<span class="hgn-cs-pn">' + esc(nameOf(p)) + '</span><span class="hgn-cs-pp">' + csPrice(p) + "</span></button>").join("") + "</div>";
     if (sec.dataset.sig !== html) { sec.innerHTML = html; sec.dataset.sig = html; }
   }
@@ -2990,7 +3066,7 @@
      half off the screen. Returns true when it moved the row back (the move that follows redraws Filter). */
   function sfPin(s, b) {
     const nav = b.parentNode;
-    if (!nav || !nav.closest(".merchant-mobile-view")) return false;
+    if (!nav) return false;
     const sl = s.slides;
     if (!sl || !sl.length) return false;
     const dx = (s.rtlTranslate ? -1 : 1) * (sfT(s) - s.minTranslate());
@@ -3022,7 +3098,11 @@
        Filter's text, the screen size or language, or a size change seen by the ResizeObserver. Before, it measured on
        every run, and each time the phone had to lay out the whole store page again first. */
     const sig = s.slides.length + "|" + (b.dataset.sig || "") + "|" + (WIDE.matches ? 1 : 0) + "|" + lang() + "|" + (nav.closest(".merchant-mobile-view") ? 1 : 0);
-    if (sfMeasured.get(nav) === sig && sfFirst.get(nav) === s.slides[0] && !sfDirty.has(nav)) return;
+    /* (2026-10-26, Nouf's screenshot: the chosen tab "Jumping Toys" half under Filter) Hyperzod can build a new Swiper on
+       the same tabs; the check only compared the tabs, so the new one kept Swiper's own 12px start space and its moves
+       were not followed by Filter. A new Swiper is now measured and followed again. */
+    const was = sfMeasured.get(nav);
+    if (was && was.sig === sig && was.s === s && sfFirst.get(nav) === s.slides[0] && !sfDirty.has(nav)) return;
     if (window.ResizeObserver && !sfRO.has(nav)) {
       const ro = new ResizeObserver(() => { sfDirty.add(nav); schedule(); });
       ro.observe(nav); ro.observe(b);
@@ -3030,7 +3110,7 @@
     }
     const ro = sfRO.get(nav);
     if (ro && s.slides[0] && sfFirst.get(nav) !== s.slides[0]) { ro.observe(s.slides[0]); ro.observe(s.slides[s.slides.length - 1]); }
-    sfMeasured.set(nav, sig); sfFirst.set(nav, s.slides[0]); sfDirty.delete(nav);
+    sfMeasured.set(nav, { sig: sig, s: s }); sfFirst.set(nav, s.slides[0]); sfDirty.delete(nav);
     /* the row's start: 16px on phones; on computers the page column's edge (the store header's), so Filter lines up
        with the banner and the name above it (2026-10-25) */
     let start = 16;
@@ -3041,20 +3121,9 @@
     }
     const q = nav.querySelector(":scope > .hgn-ssearch");
     if (q && q.style.marginInlineEnd !== start + "px") q.style.marginInlineEnd = start + "px";
-    /* computers (2026-10-25): Filter simply sits before the tabs in the row (app-new.css, STORE PAGE ON COMPUTERS), it doesn't
-       ride on the tabs. In Arabic the riding put Filter on top of the first tab: there the whole row fits, so Swiper ignored
-       the start space and the measuring kept pushing it the wrong way. The row starts at the page column's edge. */
-    if (!nav.closest(".merchant-mobile-view")) {
-      if (nav.style.paddingInlineStart !== start + "px") nav.style.setProperty("padding-inline-start", start + "px", "important");
-      if (b.style.transform) b.style.transform = "";
-      if (b.style.insetInlineStart) b.style.insetInlineStart = "";
-      const orig = Number(sw.dataset.hgnSob) || 0;
-      if ((s.params.slidesOffsetBefore || 0) !== orig) {
-        s.params.slidesOffsetBefore = orig;
-        try { s.update(); sfSet(s, Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s)))); } catch (e) {}
-      }
-      return;
-    }
+    /* (2026-10-26, Nouf's screenshot on a computer: "Jumping Toys" cut at Filter's edge, "not the way we designed") on
+       computers too Filter now rides with the tabs (option B). Before, it sat still before the row and the tabs scrolled
+       away under its edge. The row is pinned at its start when every tab fits (sfPin), which was the Arabic problem. */
     if (nav.style.paddingInlineStart) nav.style.removeProperty("padding-inline-start");
     if (b.style.insetInlineStart !== start + "px") b.style.insetInlineStart = start + "px";
     const move = () => {
@@ -3075,7 +3144,22 @@
           if (!internal && b.isConnected) {
             const sl = s.slides && s.slides[i];
             const nr = nav.getBoundingClientRect(), br = b.getBoundingClientRect(), r = sl && sl.getBoundingClientRect();
-            if (r && r.width && (s.rtlTranslate ? (r.right <= br.left - 4 && r.left >= nr.left + 8) : (r.left >= br.right + 4 && r.right <= nr.right - 8))) return false;
+            /* (2026-10-26) "in view" also means not off the screen's edge: once Filter has slid out of sight with the row,
+               its own place is off the screen too, so it no longer marks where the visible row starts */
+            if (r && r.width && (s.rtlTranslate ? (r.right <= Math.min(br.left - 4, nr.right - 8) && r.left >= nr.left + 8) : (r.left >= Math.max(br.right + 4, nr.left + 8) && r.right <= nr.right - 8))) return false;
+            /* (2026-10-26) a tab out of view is brought to the row's start (16px from the edge, or the column's edge on
+               computers), whole. Swiper's own move put it partly past the start: "Jumping Toys" showed cut (Nouf's
+               screenshot). Filter follows the row (setTranslate below). */
+            if (r && r.width) {
+              const rtl = !!s.rtlTranslate, st = parseFloat(b.style.insetInlineStart) || 16;
+              const d = rtl ? (nr.right - st) - r.right : r.left - (nr.left + st);
+              let t = Math.max(s.maxTranslate(), Math.min(s.minTranslate(), sfT(s) - (rtl ? -d : d)));
+              /* near the row's start the row goes all the way back, so Filter is whole again (not half out) */
+              if (Math.abs(s.minTranslate() - t) < st + b.offsetWidth + 10) t = s.minTranslate();
+              s.setTransition(typeof speed === "number" ? speed : (s.params.speed || 300));
+              sfSet(s, t);
+              return true;
+            }
           }
         } catch (e) {}
         return slideTo0.apply(this, arguments);
@@ -3819,10 +3903,10 @@
      doesn't expect) silently stopped every part after it, so Home or the store design could fail to draw */
   const PARTS = [
     /* renderSearchFav after renderSearchLanding (2026-10-20): it sits above the start screen it draws */
-    hookRouter, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
+    hookRouter, hookMedia, unparkMedia, ensureAccentFonts, renderPage, renderAccountFav, renderSearchResults, renderSearchLanding, renderSearchFav, renderCategoryPage,
     applyHyperGoHeader, applyLocLang,
     () => { if (isHomePath(currentPath())) renderHome(); else if (document.documentElement.classList.contains("hgn-order-on")) document.documentElement.classList.remove("hgn-order-on"); },
-    renderStore, renderStoreTags, renderStoreFilter, () => sqApply(false), renderViewCart, renderCartSheet, renderMultiCart, renderEmptyStates, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, warmStores
+    renderStore, renderStoreTags, renderStoreFilter, () => sqApply(false), renderViewCart, renderCartSheet, renderMultiCart, renderEmptyStates, renderCheckoutTop, renderCheckoutCards, renderOrderPlaced, fixArabicWords, sharpenPhotos, warmStores
   ];
   function tick() {
     osMemo = undefined;

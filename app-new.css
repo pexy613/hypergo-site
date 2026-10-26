@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1402 */
+/* hg-version 2026-10-26-1658 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -635,8 +635,7 @@ html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-p
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #hgn-sinfo small{font-size:13px!important;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav{display:flex!important;align-items:center!important;gap:16px;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) #ProductCategoriesNav>.product-categories-nav__scroller{flex:1 1 auto;min-width:0;padding-inline:0!important;}
-  /* (2026-10-25) Filter sits first in the row (not riding on the tabs), the first tab 10px after it */
-  html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-sfilter{position:static!important;margin:0!important;margin-inline-end:-12px!important;transform:none!important;}
+  /* (2026-10-26) Filter rides with the tabs on computers too (option B, app-new.js sfRide); it was sitting still before the row */
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch{flex:none;width:260px;height:40px;margin-inline-end:16px;padding:0 14px;border:0;border-radius:20px;background:#F4F2FA;box-shadow:inset 0 0 0 1px var(--hg-line);
     display:flex;align-items:center;gap:8px;font:inherit;font-size:14px;color:var(--hg-muted);cursor:text;text-align:start;}
   html.hg-new-app.hgn-store body :is(#app,.v-overlay-container) .scheme-merchant-page.merchant-page:not(.merchant-mobile-view) .hgn-ssearch svg{flex:none;width:16px;height:16px;}
