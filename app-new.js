@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1834 */
+/* hg-version 2026-10-28-2029 */
 /* HYPERGO APP: NEW HOME (rebuild started 2026-10-15)
    Loaded by app-footer.js in the app and, since 2026-10-20, by web-footer.js on the website (phones and desktop; desktop
    gets a wide layout in app-new.css). The computer top bar, the Account page, the bottom nav and the forms are drawn by
@@ -922,16 +922,16 @@
     "6a9befd6fbfc7198220f95d3": "baby-care", "6a9bf0d4288fb9d9e903a7e9": "gifts", "6a9bf205dda6795f8c065937": "toys",
     "6a9bf4e4dda6795f8c065939": "sports", "6a9bef89288fb9d9e903a7e6": "home-goods"
   };
-  /* Shop by occasion cards: title in English and Arabic and the Hyperzod category each one opens.
-     (2026-10-22) Pictures: the stores' own photos (Nouf's Merchants folder: Arham Gift, Golden Petals, Supplemento,
-     Rocky and Eva), cropped with the product in the middle, in the repo's occasion-photos folder. The category
-     pictures are only used on the category tiles (Nouf, 2026-10-22); the old occasion-cutouts folder is no longer used. */
+  /* Shop by occasion cards: title in English and Arabic, the Hyperzod category each one opens and its picture.
+     (2026-10-28) Pictures: the HyperGo character with a store's product (Alia Flowers, a BE sneaker, a Hot Wheels set,
+     a perfume), 900x600, in the repo's occasion-photos folder (Nouf). The category pictures are only used on the
+     category tiles. */
   const OCC_IMG_BASE = "https://pexy613.github.io/hypergo-site/occasion-photos/";
   const OCCASIONS = [
-    { en: "Birthday", ar: "عيد ميلاد", cat: "6a9bf0d4288fb9d9e903a7e9", img: "birthday" },
-    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932", img: "get-well-soon" },
-    { en: "Gym day", ar: "يوم التمرين", cat: "6a9befca288fb9d9e903a7e7", img: "gym-day" },
-    { en: "Party night", ar: "ليلة الحفلة", cat: "6a9befa1fbfc7198220f95d2", img: "party-night" }
+    { en: "Get well soon", ar: "سلامتك", cat: "6a9bee55dda6795f8c065932", img: "occ-flowers" },
+    { en: "Treat yourself", ar: "دلّل نفسك", cat: "6a9bef4fdda6795f8c065935", img: "occ-fashion" },
+    { en: "Little ones", ar: "للصغار", cat: "6a9bf205dda6795f8c065937", img: "occ-toys" },
+    { en: "Date night", ar: "ليلة مميزة", cat: "6a9bf0ae288fb9d9e903a7e8", img: "occ-perfume" }
   ];
   function catPhoto(c) {
     const slug = CAT_PHOTOS[c && (c.id || c._id)];

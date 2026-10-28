@@ -552,7 +552,7 @@ Appetite green `#ACE4AA` as small glossy accents on our purple. Each glossy fini
 
 Fonts: Plus Jakarta Sans 800 (headline words) and Instrument Serif italic (one accent word), loaded from Google Fonts by app-new.js. Only for a few display words; never body text. Arabic always uses the phone's own font, weight 800, never italic.
 
-Photos: category pictures (cat-icons) only on category tiles. Everywhere else the stores' own photos from Nouf's Merchants folder, cropped with the product in the middle of its frame: `campaigns/` (banners) and `occasion-photos/` (Shop by occasion).
+Photos: category pictures (cat-icons) only on category tiles. Banners (`campaigns/`): the stores' own photos from Nouf's Merchants folder, cropped with the product in the middle of its frame. Shop by occasion (`occasion-photos/occ-*.webp`, 2026-10-28): illustrations of the HyperGo character with a store's product on Blue Magenta, 3:2.
 
 Parts (app-new.js / app-new.css, Home unless noted):
 - Banner carousel, design A (mixed): ours, then a shop banner, and so on. 4 campaign banners, each opens its store and shows only while that store is nearby and taking orders: Make their day (arch photo, Golden Petals), Made in Bahrain (round photo, Rocky and Eva), Gym day sorted (full photo with purple fade, Supplmentoz), Bring the party home (tilted print, Arham Gift). Dots under the banner, centred; ours green `#ACE4AA`, shops `#E5E5E5`, current one a purple `#5A29DE` pill. No offer is shown that is not true (the free delivery weekend banner is not in the app).
