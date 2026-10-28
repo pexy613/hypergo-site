@@ -1,4 +1,4 @@
-/* hg-version 2026-10-26-1834 */
+/* hg-version 2026-10-28-2036 */
 /* HYPERGO APP: NEW LAYOUT (rebuild started 2026-10-15). Loaded by app-footer.js in the app.
    Everything is scoped to html.hg-new-app. Colours: brand palette plus colours the old app code already used
    Type is kept light (weights 500-650) for a refined look (2026-10-15).
@@ -1040,7 +1040,8 @@ html.hg-new-app .hgn-joy-shop .hgn-joy.is-ph .hgn-joy-p{height:12px;margin-top:0
 }
 
 /* Shop by occasion, ticket cards (2026-10-22): the stores' own photos (Nouf's Merchants folder) in the repo's
-   occasion-photos folder, never the category pictures. Photo on top, a perforated ticket stub under it. */
+   occasion-photos folder, never the category pictures. Photo on top, a ticket stub under it (2026-10-28: no dashed
+   tear line, only the two notches; Nouf). */
 /* (2026-10-25) the photo is 3:2 on phones and computers, so one 1200x800 design shows whole everywhere; the stub's two notches
    sit on the photo's bottom edge, measured from the card's width (it was 124px tall on phones, 150px on computers) */
 html.hg-new-app .hgn-tk{container-type:inline-size;position:relative;flex:0 0 172px;min-width:0;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;scroll-snap-align:start;
@@ -1053,7 +1054,6 @@ html.hg-new-app .hgn-tk::before{left:-7px;}
 html.hg-new-app .hgn-tk::after{right:-7px;}
 html.hg-new-app .hgn-tk-stub{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;padding:13px 12px 12px 14px;
   background:linear-gradient(180deg,#FFFFFF 0%,#F7F3FF 100%);}
-html.hg-new-app .hgn-tk-stub::before{content:"";position:absolute;top:0;left:12px;right:12px;border-top:2px dashed #DDD3F7;}
 html.hg-new-app .hgn-tk-t{grid-column:1;font-size:15px;line-height:19px;color:#1B2023;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-tk-s{grid-column:1;margin-top:2px;font-size:12px;line-height:16px;color:var(--hg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 html.hg-new-app .hgn-tk-go{grid-column:2;grid-row:1 / span 2;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFFFFF;
